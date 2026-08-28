@@ -1,0 +1,454 @@
+{
+  "stations": [
+    { "code": "HWH", "name": "Howrah Junction", "city": "Kolkata", "state": "West Bengal", "zone": "ER", "lat": 22.5857, "lng": 88.3432, "platforms": 23, "isJunction": true },
+    { "code": "SDAH", "name": "Sealdah", "city": "Kolkata", "state": "West Bengal", "zone": "ER", "lat": 22.5675, "lng": 88.3712, "platforms": 21, "isJunction": true },
+    { "code": "NDLS", "name": "New Delhi", "city": "New Delhi", "state": "Delhi", "zone": "NR", "lat": 28.6429, "lng": 77.2195, "platforms": 16, "isJunction": true },
+    { "code": "CNB", "name": "Kanpur Central", "city": "Kanpur", "state": "Uttar Pradesh", "zone": "NCR", "lat": 26.4547, "lng": 80.3507, "platforms": 10, "isJunction": true },
+    { "code": "PRYJ", "name": "Prayagraj Junction", "city": "Prayagraj", "state": "Uttar Pradesh", "zone": "NCR", "lat": 25.4526, "lng": 81.8349, "platforms": 10, "isJunction": true },
+    { "code": "DDU", "name": "Pt. Deen Dayal Upadhyaya Jn", "city": "Mughalsarai", "state": "Uttar Pradesh", "zone": "ECR", "lat": 25.2818, "lng": 83.1189, "platforms": 8, "isJunction": true },
+    { "code": "PNBE", "name": "Patna Junction", "city": "Patna", "state": "Bihar", "zone": "ECR", "lat": 25.6022, "lng": 85.1376, "platforms": 10, "isJunction": true },
+    { "code": "MMCT", "name": "Mumbai Central", "city": "Mumbai", "state": "Maharashtra", "zone": "WR", "lat": 18.9696, "lng": 72.8193, "platforms": 5, "isJunction": false },
+    { "code": "CSMT", "name": "Chhatrapati Shivaji Maharaj Terminus", "city": "Mumbai", "state": "Maharashtra", "zone": "CR", "lat": 18.9401, "lng": 72.8354, "platforms": 18, "isJunction": true },
+    { "code": "ST", "name": "Surat", "city": "Surat", "state": "Gujarat", "zone": "WR", "lat": 21.2050, "lng": 72.8407, "platforms": 4, "isJunction": true },
+    { "code": "BRC", "name": "Vadodara Junction", "city": "Vadodara", "state": "Gujarat", "zone": "WR", "lat": 22.3107, "lng": 73.1812, "platforms": 7, "isJunction": true },
+    { "code": "ADI", "name": "Ahmedabad Junction", "city": "Ahmedabad", "state": "Gujarat", "zone": "WR", "lat": 23.0225, "lng": 72.5714, "platforms": 12, "isJunction": true },
+    { "code": "MAS", "name": "Chennai Central", "city": "Chennai", "state": "Tamil Nadu", "zone": "SR", "lat": 13.0827, "lng": 80.2707, "platforms": 17, "isJunction": true },
+    { "code": "SBC", "name": "KSR Bengaluru", "city": "Bengaluru", "state": "Karnataka", "zone": "SWR", "lat": 12.9781, "lng": 77.5696, "platforms": 10, "isJunction": true },
+    { "code": "BBS", "name": "Bhubaneswar", "city": "Bhubaneswar", "state": "Odisha", "zone": "ECoR", "lat": 20.2668, "lng": 85.8436, "platforms": 6, "isJunction": true },
+    { "code": "GHY", "name": "Guwahati", "city": "Guwahati", "state": "Assam", "zone": "NFR", "lat": 26.1856, "lng": 91.7539, "platforms": 7, "isJunction": true },
+    { "code": "BSB", "name": "Varanasi Junction", "city": "Varanasi", "state": "Uttar Pradesh", "zone": "NR", "lat": 25.3267, "lng": 82.9863, "platforms": 9, "isJunction": true },
+    { "code": "LKO", "name": "Lucknow Charbagh", "city": "Lucknow", "state": "Uttar Pradesh", "zone": "NR", "lat": 26.8322, "lng": 80.9234, "platforms": 9, "isJunction": true },
+    { "code": "JP", "name": "Jaipur Junction", "city": "Jaipur", "state": "Rajasthan", "zone": "NWR", "lat": 26.9196, "lng": 75.7878, "platforms": 8, "isJunction": true },
+    { "code": "RNC", "name": "Ranchi Junction", "city": "Ranchi", "state": "Jharkhand", "zone": "SER", "lat": 23.3503, "lng": 85.3250, "platforms": 6, "isJunction": true }
+  ],
+  "trains": [
+    {
+      "trainNumber": "22436",
+      "name": "Vande Bharat Express",
+      "type": "Vande Bharat",
+      "source": "NDLS",
+      "destination": "BSB",
+      "departureTime": "06:00",
+      "arrivalTime": "14:00",
+      "totalDistanceKm": 759,
+      "avgSpeed": 95,
+      "coaches": ["E1", "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "E2"],
+      "liveState": {
+        "lat": 26.4547,
+        "lng": 80.3507,
+        "speed": 118,
+        "heading": 125,
+        "currentSection": "CNB-PRYJ-S1",
+        "lastStation": "CNB",
+        "nextStation": "PRYJ",
+        "delayMinutes": 4,
+        "predictedDelay": 6,
+        "confidence": 0.94,
+        "status": "ON_TIME",
+        "delayReasons": [
+          { "factor": "Junction switch clearance", "impactMin": 3 },
+          { "factor": "Minor speed restriction", "impactMin": 1 }
+        ]
+      },
+      "stops": [
+        { "code": "NDLS", "sequence": 1, "arr": "06:00", "dep": "06:00", "km": 0, "platform": 1 },
+        { "code": "CNB", "sequence": 2, "arr": "10:08", "dep": "10:10", "km": 440, "platform": 5 },
+        { "code": "PRYJ", "sequence": 3, "arr": "12:08", "dep": "12:10", "km": 634, "platform": 6 },
+        { "code": "BSB", "sequence": 4, "arr": "14:00", "dep": "14:00", "km": 759, "platform": 1 }
+      ]
+    },
+    {
+      "trainNumber": "12301",
+      "name": "Howrah Rajdhani Express",
+      "type": "Rajdhani Express",
+      "source": "HWH",
+      "destination": "NDLS",
+      "departureTime": "16:50",
+      "arrivalTime": "10:05",
+      "totalDistanceKm": 1451,
+      "avgSpeed": 85,
+      "coaches": ["H1", "A1", "A2", "A3", "A4", "B1", "B2", "B3", "B4", "B5", "B6", "PC"],
+      "liveState": {
+        "lat": 25.2818,
+        "lng": 83.1189,
+        "speed": 92,
+        "heading": 305,
+        "currentSection": "DDU-PRYJ-B17",
+        "lastStation": "DDU",
+        "nextStation": "PRYJ",
+        "delayMinutes": 12,
+        "predictedDelay": 14,
+        "confidence": 0.91,
+        "status": "DELAYED",
+        "delayReasons": [
+          { "factor": "Junction congestion at DDU", "impactMin": 7 },
+          { "factor": "Preceding freight train clearance", "impactMin": 4 },
+          { "factor": "Weather & visibility buffer", "impactMin": 1 }
+        ]
+      },
+      "stops": [
+        { "code": "HWH", "sequence": 1, "arr": "16:50", "dep": "16:50", "km": 0, "platform": 9 },
+        { "code": "DDU", "sequence": 2, "arr": "00:45", "dep": "00:55", "km": 673, "platform": 4 },
+        { "code": "PRYJ", "sequence": 3, "arr": "02:43", "dep": "02:45", "km": 826, "platform": 1 },
+        { "code": "CNB", "sequence": 4, "arr": "04:50", "dep": "04:55", "km": 1020, "platform": 1 },
+        { "code": "NDLS", "sequence": 5, "arr": "10:05", "dep": "10:05", "km": 1451, "platform": 12 }
+      ]
+    },
+    {
+      "trainNumber": "12841",
+      "name": "Coromandel Express",
+      "type": "Superfast",
+      "source": "HWH",
+      "destination": "MAS",
+      "departureTime": "15:30",
+      "arrivalTime": "17:00",
+      "totalDistanceKm": 1662,
+      "avgSpeed": 68,
+      "coaches": ["A1", "A2", "B1", "B2", "B3", "B4", "S1", "S2", "S3", "S4", "S5", "GEN"],
+      "liveState": {
+        "lat": 20.2668,
+        "lng": 85.8436,
+        "speed": 84,
+        "heading": 195,
+        "currentSection": "BBS-PSA-SEC4",
+        "lastStation": "BBS",
+        "nextStation": "MAS",
+        "delayMinutes": 7,
+        "predictedDelay": 8,
+        "confidence": 0.89,
+        "status": "ON_TIME",
+        "delayReasons": [
+          { "factor": "Station dwell overshoot at BBS", "impactMin": 5 },
+          { "factor": "Heavy coastal rainfall", "impactMin": 2 }
+        ]
+      },
+      "stops": [
+        { "code": "HWH", "sequence": 1, "arr": "15:30", "dep": "15:30", "km": 0, "platform": 21 },
+        { "code": "BBS", "sequence": 2, "arr": "21:50", "dep": "21:55", "km": 437, "platform": 4 },
+        { "code": "MAS", "sequence": 3, "arr": "17:00", "dep": "17:00", "km": 1662, "platform": 3 }
+      ]
+    },
+    {
+      "trainNumber": "12951",
+      "name": "Mumbai Rajdhani Express",
+      "type": "Rajdhani Express",
+      "source": "MMCT",
+      "destination": "NDLS",
+      "departureTime": "17:00",
+      "arrivalTime": "08:32",
+      "totalDistanceKm": 1386,
+      "avgSpeed": 89,
+      "coaches": ["H1", "A1", "A2", "A3", "B1", "B2", "B3", "B4", "B5"],
+      "liveState": {
+        "lat": 22.3107,
+        "lng": 73.1812,
+        "speed": 112,
+        "heading": 25,
+        "currentSection": "BRC-RTM-N3",
+        "lastStation": "BRC",
+        "nextStation": "NDLS",
+        "delayMinutes": 2,
+        "predictedDelay": 0,
+        "confidence": 0.96,
+        "status": "ON_TIME",
+        "delayReasons": [
+          { "factor": "Normal running on green corridor", "impactMin": 0 }
+        ]
+      },
+      "stops": [
+        { "code": "MMCT", "sequence": 1, "arr": "17:00", "dep": "17:00", "km": 0, "platform": 1 },
+        { "code": "ST", "sequence": 2, "arr": "19:32", "dep": "19:35", "km": 263, "platform": 1 },
+        { "code": "BRC", "sequence": 3, "arr": "21:05", "dep": "21:10", "km": 392, "platform": 2 },
+        { "code": "NDLS", "sequence": 4, "arr": "08:32", "dep": "08:32", "km": 1386, "platform": 3 }
+      ]
+    },
+    {
+      "trainNumber": "20898",
+      "name": "Ranchi Vande Bharat Express",
+      "type": "Vande Bharat",
+      "source": "HWH",
+      "destination": "RNC",
+      "departureTime": "15:45",
+      "arrivalTime": "22:50",
+      "totalDistanceKm": 463,
+      "avgSpeed": 66,
+      "coaches": ["E1", "C1", "C2", "C3", "C4", "C5", "C6", "E2"],
+      "liveState": {
+        "lat": 22.95,
+        "lng": 86.80,
+        "speed": 98,
+        "heading": 290,
+        "currentSection": "KGP-TATA-V1",
+        "lastStation": "HWH",
+        "nextStation": "RNC",
+        "delayMinutes": 0,
+        "predictedDelay": 2,
+        "confidence": 0.95,
+        "status": "ON_TIME",
+        "delayReasons": []
+      },
+      "stops": [
+        { "code": "HWH", "sequence": 1, "arr": "15:45", "dep": "15:45", "km": 0, "platform": 20 },
+        { "code": "RNC", "sequence": 2, "arr": "22:50", "dep": "22:50", "km": 463, "platform": 1 }
+      ]
+    },
+    {
+      "trainNumber": "12004",
+      "name": "Lucknow Shatabdi Express",
+      "type": "Shatabdi Express",
+      "source": "NDLS",
+      "destination": "LKO",
+      "departureTime": "06:10",
+      "arrivalTime": "12:40",
+      "totalDistanceKm": 512,
+      "avgSpeed": 79,
+      "coaches": ["E1", "C1", "C2", "C3", "C4", "C5", "C6", "C7"],
+      "liveState": {
+        "lat": 26.4547,
+        "lng": 80.3507,
+        "speed": 88,
+        "heading": 85,
+        "currentSection": "CNB-LKO-S3",
+        "lastStation": "CNB",
+        "nextStation": "LKO",
+        "delayMinutes": 8,
+        "predictedDelay": 11,
+        "confidence": 0.88,
+        "status": "DELAYED",
+        "delayReasons": [
+          { "factor": "Kanpur terminal yard congestion", "impactMin": 6 },
+          { "factor": "Track maintenance speed limit 60km/h", "impactMin": 2 }
+        ]
+      },
+      "stops": [
+        { "code": "NDLS", "sequence": 1, "arr": "06:10", "dep": "06:10", "km": 0, "platform": 10 },
+        { "code": "CNB", "sequence": 2, "arr": "11:20", "dep": "11:25", "km": 440, "platform": 1 },
+        { "code": "LKO", "sequence": 3, "arr": "12:40", "dep": "12:40", "km": 512, "platform": 2 }
+      ]
+    },
+    {
+      "trainNumber": "12245",
+      "name": "Howrah SMVT Bengaluru Duronto",
+      "type": "Duronto Express",
+      "source": "HWH",
+      "destination": "SBC",
+      "departureTime": "10:50",
+      "arrivalTime": "16:00",
+      "totalDistanceKm": 1944,
+      "avgSpeed": 67,
+      "coaches": ["H1", "A1", "A2", "B1", "B2", "B3", "B4", "S1", "S2"],
+      "liveState": {
+        "lat": 17.6868,
+        "lng": 83.2185,
+        "speed": 75,
+        "heading": 210,
+        "currentSection": "VSKP-BZA-D2",
+        "lastStation": "BBS",
+        "nextStation": "SBC",
+        "delayMinutes": 18,
+        "predictedDelay": 22,
+        "confidence": 0.86,
+        "status": "DELAYED",
+        "delayReasons": [
+          { "factor": "Heavy coastal cross-winds & rain", "impactMin": 10 },
+          { "factor": "Preceding express delayed at junction", "impactMin": 8 }
+        ]
+      },
+      "stops": [
+        { "code": "HWH", "sequence": 1, "arr": "10:50", "dep": "10:50", "km": 0, "platform": 22 },
+        { "code": "BBS", "sequence": 2, "arr": "16:45", "dep": "16:50", "km": 437, "platform": 3 },
+        { "code": "SBC", "sequence": 3, "arr": "16:00", "dep": "16:00", "km": 1944, "platform": 1 }
+      ]
+    },
+    {
+      "trainNumber": "12022",
+      "name": "Barbil Jan Shatabdi Express",
+      "type": "Jan Shatabdi",
+      "source": "HWH",
+      "destination": "BBS",
+      "departureTime": "06:20",
+      "arrivalTime": "13:05",
+      "totalDistanceKm": 399,
+      "avgSpeed": 60,
+      "coaches": ["D1", "D2", "D3", "D4", "D5", "D6", "C1", "C2"],
+      "liveState": {
+        "lat": 21.45,
+        "lng": 86.92,
+        "speed": 64,
+        "heading": 215,
+        "currentSection": "BLS-BHC-J1",
+        "lastStation": "HWH",
+        "nextStation": "BBS",
+        "delayMinutes": 12,
+        "predictedDelay": 15,
+        "confidence": 0.90,
+        "status": "DELAYED",
+        "delayReasons": [
+          { "factor": "Suburban block clearance near Kharagpur", "impactMin": 9 },
+          { "factor": "Dwell time at local station", "impactMin": 3 }
+        ]
+      },
+      "stops": [
+        { "code": "HWH", "sequence": 1, "arr": "06:20", "dep": "06:20", "km": 0, "platform": 19 },
+        { "code": "BBS", "sequence": 2, "arr": "13:05", "dep": "13:05", "km": 399, "platform": 5 }
+      ]
+    },
+    {
+      "trainNumber": "12305",
+      "name": "Kolkata Rajdhani Express (via Patna)",
+      "type": "Rajdhani Express",
+      "source": "HWH",
+      "destination": "NDLS",
+      "departureTime": "14:05",
+      "arrivalTime": "10:10",
+      "totalDistanceKm": 1531,
+      "avgSpeed": 76,
+      "coaches": ["H1", "A1", "A2", "A3", "B1", "B2", "B3", "B4"],
+      "liveState": {
+        "lat": 25.6022,
+        "lng": 85.1376,
+        "speed": 82,
+        "heading": 290,
+        "currentSection": "PNBE-DDU-R4",
+        "lastStation": "PNBE",
+        "nextStation": "DDU",
+        "delayMinutes": 5,
+        "predictedDelay": 7,
+        "confidence": 0.93,
+        "status": "ON_TIME",
+        "delayReasons": []
+      },
+      "stops": [
+        { "code": "HWH", "sequence": 1, "arr": "14:05", "dep": "14:05", "km": 0, "platform": 9 },
+        { "code": "PNBE", "sequence": 2, "arr": "21:00", "dep": "21:10", "km": 535, "platform": 1 },
+        { "code": "DDU", "sequence": 3, "arr": "23:55", "dep": "00:05", "km": 747, "platform": 3 },
+        { "code": "CNB", "sequence": 4, "arr": "04:50", "dep": "04:55", "km": 1094, "platform": 1 },
+        { "code": "NDLS", "sequence": 5, "arr": "10:10", "dep": "10:10", "km": 1531, "platform": 11 }
+      ]
+    },
+    {
+      "trainNumber": "20901",
+      "name": "Mumbai Gandhinagar Vande Bharat",
+      "type": "Vande Bharat",
+      "source": "MMCT",
+      "destination": "ADI",
+      "departureTime": "06:00",
+      "arrivalTime": "11:25",
+      "totalDistanceKm": 491,
+      "avgSpeed": 90,
+      "coaches": ["E1", "C1", "C2", "C3", "C4", "C5", "C6", "E2"],
+      "liveState": {
+        "lat": 21.2050,
+        "lng": 72.8407,
+        "speed": 126,
+        "heading": 350,
+        "currentSection": "ST-BRC-VB8",
+        "lastStation": "ST",
+        "nextStation": "BRC",
+        "delayMinutes": 0,
+        "predictedDelay": 0,
+        "confidence": 0.98,
+        "status": "ON_TIME",
+        "delayReasons": []
+      },
+      "stops": [
+        { "code": "MMCT", "sequence": 1, "arr": "06:00", "dep": "06:00", "km": 0, "platform": 5 },
+        { "code": "ST", "sequence": 2, "arr": "08:34", "dep": "08:37", "km": 263, "platform": 1 },
+        { "code": "BRC", "sequence": 3, "arr": "09:43", "dep": "09:46", "km": 392, "platform": 2 },
+        { "code": "ADI", "sequence": 4, "arr": "11:25", "dep": "11:25", "km": 491, "platform": 1 }
+      ]
+    }
+  ],
+  "trackSections": [
+    { "id": "HWH-B17", "name": "Howrah - Bardhaman Chord Section B-17", "start": "HWH", "end": "BWN", "lengthKm": 94, "maxSpeed": 130, "riskLevel": "WARNING", "healthScore": 78, "vibrationRms": 3.42, "deteriorationTrend": "INCREASING", "maintenancePriority": "HIGH" },
+    { "id": "CNB-PRYJ-S1", "name": "Kanpur - Prayagraj Fast Line S1", "start": "CNB", "end": "PRYJ", "lengthKm": 194, "maxSpeed": 160, "riskLevel": "NORMAL", "healthScore": 96, "vibrationRms": 1.15, "deteriorationTrend": "STABLE", "maintenancePriority": "LOW" },
+    { "id": "DDU-PRYJ-B17", "name": "Pt. Deen Dayal Upadhyaya - Prayagraj Main B17", "start": "DDU", "end": "PRYJ", "lengthKm": 153, "maxSpeed": 130, "riskLevel": "NORMAL", "healthScore": 91, "vibrationRms": 1.48, "deteriorationTrend": "STABLE", "maintenancePriority": "LOW" },
+    { "id": "BBS-PSA-SEC4", "name": "Bhubaneswar - Palasa Coastal Route 4", "start": "BBS", "end": "PSA", "lengthKm": 220, "maxSpeed": 110, "riskLevel": "WARNING", "healthScore": 81, "vibrationRms": 2.89, "deteriorationTrend": "INCREASING", "maintenancePriority": "MEDIUM" },
+    { "id": "ST-BRC-VB8", "name": "Surat - Vadodara High-Speed Corridor VB8", "start": "ST", "end": "BRC", "lengthKm": 129, "maxSpeed": 160, "riskLevel": "NORMAL", "healthScore": 99, "vibrationRms": 0.82, "deteriorationTrend": "STABLE", "maintenancePriority": "LOW" }
+  ],
+  "progressiveRiskHistory": [
+    { "day": "Day 1 (3 days ago)", "status": "Normal", "riskScore": 18, "vibration": "1.2g", "trend": "STABLE" },
+    { "day": "Day 2 (2 days ago)", "status": "Slightly abnormal", "riskScore": 42, "vibration": "2.1g", "trend": "INCREASING" },
+    { "day": "Day 3 (Yesterday)", "status": "Abnormal", "riskScore": 64, "vibration": "2.9g", "trend": "INCREASING" },
+    { "day": "Day 4 (Today)", "status": "Highly abnormal", "riskScore": 78, "vibration": "3.42g", "trend": "INCREASING" }
+  ],
+  "crowdData": {
+    "stations": {
+      "HWH": { "platform1": 91, "platform2": 54, "platform3": 21, "platform9": 84, "platform21": 73, "overall": 82 },
+      "NDLS": { "platform1": 78, "platform5": 62, "platform10": 45, "platform12": 89, "overall": 76 },
+      "MMCT": { "platform1": 42, "platform2": 38, "platform5": 68, "overall": 51 },
+      "BBS": { "platform1": 35, "platform3": 55, "platform4": 79, "overall": 58 }
+    },
+    "coachCrowd": {
+      "12301": {
+        "coaches": [
+          { "coach": "H1", "density": 38, "status": "GREEN" },
+          { "coach": "A1", "density": 82, "status": "RED" },
+          { "coach": "A2", "density": 46, "status": "YELLOW" },
+          { "coach": "A3", "density": 29, "status": "GREEN" },
+          { "coach": "A4", "density": 91, "status": "RED" },
+          { "coach": "B1", "density": 77, "status": "RED" },
+          { "coach": "B2", "density": 65, "status": "YELLOW" },
+          { "coach": "B3", "density": 58, "status": "YELLOW" }
+        ],
+        "recommendedCoach": "A3",
+        "reason": "Lowest estimated crowd density (29% occupancy, smooth air-conditioning zone)."
+      },
+      "22436": {
+        "coaches": [
+          { "coach": "E1", "density": 42, "status": "GREEN" },
+          { "coach": "C1", "density": 70, "status": "YELLOW" },
+          { "coach": "C2", "density": 35, "status": "GREEN" },
+          { "coach": "C3", "density": 88, "status": "RED" },
+          { "coach": "C4", "density": 52, "status": "YELLOW" },
+          { "coach": "E2", "density": 30, "status": "GREEN" }
+        ],
+        "recommendedCoach": "E2",
+        "reason": "Executive Class coach with only 30% passenger load."
+      }
+    }
+  },
+  "weatherReports": {
+    "HWH": { "city": "Kolkata", "tempC": 31, "condition": "Heavy Rain", "rainMm": 42.5, "windKmh": 28, "humidityPct": 88, "visibilityKm": 3.5, "railImpact": "High rain risk: +8 to +12 min speed restriction on suburban approach lines." },
+    "NDLS": { "city": "New Delhi", "tempC": 28, "condition": "Clear Sky", "rainMm": 0, "windKmh": 12, "humidityPct": 45, "visibilityKm": 9.0, "railImpact": "Optimal weather conditions. High speed corridor operational." },
+    "MMCT": { "city": "Mumbai", "tempC": 29, "condition": "Moderate Shower", "rainMm": 18.0, "windKmh": 22, "humidityPct": 82, "visibilityKm": 6.0, "railImpact": "Minor waterlogging near low-lying culverts; +3 min delay buffer." },
+    "BBS": { "city": "Bhubaneswar", "tempC": 30, "condition": "Thunderstorm", "rainMm": 34.0, "windKmh": 35, "humidityPct": 86, "visibilityKm": 4.0, "railImpact": "Overhead traction wind alert. Expected delay: +10 min." }
+  },
+  "alerts": [
+    {
+      "id": "ALT-001",
+      "title": "Track Anomaly Detected on Section B-17",
+      "category": "TRACK_ANOMALY",
+      "severity": "HIGH_RISK",
+      "affectedTrain": "12301",
+      "affectedSection": "HWH-B17",
+      "description": "ESP32 MPU6050 vibration RMS measured 3.42g (threshold 2.2g). Progressive deterioration score 78/100.",
+      "recommendedAction": "Impose 45 km/h caution order between km 64 and km 68. Dispatch track inspection trolley.",
+      "timestamp": "10 min ago",
+      "active": true
+    },
+    {
+      "id": "ALT-002",
+      "title": "Heavy Rainfall & High Wind Warning at Bhubaneswar",
+      "category": "WEATHER",
+      "severity": "WARNING",
+      "affectedTrain": "12841",
+      "affectedStation": "BBS",
+      "description": "Rainfall intensity 34mm/h with 35 km/h gusts affecting coastal signaling circuits.",
+      "recommendedAction": "Advise drivers of Train 12841 & 12245 to operate with headlight on and horn warnings.",
+      "timestamp": "25 min ago",
+      "active": true
+    },
+    {
+      "id": "ALT-003",
+      "title": "Platform 1 Congestion at Howrah Station",
+      "category": "CONGESTION",
+      "severity": "WARNING",
+      "affectedStation": "HWH",
+      "description": "Computer vision crowd density reached 91% due to overlapping arrivals of local suburban rakes.",
+      "recommendedAction": "Route incoming Train 12301 to Platform 9 and activate RPF crowd guidance barricades.",
+      "timestamp": "5 min ago",
+      "active": true
+    }
+  ]
+}

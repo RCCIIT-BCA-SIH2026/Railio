@@ -1,0 +1,42 @@
+{
+  "HWH": {
+    "city": "Kolkata",
+    "tempC": 31,
+    "condition": "Heavy Rain",
+    "rainMm": 42.5,
+    "windKmh": 28,
+    "humidityPct": 88,
+    "visibilityKm": 3.5,
+    "railImpact": "High rain risk: +8 to +12 min speed restriction on suburban approach lines."
+  },
+  "NDLS": {
+    "city": "New Delhi",
+    "tempC": 28,
+    "condition": "Clear Sky",
+    "rainMm": 0,
+    "windKmh": 12,
+    "humidityPct": 45,
+    "visibilityKm": 9.0,
+    "railImpact": "Optimal weather conditions. High speed corridor operational."
+  },
+  "MMCT": {
+    "city": "Mumbai",
+    "tempC": 29,
+    "condition": "Moderate Shower",
+    "rainMm": 18.0,
+    "windKmh": 22,
+    "humidityPct": 82,
+    "visibilityKm": 6.0,
+    "railImpact": "Minor waterlogging near low-lying culverts; +3 min delay buffer."
+  },
+  "BBS": {
+    "city": "Bhubaneswar",
+    "tempC": 30,
+    "condition": "Thunderstorm",
+    "rainMm": 34.0,
+    "windKmh": 35,
+    "humidityPct": 86,
+    "visibilityKm": 4.0,
+    "railImpact": "Overhead traction wind alert. Expected delay: +10 min."
+  }
+}

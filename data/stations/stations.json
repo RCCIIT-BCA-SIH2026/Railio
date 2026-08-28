@@ -1,0 +1,222 @@
+[
+  {
+    "code": "HWH",
+    "name": "Howrah Junction",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "zone": "ER",
+    "lat": 22.5857,
+    "lng": 88.3432,
+    "platforms": 23,
+    "isJunction": true
+  },
+  {
+    "code": "SDAH",
+    "name": "Sealdah",
+    "city": "Kolkata",
+    "state": "West Bengal",
+    "zone": "ER",
+    "lat": 22.5675,
+    "lng": 88.3712,
+    "platforms": 21,
+    "isJunction": true
+  },
+  {
+    "code": "NDLS",
+    "name": "New Delhi",
+    "city": "New Delhi",
+    "state": "Delhi",
+    "zone": "NR",
+    "lat": 28.6429,
+    "lng": 77.2195,
+    "platforms": 16,
+    "isJunction": true
+  },
+  {
+    "code": "CNB",
+    "name": "Kanpur Central",
+    "city": "Kanpur",
+    "state": "Uttar Pradesh",
+    "zone": "NCR",
+    "lat": 26.4547,
+    "lng": 80.3507,
+    "platforms": 10,
+    "isJunction": true
+  },
+  {
+    "code": "PRYJ",
+    "name": "Prayagraj Junction",
+    "city": "Prayagraj",
+    "state": "Uttar Pradesh",
+    "zone": "NCR",
+    "lat": 25.4526,
+    "lng": 81.8349,
+    "platforms": 10,
+    "isJunction": true
+  },
+  {
+    "code": "DDU",
+    "name": "Pt. Deen Dayal Upadhyaya Jn",
+    "city": "Mughalsarai",
+    "state": "Uttar Pradesh",
+    "zone": "ECR",
+    "lat": 25.2818,
+    "lng": 83.1189,
+    "platforms": 8,
+    "isJunction": true
+  },
+  {
+    "code": "PNBE",
+    "name": "Patna Junction",
+    "city": "Patna",
+    "state": "Bihar",
+    "zone": "ECR",
+    "lat": 25.6022,
+    "lng": 85.1376,
+    "platforms": 10,
+    "isJunction": true
+  },
+  {
+    "code": "MMCT",
+    "name": "Mumbai Central",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "zone": "WR",
+    "lat": 18.9696,
+    "lng": 72.8193,
+    "platforms": 5,
+    "isJunction": false
+  },
+  {
+    "code": "CSMT",
+    "name": "Chhatrapati Shivaji Maharaj Terminus",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "zone": "CR",
+    "lat": 18.9401,
+    "lng": 72.8354,
+    "platforms": 18,
+    "isJunction": true
+  },
+  {
+    "code": "ST",
+    "name": "Surat",
+    "city": "Surat",
+    "state": "Gujarat",
+    "zone": "WR",
+    "lat": 21.205,
+    "lng": 72.8407,
+    "platforms": 4,
+    "isJunction": true
+  },
+  {
+    "code": "BRC",
+    "name": "Vadodara Junction",
+    "city": "Vadodara",
+    "state": "Gujarat",
+    "zone": "WR",
+    "lat": 22.3107,
+    "lng": 73.1812,
+    "platforms": 7,
+    "isJunction": true
+  },
+  {
+    "code": "ADI",
+    "name": "Ahmedabad Junction",
+    "city": "Ahmedabad",
+    "state": "Gujarat",
+    "zone": "WR",
+    "lat": 23.0225,
+    "lng": 72.5714,
+    "platforms": 12,
+    "isJunction": true
+  },
+  {
+    "code": "MAS",
+    "name": "Chennai Central",
+    "city": "Chennai",
+    "state": "Tamil Nadu",
+    "zone": "SR",
+    "lat": 13.0827,
+    "lng": 80.2707,
+    "platforms": 17,
+    "isJunction": true
+  },
+  {
+    "code": "SBC",
+    "name": "KSR Bengaluru",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "zone": "SWR",
+    "lat": 12.9781,
+    "lng": 77.5696,
+    "platforms": 10,
+    "isJunction": true
+  },
+  {
+    "code": "BBS",
+    "name": "Bhubaneswar",
+    "city": "Bhubaneswar",
+    "state": "Odisha",
+    "zone": "ECoR",
+    "lat": 20.2668,
+    "lng": 85.8436,
+    "platforms": 6,
+    "isJunction": true
+  },
+  {
+    "code": "GHY",
+    "name": "Guwahati",
+    "city": "Guwahati",
+    "state": "Assam",
+    "zone": "NFR",
+    "lat": 26.1856,
+    "lng": 91.7539,
+    "platforms": 7,
+    "isJunction": true
+  },
+  {
+    "code": "BSB",
+    "name": "Varanasi Junction",
+    "city": "Varanasi",
+    "state": "Uttar Pradesh",
+    "zone": "NR",
+    "lat": 25.3267,
+    "lng": 82.9863,
+    "platforms": 9,
+    "isJunction": true
+  },
+  {
+    "code": "LKO",
+    "name": "Lucknow Charbagh",
+    "city": "Lucknow",
+    "state": "Uttar Pradesh",
+    "zone": "NR",
+    "lat": 26.8322,
+    "lng": 80.9234,
+    "platforms": 9,
+    "isJunction": true
+  },
+  {
+    "code": "JP",
+    "name": "Jaipur Junction",
+    "city": "Jaipur",
+    "state": "Rajasthan",
+    "zone": "NWR",
+    "lat": 26.9196,
+    "lng": 75.7878,
+    "platforms": 8,
+    "isJunction": true
+  },
+  {
+    "code": "RNC",
+    "name": "Ranchi Junction",
+    "city": "Ranchi",
+    "state": "Jharkhand",
+    "zone": "SER",
+    "lat": 23.3503,
+    "lng": 85.325,
+    "platforms": 6,
+    "isJunction": true
+  }
+]

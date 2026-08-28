@@ -1,0 +1,115 @@
+{
+  "stations": {
+    "HWH": {
+      "platform1": 91,
+      "platform2": 54,
+      "platform3": 21,
+      "platform9": 84,
+      "platform21": 73,
+      "overall": 82
+    },
+    "NDLS": {
+      "platform1": 78,
+      "platform5": 62,
+      "platform10": 45,
+      "platform12": 89,
+      "overall": 76
+    },
+    "MMCT": {
+      "platform1": 42,
+      "platform2": 38,
+      "platform5": 68,
+      "overall": 51
+    },
+    "BBS": {
+      "platform1": 35,
+      "platform3": 55,
+      "platform4": 79,
+      "overall": 58
+    }
+  },
+  "coachCrowd": {
+    "12301": {
+      "coaches": [
+        {
+          "coach": "H1",
+          "density": 38,
+          "status": "GREEN"
+        },
+        {
+          "coach": "A1",
+          "density": 82,
+          "status": "RED"
+        },
+        {
+          "coach": "A2",
+          "density": 46,
+          "status": "YELLOW"
+        },
+        {
+          "coach": "A3",
+          "density": 29,
+          "status": "GREEN"
+        },
+        {
+          "coach": "A4",
+          "density": 91,
+          "status": "RED"
+        },
+        {
+          "coach": "B1",
+          "density": 77,
+          "status": "RED"
+        },
+        {
+          "coach": "B2",
+          "density": 65,
+          "status": "YELLOW"
+        },
+        {
+          "coach": "B3",
+          "density": 58,
+          "status": "YELLOW"
+        }
+      ],
+      "recommendedCoach": "A3",
+      "reason": "Lowest estimated crowd density (29% occupancy, smooth air-conditioning zone)."
+    },
+    "22436": {
+      "coaches": [
+        {
+          "coach": "E1",
+          "density": 42,
+          "status": "GREEN"
+        },
+        {
+          "coach": "C1",
+          "density": 70,
+          "status": "YELLOW"
+        },
+        {
+          "coach": "C2",
+          "density": 35,
+          "status": "GREEN"
+        },
+        {
+          "coach": "C3",
+          "density": 88,
+          "status": "RED"
+        },
+        {
+          "coach": "C4",
+          "density": 52,
+          "status": "YELLOW"
+        },
+        {
+          "coach": "E2",
+          "density": 30,
+          "status": "GREEN"
+        }
+      ],
+      "recommendedCoach": "E2",
+      "reason": "Executive Class coach with only 30% passenger load."
+    }
+  }
+}
