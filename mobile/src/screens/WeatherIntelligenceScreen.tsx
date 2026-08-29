@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { getWeatherApi } from '../services/api';
+import { AppBackground } from '../components/AppBackground';
 
 export const WeatherIntelligenceScreen: React.FC = () => {
   const [weatherData, setWeatherData] = useState<any>(null);
@@ -28,57 +29,59 @@ export const WeatherIntelligenceScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Weather Header Card */}
-      <View style={styles.headerCard}>
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.city}>{weather.city}</Text>
-            <Text style={styles.conditionText}>🌧️ {weather.condition}</Text>
+    <AppBackground variant="orange">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        {/* Weather Header Card */}
+        <View style={styles.headerCard}>
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.city}>{weather.city}</Text>
+              <Text style={styles.conditionText}>🌧️ {weather.condition}</Text>
+            </View>
+            <Text style={styles.tempText}>{weather.tempC}°C</Text>
           </View>
-          <Text style={styles.tempText}>{weather.tempC}°C</Text>
+
+          {/* Metrics Grid */}
+          <View style={styles.metricsGrid}>
+            <View style={styles.metricBox}>
+              <Text style={styles.metricVal}>{weather.rainMm} mm/h</Text>
+              <Text style={styles.metricLabel}>Rainfall</Text>
+            </View>
+            <View style={styles.metricBox}>
+              <Text style={styles.metricVal}>{weather.windKmh} km/h</Text>
+              <Text style={styles.metricLabel}>Wind Gusts</Text>
+            </View>
+            <View style={styles.metricBox}>
+              <Text style={styles.metricVal}>{weather.humidityPct}%</Text>
+              <Text style={styles.metricLabel}>Humidity</Text>
+            </View>
+            <View style={styles.metricBox}>
+              <Text style={styles.metricVal}>{weather.visibilityKm} km</Text>
+              <Text style={styles.metricLabel}>Visibility</Text>
+            </View>
+          </View>
         </View>
 
-        {/* Metrics Grid */}
-        <View style={styles.metricsGrid}>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricVal}>{weather.rainMm} mm/h</Text>
-            <Text style={styles.metricLabel}>Rainfall</Text>
+        {/* Railway Operations Impact Card */}
+        <View style={styles.impactCard}>
+          <View style={styles.impactHeader}>
+            <Text style={{ fontSize: 20 }}>⚠️</Text>
+            <Text style={styles.impactTitle}>Railway Track & Signal Impact</Text>
           </View>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricVal}>{weather.windKmh} km/h</Text>
-            <Text style={styles.metricLabel}>Wind Gusts</Text>
-          </View>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricVal}>{weather.humidityPct}%</Text>
-            <Text style={styles.metricLabel}>Humidity</Text>
-          </View>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricVal}>{weather.visibilityKm} km</Text>
-            <Text style={styles.metricLabel}>Visibility</Text>
+          <Text style={styles.impactDesc}>{weather.railImpact}</Text>
+          <View style={styles.impactFooter}>
+            <Text style={styles.impactFooterText}>AI Weather Model: XGBoost Precipitation Correlator</Text>
           </View>
         </View>
-      </View>
-
-      {/* Railway Operations Impact Card */}
-      <View style={styles.impactCard}>
-        <View style={styles.impactHeader}>
-          <Text style={{ fontSize: 20 }}>⚠️</Text>
-          <Text style={styles.impactTitle}>Railway Track & Signal Impact</Text>
-        </View>
-        <Text style={styles.impactDesc}>{weather.railImpact}</Text>
-        <View style={styles.impactFooter}>
-          <Text style={styles.impactFooterText}>AI Weather Model: XGBoost Precipitation Correlator</Text>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,

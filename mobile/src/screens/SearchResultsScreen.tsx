@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, Train } from '../types';
 import { searchTrainsApi } from '../services/api';
+import { AppBackground } from '../components/AppBackground';
 
 export const SearchResultsScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'SearchResults'>>();
@@ -129,52 +130,54 @@ export const SearchResultsScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
-      {/* Route Subheader */}
-      <View style={styles.routeHeader}>
-        <View>
-          <Text style={styles.routeText}>{from} → {to}</Text>
-          <Text style={styles.dateSubtext}>{date} • {trains.length} Trains Available</Text>
+    <AppBackground variant="blue">
+      <View style={styles.container}>
+        {/* Route Subheader */}
+        <View style={styles.routeHeader}>
+          <View>
+            <Text style={styles.routeText}>{from} → {to}</Text>
+            <Text style={styles.dateSubtext}>{date} • {trains.length} Trains Available</Text>
+          </View>
+          <TouchableOpacity style={styles.modifyBtn} onPress={() => navigation.goBack()}>
+            <Text style={styles.modifyBtnText}>Modify</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.modifyBtn} onPress={() => navigation.goBack()}>
-          <Text style={styles.modifyBtnText}>Modify</Text>
-        </TouchableOpacity>
-      </View>
 
-      {loading ? (
-        <View style={styles.loaderCenter}>
-          <ActivityIndicator size="large" color="#FF671F" />
-          <Text style={styles.loadingText}>Fetching AI Predicted Schedules...</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={trains}
-          renderItem={renderTrainCard}
-          keyExtractor={(item) => item.trainNumber}
-          contentContainerStyle={styles.listContent}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <Text style={{ fontSize: 36, marginBottom: 8 }}>🚆</Text>
-              <Text style={styles.emptyTitle}>No direct trains found</Text>
-              <Text style={styles.emptySub}>Showing national express trains on corridor.</Text>
-            </View>
-          }
-        />
-      )}
-    </View>
+        {loading ? (
+          <View style={styles.loaderCenter}>
+            <ActivityIndicator size="large" color="#FF671F" />
+            <Text style={styles.loadingText}>Fetching AI Predicted Schedules...</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={trains}
+            renderItem={renderTrainCard}
+            keyExtractor={(item) => item.trainNumber}
+            contentContainerStyle={styles.listContent}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={{ fontSize: 36, marginBottom: 8 }}>🚆</Text>
+                <Text style={styles.emptyTitle}>No direct trains found</Text>
+                <Text style={styles.emptySub}>Showing national express trains on corridor.</Text>
+              </View>
+            }
+          />
+        )}
+      </View>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   routeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.90)',
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,

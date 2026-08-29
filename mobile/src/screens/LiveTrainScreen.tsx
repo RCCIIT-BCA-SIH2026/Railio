@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { getLiveTrainApi } from '../services/api';
+import { AppBackground } from '../components/AppBackground';
 
 export const LiveTrainScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'LiveTrain'>>();
@@ -50,45 +51,46 @@ export const LiveTrainScreen: React.FC = () => {
   const currentSpeed = (train.liveState?.speed || 90) + speedOffset;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Top Header Card */}
-      <View style={styles.headerCard}>
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.trainNumText}>Train #{train.trainNumber}</Text>
-            <Text style={styles.trainNameText}>{train.name}</Text>
+    <AppBackground variant="orange">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        {/* Top Header Card */}
+        <View style={styles.headerCard}>
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.trainNumText}>Train #{train.trainNumber}</Text>
+              <Text style={styles.trainNameText}>{train.name}</Text>
+            </View>
+            <View style={styles.liveGpsBadge}>
+              <View style={styles.livePulseDot} />
+              <Text style={styles.liveGpsText}>LIVE GPS (3s)</Text>
+            </View>
           </View>
-          <View style={styles.liveGpsBadge}>
-            <View style={styles.livePulseDot} />
-            <Text style={styles.liveGpsText}>LIVE GPS (3s)</Text>
+
+          {/* Speedometer and Telemetry Row */}
+          <View style={styles.telemetryGrid}>
+            <View style={styles.telemetryBox}>
+              <Text style={styles.telemetryVal}>{currentSpeed}</Text>
+              <Text style={styles.telemetryUnit}>KM/H</Text>
+              <Text style={styles.telemetryLabel}>Instant Speed</Text>
+            </View>
+
+            <View style={styles.telemetryBox}>
+              <Text style={[styles.telemetryVal, { color: '#F59E0B' }]}>
+                +{train.liveState?.delayMinutes || 0}
+              </Text>
+              <Text style={styles.telemetryUnit}>MINUTES</Text>
+              <Text style={styles.telemetryLabel}>Current Delay</Text>
+            </View>
+
+            <View style={styles.telemetryBox}>
+              <Text style={[styles.telemetryVal, { color: '#10B981' }]}>
+                {Math.round((train.liveState?.confidence || 0.9) * 100)}%
+              </Text>
+              <Text style={styles.telemetryUnit}>SCORE</Text>
+              <Text style={styles.telemetryLabel}>AI Confidence</Text>
+            </View>
           </View>
         </View>
-
-        {/* Speedometer and Telemetry Row */}
-        <View style={styles.telemetryGrid}>
-          <View style={styles.telemetryBox}>
-            <Text style={styles.telemetryVal}>{currentSpeed}</Text>
-            <Text style={styles.telemetryUnit}>KM/H</Text>
-            <Text style={styles.telemetryLabel}>Instant Speed</Text>
-          </View>
-
-          <View style={styles.telemetryBox}>
-            <Text style={[styles.telemetryVal, { color: '#F59E0B' }]}>
-              +{train.liveState.delayMinutes}
-            </Text>
-            <Text style={styles.telemetryUnit}>MINUTES</Text>
-            <Text style={styles.telemetryLabel}>Current Delay</Text>
-          </View>
-
-          <View style={styles.telemetryBox}>
-            <Text style={[styles.telemetryVal, { color: '#10B981' }]}>
-              {Math.round(train.liveState.confidence * 100)}%
-            </Text>
-            <Text style={styles.telemetryUnit}>SCORE</Text>
-            <Text style={styles.telemetryLabel}>AI Confidence</Text>
-          </View>
-        </View>
-      </View>
 
       {/* Interactive Corridor Visualizer (Fallback Native Vector Map) */}
       <View style={styles.mapCard}>
@@ -151,21 +153,22 @@ export const LiveTrainScreen: React.FC = () => {
         <Text style={styles.catchCtaArrow}>→</Text>
       </TouchableOpacity>
 
-      {/* Station Dwell & Delay Predictor Card */}
-      <View style={styles.infoCard}>
-        <Text style={styles.infoTitle}>Next Interlocking Clearance</Text>
-        <Text style={styles.infoDesc}>
-          Train is approaching <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>{train.liveState.nextStation || 'Prayagraj Junction'}</Text>. AI predicts 4 min outer signal clearance delay before platform docking.
-        </Text>
-      </View>
-    </ScrollView>
+        {/* Station Dwell & Delay Predictor Card */}
+        <View style={styles.infoCard}>
+          <Text style={styles.infoTitle}>Next Interlocking Clearance</Text>
+          <Text style={styles.infoDesc}>
+            Train is approaching <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>{train.liveState?.nextStation || 'Prayagraj Junction'}</Text>. AI predicts 4 min outer signal clearance delay before platform docking.
+          </Text>
+        </View>
+      </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,

@@ -9,6 +9,17 @@ import { AlertsManager } from './components/AlertsManager';
 import { DelayPropagationTree } from './components/DelayPropagationTree';
 import { fetchDashboardData, fetchTrackRisk, initSocket } from './services/api';
 import { LiveTrain, TrackSection, AlertItem, DashboardMetrics } from './types';
+import bgOrange from './assets/bg_vande_orange.jpg';
+import bgBlue from './assets/bg_vande_blue.jpg';
+
+const tabBackgrounds: Record<string, string> = {
+  'overview': bgOrange,
+  'map': bgBlue,
+  'digital-twin': bgOrange,
+  'track-health': bgBlue,
+  'crowd': bgOrange,
+  'alerts': bgBlue,
+};
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');
@@ -69,8 +80,19 @@ export const App: React.FC = () => {
     };
   }, []);
 
+  const currentBg = tabBackgrounds[activeTab] || bgOrange;
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 flex flex-col selection:bg-rail-orange selection:text-white">
+    <div
+      className="min-h-screen text-slate-800 flex flex-col selection:bg-rail-orange selection:text-white relative bg-slate-50 transition-all duration-500 ease-in-out"
+      style={{
+        backgroundImage: `linear-gradient(rgba(248, 250, 252, 0.60), rgba(248, 250, 252, 0.75)), url(${currentBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top',
+        backgroundAttachment: 'fixed',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       {/* Top Navigation Bar */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} metrics={metrics} />
 
@@ -119,7 +141,7 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 shadow-sm mt-auto">
+      <footer className="bg-white/90 backdrop-blur-md border-t border-slate-200/80 py-4 text-center text-xs text-slate-500 shadow-sm mt-auto">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
             <span className="font-bold text-slate-900 font-heading">RailSathi</span> — AI-Powered Railway Intelligence Ecosystem (Predict • Protect • Connect)

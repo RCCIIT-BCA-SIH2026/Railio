@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { AppBackground } from '../components/AppBackground';
 
 export const ObstacleDetectionScreen: React.FC = () => {
   const [activeScenario, setActiveScenario] = useState<'PERSON' | 'CATTLE' | 'CLEAR'>('PERSON');
@@ -43,7 +44,8 @@ export const ObstacleDetectionScreen: React.FC = () => {
   const current = scenarios[activeScenario];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="blue">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Smartphone Track Obstacle Vision</Text>
@@ -170,13 +172,14 @@ export const ObstacleDetectionScreen: React.FC = () => {
         </Text>
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,

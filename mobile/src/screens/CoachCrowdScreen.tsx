@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { getCoachCrowdApi, getSuburbanCoachCrowdApi } from '../services/api';
+import { AppBackground } from '../components/AppBackground';
 
 export const CoachCrowdScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'CoachCrowd'>>();
@@ -43,7 +44,8 @@ export const CoachCrowdScreen: React.FC = () => {
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="orange">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Train Selector Pills */}
       <View style={styles.selectorPillsRow}>
         <TouchableOpacity
@@ -184,13 +186,14 @@ export const CoachCrowdScreen: React.FC = () => {
         </View>
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,

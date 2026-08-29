@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { AppBackground } from '../components/AppBackground';
 
 export const AdminQuickAlertsScreen: React.FC = () => {
   const [approved, setApproved] = useState(false);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="blue">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>Controller Quick Actions</Text>
         <Text style={styles.subtext}>Mobile decision support for Divisional Railway Managers</Text>
@@ -28,13 +30,14 @@ export const AdminQuickAlertsScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,

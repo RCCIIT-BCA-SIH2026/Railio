@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { VandeBharatHero } from '../components/VandeBharatHero';
+import { AppBackground } from '../components/AppBackground';
 import { getAlertsApi } from '../services/api';
 
 export const HomeScreen: React.FC = () => {
@@ -55,11 +56,12 @@ export const HomeScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF671F" />}
-    >
+    <AppBackground variant="orange">
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF671F" />}
+      >
       {/* Top Header Bar */}
       <View style={styles.topHeader}>
         <View style={styles.headerLeft}>
@@ -386,13 +388,14 @@ export const HomeScreen: React.FC = () => {
         <Text style={styles.aiBannerArrow}>→</Text>
       </TouchableOpacity>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   contentContainer: {
     padding: 16,

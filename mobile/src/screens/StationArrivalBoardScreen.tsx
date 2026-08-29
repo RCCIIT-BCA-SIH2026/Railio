@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { getStationArrivalsApi } from '../services/api';
+import { AppBackground } from '../components/AppBackground';
 
 export const StationArrivalBoardScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'StationArrivalBoard'>>();
@@ -39,7 +40,8 @@ export const StationArrivalBoardScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="blue">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Station Tabs */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsScroll}>
         {stations.map((s) => (
@@ -131,13 +133,14 @@ export const StationArrivalBoardScreen: React.FC = () => {
         </View>
       )}
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,

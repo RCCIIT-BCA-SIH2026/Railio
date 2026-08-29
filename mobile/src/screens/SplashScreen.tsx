@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { VandeBharatHero } from '../components/VandeBharatHero';
+import { AppBackground } from '../components/AppBackground';
 
 export const SplashScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -16,7 +17,8 @@ export const SplashScreen: React.FC = () => {
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
+    <AppBackground variant="orange">
+      <View style={styles.container}>
       {/* Background Gradient Effect */}
       <View style={styles.glowCircle} />
 
@@ -43,13 +45,14 @@ export const SplashScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
     </View>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,

@@ -14,6 +14,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, SuburbanDeparture, CoachSignalCrowd } from '../types';
 import { getUpcomingSuburbanTrainsApi, getSuburbanCorridorsApi } from '../services/api';
+import { AppBackground } from '../components/AppBackground';
 
 export const SuburbanLocalScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -123,11 +124,12 @@ export const SuburbanLocalScreen: React.FC = () => {
   const nextTrain = filteredTrains[0];
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF671F" />}
-    >
+    <AppBackground variant="blue">
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF671F" />}
+      >
       {/* Live Header Corridor Card */}
       <View style={styles.headerCard}>
         <View style={styles.headerTop}>
@@ -554,13 +556,14 @@ export const SuburbanLocalScreen: React.FC = () => {
         </View>
       </Modal>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,

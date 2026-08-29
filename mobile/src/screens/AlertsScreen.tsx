@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { getAlertsApi } from '../services/api';
 import { AlertItem } from '../types';
+import { AppBackground } from '../components/AppBackground';
 
 export const AlertsScreen: React.FC = () => {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
@@ -18,7 +19,8 @@ export const AlertsScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="blue">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>Safety & Incident Alerts</Text>
         <Text style={styles.subtext}>
@@ -63,13 +65,14 @@ export const AlertsScreen: React.FC = () => {
         })}
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,

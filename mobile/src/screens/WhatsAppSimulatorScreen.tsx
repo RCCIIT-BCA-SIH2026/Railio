@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { AppBackground } from '../components/AppBackground';
 
 export const WhatsAppSimulatorScreen: React.FC = () => {
   const [input, setInput] = useState('');
@@ -32,7 +33,8 @@ export const WhatsAppSimulatorScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <AppBackground variant="orange">
+      <View style={styles.container}>
       {/* WhatsApp Header Mockup */}
       <View style={styles.waHeader}>
         <View style={styles.avatar}>
@@ -73,18 +75,19 @@ export const WhatsAppSimulatorScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
     </View>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F0F2F5',
+    backgroundColor: 'transparent',
   },
   waHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.90)',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,

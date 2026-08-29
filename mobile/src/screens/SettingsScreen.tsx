@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { AppBackground } from '../components/AppBackground';
 
 export const SettingsScreen: React.FC = () => {
   const [demoMode, setDemoMode] = useState(true);
@@ -8,7 +9,8 @@ export const SettingsScreen: React.FC = () => {
   const [waSync, setWaSync] = useState(true);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="orange">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>System Settings & Demo Engine</Text>
         <Text style={styles.subtext}>Configure real-time telemetry simulation and data streams</Text>
@@ -48,13 +50,14 @@ export const SettingsScreen: React.FC = () => {
         </View>
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,

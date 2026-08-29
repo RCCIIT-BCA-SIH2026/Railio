@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, Train } from '../types';
 import { getTrainByNumberApi } from '../services/api';
+import { AppBackground } from '../components/AppBackground';
 
 export const TrainDetailsScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'TrainDetails'>>();
@@ -41,7 +42,8 @@ export const TrainDetailsScreen: React.FC = () => {
   const isDelayed = train.liveState.delayMinutes > 0;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="orange">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header Train Summary Card */}
       <View style={styles.summaryCard}>
         <View style={styles.summaryTop}>
@@ -211,13 +213,14 @@ export const TrainDetailsScreen: React.FC = () => {
         </ScrollView>
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,

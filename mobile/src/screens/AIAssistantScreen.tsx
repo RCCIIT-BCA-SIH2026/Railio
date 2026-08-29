@@ -13,6 +13,7 @@ import {
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types';
 import { chatAIApi } from '../services/api';
+import { AppBackground } from '../components/AppBackground';
 
 export const AIAssistantScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'AIAssistant'>>();
@@ -71,23 +72,24 @@ export const AIAssistantScreen: React.FC = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={80}
-    >
-      {/* Quick Prompts Bar */}
-      <View style={styles.promptsContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.promptsScroll}>
-          {quickPrompts.map((p, i) => (
-            <TouchableOpacity key={i} style={styles.promptChip} onPress={() => handleSend(p)}>
-              <Text style={styles.promptChipText}>{p}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+    <AppBackground variant="blue">
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={80}
+      >
+        {/* Quick Prompts Bar */}
+        <View style={styles.promptsContainer}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.promptsScroll}>
+            {quickPrompts.map((p, i) => (
+              <TouchableOpacity key={i} style={styles.promptChip} onPress={() => handleSend(p)}>
+                <Text style={styles.promptChipText}>{p}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
-      {/* Messages Feed */}
+        {/* Messages Feed */}
       <ScrollView style={styles.messagesContainer} contentContainerStyle={styles.messagesContent}>
         {messages.map((msg) => {
           const isUser = msg.sender === 'user';
@@ -154,17 +156,18 @@ export const AIAssistantScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   promptsContainer: {
     paddingVertical: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255, 255, 255, 0.88)',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },

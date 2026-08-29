@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { AppBackground } from '../components/AppBackground';
 
 export const CrowdStatusScreen: React.FC = () => {
   const [selectedStation, setSelectedStation] = useState('HWH');
@@ -13,7 +14,8 @@ export const CrowdStatusScreen: React.FC = () => {
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="blue">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.headerCard}>
         <Text style={styles.title}>Station Platform Crowd Density</Text>
         <Text style={styles.subtext}>
@@ -49,13 +51,14 @@ export const CrowdStatusScreen: React.FC = () => {
         })}
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
