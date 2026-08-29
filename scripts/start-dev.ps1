@@ -18,15 +18,16 @@ Start-Process -NoNewWindow -FilePath "python" -ArgumentList "-m uvicorn app.main
 
 # 2. Start Node.js Backend Gateway
 Write-Host "`n[2/4] Starting Node.js Backend Gateway on port 5000..." -ForegroundColor Cyan
-Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run dev" -WorkingDirectory "$root\backend"
+Start-Process -NoNewWindow -FilePath "npm.cmd" -ArgumentList "run dev" -WorkingDirectory "$root\backend"
 
 # 3. Start Admin Web Dashboard
 Write-Host "`n[3/4] Starting Admin Controller Dashboard on port 3000..." -ForegroundColor Cyan
-Start-Process -NoNewWindow -FilePath "npm" -ArgumentList "run dev" -WorkingDirectory "$root\admin-web"
+Start-Process -NoNewWindow -FilePath "npm.cmd" -ArgumentList "run dev" -WorkingDirectory "$root\admin-web"
 
 # 4. Start React Native Mobile App
 Write-Host "`n[4/4] Starting React Native Mobile Metro Bundler (Expo Go QR)..." -ForegroundColor Cyan
-Start-Process -NoNewWindow -FilePath "npx" -ArgumentList "expo start -c" -WorkingDirectory "$root\mobile"
+$env:NODE_OPTIONS="--max-old-space-size=8192"
+Start-Process -NoNewWindow -FilePath "npx.cmd" -ArgumentList "expo start -c" -WorkingDirectory "$root\mobile"
 
 Write-Host "`n🚀 ALL RAILSATHI SERVICES ARE RUNNING CONCURRENTLY!" -ForegroundColor Green
 Write-Host "Press Ctrl+C to terminate services." -ForegroundColor Gray

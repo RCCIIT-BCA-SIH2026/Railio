@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, CatchTrainResult } from '../types';
 import { calculateCatchProbabilityApi } from '../services/api';
+import { colors } from '../theme/colors';
 
 export const CanICatchScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'CanICatch'>>();
@@ -195,7 +196,7 @@ export const CanICatchScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
@@ -209,9 +210,9 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: 'rgba(255, 103, 31, 0.2)',
+    backgroundColor: colors.primaryLight,
     borderWidth: 1.5,
-    borderColor: '#FF671F',
+    borderColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
@@ -219,20 +220,25 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   headerSub: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     textAlign: 'center',
     marginTop: 4,
   },
   gaugeCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.85)',
+    backgroundColor: colors.card,
     borderRadius: 22,
     padding: 20,
     borderWidth: 1.5,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   gaugeTopRow: {
     flexDirection: 'row',
@@ -243,31 +249,31 @@ const styles = StyleSheet.create({
   trainNumberText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#FF671F',
+    color: colors.primary,
   },
   trainNameText: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   predictedDepBox: {
     alignItems: 'flex-end',
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   depLabel: {
     fontSize: 8.5,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   depVal: {
     fontSize: 14,
     fontWeight: '900',
-    color: '#38BDF8',
+    color: colors.info,
   },
   percentageContainer: {
     alignItems: 'center',
@@ -280,7 +286,7 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   percentageNumber: {
     fontSize: 38,
@@ -289,7 +295,7 @@ const styles = StyleSheet.create({
   probSubtitle: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: colors.textMuted,
     letterSpacing: 1,
     marginTop: 2,
   },
@@ -307,35 +313,40 @@ const styles = StyleSheet.create({
   },
   altTrainCard: {
     marginTop: 12,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.dangerLight,
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#EF4444',
+    borderColor: colors.danger,
   },
   altTrainTitle: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#EF4444',
+    color: colors.dangerDark,
   },
   altTrainDetails: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.dangerDark,
     marginTop: 2,
   },
   controlsCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   controlsTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
     marginBottom: 14,
   },
   controlGroup: {
@@ -350,12 +361,12 @@ const styles = StyleSheet.create({
   controlLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#CBD5E1',
+    color: colors.textMuted,
   },
   controlValue: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#FF671F',
+    color: colors.primary,
   },
   distanceChips: {
     flexDirection: 'row',
@@ -363,24 +374,24 @@ const styles = StyleSheet.create({
   },
   chip: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     paddingVertical: 8,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   chipActive: {
-    backgroundColor: '#FF671F',
-    borderColor: '#FF671F',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   chipText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   chipTextActive: {
-    color: '#FFFFFF',
+    color: colors.white,
   },
   trafficRow: {
     flexDirection: 'row',
@@ -388,36 +399,41 @@ const styles = StyleSheet.create({
   },
   trafficBtn: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     paddingVertical: 8,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   trafficBtnActive: {
-    backgroundColor: 'rgba(245, 158, 11, 0.2)',
-    borderColor: '#F59E0B',
+    backgroundColor: colors.warningLight,
+    borderColor: colors.warning,
   },
   trafficBtnText: {
     fontSize: 9.5,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   trafficBtnTextActive: {
-    color: '#F59E0B',
+    color: colors.warningDark,
   },
   breakdownCard: {
-    backgroundColor: 'rgba(11, 37, 69, 0.7)',
+    backgroundColor: colors.card,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   breakdownTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
     marginBottom: 10,
   },
   breakdownRow: {
@@ -428,27 +444,27 @@ const styles = StyleSheet.create({
   },
   breakdownLabel: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   breakdownVal: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#CBD5E1',
+    color: colors.textMuted,
   },
   breakdownDivider: {
     borderTopWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: colors.border,
     marginTop: 6,
     paddingTop: 6,
   },
   breakdownTotalLabel: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   breakdownTotalVal: {
     fontSize: 13,
     fontWeight: '900',
-    color: '#FF671F',
+    color: colors.primary,
   },
 });

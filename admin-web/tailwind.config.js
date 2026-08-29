@@ -9,16 +9,18 @@ export default {
     extend: {
       colors: {
         rail: {
-          dark: '#07162c',
-          navy: '#0B2545',
-          card: '#132F56',
-          border: '#1E4273',
+          white: '#FFFFFF',
+          light: '#F8FAFC',
+          card: '#FFFFFF',
+          border: '#E2E8F0',
+          text: '#0F172A',
+          muted: '#64748B',
           orange: '#FF671F',
-          saffron: '#FF7722',
+          saffron: '#F97316',
           green: '#10B981',
           gold: '#F59E0B',
           red: '#EF4444',
-          cyan: '#06B6D4'
+          blue: '#0EA5E9'
         }
       }
     },

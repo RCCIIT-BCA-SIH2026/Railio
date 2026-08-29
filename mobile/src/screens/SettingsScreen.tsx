@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { colors } from '../theme/colors';
 
 export const SettingsScreen: React.FC = () => {
   const [demoMode, setDemoMode] = useState(true);
@@ -20,7 +21,7 @@ export const SettingsScreen: React.FC = () => {
             <Text style={styles.settingTitle}>Demo Data Mode (Offline Resilient)</Text>
             <Text style={styles.settingSub}>Falls back to seeded railway records if offline</Text>
           </View>
-          <Switch value={demoMode} onValueChange={setDemoMode} trackColor={{ true: '#FF671F', false: '#334155' }} />
+          <Switch value={demoMode} onValueChange={setDemoMode} trackColor={{ true: colors.primary, false: colors.border }} />
         </View>
 
         <View style={styles.settingRow}>
@@ -28,7 +29,7 @@ export const SettingsScreen: React.FC = () => {
             <Text style={styles.settingTitle}>Live 3s GPS Stream Simulator</Text>
             <Text style={styles.settingSub}>Broadcasts continuous train vector movements</Text>
           </View>
-          <Switch value={gpsSim} onValueChange={setGpsSim} trackColor={{ true: '#FF671F', false: '#334155' }} />
+          <Switch value={gpsSim} onValueChange={setGpsSim} trackColor={{ true: colors.primary, false: colors.border }} />
         </View>
 
         <View style={styles.settingRow}>
@@ -36,7 +37,7 @@ export const SettingsScreen: React.FC = () => {
             <Text style={styles.settingTitle}>Push Notifications</Text>
             <Text style={styles.settingSub}>Alert for train delays & platform crowd surges</Text>
           </View>
-          <Switch value={pushNotifs} onValueChange={setPushNotifs} trackColor={{ true: '#FF671F', false: '#334155' }} />
+          <Switch value={pushNotifs} onValueChange={setPushNotifs} trackColor={{ true: colors.primary, false: colors.border }} />
         </View>
 
         <View style={[styles.settingRow, { borderBottomWidth: 0 }]}>
@@ -44,7 +45,7 @@ export const SettingsScreen: React.FC = () => {
             <Text style={styles.settingTitle}>WhatsApp AI Channel Sync</Text>
             <Text style={styles.settingSub}>Enable instant mobile travel alerts via WhatsApp</Text>
           </View>
-          <Switch value={waSync} onValueChange={setWaSync} trackColor={{ true: '#FF671F', false: '#334155' }} />
+          <Switch value={waSync} onValueChange={setWaSync} trackColor={{ true: colors.primary, false: colors.border }} />
         </View>
       </View>
     </ScrollView>
@@ -54,7 +55,7 @@ export const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
@@ -66,19 +67,24 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 2,
   },
   card: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: colors.card,
     borderRadius: 18,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   settingRow: {
     flexDirection: 'row',
@@ -86,16 +92,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+    borderBottomColor: colors.border,
   },
   settingTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   settingSub: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 2,
   },
 });

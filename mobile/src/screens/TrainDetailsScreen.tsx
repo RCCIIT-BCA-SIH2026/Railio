@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, Train } from '../types';
 import { getTrainByNumberApi } from '../services/api';
+import { colors } from '../theme/colors';
 
 export const TrainDetailsScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'TrainDetails'>>();
@@ -131,14 +132,14 @@ export const TrainDetailsScreen: React.FC = () => {
           style={[styles.actionBtn, styles.actionBtnCatch]}
           onPress={() => navigation.navigate('CanICatch', { trainNumber: train.trainNumber })}
         >
-          <Text style={styles.actionBtnText}>🎯 Can I Catch My Train?</Text>
+          <Text style={[styles.actionBtnText, { color: colors.white }]}>🎯 Can I Catch My Train?</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.actionBtn, styles.actionBtnLive]}
           onPress={() => navigation.navigate('LiveTrain', { trainNumber: train.trainNumber })}
         >
-          <Text style={styles.actionBtnText}>🗺️ Live Map Tracking</Text>
+          <Text style={[styles.actionBtnText, { color: colors.primary }]}>🗺️ Live Map Tracking</Text>
         </TouchableOpacity>
       </View>
 
@@ -217,7 +218,7 @@ export const TrainDetailsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
@@ -225,22 +226,27 @@ const styles = StyleSheet.create({
   },
   loaderCenter: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   loadingText: {
     marginTop: 12,
     fontSize: 12,
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   summaryCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
     marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   summaryTop: {
     flexDirection: 'row',
@@ -257,8 +263,8 @@ const styles = StyleSheet.create({
   trainNumBadge: {
     fontSize: 12,
     fontWeight: '900',
-    color: '#FF671F',
-    backgroundColor: 'rgba(255, 103, 31, 0.15)',
+    color: colors.primary,
+    backgroundColor: colors.primaryLight,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
@@ -266,12 +272,12 @@ const styles = StyleSheet.create({
   typeBadge: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   trainName: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   delayPill: {
     paddingHorizontal: 10,
@@ -280,12 +286,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   delayPillOnTime: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderColor: 'rgba(16, 185, 129, 0.4)',
+    backgroundColor: colors.greenLight,
+    borderColor: colors.green,
   },
   delayPillLate: {
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-    borderColor: 'rgba(245, 158, 11, 0.4)',
+    backgroundColor: colors.warningLight,
+    borderColor: colors.warning,
   },
   delayPillText: {
     fontSize: 11,
@@ -295,11 +301,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   gaugeItem: {
     alignItems: 'center',
@@ -308,25 +314,30 @@ const styles = StyleSheet.create({
   gaugeVal: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   gaugeLabel: {
     fontSize: 9,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 2,
   },
   gaugeDivider: {
     width: 1,
     height: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.border,
   },
   xaiCard: {
-    backgroundColor: 'rgba(11, 37, 69, 0.9)',
+    backgroundColor: colors.card,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 103, 31, 0.3)',
+    borderColor: colors.primaryLight,
     marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   xaiHeader: {
     flexDirection: 'row',
@@ -337,19 +348,19 @@ const styles = StyleSheet.create({
   xaiTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FF671F',
+    color: colors.primary,
   },
   xaiSub: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginBottom: 10,
   },
   xaiFactorsList: {
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   xaiFactorItem: {
     flexDirection: 'row',
@@ -359,12 +370,12 @@ const styles = StyleSheet.create({
   },
   xaiFactorName: {
     fontSize: 11,
-    color: '#CBD5E1',
+    color: colors.textMuted,
   },
   xaiFactorImpact: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#F59E0B',
+    color: colors.warningDark,
     fontFamily: 'monospace',
   },
   xaiTotalRow: {
@@ -374,17 +385,17 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: colors.border,
   },
   xaiTotalLabel: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   xaiTotalVal: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#FF671F',
+    color: colors.primary,
   },
   actionsRow: {
     flexDirection: 'row',
@@ -398,30 +409,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionBtnCatch: {
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
   },
   actionBtnLive: {
-    backgroundColor: '#0B2545',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   actionBtnText: {
-    color: '#FFFFFF',
+    color: colors.text,
     fontSize: 12,
     fontWeight: 'bold',
   },
   timelineSection: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   timelineSectionTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
     marginBottom: 14,
   },
   timelineContainer: {
@@ -437,11 +458,11 @@ const styles = StyleSheet.create({
   timelineDepTime: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   timelineKm: {
     fontSize: 9,
-    color: '#64748B',
+    color: colors.textLight,
   },
   timelineNodeCol: {
     alignItems: 'center',
@@ -455,15 +476,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   timelineDotPassed: {
-    backgroundColor: '#10B981',
+    backgroundColor: colors.greenDark,
   },
   timelineDotFuture: {
-    backgroundColor: '#64748B',
+    backgroundColor: colors.textLight,
   },
   timelineLine: {
     flex: 1,
     width: 2,
-    backgroundColor: '#1E4273',
+    backgroundColor: colors.border,
     marginVertical: 2,
   },
   timelineInfoCol: {
@@ -478,30 +499,37 @@ const styles = StyleSheet.create({
   timelineStationCode: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   platformBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: colors.background,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   platformBadgeText: {
     fontSize: 9,
-    color: '#94A3B8',
+    color: colors.textMuted,
     fontWeight: 'bold',
   },
   timelineArrDep: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 2,
   },
   coachSection: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   coachHeaderRow: {
     flexDirection: 'row',
@@ -512,18 +540,18 @@ const styles = StyleSheet.create({
   coachSectionTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   coachViewCrowdText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#FF671F',
+    color: colors.primary,
   },
   coachScroll: {
     flexDirection: 'row',
   },
   engineCoach: {
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 8,
@@ -532,24 +560,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   engineText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 10,
     fontWeight: 'bold',
   },
   coachBox: {
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 8,
     marginRight: 6,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
     minWidth: 42,
     alignItems: 'center',
     justifyContent: 'center',
   },
   coachText: {
-    color: '#CBD5E1',
+    color: colors.textMuted,
     fontSize: 11,
     fontWeight: 'bold',
   },

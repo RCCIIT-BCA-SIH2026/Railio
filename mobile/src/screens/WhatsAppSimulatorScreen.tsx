@@ -79,16 +79,16 @@ export const WhatsAppSimulatorScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#EFEAE2',
   },
   waHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0B2545',
+    backgroundColor: '#075E54',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#1E4273',
+    borderBottomColor: '#075E54',
     gap: 12,
   },
   avatar: {
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   headerStatus: {
     fontSize: 10,
-    color: '#25D366',
+    color: '#DCF8C6',
     fontWeight: '600',
   },
   chatArea: {
@@ -120,15 +120,20 @@ const styles = StyleSheet.create({
     maxWidth: '82%',
     padding: 12,
     borderRadius: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 1,
   },
   bubbleUser: {
     alignSelf: 'flex-end',
-    backgroundColor: '#005C4B',
+    backgroundColor: '#DCF8C6',
     borderBottomRightRadius: 2,
   },
   bubbleBot: {
     alignSelf: 'flex-start',
-    backgroundColor: '#202C33',
+    backgroundColor: '#FFFFFF',
     borderBottomLeftRadius: 2,
   },
   bubbleText: {
@@ -136,14 +141,14 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   textUser: {
-    color: '#E9EDEF',
+    color: '#000000',
   },
   textBot: {
-    color: '#E9EDEF',
+    color: '#000000',
   },
   msgTime: {
     fontSize: 8.5,
-    color: '#8696A0',
+    color: '#667781',
     alignSelf: 'flex-end',
     marginTop: 4,
   },
@@ -151,16 +156,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: '#202C33',
+    backgroundColor: '#F0F0F0',
     gap: 8,
   },
   input: {
     flex: 1,
-    backgroundColor: '#2A3942',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    color: '#FFFFFF',
+    color: '#000000',
     fontSize: 12,
   },
   sendBtn: {

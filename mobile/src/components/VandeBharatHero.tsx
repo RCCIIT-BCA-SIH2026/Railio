@@ -54,13 +54,13 @@ export const VandeBharatHero: React.FC<VandeBharatHeroProps> = ({ height = 210, 
         {/* Speed Wind Streaks */}
         <Path d="M 10 70 L 140 70" stroke="rgba(255, 103, 31, 0.4)" strokeWidth="2.5" strokeDasharray="15 8" />
         <Path d="M 30 95 L 180 95" stroke="rgba(56, 189, 248, 0.4)" strokeWidth="2" strokeDasharray="20 10" />
-        <Path d="M 15 175 L 200 175" stroke="rgba(255, 255, 255, 0.25)" strokeWidth="1.5" strokeDasharray="12 6" />
+        <Path d="M 15 175 L 200 175" stroke="rgba(0, 0, 0, 0.1)" strokeWidth="1.5" strokeDasharray="12 6" />
 
         {/* Railway High Speed Track Ballast Base */}
-        <Path d="M 0 198 L 400 198" stroke="#1E4273" strokeWidth="4" />
-        <Path d="M 0 205 L 400 205" stroke="#334155" strokeWidth="2" />
+        <Path d="M 0 198 L 400 198" stroke="#94A3B8" strokeWidth="4" />
+        <Path d="M 0 205 L 400 205" stroke="#CBD5E1" strokeWidth="2" />
         {Array.from({ length: 18 }).map((_, i) => (
-          <Rect key={i} x={i * 24} y="196" width="10" height="12" fill="#0F172A" rx="1" />
+          <Rect key={i} x={i * 24} y="196" width="10" height="12" fill="#94A3B8" rx="1" />
         ))}
 
         {/* Vande Bharat Aerodynamic Train Body */}

@@ -54,20 +54,20 @@ export const CrowdHeatmaps: React.FC = () => {
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="font-heading text-xl font-bold text-white flex items-center space-x-2">
+            <h2 className="font-heading text-xl font-bold text-rail-text flex items-center space-x-2">
               <span>Computer Vision Platform Crowd Intelligence</span>
-              <span className="px-2.5 py-0.5 text-xs font-bold bg-purple-950 text-purple-400 border border-purple-500/30 rounded-full">
+              <span className="px-2.5 py-0.5 text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 rounded-full">
                 YOLO CV Model Active
               </span>
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-rail-muted">
               Live automated person counting, platform density heatmaps, and surge detection
             </p>
           </div>
         </div>
 
         {/* Station Tabs */}
-        <div className="flex items-center space-x-2 bg-slate-950/80 p-1.5 rounded-xl border border-rail-border">
+        <div className="flex items-center space-x-2 bg-slate-50 p-1.5 rounded-xl border border-slate-200">
           {Object.keys(stationData).map((code) => (
             <button
               key={code}
@@ -75,7 +75,7 @@ export const CrowdHeatmaps: React.FC = () => {
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
                 selectedStation === code
                   ? 'bg-rail-orange text-white shadow-md'
-                  : 'text-slate-400 hover:text-white'
+                  : 'text-rail-muted hover:text-rail-text'
               }`}
             >
               {code} ({stationData[code].name.split(' ')[0]})
@@ -90,10 +90,10 @@ export const CrowdHeatmaps: React.FC = () => {
           const isRed = p.density > 80;
           const isYellow = p.density > 45 && p.density <= 80;
           const badgeColor = isRed
-            ? 'bg-red-950/80 text-red-400 border-red-500/40'
+            ? 'bg-red-50 text-red-700 border-red-200'
             : isYellow
-            ? 'bg-amber-950/80 text-amber-400 border-amber-500/40'
-            : 'bg-emerald-950/80 text-emerald-400 border-emerald-500/40';
+            ? 'bg-amber-50 text-amber-700 border-amber-200'
+            : 'bg-green-50 text-green-700 border-green-200';
 
           return (
             <div
@@ -101,14 +101,14 @@ export const CrowdHeatmaps: React.FC = () => {
               className="glass-panel glass-card-hover rounded-2xl p-5 border border-rail-border shadow-xl relative overflow-hidden"
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="font-heading text-lg font-bold text-white">Platform {p.num}</span>
+                <span className="font-heading text-lg font-bold text-rail-text">Platform {p.num}</span>
                 <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${badgeColor}`}>
                   {p.level} ({p.density}%)
                 </span>
               </div>
 
               {/* Density Progress Bar */}
-              <div className="w-full h-3 bg-slate-900 rounded-full overflow-hidden mb-3 border border-rail-border/60">
+              <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden mb-3 border border-slate-300">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
                     isRed ? 'bg-red-500' : isYellow ? 'bg-amber-400' : 'bg-emerald-400'
@@ -118,11 +118,11 @@ export const CrowdHeatmaps: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between text-xs mb-2">
-                <span className="text-slate-400">Detected Count:</span>
-                <span className="font-mono font-bold text-white">{p.count} Persons</span>
+                <span className="text-rail-muted">Detected Count:</span>
+                <span className="font-mono font-bold text-rail-text">{p.count} Persons</span>
               </div>
 
-              <p className="text-xs text-slate-300 bg-slate-900/60 p-2.5 rounded-lg border border-rail-border/40">
+              <p className="text-xs text-rail-muted bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                 {p.notes}
               </p>
             </div>
@@ -140,7 +140,7 @@ export const CrowdHeatmaps: React.FC = () => {
             <div className="text-xs font-bold text-rail-orange uppercase tracking-wider">
               AI Crowd Flow Directive
             </div>
-            <div className="text-sm font-semibold text-white">{current.aiAction}</div>
+            <div className="text-sm font-semibold text-rail-text">{current.aiAction}</div>
           </div>
         </div>
 

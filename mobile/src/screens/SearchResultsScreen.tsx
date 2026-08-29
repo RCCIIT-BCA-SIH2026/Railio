@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, Train } from '../types';
 import { searchTrainsApi } from '../services/api';
+import { colors } from '../theme/colors';
 
 export const SearchResultsScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'SearchResults'>>();
@@ -168,56 +169,61 @@ export const SearchResultsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   routeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#0B2545',
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#1E4273',
+    borderBottomColor: colors.primaryDark,
   },
   routeText: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.white,
   },
   dateSubtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: 'rgba(255, 255, 255, 0.8)',
     marginTop: 2,
   },
   modifyBtn: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: 'rgba(255, 103, 31, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 103, 31, 0.4)',
+    borderColor: 'rgba(255, 255, 255, 0.4)',
   },
   modifyBtnText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#FF671F',
+    color: colors.white,
   },
   listContent: {
     padding: 16,
     paddingBottom: 30,
   },
   card: {
-    backgroundColor: 'rgba(19, 47, 86, 0.75)',
+    backgroundColor: colors.card,
     borderRadius: 18,
     padding: 16,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   cardVB: {
-    borderColor: 'rgba(255, 103, 31, 0.35)',
-    backgroundColor: 'rgba(19, 47, 86, 0.9)',
+    borderColor: colors.primaryLight,
+    backgroundColor: colors.card,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -233,40 +239,43 @@ const styles = StyleSheet.create({
   trainNumber: {
     fontSize: 16,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   typeBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: colors.background,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   typeBadgeVB: {
-    backgroundColor: 'rgba(255, 103, 31, 0.2)',
+    backgroundColor: colors.primaryLight,
+    borderColor: colors.primary,
   },
   typeBadgeText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   trainName: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#CBD5E1',
+    color: colors.textMuted,
     marginTop: 2,
   },
   confidenceBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: colors.greenLight,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
+    borderColor: colors.green,
   },
   confidenceText: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#10B981',
+    color: colors.greenDark,
   },
   timingRow: {
     flexDirection: 'row',
@@ -275,7 +284,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderColor: colors.border,
     marginVertical: 10,
   },
   timingCol: {
@@ -284,17 +293,17 @@ const styles = StyleSheet.create({
   timeLabel: {
     fontSize: 8.5,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   timeVal: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
     marginTop: 2,
   },
   stationLabel: {
     fontSize: 10,
-    color: '#64748B',
+    color: colors.textLight,
     fontWeight: '600',
   },
   durationCol: {
@@ -304,7 +313,7 @@ const styles = StyleSheet.create({
   durationText: {
     fontSize: 9,
     fontWeight: '600',
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   durationLine: {
     flexDirection: 'row',
@@ -316,16 +325,16 @@ const styles = StyleSheet.create({
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
   },
   durationBar: {
     flex: 1,
     height: 1.5,
-    backgroundColor: '#1E4273',
+    backgroundColor: colors.border,
   },
   distanceText: {
     fontSize: 9,
-    color: '#64748B',
+    color: colors.textLight,
   },
   statusFooter: {
     flexDirection: 'row',
@@ -340,12 +349,12 @@ const styles = StyleSheet.create({
   },
   predictedLabel: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   predictedVal: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   delayStatusBadge: {
     paddingHorizontal: 8,
@@ -354,12 +363,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   delayStatusOnTime: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderColor: 'rgba(16, 185, 129, 0.3)',
+    backgroundColor: colors.greenLight,
+    borderColor: colors.green,
   },
   delayStatusLate: {
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    backgroundColor: colors.warningLight,
+    borderColor: colors.warning,
   },
   delayStatusText: {
     fontSize: 10,
@@ -371,21 +380,21 @@ const styles = StyleSheet.create({
   },
   cardActionBtn: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     paddingVertical: 8,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   cardActionBtnPrimary: {
-    backgroundColor: '#FF671F',
-    borderColor: '#FF671F',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   cardActionBtnText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#CBD5E1',
+    color: colors.text,
   },
   loaderCenter: {
     flex: 1,
@@ -395,7 +404,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 12,
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -404,11 +413,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   emptySub: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 4,
   },
 });

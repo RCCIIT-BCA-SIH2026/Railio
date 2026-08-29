@@ -70,7 +70,7 @@ export const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#07162C] text-slate-100 flex flex-col selection:bg-rail-orange selection:text-white">
+    <div className="min-h-screen bg-rail-light text-rail-text flex flex-col selection:bg-rail-orange selection:text-white">
       {/* Top Navigation Bar */}
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} metrics={metrics} />
 
@@ -119,12 +119,12 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="glass-panel border-t border-rail-border py-4 text-center text-xs text-slate-400">
+      <footer className="glass-panel border-t border-rail-border py-4 text-center text-xs text-rail-muted mt-auto">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
-            <span className="font-bold text-white font-heading">RailSathi</span> — AI-Powered Railway Intelligence Ecosystem (Predict • Protect • Connect)
+            <span className="font-bold text-rail-text font-heading">RailSathi</span> — AI-Powered Railway Intelligence Ecosystem (Predict • Protect • Connect)
           </div>
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-rail-muted">
             Hackathon Production Prototype • Decision Support Systems Active
           </div>
         </div>

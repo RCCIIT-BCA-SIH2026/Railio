@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types';
 import { getCoachCrowdApi } from '../services/api';
+import { colors } from '../theme/colors';
 
 export const CoachCrowdScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'CoachCrowd'>>();
@@ -56,7 +57,7 @@ export const CoachCrowdScreen: React.FC = () => {
         </View>
         <View style={{ flex: 1 }}>
           <Text style={styles.recTitle}>
-            Recommended Coach: <Text style={{ color: '#10B981' }}>{crowdData?.recommendedCoach || 'A3'}</Text>
+            Recommended Coach: <Text style={{ color: colors.greenDark }}>{crowdData?.recommendedCoach || 'A3'}</Text>
           </Text>
           <Text style={styles.recDesc}>
             {crowdData?.reason || 'Lowest estimated crowd density (29% occupancy). Ideal for smooth boarding.'}
@@ -110,19 +111,24 @@ export const CoachCrowdScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
   headerCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
     marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   headerTop: {
     flexDirection: 'row',
@@ -133,40 +139,40 @@ const styles = StyleSheet.create({
   trainNum: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#FF671F',
+    color: colors.primary,
   },
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
     marginTop: 2,
   },
   cvBadge: {
-    backgroundColor: 'rgba(168, 85, 247, 0.2)',
+    backgroundColor: 'rgba(168, 85, 247, 0.1)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(168, 85, 247, 0.4)',
+    borderColor: 'rgba(168, 85, 247, 0.3)',
   },
   cvBadgeText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#A855F7',
+    color: '#9333EA',
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     lineHeight: 16,
   },
   recommendationBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: colors.greenLight,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.4)',
+    borderColor: colors.green,
     marginBottom: 16,
     gap: 12,
   },
@@ -174,32 +180,37 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 14,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
   recTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   recDesc: {
     fontSize: 11,
-    color: '#CBD5E1',
+    color: colors.textMuted,
     marginTop: 2,
     lineHeight: 16,
   },
   rakeSection: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   rakeSectionTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
     marginBottom: 14,
   },
   coachesGrid: {
@@ -209,15 +220,15 @@ const styles = StyleSheet.create({
   },
   coachCard: {
     width: '47%',
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   coachCardBest: {
-    borderColor: '#10B981',
-    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+    borderColor: colors.green,
+    backgroundColor: colors.greenLight,
   },
   coachCardHeader: {
     flexDirection: 'row',
@@ -228,7 +239,7 @@ const styles = StyleSheet.create({
   coachId: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   densityDot: {
     width: 8,
@@ -241,13 +252,13 @@ const styles = StyleSheet.create({
   },
   densityLabel: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 2,
   },
   miniBar: {
     width: '100%',
     height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: colors.border,
     borderRadius: 2,
     marginTop: 8,
     overflow: 'hidden',

@@ -59,13 +59,13 @@ export const TrackHealthMonitor: React.FC<TrackHealthMonitorProps> = ({
               <Activity className="w-6 h-6 animate-pulse" />
             </div>
             <div>
-              <h2 className="font-heading text-xl font-bold text-white flex items-center space-x-2">
+              <h2 className="font-heading text-xl font-bold text-rail-text flex items-center space-x-2">
                 <span>ESP32 + MPU6050 Track Vibration & Progressive Risk Engine</span>
-                <span className="px-2.5 py-0.5 text-xs font-bold bg-red-950 text-red-400 border border-red-500/30 rounded-full">
+                <span className="px-2.5 py-0.5 text-xs font-bold bg-red-50 text-red-700 border border-red-200 rounded-full">
                   IoT Telemetry Node Active
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-rail-muted">
                 Continuous 3-axis accelerometer/gyro telemetry with multi-day wear degradation monitoring
               </p>
             </div>
@@ -77,7 +77,7 @@ export const TrackHealthMonitor: React.FC<TrackHealthMonitorProps> = ({
               disabled={cautionIssued}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2 ${
                 cautionIssued
-                  ? 'bg-emerald-700 text-white'
+                  ? 'bg-green-600 text-white'
                   : 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/20'
               }`}
             >
@@ -94,13 +94,13 @@ export const TrackHealthMonitor: React.FC<TrackHealthMonitorProps> = ({
         <div className="glass-panel rounded-2xl p-5 border border-rail-border shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-heading font-bold text-white text-sm flex items-center space-x-2">
+              <h3 className="font-heading font-bold text-rail-text text-sm flex items-center space-x-2">
                 <Radio className="w-4 h-4 text-rail-orange" />
                 <span>Live Vibration RMS Waveform (Section HWH-B17)</span>
               </h3>
-              <p className="text-xs text-slate-400">ESP32 MPU6050 Accelerometer Stream (g-force)</p>
+              <p className="text-xs text-rail-muted">ESP32 MPU6050 Accelerometer Stream (g-force)</p>
             </div>
-            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-900 text-amber-400 border border-rail-border">
+            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
               RMS: 3.42g (Threshold 2.4g)
             </span>
           </div>
@@ -108,11 +108,11 @@ export const TrackHealthMonitor: React.FC<TrackHealthMonitorProps> = ({
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={vibrationStream}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
                 <XAxis dataKey="time" stroke="#64748b" fontSize={11} />
                 <YAxis stroke="#64748b" fontSize={11} domain={[0, 4.5]} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#07162c', borderColor: '#1e4273', borderRadius: '8px' }}
+                  contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0', borderRadius: '8px', color: '#0F172A' }}
                 />
                 <Line
                   type="monotone"
@@ -139,13 +139,13 @@ export const TrackHealthMonitor: React.FC<TrackHealthMonitorProps> = ({
         <div className="glass-panel rounded-2xl p-5 border border-rail-border shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="font-heading font-bold text-white text-sm flex items-center space-x-2">
-                <TrendingUp className="w-4 h-4 text-red-400" />
+              <h3 className="font-heading font-bold text-rail-text text-sm flex items-center space-x-2">
+                <TrendingUp className="w-4 h-4 text-red-500" />
                 <span>4-Day Progressive Deterioration Trend</span>
               </h3>
-              <p className="text-xs text-slate-400">Risk Score Growth: Day 1 (18/100) to Day 4 (78/100)</p>
+              <p className="text-xs text-rail-muted">Risk Score Growth: Day 1 (18/100) to Day 4 (78/100)</p>
             </div>
-            <span className="text-xs font-bold px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-500/30">
+            <span className="text-xs font-bold px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200">
               PRIORITY: HIGH
             </span>
           </div>
@@ -153,11 +153,11 @@ export const TrackHealthMonitor: React.FC<TrackHealthMonitorProps> = ({
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={degradationData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
                 <XAxis dataKey="day" stroke="#64748b" fontSize={11} />
                 <YAxis stroke="#64748b" fontSize={11} domain={[0, 100]} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#07162c', borderColor: '#1e4273', borderRadius: '8px' }}
+                  contentStyle={{ backgroundColor: '#FFFFFF', borderColor: '#E2E8F0', borderRadius: '8px', color: '#0F172A' }}
                 />
                 <Bar dataKey="riskScore" fill="#EF4444" radius={[6, 6, 0, 0]} name="Progressive Risk Score" />
               </BarChart>
@@ -168,12 +168,12 @@ export const TrackHealthMonitor: React.FC<TrackHealthMonitorProps> = ({
 
       {/* Track Section Table */}
       <div className="glass-panel rounded-2xl p-5 border border-rail-border shadow-xl">
-        <h3 className="font-heading font-bold text-white text-sm mb-3">
+        <h3 className="font-heading font-bold text-rail-text text-sm mb-3">
           Track Infrastructure Section Health Matrix
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-900/80 text-slate-400 font-semibold border-b border-rail-border">
+            <thead className="bg-slate-50 text-rail-muted font-semibold border-b border-slate-200">
               <tr>
                 <th className="p-3">Section ID</th>
                 <th className="p-3">Corridor Name</th>
@@ -184,19 +184,19 @@ export const TrackHealthMonitor: React.FC<TrackHealthMonitorProps> = ({
                 <th className="p-3">Maintenance Priority</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-rail-border/40">
+            <tbody className="divide-y divide-slate-100">
               {trackSections.map((sec) => (
-                <tr key={sec.id} className="hover:bg-slate-900/40 transition">
-                  <td className="p-3 font-mono font-bold text-slate-200">{sec.id}</td>
-                  <td className="p-3 text-white font-medium">{sec.name}</td>
-                  <td className="p-3 font-bold text-slate-200">{sec.healthScore}/100</td>
-                  <td className="p-3 font-mono font-bold text-slate-200">{sec.vibrationRms}g</td>
+                <tr key={sec.id} className="hover:bg-slate-50 transition">
+                  <td className="p-3 font-mono font-bold text-rail-text">{sec.id}</td>
+                  <td className="p-3 text-rail-text font-medium">{sec.name}</td>
+                  <td className="p-3 font-bold text-rail-text">{sec.healthScore}/100</td>
+                  <td className="p-3 font-mono font-bold text-rail-text">{sec.vibrationRms}g</td>
                   <td className="p-3">
                     <span
                       className={`px-2 py-0.5 rounded font-bold text-[10px] ${
                         sec.deteriorationTrend === 'INCREASING'
-                          ? 'bg-amber-950 text-amber-400 border border-amber-500/30'
-                          : 'bg-emerald-950 text-emerald-400'
+                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                          : 'bg-green-50 text-green-700 border border-green-200'
                       }`}
                     >
                       {sec.deteriorationTrend}
@@ -206,14 +206,14 @@ export const TrackHealthMonitor: React.FC<TrackHealthMonitorProps> = ({
                     <span
                       className={`px-2.5 py-1 rounded-full font-bold text-[10px] border ${
                         sec.riskLevel === 'WARNING' || sec.riskLevel === 'HIGH_RISK'
-                          ? 'bg-amber-950/80 border-amber-500/40 text-amber-400'
-                          : 'bg-emerald-950/80 border-emerald-500/40 text-emerald-400'
+                          ? 'bg-amber-50 border-amber-200 text-amber-700'
+                          : 'bg-green-50 border-green-200 text-green-700'
                       }`}
                     >
                       {sec.riskLevel}
                     </span>
                   </td>
-                  <td className="p-3 font-bold text-slate-200">{sec.maintenancePriority}</td>
+                  <td className="p-3 font-bold text-rail-text">{sec.maintenancePriority}</td>
                 </tr>
               ))}
             </tbody>
