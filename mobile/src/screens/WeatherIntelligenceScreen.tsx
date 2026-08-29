@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { getWeatherApi } from '../services/api';
+import { AppBackground } from '../components/AppBackground';
 
 export const WeatherIntelligenceScreen: React.FC = () => {
   const [weatherData, setWeatherData] = useState<any>(null);
@@ -28,69 +29,74 @@ export const WeatherIntelligenceScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Weather Header Card */}
-      <View style={styles.headerCard}>
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.city}>{weather.city}</Text>
-            <Text style={styles.conditionText}>🌧️ {weather.condition}</Text>
+    <AppBackground variant="orange">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        {/* Weather Header Card */}
+        <View style={styles.headerCard}>
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.city}>{weather.city}</Text>
+              <Text style={styles.conditionText}>🌧️ {weather.condition}</Text>
+            </View>
+            <Text style={styles.tempText}>{weather.tempC}°C</Text>
           </View>
-          <Text style={styles.tempText}>{weather.tempC}°C</Text>
+
+          {/* Metrics Grid */}
+          <View style={styles.metricsGrid}>
+            <View style={styles.metricBox}>
+              <Text style={styles.metricVal}>{weather.rainMm} mm/h</Text>
+              <Text style={styles.metricLabel}>Rainfall</Text>
+            </View>
+            <View style={styles.metricBox}>
+              <Text style={styles.metricVal}>{weather.windKmh} km/h</Text>
+              <Text style={styles.metricLabel}>Wind Gusts</Text>
+            </View>
+            <View style={styles.metricBox}>
+              <Text style={styles.metricVal}>{weather.humidityPct}%</Text>
+              <Text style={styles.metricLabel}>Humidity</Text>
+            </View>
+            <View style={styles.metricBox}>
+              <Text style={styles.metricVal}>{weather.visibilityKm} km</Text>
+              <Text style={styles.metricLabel}>Visibility</Text>
+            </View>
+          </View>
         </View>
 
-        {/* Metrics Grid */}
-        <View style={styles.metricsGrid}>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricVal}>{weather.rainMm} mm/h</Text>
-            <Text style={styles.metricLabel}>Rainfall</Text>
+        {/* Railway Operations Impact Card */}
+        <View style={styles.impactCard}>
+          <View style={styles.impactHeader}>
+            <Text style={{ fontSize: 20 }}>⚠️</Text>
+            <Text style={styles.impactTitle}>Railway Track & Signal Impact</Text>
           </View>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricVal}>{weather.windKmh} km/h</Text>
-            <Text style={styles.metricLabel}>Wind Gusts</Text>
-          </View>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricVal}>{weather.humidityPct}%</Text>
-            <Text style={styles.metricLabel}>Humidity</Text>
-          </View>
-          <View style={styles.metricBox}>
-            <Text style={styles.metricVal}>{weather.visibilityKm} km</Text>
-            <Text style={styles.metricLabel}>Visibility</Text>
+          <Text style={styles.impactDesc}>{weather.railImpact}</Text>
+          <View style={styles.impactFooter}>
+            <Text style={styles.impactFooterText}>AI Weather Model: XGBoost Precipitation Correlator</Text>
           </View>
         </View>
-      </View>
-
-      {/* Railway Operations Impact Card */}
-      <View style={styles.impactCard}>
-        <View style={styles.impactHeader}>
-          <Text style={{ fontSize: 20 }}>⚠️</Text>
-          <Text style={styles.impactTitle}>Railway Track & Signal Impact</Text>
-        </View>
-        <Text style={styles.impactDesc}>{weather.railImpact}</Text>
-        <View style={styles.impactFooter}>
-          <Text style={styles.impactFooterText}>AI Weather Model: XGBoost Precipitation Correlator</Text>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
   headerCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
     marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   headerTop: {
     flexDirection: 'row',
@@ -101,18 +107,18 @@ const styles = StyleSheet.create({
   city: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   conditionText: {
     fontSize: 13,
-    color: '#38BDF8',
+    color: '#0284C7',
     marginTop: 2,
     fontWeight: '600',
   },
   tempText: {
     fontSize: 34,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   metricsGrid: {
     flexDirection: 'row',
@@ -120,29 +126,29 @@ const styles = StyleSheet.create({
   },
   metricBox: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     padding: 10,
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   metricVal: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   metricLabel: {
     fontSize: 9,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   impactCard: {
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    backgroundColor: '#FFFBEB',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    borderColor: '#FDE68A',
   },
   impactHeader: {
     flexDirection: 'row',
@@ -153,22 +159,22 @@ const styles = StyleSheet.create({
   impactTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#F59E0B',
+    color: '#B45309',
   },
   impactDesc: {
     fontSize: 12,
-    color: '#CBD5E1',
+    color: '#92400E',
     lineHeight: 18,
   },
   impactFooter: {
     marginTop: 12,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+    borderTopColor: '#FDE68A',
   },
   impactFooterText: {
     fontSize: 9.5,
-    color: '#94A3B8',
+    color: '#78350F',
     fontStyle: 'italic',
   },
 });

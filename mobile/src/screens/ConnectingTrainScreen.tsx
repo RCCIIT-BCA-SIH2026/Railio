@@ -1,9 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { AppBackground } from '../components/AppBackground';
 
 export const ConnectingTrainScreen: React.FC = () => {
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="orange">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>Connecting Train Transfer Intelligence</Text>
         <Text style={styles.subtext}>
@@ -45,13 +47,14 @@ export const ConnectingTrainScreen: React.FC = () => {
         </Text>
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
@@ -63,28 +66,31 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   connectionCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
     marginBottom: 14,
     gap: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   legCard: {
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   legBadge: {
     fontSize: 9,
@@ -95,62 +101,64 @@ const styles = StyleSheet.create({
   trainTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   timing: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   transferMeter: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    backgroundColor: '#FFFBEB',
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    borderColor: '#FDE68A',
     gap: 10,
   },
   transferCircle: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: '#07162C',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
   },
   bufferTitle: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   bufferMinutes: {
     fontSize: 10,
-    color: '#CBD5E1',
+    color: '#64748B',
     marginTop: 1,
   },
   probText: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#F59E0B',
+    color: '#D97706',
     marginTop: 2,
   },
   recCard: {
-    backgroundColor: 'rgba(11, 37, 69, 0.8)',
+    backgroundColor: '#ECFDF5',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#A7F3D0',
   },
   recTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#10B981',
+    color: '#059669',
   },
   recDesc: {
     fontSize: 11,
-    color: '#CBD5E1',
+    color: '#166534',
     marginTop: 4,
     lineHeight: 16,
   },

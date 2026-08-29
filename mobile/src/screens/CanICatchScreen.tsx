@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList, CatchTrainResult } from '../types';
 import { calculateCatchProbabilityApi } from '../services/api';
+import { AppBackground } from '../components/AppBackground';
 
 export const CanICatchScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'CanICatch'>>();
@@ -39,7 +40,8 @@ export const CanICatchScreen: React.FC = () => {
   const probColor = isHighProb ? '#10B981' : isModerateProb ? '#F59E0B' : '#EF4444';
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="orange">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header Banner */}
       <View style={styles.header}>
         <View style={styles.heroBadge}>
@@ -189,13 +191,14 @@ export const CanICatchScreen: React.FC = () => {
         </View>
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
@@ -209,7 +212,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: 'rgba(255, 103, 31, 0.2)',
+    backgroundColor: '#FFF7ED',
     borderWidth: 1.5,
     borderColor: '#FF671F',
     alignItems: 'center',
@@ -219,20 +222,24 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   headerSub: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     textAlign: 'center',
     marginTop: 4,
   },
   gaugeCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.85)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 22,
     padding: 20,
     borderWidth: 1.5,
     marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
   },
   gaugeTopRow: {
     flexDirection: 'row',
@@ -248,26 +255,26 @@ const styles = StyleSheet.create({
   trainNameText: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   predictedDepBox: {
     alignItems: 'flex-end',
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   depLabel: {
     fontSize: 8.5,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   depVal: {
     fontSize: 14,
     fontWeight: '900',
-    color: '#38BDF8',
+    color: '#0284C7',
   },
   percentageContainer: {
     alignItems: 'center',
@@ -280,7 +287,10 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#07162C',
+    backgroundColor: '#FFFFFF',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
   },
   percentageNumber: {
     fontSize: 38,
@@ -289,7 +299,7 @@ const styles = StyleSheet.create({
   probSubtitle: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
     letterSpacing: 1,
     marginTop: 2,
   },
@@ -307,35 +317,38 @@ const styles = StyleSheet.create({
   },
   altTrainCard: {
     marginTop: 12,
-    backgroundColor: '#07162C',
+    backgroundColor: '#FEF2F2',
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#EF4444',
+    borderColor: '#FECACA',
   },
   altTrainTitle: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#EF4444',
+    color: '#DC2626',
   },
   altTrainDetails: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#991B1B',
     marginTop: 2,
   },
   controlsCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
     marginBottom: 16,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   controlsTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginBottom: 14,
   },
   controlGroup: {
@@ -350,7 +363,7 @@ const styles = StyleSheet.create({
   controlLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#CBD5E1',
+    color: '#334155',
   },
   controlValue: {
     fontSize: 12,
@@ -363,12 +376,12 @@ const styles = StyleSheet.create({
   },
   chip: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     paddingVertical: 8,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   chipActive: {
     backgroundColor: '#FF671F',
@@ -377,7 +390,7 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   chipTextActive: {
     color: '#FFFFFF',
@@ -388,36 +401,39 @@ const styles = StyleSheet.create({
   },
   trafficBtn: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     paddingVertical: 8,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   trafficBtnActive: {
-    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+    backgroundColor: '#FEF3C7',
     borderColor: '#F59E0B',
   },
   trafficBtnText: {
     fontSize: 9.5,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   trafficBtnTextActive: {
-    color: '#F59E0B',
+    color: '#B45309',
   },
   breakdownCard: {
-    backgroundColor: 'rgba(11, 37, 69, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   breakdownTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginBottom: 10,
   },
   breakdownRow: {
@@ -428,23 +444,23 @@ const styles = StyleSheet.create({
   },
   breakdownLabel: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
   },
   breakdownVal: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#CBD5E1',
+    color: '#334155',
   },
   breakdownDivider: {
     borderTopWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: '#E2E8F0',
     marginTop: 6,
     paddingTop: 6,
   },
   breakdownTotalLabel: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   breakdownTotalVal: {
     fontSize: 13,

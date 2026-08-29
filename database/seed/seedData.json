@@ -19,7 +19,12 @@
     { "code": "BSB", "name": "Varanasi Junction", "city": "Varanasi", "state": "Uttar Pradesh", "zone": "NR", "lat": 25.3267, "lng": 82.9863, "platforms": 9, "isJunction": true },
     { "code": "LKO", "name": "Lucknow Charbagh", "city": "Lucknow", "state": "Uttar Pradesh", "zone": "NR", "lat": 26.8322, "lng": 80.9234, "platforms": 9, "isJunction": true },
     { "code": "JP", "name": "Jaipur Junction", "city": "Jaipur", "state": "Rajasthan", "zone": "NWR", "lat": 26.9196, "lng": 75.7878, "platforms": 8, "isJunction": true },
-    { "code": "RNC", "name": "Ranchi Junction", "city": "Ranchi", "state": "Jharkhand", "zone": "SER", "lat": 23.3503, "lng": 85.3250, "platforms": 6, "isJunction": true }
+    { "code": "RNC", "name": "Ranchi Junction", "city": "Ranchi", "state": "Jharkhand", "zone": "SER", "lat": 23.3503, "lng": 85.3250, "platforms": 6, "isJunction": true },
+    { "code": "DAKE", "name": "Dakshineswar", "city": "Kolkata", "state": "West Bengal", "zone": "ER", "lat": 22.6534, "lng": 88.3601, "platforms": 4, "isJunction": false },
+    { "code": "BARN", "name": "Baranagar Road", "city": "Kolkata", "state": "West Bengal", "zone": "ER", "lat": 22.6392, "lng": 88.3732, "platforms": 2, "isJunction": false },
+    { "code": "DDJ", "name": "Dum Dum Junction", "city": "Kolkata", "state": "West Bengal", "zone": "ER", "lat": 22.6219, "lng": 88.3931, "platforms": 5, "isJunction": true },
+    { "code": "BNXR", "name": "Bidhan Nagar Road", "city": "Kolkata", "state": "West Bengal", "zone": "ER", "lat": 22.5898, "lng": 88.3892, "platforms": 4, "isJunction": false },
+    { "code": "DKAE", "name": "Dankuni Junction", "city": "Hooghly", "state": "West Bengal", "zone": "ER", "lat": 22.6872, "lng": 88.2934, "platforms": 5, "isJunction": true }
   ],
   "trains": [
     {
@@ -357,6 +362,317 @@
         { "code": "BRC", "sequence": 3, "arr": "09:43", "dep": "09:46", "km": 392, "platform": 2 },
         { "code": "ADI", "sequence": 4, "arr": "11:25", "dep": "11:25", "km": 491, "platform": 1 }
       ]
+    },
+    {
+      "trainNumber": "32244",
+      "name": "Dankuni - Sealdah Local",
+      "type": "Suburban EMU Local",
+      "source": "DKAE",
+      "destination": "SDAH",
+      "departureTime": "08:25",
+      "arrivalTime": "09:05",
+      "totalDistanceKm": 22,
+      "avgSpeed": 38,
+      "coaches": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12"],
+      "liveState": {
+        "lat": 22.6534,
+        "lng": 88.3601,
+        "speed": 42,
+        "heading": 140,
+        "currentSection": "DAKE-BARN-SUB1",
+        "lastStation": "DAKE",
+        "nextStation": "BARN",
+        "delayMinutes": 2,
+        "predictedDelay": 2,
+        "confidence": 0.95,
+        "status": "ON_TIME",
+        "delayReasons": [
+          { "factor": "Commuter boarding dwell at Dakshineswar", "impactMin": 2 }
+        ]
+      },
+      "stops": [
+        { "code": "DKAE", "sequence": 1, "arr": "08:25", "dep": "08:25", "km": 0, "platform": 2 },
+        { "code": "DAKE", "sequence": 2, "arr": "08:35", "dep": "08:37", "km": 6, "platform": 2 },
+        { "code": "BARN", "sequence": 3, "arr": "08:42", "dep": "08:43", "km": 8, "platform": 1 },
+        { "code": "DDJ", "sequence": 4, "arr": "08:49", "dep": "08:51", "km": 11, "platform": 4 },
+        { "code": "BNXR", "sequence": 5, "arr": "08:56", "dep": "08:57", "km": 14, "platform": 2 },
+        { "code": "SDAH", "sequence": 6, "arr": "09:05", "dep": "09:05", "km": 22, "platform": 3 }
+      ]
+    },
+    {
+      "trainNumber": "32246",
+      "name": "Dankuni - Sealdah Local",
+      "type": "Suburban EMU Local",
+      "source": "DKAE",
+      "destination": "SDAH",
+      "departureTime": "11:10",
+      "arrivalTime": "11:50",
+      "totalDistanceKm": 22,
+      "avgSpeed": 40,
+      "coaches": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12"],
+      "liveState": {
+        "lat": 22.6872,
+        "lng": 88.2934,
+        "speed": 48,
+        "heading": 135,
+        "currentSection": "DKAE-DAKE-SUB2",
+        "lastStation": "DKAE",
+        "nextStation": "DAKE",
+        "delayMinutes": 0,
+        "predictedDelay": 0,
+        "confidence": 0.96,
+        "status": "ON_TIME",
+        "delayReasons": []
+      },
+      "stops": [
+        { "code": "DKAE", "sequence": 1, "arr": "11:10", "dep": "11:10", "km": 0, "platform": 1 },
+        { "code": "DAKE", "sequence": 2, "arr": "11:20", "dep": "11:22", "km": 6, "platform": 2 },
+        { "code": "BARN", "sequence": 3, "arr": "11:27", "dep": "11:28", "km": 8, "platform": 1 },
+        { "code": "DDJ", "sequence": 4, "arr": "11:34", "dep": "11:36", "km": 11, "platform": 4 },
+        { "code": "BNXR", "sequence": 5, "arr": "11:41", "dep": "11:42", "km": 14, "platform": 2 },
+        { "code": "SDAH", "sequence": 6, "arr": "11:50", "dep": "11:50", "km": 22, "platform": 4 }
+      ]
+    },
+    {
+      "trainNumber": "32248",
+      "name": "Dankuni - Sealdah Local",
+      "type": "Suburban EMU Local",
+      "source": "DKAE",
+      "destination": "SDAH",
+      "departureTime": "14:05",
+      "arrivalTime": "14:45",
+      "totalDistanceKm": 22,
+      "avgSpeed": 40,
+      "coaches": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12"],
+      "liveState": {
+        "lat": 22.6219,
+        "lng": 88.3931,
+        "speed": 35,
+        "heading": 160,
+        "currentSection": "DDJ-BNXR-SUB1",
+        "lastStation": "DDJ",
+        "nextStation": "BNXR",
+        "delayMinutes": 3,
+        "predictedDelay": 4,
+        "confidence": 0.92,
+        "status": "ON_TIME",
+        "delayReasons": [
+          { "factor": "Interlocking signal hold at Dum Dum Jn", "impactMin": 3 }
+        ]
+      },
+      "stops": [
+        { "code": "DKAE", "sequence": 1, "arr": "14:05", "dep": "14:05", "km": 0, "platform": 3 },
+        { "code": "DAKE", "sequence": 2, "arr": "14:15", "dep": "14:17", "km": 6, "platform": 2 },
+        { "code": "BARN", "sequence": 3, "arr": "14:22", "dep": "14:23", "km": 8, "platform": 1 },
+        { "code": "DDJ", "sequence": 4, "arr": "14:29", "dep": "14:31", "km": 11, "platform": 4 },
+        { "code": "BNXR", "sequence": 5, "arr": "14:36", "dep": "14:37", "km": 14, "platform": 2 },
+        { "code": "SDAH", "sequence": 6, "arr": "14:45", "dep": "14:45", "km": 22, "platform": 2 }
+      ]
+    },
+    {
+      "trainNumber": "32250",
+      "name": "Dankuni - Sealdah Peak Fast Local",
+      "type": "Suburban EMU Fast",
+      "source": "DKAE",
+      "destination": "SDAH",
+      "departureTime": "17:30",
+      "arrivalTime": "18:05",
+      "totalDistanceKm": 22,
+      "avgSpeed": 45,
+      "coaches": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12"],
+      "liveState": {
+        "lat": 22.6534,
+        "lng": 88.3601,
+        "speed": 52,
+        "heading": 145,
+        "currentSection": "DAKE-DDJ-FAST",
+        "lastStation": "DAKE",
+        "nextStation": "DDJ",
+        "delayMinutes": 4,
+        "predictedDelay": 5,
+        "confidence": 0.91,
+        "status": "ON_TIME",
+        "delayReasons": [
+          { "factor": "Evening peak crowd surge at Dakshineswar", "impactMin": 4 }
+        ]
+      },
+      "stops": [
+        { "code": "DKAE", "sequence": 1, "arr": "17:30", "dep": "17:30", "km": 0, "platform": 2 },
+        { "code": "DAKE", "sequence": 2, "arr": "17:40", "dep": "17:42", "km": 6, "platform": 2 },
+        { "code": "DDJ", "sequence": 3, "arr": "17:50", "dep": "17:52", "km": 11, "platform": 4 },
+        { "code": "BNXR", "sequence": 4, "arr": "17:57", "dep": "17:58", "km": 14, "platform": 2 },
+        { "code": "SDAH", "sequence": 5, "arr": "18:05", "dep": "18:05", "km": 22, "platform": 1 }
+      ]
+    },
+    {
+      "trainNumber": "32212",
+      "name": "Dankuni - Sealdah Local",
+      "type": "Suburban EMU Local",
+      "source": "DKAE",
+      "destination": "SDAH",
+      "departureTime": "19:15",
+      "arrivalTime": "19:55",
+      "totalDistanceKm": 22,
+      "avgSpeed": 38,
+      "coaches": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12"],
+      "liveState": {
+        "lat": 22.6392,
+        "lng": 88.3732,
+        "speed": 40,
+        "heading": 150,
+        "currentSection": "BARN-DDJ-SUB1",
+        "lastStation": "BARN",
+        "nextStation": "DDJ",
+        "delayMinutes": 1,
+        "predictedDelay": 1,
+        "confidence": 0.94,
+        "status": "ON_TIME",
+        "delayReasons": []
+      },
+      "stops": [
+        { "code": "DKAE", "sequence": 1, "arr": "19:15", "dep": "19:15", "km": 0, "platform": 1 },
+        { "code": "DAKE", "sequence": 2, "arr": "19:25", "dep": "19:27", "km": 6, "platform": 2 },
+        { "code": "BARN", "sequence": 3, "arr": "19:32", "dep": "19:33", "km": 8, "platform": 1 },
+        { "code": "DDJ", "sequence": 4, "arr": "19:39", "dep": "19:41", "km": 11, "platform": 4 },
+        { "code": "BNXR", "sequence": 5, "arr": "19:46", "dep": "19:47", "km": 14, "platform": 2 },
+        { "code": "SDAH", "sequence": 6, "arr": "19:55", "dep": "19:55", "km": 22, "platform": 5 }
+      ]
+    },
+    {
+      "trainNumber": "32214",
+      "name": "Dankuni - Sealdah Local",
+      "type": "Suburban EMU Local",
+      "source": "DKAE",
+      "destination": "SDAH",
+      "departureTime": "21:00",
+      "arrivalTime": "21:40",
+      "totalDistanceKm": 22,
+      "avgSpeed": 40,
+      "coaches": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12"],
+      "liveState": {
+        "lat": 22.6872,
+        "lng": 88.2934,
+        "speed": 45,
+        "heading": 135,
+        "currentSection": "DKAE-DAKE-SUB1",
+        "lastStation": "DKAE",
+        "nextStation": "DAKE",
+        "delayMinutes": 0,
+        "predictedDelay": 0,
+        "confidence": 0.97,
+        "status": "ON_TIME",
+        "delayReasons": []
+      },
+      "stops": [
+        { "code": "DKAE", "sequence": 1, "arr": "21:00", "dep": "21:00", "km": 0, "platform": 2 },
+        { "code": "DAKE", "sequence": 2, "arr": "21:10", "dep": "21:12", "km": 6, "platform": 2 },
+        { "code": "BARN", "sequence": 3, "arr": "21:17", "dep": "21:18", "km": 8, "platform": 1 },
+        { "code": "DDJ", "sequence": 4, "arr": "21:24", "dep": "21:26", "km": 11, "platform": 4 },
+        { "code": "BNXR", "sequence": 5, "arr": "21:31", "dep": "21:32", "km": 14, "platform": 2 },
+        { "code": "SDAH", "sequence": 6, "arr": "21:40", "dep": "21:40", "km": 22, "platform": 3 }
+      ]
+    },
+    {
+      "trainNumber": "32216",
+      "name": "Dankuni - Sealdah Night Local",
+      "type": "Suburban EMU Local",
+      "source": "DKAE",
+      "destination": "SDAH",
+      "departureTime": "23:25",
+      "arrivalTime": "00:05",
+      "totalDistanceKm": 22,
+      "avgSpeed": 42,
+      "coaches": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12"],
+      "liveState": {
+        "lat": 22.6534,
+        "lng": 88.3601,
+        "speed": 50,
+        "heading": 140,
+        "currentSection": "DAKE-BARN-SUB1",
+        "lastStation": "DAKE",
+        "nextStation": "BARN",
+        "delayMinutes": 1,
+        "predictedDelay": 1,
+        "confidence": 0.95,
+        "status": "ON_TIME",
+        "delayReasons": []
+      },
+      "stops": [
+        { "code": "DKAE", "sequence": 1, "arr": "23:25", "dep": "23:25", "km": 0, "platform": 1 },
+        { "code": "DAKE", "sequence": 2, "arr": "23:35", "dep": "23:37", "km": 6, "platform": 2 },
+        { "code": "BARN", "sequence": 3, "arr": "23:42", "dep": "23:43", "km": 8, "platform": 1 },
+        { "code": "DDJ", "sequence": 4, "arr": "23:49", "dep": "23:51", "km": 11, "platform": 4 },
+        { "code": "BNXR", "sequence": 5, "arr": "23:56", "dep": "23:57", "km": 14, "platform": 2 },
+        { "code": "SDAH", "sequence": 6, "arr": "00:05", "dep": "00:05", "km": 22, "platform": 4 }
+      ]
+    },
+    {
+      "trainNumber": "32238",
+      "name": "Dankuni - Sealdah Matribhoomi Ladies Special",
+      "type": "Matribhoomi Local",
+      "source": "DKAE",
+      "destination": "SDAH",
+      "departureTime": "09:00",
+      "arrivalTime": "09:40",
+      "totalDistanceKm": 22,
+      "avgSpeed": 40,
+      "coaches": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12"],
+      "liveState": {
+        "lat": 22.6534,
+        "lng": 88.3601,
+        "speed": 44,
+        "heading": 140,
+        "currentSection": "DKAE-DAKE-SUB1",
+        "lastStation": "DKAE",
+        "nextStation": "DAKE",
+        "delayMinutes": 0,
+        "predictedDelay": 0,
+        "confidence": 0.98,
+        "status": "ON_TIME",
+        "delayReasons": []
+      },
+      "stops": [
+        { "code": "DKAE", "sequence": 1, "arr": "09:00", "dep": "09:00", "km": 0, "platform": 2 },
+        { "code": "DAKE", "sequence": 2, "arr": "09:10", "dep": "09:12", "km": 6, "platform": 2 },
+        { "code": "BARN", "sequence": 3, "arr": "09:17", "dep": "09:18", "km": 8, "platform": 1 },
+        { "code": "DDJ", "sequence": 4, "arr": "09:24", "dep": "09:26", "km": 11, "platform": 4 },
+        { "code": "BNXR", "sequence": 5, "arr": "09:31", "dep": "09:32", "km": 14, "platform": 2 },
+        { "code": "SDAH", "sequence": 6, "arr": "09:40", "dep": "09:40", "km": 22, "platform": 1 }
+      ]
+    },
+    {
+      "trainNumber": "32211",
+      "name": "Sealdah - Dankuni Local (Up)",
+      "type": "Suburban EMU Local",
+      "source": "SDAH",
+      "destination": "DKAE",
+      "departureTime": "10:15",
+      "arrivalTime": "10:55",
+      "totalDistanceKm": 22,
+      "avgSpeed": 40,
+      "coaches": ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "C11", "C12"],
+      "liveState": {
+        "lat": 22.5898,
+        "lng": 88.3892,
+        "speed": 46,
+        "heading": 320,
+        "currentSection": "BNXR-DDJ-UP1",
+        "lastStation": "BNXR",
+        "nextStation": "DDJ",
+        "delayMinutes": 0,
+        "predictedDelay": 0,
+        "confidence": 0.95,
+        "status": "ON_TIME",
+        "delayReasons": []
+      },
+      "stops": [
+        { "code": "SDAH", "sequence": 1, "arr": "10:15", "dep": "10:15", "km": 0, "platform": 4 },
+        { "code": "BNXR", "sequence": 2, "arr": "10:22", "dep": "10:23", "km": 8, "platform": 1 },
+        { "code": "DDJ", "sequence": 3, "arr": "10:28", "dep": "10:30", "km": 11, "platform": 3 },
+        { "code": "BARN", "sequence": 4, "arr": "10:36", "dep": "10:37", "km": 14, "platform": 2 },
+        { "code": "DAKE", "sequence": 5, "arr": "10:43", "dep": "10:45", "km": 16, "platform": 1 },
+        { "code": "DKAE", "sequence": 6, "arr": "10:55", "dep": "10:55", "km": 22, "platform": 2 }
+      ]
     }
   ],
   "trackSections": [
@@ -375,6 +691,12 @@
   "crowdData": {
     "stations": {
       "HWH": { "platform1": 91, "platform2": 54, "platform3": 21, "platform9": 84, "platform21": 73, "overall": 82 },
+      "SDAH": { "platform1": 88, "platform2": 72, "platform3": 45, "platform4": 30, "platform5": 65, "overall": 68 },
+      "DAKE": { "platform1": 38, "platform2": 78, "platform3": 25, "platform4": 20, "overall": 52 },
+      "BARN": { "platform1": 42, "platform2": 50, "overall": 46 },
+      "DDJ": { "platform1": 85, "platform2": 92, "platform3": 68, "platform4": 74, "platform5": 58, "overall": 81 },
+      "BNXR": { "platform1": 60, "platform2": 65, "platform3": 35, "platform4": 40, "overall": 54 },
+      "DKAE": { "platform1": 45, "platform2": 55, "platform3": 30, "overall": 42 },
       "NDLS": { "platform1": 78, "platform5": 62, "platform10": 45, "platform12": 89, "overall": 76 },
       "MMCT": { "platform1": 42, "platform2": 38, "platform5": 68, "overall": 51 },
       "BBS": { "platform1": 35, "platform3": 55, "platform4": 79, "overall": 58 }
@@ -405,6 +727,64 @@
         ],
         "recommendedCoach": "E2",
         "reason": "Executive Class coach with only 30% passenger load."
+      },
+      "32216": {
+        "trainNumber": "32216",
+        "trainName": "Dankuni - Sealdah Night Local",
+        "telemetryType": "GOOGLE_MAPS_CELLULAR_TRACKING",
+        "coaches": [
+          { "coach": "C1", "name": "Coach 1 (Front General)", "density": 28, "status": "GREEN", "activePhoneSignals": 22, "signalStrengthDbm": -72, "bleBeacons": 14, "coachType": "GENERAL", "platformMarker": "FRONT_PLATFORM", "advice": "Plenty of seats available" },
+          { "coach": "C2", "name": "Coach 2 (Ladies Compartment)", "density": 35, "status": "GREEN", "activePhoneSignals": 18, "signalStrengthDbm": -68, "bleBeacons": 12, "coachType": "LADIES", "platformMarker": "FRONT_PLATFORM", "advice": "Ladies only - low occupancy" },
+          { "coach": "C3", "name": "Coach 3 (General Second)", "density": 22, "status": "GREEN", "activePhoneSignals": 16, "signalStrengthDbm": -75, "bleBeacons": 9, "coachType": "GENERAL", "platformMarker": "FRONT_MIDDLE", "advice": "Optimal coach (22% load)" },
+          { "coach": "C4", "name": "Coach 4 (Vendor Compartment)", "density": 48, "status": "YELLOW", "activePhoneSignals": 34, "signalStrengthDbm": -65, "bleBeacons": 20, "coachType": "VENDOR", "platformMarker": "MIDDLE_PLATFORM", "advice": "Moderate cargo & passengers" },
+          { "coach": "C5", "name": "Coach 5 (Mid General)", "density": 65, "status": "YELLOW", "activePhoneSignals": 52, "signalStrengthDbm": -62, "bleBeacons": 35, "coachType": "GENERAL", "platformMarker": "MIDDLE_STAIRS", "advice": "Near foot-over-bridge stairs" },
+          { "coach": "C6", "name": "Coach 6 (Mid General)", "density": 72, "status": "ORANGE", "activePhoneSignals": 60, "signalStrengthDbm": -60, "bleBeacons": 41, "coachType": "GENERAL", "platformMarker": "MIDDLE_STAIRS", "advice": "Staircase boarding rush" },
+          { "coach": "C7", "name": "Coach 7 (General Second)", "density": 44, "status": "YELLOW", "activePhoneSignals": 36, "signalStrengthDbm": -70, "bleBeacons": 23, "coachType": "GENERAL", "platformMarker": "REAR_MIDDLE", "advice": "Comfortable standing space" },
+          { "coach": "C8", "name": "Coach 8 (Ladies Compartment)", "density": 30, "status": "GREEN", "activePhoneSignals": 15, "signalStrengthDbm": -74, "bleBeacons": 11, "coachType": "LADIES", "platformMarker": "REAR_MIDDLE", "advice": "Ladies only - spacious" },
+          { "coach": "C9", "name": "Coach 9 (General Second)", "density": 25, "status": "GREEN", "activePhoneSignals": 19, "signalStrengthDbm": -78, "bleBeacons": 13, "coachType": "GENERAL", "platformMarker": "REAR_PLATFORM", "advice": "High seat vacancy" },
+          { "coach": "C10", "name": "Coach 10 (General Second)", "density": 32, "status": "GREEN", "activePhoneSignals": 24, "signalStrengthDbm": -73, "bleBeacons": 16, "coachType": "GENERAL", "platformMarker": "REAR_PLATFORM", "advice": "Seats available" },
+          { "coach": "C11", "name": "Coach 11 (Vendor Compartment)", "density": 40, "status": "GREEN", "activePhoneSignals": 28, "signalStrengthDbm": -69, "bleBeacons": 18, "coachType": "VENDOR", "platformMarker": "REAR_END", "advice": "Light vendor load" },
+          { "coach": "C12", "name": "Coach 12 (Rear General)", "density": 36, "status": "GREEN", "activePhoneSignals": 26, "signalStrengthDbm": -71, "bleBeacons": 17, "coachType": "GENERAL", "platformMarker": "REAR_END", "advice": "Easy deboarding at Sealdah" }
+        ],
+        "recommendedCoach": "C3",
+        "recommendedCoaches": ["C3", "C9", "C1"],
+        "reason": "Google Maps cellular tracking detects only 16 active phone signals in Coach C3 (22% load). Board at Platform 2 front-middle marker.",
+        "telemetryStats": {
+          "totalTrackedDevices": 348,
+          "aggregationMethod": "Google Maps Mobile Signal Density & BLE Mesh Clustering",
+          "accuracyRadiusMeters": 2.8,
+          "averageVelocityKmh": 50,
+          "lastRefreshedSecsAgo": 3
+        }
+      },
+      "32250": {
+        "trainNumber": "32250",
+        "trainName": "Dankuni - Sealdah Peak Fast Local",
+        "telemetryType": "GOOGLE_MAPS_CELLULAR_TRACKING",
+        "coaches": [
+          { "coach": "C1", "name": "Coach 1 (Front General)", "density": 65, "status": "YELLOW", "activePhoneSignals": 58, "signalStrengthDbm": -62, "bleBeacons": 38, "coachType": "GENERAL", "platformMarker": "FRONT_PLATFORM", "advice": "Moderate peak crowd" },
+          { "coach": "C2", "name": "Coach 2 (Ladies Compartment)", "density": 78, "status": "ORANGE", "activePhoneSignals": 64, "signalStrengthDbm": -58, "bleBeacons": 42, "coachType": "LADIES", "platformMarker": "FRONT_PLATFORM", "advice": "Busy evening rush" },
+          { "coach": "C3", "name": "Coach 3 (General Second)", "density": 48, "status": "YELLOW", "activePhoneSignals": 42, "signalStrengthDbm": -68, "bleBeacons": 28, "coachType": "GENERAL", "platformMarker": "FRONT_MIDDLE", "advice": "Lowest crowd in front rake" },
+          { "coach": "C4", "name": "Coach 4 (Vendor Compartment)", "density": 92, "status": "RED", "activePhoneSignals": 88, "signalStrengthDbm": -52, "bleBeacons": 56, "coachType": "VENDOR", "platformMarker": "MIDDLE_PLATFORM", "advice": "Heavy cargo & vendor rush" },
+          { "coach": "C5", "name": "Coach 5 (Mid General)", "density": 118, "status": "CRITICAL", "activePhoneSignals": 142, "signalStrengthDbm": -48, "bleBeacons": 84, "coachType": "GENERAL", "platformMarker": "MIDDLE_STAIRS", "advice": "Superdense crush load! Avoid" },
+          { "coach": "C6", "name": "Coach 6 (Mid General)", "density": 125, "status": "CRITICAL", "activePhoneSignals": 156, "signalStrengthDbm": -46, "bleBeacons": 92, "coachType": "GENERAL", "platformMarker": "MIDDLE_STAIRS", "advice": "Stairs choke point - extreme rush" },
+          { "coach": "C7", "name": "Coach 7 (General Second)", "density": 98, "status": "RED", "activePhoneSignals": 94, "signalStrengthDbm": -54, "bleBeacons": 60, "coachType": "GENERAL", "platformMarker": "REAR_MIDDLE", "advice": "Heavy congestion" },
+          { "coach": "C8", "name": "Coach 8 (Ladies Compartment)", "density": 70, "status": "ORANGE", "activePhoneSignals": 58, "signalStrengthDbm": -64, "bleBeacons": 36, "coachType": "LADIES", "platformMarker": "REAR_MIDDLE", "advice": "Moderate standing crowd" },
+          { "coach": "C9", "name": "Coach 9 (General Second)", "density": 52, "status": "YELLOW", "activePhoneSignals": 46, "signalStrengthDbm": -66, "bleBeacons": 30, "coachType": "GENERAL", "platformMarker": "REAR_PLATFORM", "advice": "Walk to rear for 58% less crowd" },
+          { "coach": "C10", "name": "Coach 10 (General Second)", "density": 58, "status": "YELLOW", "activePhoneSignals": 50, "signalStrengthDbm": -65, "bleBeacons": 32, "coachType": "GENERAL", "platformMarker": "REAR_PLATFORM", "advice": "Comfortable standing" },
+          { "coach": "C11", "name": "Coach 11 (Vendor Compartment)", "density": 85, "status": "RED", "activePhoneSignals": 76, "signalStrengthDbm": -55, "bleBeacons": 48, "coachType": "VENDOR", "platformMarker": "REAR_END", "advice": "Vendor goods loading" },
+          { "coach": "C12", "name": "Coach 12 (Rear General)", "density": 62, "status": "YELLOW", "activePhoneSignals": 54, "signalStrengthDbm": -63, "bleBeacons": 35, "coachType": "GENERAL", "platformMarker": "REAR_END", "advice": "Decent boarding speed" }
+        ],
+        "recommendedCoach": "C3",
+        "recommendedCoaches": ["C3", "C9", "C10"],
+        "reason": "Avoid Middle Coaches C5 & C6 (125% crush load). Walk 40 meters to Coach C3 or C9 for 60% lower crowd density.",
+        "telemetryStats": {
+          "totalTrackedDevices": 928,
+          "aggregationMethod": "Google Maps Mobile Signal Density & BLE Mesh Clustering",
+          "accuracyRadiusMeters": 3.1,
+          "averageVelocityKmh": 52,
+          "lastRefreshedSecsAgo": 2
+        }
       }
     }
   },

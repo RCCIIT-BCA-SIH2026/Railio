@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { AppBackground } from '../components/AppBackground';
 
 export const CrowdStatusScreen: React.FC = () => {
   const [selectedStation, setSelectedStation] = useState('HWH');
@@ -13,7 +14,8 @@ export const CrowdStatusScreen: React.FC = () => {
   ];
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="blue">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.headerCard}>
         <Text style={styles.title}>Station Platform Crowd Density</Text>
         <Text style={styles.subtext}>
@@ -49,45 +51,52 @@ export const CrowdStatusScreen: React.FC = () => {
         })}
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
   headerCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
     marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 4,
   },
   platformsContainer: {
     gap: 12,
   },
   platformCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -98,7 +107,7 @@ const styles = StyleSheet.create({
   pfTitle: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   badge: {
     paddingHorizontal: 8,
@@ -113,10 +122,12 @@ const styles = StyleSheet.create({
   barBackground: {
     width: '100%',
     height: 8,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F1F5F9',
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   barFill: {
     height: '100%',
@@ -130,10 +141,10 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#CBD5E1',
+    color: '#334155',
   },
   labelText: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#64748B',
   },
 });

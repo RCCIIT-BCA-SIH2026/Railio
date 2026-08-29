@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { AppBackground } from '../components/AppBackground';
 
 export const AdminQuickAlertsScreen: React.FC = () => {
   const [approved, setApproved] = useState(false);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="blue">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>Controller Quick Actions</Text>
         <Text style={styles.subtext}>Mobile decision support for Divisional Railway Managers</Text>
@@ -28,13 +30,14 @@ export const AdminQuickAlertsScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
@@ -46,46 +49,49 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   alertCard: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    backgroundColor: '#FEF2F2',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1.5,
-    borderColor: 'rgba(239, 68, 68, 0.4)',
+    borderColor: '#FECACA',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
   },
   alertCategory: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#EF4444',
+    color: '#DC2626',
   },
   alertTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#991B1B',
     marginTop: 4,
   },
   alertDesc: {
     fontSize: 11.5,
-    color: '#CBD5E1',
+    color: '#7F1D1D',
     marginTop: 6,
     lineHeight: 16,
   },
   actionBtn: {
-    backgroundColor: '#EF4444',
+    backgroundColor: '#DC2626',
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 14,
   },
   actionBtnApproved: {
-    backgroundColor: '#10B981',
+    backgroundColor: '#059669',
   },
   actionBtnText: {
     color: '#FFFFFF',

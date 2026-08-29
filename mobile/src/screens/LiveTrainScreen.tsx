@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { getLiveTrainApi } from '../services/api';
+import { AppBackground } from '../components/AppBackground';
 
 export const LiveTrainScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'LiveTrain'>>();
@@ -50,45 +51,46 @@ export const LiveTrainScreen: React.FC = () => {
   const currentSpeed = (train.liveState?.speed || 90) + speedOffset;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Top Header Card */}
-      <View style={styles.headerCard}>
-        <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.trainNumText}>Train #{train.trainNumber}</Text>
-            <Text style={styles.trainNameText}>{train.name}</Text>
+    <AppBackground variant="orange">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        {/* Top Header Card */}
+        <View style={styles.headerCard}>
+          <View style={styles.headerTop}>
+            <View>
+              <Text style={styles.trainNumText}>Train #{train.trainNumber}</Text>
+              <Text style={styles.trainNameText}>{train.name}</Text>
+            </View>
+            <View style={styles.liveGpsBadge}>
+              <View style={styles.livePulseDot} />
+              <Text style={styles.liveGpsText}>LIVE GPS (3s)</Text>
+            </View>
           </View>
-          <View style={styles.liveGpsBadge}>
-            <View style={styles.livePulseDot} />
-            <Text style={styles.liveGpsText}>LIVE GPS (3s)</Text>
+
+          {/* Speedometer and Telemetry Row */}
+          <View style={styles.telemetryGrid}>
+            <View style={styles.telemetryBox}>
+              <Text style={styles.telemetryVal}>{currentSpeed}</Text>
+              <Text style={styles.telemetryUnit}>KM/H</Text>
+              <Text style={styles.telemetryLabel}>Instant Speed</Text>
+            </View>
+
+            <View style={styles.telemetryBox}>
+              <Text style={[styles.telemetryVal, { color: '#F59E0B' }]}>
+                +{train.liveState?.delayMinutes || 0}
+              </Text>
+              <Text style={styles.telemetryUnit}>MINUTES</Text>
+              <Text style={styles.telemetryLabel}>Current Delay</Text>
+            </View>
+
+            <View style={styles.telemetryBox}>
+              <Text style={[styles.telemetryVal, { color: '#10B981' }]}>
+                {Math.round((train.liveState?.confidence || 0.9) * 100)}%
+              </Text>
+              <Text style={styles.telemetryUnit}>SCORE</Text>
+              <Text style={styles.telemetryLabel}>AI Confidence</Text>
+            </View>
           </View>
         </View>
-
-        {/* Speedometer and Telemetry Row */}
-        <View style={styles.telemetryGrid}>
-          <View style={styles.telemetryBox}>
-            <Text style={styles.telemetryVal}>{currentSpeed}</Text>
-            <Text style={styles.telemetryUnit}>KM/H</Text>
-            <Text style={styles.telemetryLabel}>Instant Speed</Text>
-          </View>
-
-          <View style={styles.telemetryBox}>
-            <Text style={[styles.telemetryVal, { color: '#F59E0B' }]}>
-              +{train.liveState.delayMinutes}
-            </Text>
-            <Text style={styles.telemetryUnit}>MINUTES</Text>
-            <Text style={styles.telemetryLabel}>Current Delay</Text>
-          </View>
-
-          <View style={styles.telemetryBox}>
-            <Text style={[styles.telemetryVal, { color: '#10B981' }]}>
-              {Math.round(train.liveState.confidence * 100)}%
-            </Text>
-            <Text style={styles.telemetryUnit}>SCORE</Text>
-            <Text style={styles.telemetryLabel}>AI Confidence</Text>
-          </View>
-        </View>
-      </View>
 
       {/* Interactive Corridor Visualizer (Fallback Native Vector Map) */}
       <View style={styles.mapCard}>
@@ -151,33 +153,37 @@ export const LiveTrainScreen: React.FC = () => {
         <Text style={styles.catchCtaArrow}>→</Text>
       </TouchableOpacity>
 
-      {/* Station Dwell & Delay Predictor Card */}
-      <View style={styles.infoCard}>
-        <Text style={styles.infoTitle}>Next Interlocking Clearance</Text>
-        <Text style={styles.infoDesc}>
-          Train is approaching <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>{train.liveState.nextStation || 'Prayagraj Junction'}</Text>. AI predicts 4 min outer signal clearance delay before platform docking.
-        </Text>
-      </View>
-    </ScrollView>
+        {/* Station Dwell & Delay Predictor Card */}
+        <View style={styles.infoCard}>
+          <Text style={styles.infoTitle}>Next Interlocking Clearance</Text>
+          <Text style={styles.infoDesc}>
+            Train is approaching <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>{train.liveState?.nextStation || 'Prayagraj Junction'}</Text>. AI predicts 4 min outer signal clearance delay before platform docking.
+          </Text>
+        </View>
+      </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
   headerCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
     marginBottom: 14,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   headerTop: {
     flexDirection: 'row',
@@ -193,18 +199,18 @@ const styles = StyleSheet.create({
   trainNameText: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginTop: 2,
   },
   liveGpsBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: '#ECFDF5',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.4)',
+    borderColor: '#A7F3D0',
     gap: 4,
   },
   livePulseDot: {
@@ -216,7 +222,7 @@ const styles = StyleSheet.create({
   liveGpsText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#10B981',
+    color: '#059669',
   },
   telemetryGrid: {
     flexDirection: 'row',
@@ -224,22 +230,22 @@ const styles = StyleSheet.create({
   },
   telemetryBox: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     borderRadius: 14,
     padding: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   telemetryVal: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   telemetryUnit: {
     fontSize: 8,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 1,
   },
   telemetryLabel: {
@@ -248,12 +254,15 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   mapCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.75)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
     marginBottom: 14,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   mapCardHeader: {
     marginBottom: 12,
@@ -261,19 +270,19 @@ const styles = StyleSheet.create({
   mapCardTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   mapCardSub: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   trackCanvas: {
     height: 160,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
     justifyContent: 'center',
     position: 'relative',
     overflow: 'hidden',
@@ -289,15 +298,15 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     height: 4,
-    backgroundColor: '#1E4273',
+    backgroundColor: '#CBD5E1',
   },
   railTrackInner: {
     position: 'absolute',
     left: 20,
     right: 20,
     height: 2,
-    backgroundColor: '#38BDF8',
-    opacity: 0.6,
+    backgroundColor: '#0284C7',
+    opacity: 0.8,
   },
   stationNode: {
     position: 'absolute',
@@ -320,12 +329,12 @@ const styles = StyleSheet.create({
   stationNodeName: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginTop: 4,
   },
   stationNodeStatus: {
     fontSize: 9,
-    color: '#94A3B8',
+    color: '#64748B',
   },
   liveTrainMarker: {
     position: 'absolute',
@@ -338,7 +347,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(255, 103, 31, 0.25)',
+    backgroundColor: 'rgba(255, 103, 31, 0.2)',
     top: -5,
   },
   trainMarkerCircle: {
@@ -352,18 +361,19 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
   trainTooltip: {
-    backgroundColor: '#07162C',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#FF671F',
     marginTop: 4,
+    elevation: 2,
   },
   trainTooltipText: {
     fontSize: 8,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   coordinatesRow: {
     marginTop: 10,
@@ -377,11 +387,11 @@ const styles = StyleSheet.create({
   catchCtaButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 103, 31, 0.15)',
+    backgroundColor: '#FFF7ED',
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 103, 31, 0.4)',
+    borderColor: '#FED7AA',
     marginBottom: 14,
   },
   catchCtaIcon: {
@@ -391,11 +401,11 @@ const styles = StyleSheet.create({
   catchCtaTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   catchCtaSub: {
     fontSize: 10,
-    color: '#CBD5E1',
+    color: '#64748B',
     marginTop: 2,
   },
   catchCtaArrow: {
@@ -404,21 +414,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   infoCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
   },
   infoTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#CBD5E1',
+    color: '#0F172A',
     marginBottom: 4,
   },
   infoDesc: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     lineHeight: 16,
   },
 });

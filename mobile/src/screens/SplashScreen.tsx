@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { VandeBharatHero } from '../components/VandeBharatHero';
+import { AppBackground } from '../components/AppBackground';
 
 export const SplashScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -16,7 +17,8 @@ export const SplashScreen: React.FC = () => {
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
+    <AppBackground variant="orange">
+      <View style={styles.container}>
       {/* Background Gradient Effect */}
       <View style={styles.glowCircle} />
 
@@ -43,13 +45,14 @@ export const SplashScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
     </View>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
@@ -59,7 +62,7 @@ const styles = StyleSheet.create({
     width: 320,
     height: 320,
     borderRadius: 160,
-    backgroundColor: 'rgba(255, 103, 31, 0.12)',
+    backgroundColor: 'rgba(255, 103, 31, 0.08)',
     top: '25%',
   },
   content: {
@@ -70,12 +73,15 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 24,
-    backgroundColor: 'rgba(255, 103, 31, 0.2)',
+    backgroundColor: '#FFF7ED',
     borderWidth: 2,
     borderColor: '#FF671F',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
+    elevation: 3,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.2,
   },
   trainEmoji: {
     fontSize: 42,
@@ -83,7 +89,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 34,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: '#0F172A',
     letterSpacing: 1.5,
   },
   tagline: {
@@ -96,7 +102,7 @@ const styles = StyleSheet.create({
   },
   subtext: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 4,
     marginBottom: 20,
   },
@@ -110,10 +116,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: 'rgba(19, 47, 86, 0.6)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   pulseDot: {
     width: 8,
@@ -124,7 +133,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 11,
-    color: '#CBD5E1',
+    color: '#475569',
     fontWeight: '500',
   },
   skipButton: {
@@ -133,6 +142,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#FF671F',
     borderRadius: 12,
+    elevation: 2,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.25,
   },
   skipText: {
     color: '#FFFFFF',

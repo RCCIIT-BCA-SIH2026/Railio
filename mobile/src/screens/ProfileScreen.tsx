@@ -3,12 +3,14 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
+import { AppBackground } from '../components/AppBackground';
 
 export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="orange">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Profile Header */}
       <View style={styles.profileCard}>
         <View style={styles.avatar}>
@@ -64,32 +66,36 @@ export const ProfileScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
   profileCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
     marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   avatar: {
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: '#0B2545',
+    backgroundColor: '#FFF7ED',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -99,33 +105,36 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   userEmail: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   verifiedBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: '#ECFDF5',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
     marginTop: 8,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.4)',
+    borderColor: '#A7F3D0',
   },
   verifiedText: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#10B981',
+    color: '#059669',
   },
   menuCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
   },
   menuItem: {
     flexDirection: 'row',
@@ -133,12 +142,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+    borderBottomColor: '#F1F5F9',
   },
   menuText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   menuArrow: {
     fontSize: 16,

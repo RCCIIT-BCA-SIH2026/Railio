@@ -27,18 +27,18 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#07162C] flex items-center justify-center p-6 text-slate-100">
-          <div className="max-w-md w-full glass-panel border border-red-500/40 rounded-2xl p-6 shadow-2xl text-center space-y-4">
-            <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/40 text-red-400 mx-auto flex items-center justify-center">
+        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 text-slate-800">
+          <div className="max-w-md w-full bg-white border border-red-200 rounded-2xl p-6 shadow-xl text-center space-y-4">
+            <div className="w-12 h-12 rounded-xl bg-red-50 border border-red-200 text-red-600 mx-auto flex items-center justify-center shadow-sm">
               <AlertTriangle className="w-6 h-6" />
             </div>
-            <h2 className="text-lg font-heading font-bold text-white">Dashboard Encountered an Error</h2>
-            <p className="text-xs text-slate-300 bg-slate-900/80 p-3 rounded-lg border border-rail-border font-mono text-left overflow-auto max-h-32">
+            <h2 className="text-lg font-heading font-bold text-slate-900">Dashboard Encountered an Error</h2>
+            <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-200 font-mono text-left overflow-auto max-h-32">
               {this.state.error?.message || 'An unexpected rendering error occurred.'}
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-rail-orange hover:bg-rail-saffron text-white rounded-lg text-xs font-bold transition flex items-center justify-center space-x-2 mx-auto shadow-lg shadow-rail-orange/20"
+              className="px-4 py-2 bg-rail-orange hover:bg-rail-saffron text-white rounded-lg text-xs font-bold transition flex items-center justify-center space-x-2 mx-auto shadow-sm"
             >
               <RefreshCw className="w-4 h-4" />
               <span>Reload Dashboard</span>

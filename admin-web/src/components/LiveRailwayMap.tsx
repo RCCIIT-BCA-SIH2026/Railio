@@ -74,57 +74,57 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Interactive Map Visualizer */}
-      <div className="lg:col-span-2 glass-panel rounded-2xl p-5 border border-rail-border shadow-2xl relative overflow-hidden flex flex-col">
+      <div className="lg:col-span-2 bg-white rounded-2xl p-5 border border-slate-200 shadow-sm relative overflow-hidden flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-rail-orange/20 border border-rail-orange/40 flex items-center justify-center text-rail-orange">
+            <div className="w-9 h-9 rounded-xl bg-orange-50 border border-orange-200 flex items-center justify-center text-rail-orange shadow-sm">
               <Navigation className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <h3 className="font-heading text-base font-bold text-white flex items-center space-x-2">
+              <h3 className="font-heading text-base font-bold text-slate-900 flex items-center space-x-2">
                 <span>National Railway Corridor Digital Twin</span>
-                <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-950 text-emerald-400 border border-emerald-500/40">
+                <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                   REAL-TIME GPS
                 </span>
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500">
                 Interactive Indian Railway network topology with live train vector positions & block health
               </p>
             </div>
           </div>
 
           <div className="flex items-center space-x-3 text-xs">
-            <div className="flex items-center space-x-1.5 text-slate-300">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+            <div className="flex items-center space-x-1.5 text-slate-600">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
               <span>On Time</span>
             </div>
-            <div className="flex items-center space-x-1.5 text-slate-300">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+            <div className="flex items-center space-x-1.5 text-slate-600">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
               <span>Delayed (&gt;5m)</span>
             </div>
-            <div className="flex items-center space-x-1.5 text-slate-300">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+            <div className="flex items-center space-x-1.5 text-slate-600">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
               <span>Track Risk</span>
             </div>
           </div>
         </div>
 
         {/* SVG Railway Network Canvas */}
-        <div className="relative flex-1 min-h-[460px] bg-slate-950/80 rounded-xl border border-rail-border/60 p-2 overflow-hidden flex items-center justify-center">
+        <div className="relative flex-1 min-h-[460px] bg-[#F1F5F9] rounded-xl border border-slate-200 p-2 overflow-hidden flex items-center justify-center">
           <svg viewBox="0 0 950 680" className="w-full h-full select-none">
             <defs>
               <linearGradient id="trackGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#1E4273" />
-                <stop offset="100%" stopColor="#0B2545" />
+                <stop offset="0%" stopColor="#94A3B8" />
+                <stop offset="100%" stopColor="#64748B" />
               </linearGradient>
               <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feGaussianBlur stdDeviation="3" result="blur" />
                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
               </filter>
             </defs>
 
             {/* Grid Pattern */}
-            <g stroke="rgba(255,255,255,0.03)" strokeWidth="1">
+            <g stroke="rgba(0,0,0,0.04)" strokeWidth="1">
               {Array.from({ length: 15 }).map((_, i) => (
                 <line key={`h-${i}`} x1="0" y1={i * 50} x2="950" y2={i * 50} />
               ))}
@@ -140,7 +140,7 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
               if (!nodeA || !nodeB) return null;
 
               const isRiskSection = c.id === 'CNB-PRYJ-S1' || c.id === 'DDU-PRYJ-B17';
-              const lineColor = isRiskSection ? '#F59E0B' : '#1E4273';
+              const lineColor = isRiskSection ? '#EA580C' : '#94A3B8';
 
               return (
                 <g key={i}>
@@ -152,7 +152,7 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
                     stroke={lineColor}
                     strokeWidth={isRiskSection ? 3.5 : 2.5}
                     strokeDasharray={isRiskSection ? '6 4' : undefined}
-                    strokeOpacity={0.8}
+                    strokeOpacity={0.9}
                   />
                 </g>
               );
@@ -161,16 +161,16 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
             {/* Station Hub Nodes */}
             {stationNodes.map((s, i) => (
               <g key={i} className="cursor-pointer group">
-                <circle cx={s.x} cy={s.y} r="6" fill="#0B2545" stroke="#38BDF8" strokeWidth="2.5" />
-                <circle cx={s.x} cy={s.y} r="2.5" fill="#FFFFFF" />
+                <circle cx={s.x} cy={s.y} r="6" fill="#FFFFFF" stroke="#0284C7" strokeWidth="2.5" />
+                <circle cx={s.x} cy={s.y} r="2.5" fill="#0284C7" />
                 <text
                   x={s.x + 9}
                   y={s.y + 4}
-                  fill="#94A3B8"
+                  fill="#475569"
                   fontSize="10"
                   fontFamily="Inter"
-                  fontWeight="600"
-                  className="group-hover:fill-white transition-colors"
+                  fontWeight="700"
+                  className="group-hover:fill-slate-900 transition-colors"
                 >
                   {s.code}
                 </text>
@@ -183,7 +183,7 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
               const isSelected = selectedTrain?.trainNumber === train.trainNumber;
               const isDelayed = (train.delayMinutes || 0) > 5;
               const isVandeBharat = (train.type || train.name || '').toLowerCase().includes('vande');
-              const markerColor = isVandeBharat ? '#FF671F' : isDelayed ? '#F59E0B' : '#10B981';
+              const markerColor = isVandeBharat ? '#FF671F' : isDelayed ? '#D97706' : '#10B981';
 
               return (
                 <g
@@ -197,7 +197,7 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
                     cy={coord.y}
                     r={isSelected ? 16 : 11}
                     fill={markerColor}
-                    fillOpacity={0.25}
+                    fillOpacity={0.2}
                     className="animate-pulse-glow"
                   />
                   <circle
@@ -216,16 +216,16 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
                       width="56"
                       height="16"
                       rx="4"
-                      fill="#07162C"
+                      fill="#FFFFFF"
                       stroke={markerColor}
-                      strokeWidth="1"
-                      fillOpacity="0.9"
+                      strokeWidth="1.5"
+                      className="shadow-sm"
                     />
                     <text
                       x="28"
-                      y="11"
-                      fill="#FFFFFF"
-                      fontSize="8.5"
+                      y="11.5"
+                      fill="#0F172A"
+                      fontSize="9"
                       fontFamily="Inter"
                       fontWeight="bold"
                       textAnchor="middle"
@@ -239,33 +239,33 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
           </svg>
 
           {/* Map Controls Floating Badge */}
-          <div className="absolute bottom-3 left-3 flex items-center space-x-2 bg-slate-900/90 border border-rail-border px-3 py-1.5 rounded-lg text-xs text-slate-300">
+          <div className="absolute bottom-3 left-3 flex items-center space-x-2 bg-white/95 border border-slate-200 px-3 py-1.5 rounded-lg text-xs text-slate-700 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-rail-orange animate-ping" />
-            <span>Digital Twin Active ({trains.length} Rakes Tracked)</span>
+            <span className="font-medium">Digital Twin Active ({trains.length} Rakes Tracked)</span>
           </div>
         </div>
       </div>
 
       {/* Selected Train Live Telemetry & XAI Breakdown Card */}
-      <div className="glass-panel rounded-2xl p-5 border border-rail-border shadow-2xl flex flex-col justify-between">
+      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between border-b border-rail-border/60 pb-3 mb-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-lg bg-rail-orange/20 border border-rail-orange/30 flex items-center justify-center text-rail-orange">
+              <div className="w-8 h-8 rounded-lg bg-orange-50 border border-orange-200 flex items-center justify-center text-rail-orange shadow-sm">
                 <TrainIcon className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="font-heading font-bold text-white text-sm">
+                <h4 className="font-heading font-bold text-slate-900 text-sm">
                   {selectedTrain?.name || 'Vande Bharat Express'}
                 </h4>
-                <p className="text-[11px] text-slate-400">Train #{selectedTrain?.trainNumber || '22436'}</p>
+                <p className="text-[11px] text-slate-500">Train #{selectedTrain?.trainNumber || '22436'}</p>
               </div>
             </div>
             <span
               className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
                 selectedTrain && selectedTrain.delayMinutes > 5
-                  ? 'bg-amber-950/70 border-amber-500/40 text-amber-400'
-                  : 'bg-emerald-950/70 border-emerald-500/40 text-emerald-400'
+                  ? 'bg-amber-50 border-amber-200 text-amber-700'
+                  : 'bg-emerald-50 border-emerald-200 text-emerald-700'
               }`}
             >
               {selectedTrain && selectedTrain.delayMinutes > 0 ? `+${selectedTrain.delayMinutes}m Delay` : 'On Time'}
@@ -274,77 +274,77 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
 
           {/* Live Telemetry Metrics */}
           <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-slate-900/80 rounded-xl p-3 border border-rail-border">
-              <div className="flex items-center space-x-1.5 text-slate-400 text-xs mb-1">
-                <Gauge className="w-3.5 h-3.5 text-rail-cyan" />
+            <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
+              <div className="flex items-center space-x-1.5 text-slate-500 text-xs mb-1">
+                <Gauge className="w-3.5 h-3.5 text-sky-600" />
                 <span>Live Speed</span>
               </div>
-              <div className="text-xl font-heading font-extrabold text-white">
-                {selectedTrain?.speed || 118} <span className="text-xs font-normal text-slate-400">km/h</span>
+              <div className="text-xl font-heading font-extrabold text-slate-900">
+                {selectedTrain?.speed || 118} <span className="text-xs font-normal text-slate-500">km/h</span>
               </div>
             </div>
 
-            <div className="bg-slate-900/80 rounded-xl p-3 border border-rail-border">
-              <div className="flex items-center space-x-1.5 text-slate-400 text-xs mb-1">
+            <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
+              <div className="flex items-center space-x-1.5 text-slate-500 text-xs mb-1">
                 <Clock className="w-3.5 h-3.5 text-rail-orange" />
                 <span>Predicted Delay</span>
               </div>
-              <div className="text-xl font-heading font-extrabold text-white">
-                +{selectedTrain?.predictedDelay || 6} <span className="text-xs font-normal text-slate-400">min</span>
+              <div className="text-xl font-heading font-extrabold text-slate-900">
+                +{selectedTrain?.predictedDelay || 6} <span className="text-xs font-normal text-slate-500">min</span>
               </div>
             </div>
           </div>
 
           {/* Section & Location Info */}
           <div className="space-y-2 text-xs mb-4">
-            <div className="flex items-center justify-between py-1.5 border-b border-rail-border/40">
-              <span className="text-slate-400">Current Block Section:</span>
-              <span className="font-mono font-bold text-slate-200">{selectedTrain?.currentSection || 'CNB-PRYJ-S1'}</span>
+            <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">Current Block Section:</span>
+              <span className="font-mono font-bold text-slate-800">{selectedTrain?.currentSection || 'CNB-PRYJ-S1'}</span>
             </div>
-            <div className="flex items-center justify-between py-1.5 border-b border-rail-border/40">
-              <span className="text-slate-400">AI Confidence Index:</span>
-              <span className="font-bold text-emerald-400">94.2%</span>
+            <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
+              <span className="text-slate-500">AI Confidence Index:</span>
+              <span className="font-bold text-emerald-600">94.2%</span>
             </div>
             <div className="flex items-center justify-between py-1.5">
-              <span className="text-slate-400">Traction Status:</span>
-              <span className="font-semibold text-slate-200">25 kV AC Overhead 100% OK</span>
+              <span className="text-slate-500">Traction Status:</span>
+              <span className="font-semibold text-slate-800">25 kV AC Overhead 100% OK</span>
             </div>
           </div>
 
           {/* Explainable AI Delay Attribution Section */}
-          <div className="bg-slate-900/90 rounded-xl p-3.5 border border-rail-border/80">
-            <h5 className="text-xs font-bold text-slate-200 mb-2 flex items-center space-x-1.5">
+          <div className="bg-orange-50/60 rounded-xl p-3.5 border border-orange-100">
+            <h5 className="text-xs font-bold text-slate-900 mb-2 flex items-center space-x-1.5">
               <ShieldCheck className="w-4 h-4 text-rail-orange" />
               <span>Explainable AI (XAI) Attribution</span>
             </h5>
             <div className="space-y-1.5 text-[11px]">
-              <div className="flex items-center justify-between text-slate-300">
+              <div className="flex items-center justify-between text-slate-700">
                 <span>• Junction Interlocking Switch:</span>
-                <span className="font-mono font-bold text-amber-400">+3 min</span>
+                <span className="font-mono font-bold text-amber-700">+3 min</span>
               </div>
-              <div className="flex items-center justify-between text-slate-300">
+              <div className="flex items-center justify-between text-slate-700">
                 <span>• Weather & Headway Buffer:</span>
-                <span className="font-mono font-bold text-slate-400">+1 min</span>
+                <span className="font-mono font-bold text-slate-500">+1 min</span>
               </div>
-              <div className="flex items-center justify-between text-slate-300">
+              <div className="flex items-center justify-between text-slate-700">
                 <span>• Dwell Overshoot:</span>
-                <span className="font-mono font-bold text-slate-400">0 min</span>
+                <span className="font-mono font-bold text-slate-500">0 min</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="mt-4 pt-3 border-t border-rail-border/60 flex space-x-2">
+        <div className="mt-4 pt-3 border-t border-slate-100 flex space-x-2">
           <button
             onClick={() => alert(`Broadcasting speed advisory to Driver of Train ${selectedTrain?.trainNumber}`)}
-            className="flex-1 py-2 px-3 bg-rail-orange hover:bg-rail-saffron text-white rounded-lg text-xs font-bold transition shadow-lg shadow-rail-orange/20"
+            className="flex-1 py-2 px-3 bg-rail-orange hover:bg-rail-saffron text-white rounded-lg text-xs font-bold transition shadow-sm"
           >
             Issue Speed Advisory
           </button>
           <button
             onClick={() => alert(`Precedence simulator opened for ${selectedTrain?.trainNumber}`)}
-            className="py-2 px-3 bg-rail-card hover:bg-slate-800 text-slate-200 rounded-lg text-xs font-semibold border border-rail-border transition"
+            className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border border-slate-200 transition"
           >
             Simulate Priority
           </button>

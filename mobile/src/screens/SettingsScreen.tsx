@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { AppBackground } from '../components/AppBackground';
 
 export const SettingsScreen: React.FC = () => {
   const [demoMode, setDemoMode] = useState(true);
@@ -8,7 +9,8 @@ export const SettingsScreen: React.FC = () => {
   const [waSync, setWaSync] = useState(true);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="orange">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>System Settings & Demo Engine</Text>
         <Text style={styles.subtext}>Configure real-time telemetry simulation and data streams</Text>
@@ -20,7 +22,7 @@ export const SettingsScreen: React.FC = () => {
             <Text style={styles.settingTitle}>Demo Data Mode (Offline Resilient)</Text>
             <Text style={styles.settingSub}>Falls back to seeded railway records if offline</Text>
           </View>
-          <Switch value={demoMode} onValueChange={setDemoMode} trackColor={{ true: '#FF671F', false: '#334155' }} />
+          <Switch value={demoMode} onValueChange={setDemoMode} trackColor={{ true: '#FF671F', false: '#CBD5E1' }} />
         </View>
 
         <View style={styles.settingRow}>
@@ -28,7 +30,7 @@ export const SettingsScreen: React.FC = () => {
             <Text style={styles.settingTitle}>Live 3s GPS Stream Simulator</Text>
             <Text style={styles.settingSub}>Broadcasts continuous train vector movements</Text>
           </View>
-          <Switch value={gpsSim} onValueChange={setGpsSim} trackColor={{ true: '#FF671F', false: '#334155' }} />
+          <Switch value={gpsSim} onValueChange={setGpsSim} trackColor={{ true: '#FF671F', false: '#CBD5E1' }} />
         </View>
 
         <View style={styles.settingRow}>
@@ -36,7 +38,7 @@ export const SettingsScreen: React.FC = () => {
             <Text style={styles.settingTitle}>Push Notifications</Text>
             <Text style={styles.settingSub}>Alert for train delays & platform crowd surges</Text>
           </View>
-          <Switch value={pushNotifs} onValueChange={setPushNotifs} trackColor={{ true: '#FF671F', false: '#334155' }} />
+          <Switch value={pushNotifs} onValueChange={setPushNotifs} trackColor={{ true: '#FF671F', false: '#CBD5E1' }} />
         </View>
 
         <View style={[styles.settingRow, { borderBottomWidth: 0 }]}>
@@ -44,17 +46,18 @@ export const SettingsScreen: React.FC = () => {
             <Text style={styles.settingTitle}>WhatsApp AI Channel Sync</Text>
             <Text style={styles.settingSub}>Enable instant mobile travel alerts via WhatsApp</Text>
           </View>
-          <Switch value={waSync} onValueChange={setWaSync} trackColor={{ true: '#FF671F', false: '#334155' }} />
+          <Switch value={waSync} onValueChange={setWaSync} trackColor={{ true: '#FF671F', false: '#CBD5E1' }} />
         </View>
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
@@ -66,19 +69,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   card: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     paddingHorizontal: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   settingRow: {
     flexDirection: 'row',
@@ -86,16 +92,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+    borderBottomColor: '#F1F5F9',
   },
   settingTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   settingSub: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
 });

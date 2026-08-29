@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { VandeBharatHero } from '../components/VandeBharatHero';
+import { AppBackground } from '../components/AppBackground';
 import { getAlertsApi } from '../services/api';
 
 export const HomeScreen: React.FC = () => {
@@ -55,11 +56,12 @@ export const HomeScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF671F" />}
-    >
+    <AppBackground variant="orange">
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF671F" />}
+      >
       {/* Top Header Bar */}
       <View style={styles.topHeader}>
         <View style={styles.headerLeft}>
@@ -90,13 +92,21 @@ export const HomeScreen: React.FC = () => {
         </View>
       </View>
 
+      {/* Hero Visual Headline */}
+      <View style={styles.heroTextContainer}>
+        <Text style={styles.heroHeadline}>
+          India Moves{'\n'}
+          <Text style={{ color: '#FF671F' }}>With Progress</Text>
+        </Text>
+        <Text style={styles.heroSubheadline}>
+          Smart Journey. Stronger Connections. Real-time train updates, seamless booking, and a better travel experience for every Indian.
+        </Text>
+      </View>
+
       {/* Hero Visual Area with Vande Bharat Train */}
       <View style={styles.heroSection}>
         <View style={styles.heroGlow} />
-        <VandeBharatHero height={170} />
-        <View style={styles.taglineBadge}>
-          <Text style={styles.taglineText}>PREDICT • PROTECT • CONNECT</Text>
-        </View>
+        <VandeBharatHero height={160} />
       </View>
 
       {/* Main Train Search Card */}
@@ -160,6 +170,149 @@ export const HomeScreen: React.FC = () => {
           <Text style={styles.searchCtaText}>SEARCH TRAINS WITH AI</Text>
         </TouchableOpacity>
       </View>
+
+      {/* 5-Card Quick Service Row */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickServicesScroll} contentContainerStyle={styles.quickServicesContent}>
+        {/* 1. Live Train Status */}
+        <TouchableOpacity
+          style={styles.quickServiceCard}
+          onPress={() => navigation.navigate('LiveTrain', { trainNumber: '12301' })}
+        >
+          <View style={[styles.quickServiceIcon, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}>
+            <Text style={{ fontSize: 18 }}>🚆</Text>
+          </View>
+          <Text style={styles.quickServiceTitle}>Live Train Status</Text>
+          <Text style={styles.quickServiceSub}>Get real-time updates</Text>
+        </TouchableOpacity>
+
+        {/* 2. PNR Enquiry */}
+        <TouchableOpacity
+          style={styles.quickServiceCard}
+          onPress={() => navigation.navigate('SearchResults', { from: fromStation, to: toStation, date: journeyDate })}
+        >
+          <View style={[styles.quickServiceIcon, { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' }]}>
+            <Text style={{ fontSize: 18 }}>🎫</Text>
+          </View>
+          <Text style={styles.quickServiceTitle}>PNR Enquiry</Text>
+          <Text style={styles.quickServiceSub}>Check your status</Text>
+        </TouchableOpacity>
+
+        {/* 3. Seat Availability */}
+        <TouchableOpacity
+          style={styles.quickServiceCard}
+          onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
+        >
+          <View style={[styles.quickServiceIcon, { backgroundColor: '#CCFBF1', borderColor: '#99F6E4' }]}>
+            <Text style={{ fontSize: 18 }}>⏱️</Text>
+          </View>
+          <Text style={styles.quickServiceTitle}>Seat Availability</Text>
+          <Text style={styles.quickServiceSub}>Find seats with ease</Text>
+        </TouchableOpacity>
+
+        {/* 4. Station Info */}
+        <TouchableOpacity
+          style={styles.quickServiceCard}
+          onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
+        >
+          <View style={[styles.quickServiceIcon, { backgroundColor: '#FFEDD5', borderColor: '#FED7AA' }]}>
+            <Text style={{ fontSize: 18 }}>🚉</Text>
+          </View>
+          <Text style={styles.quickServiceTitle}>Station Info</Text>
+          <Text style={styles.quickServiceSub}>Explore stations</Text>
+        </TouchableOpacity>
+
+        {/* 5. 24/7 Support */}
+        <TouchableOpacity
+          style={styles.quickServiceCard}
+          onPress={() => navigation.navigate('Alerts')}
+        >
+          <View style={[styles.quickServiceIcon, { backgroundColor: '#E0F2FE', borderColor: '#BAE6FD' }]}>
+            <Text style={{ fontSize: 18 }}>🎧</Text>
+          </View>
+          <Text style={styles.quickServiceTitle}>24/7 Support</Text>
+          <Text style={styles.quickServiceSub}>Safety & help</Text>
+        </TouchableOpacity>
+      </ScrollView>
+
+      {/* 🌟 Suburban Local & Google Maps Cellular Signal Crowd Pulse Segment */}
+      <TouchableOpacity
+        style={styles.suburbanHeroSegment}
+        onPress={() => navigation.navigate('SuburbanLocal', { from: 'DAKE', to: 'SDAH' })}
+      >
+        <View style={styles.suburbanHeroTop}>
+          <View style={styles.suburbanHeroBadgeRow}>
+            <View style={styles.suburbanLivePill}>
+              <View style={styles.suburbanPulseDot} />
+              <Text style={styles.suburbanLivePillText}>LIVE PULSE</Text>
+            </View>
+            <View style={styles.googleTechBadge}>
+              <Text style={styles.googleTechBadgeText}>GOOGLE MAPS SIGNAL TECH</Text>
+            </View>
+          </View>
+          <Text style={styles.suburbanHeroArrow}>Search Locals →</Text>
+        </View>
+
+        <Text style={styles.suburbanHeroTitle}>
+          🚉 Dakshineswar ⇄ Sealdah Local
+        </Text>
+        <Text style={styles.suburbanHeroSub}>
+          Next Train in 4 min • Live 12-Coach Cellular Crowd Heatmap & Smart Boarding Advice
+        </Text>
+
+        <View style={styles.suburbanMiniHeatmap}>
+          <View style={styles.suburbanMiniCoachItem}>
+            <Text style={styles.miniCoachId}>C1</Text>
+            <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
+            <Text style={styles.miniCoachLoad}>28%</Text>
+          </View>
+          <View style={styles.suburbanMiniCoachItem}>
+            <Text style={styles.miniCoachId}>C2</Text>
+            <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
+            <Text style={styles.miniCoachLoad}>35%</Text>
+          </View>
+          <View style={[styles.suburbanMiniCoachItem, styles.miniCoachBest]}>
+            <Text style={styles.miniCoachId}>C3 ⭐</Text>
+            <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
+            <Text style={[styles.miniCoachLoad, { color: '#10B981' }]}>22%</Text>
+          </View>
+          <View style={styles.suburbanMiniCoachItem}>
+            <Text style={styles.miniCoachId}>C4</Text>
+            <View style={[styles.miniCoachDot, { backgroundColor: '#EAB308' }]} />
+            <Text style={styles.miniCoachLoad}>48%</Text>
+          </View>
+          <View style={styles.suburbanMiniCoachItem}>
+            <Text style={styles.miniCoachId}>C5</Text>
+            <View style={[styles.miniCoachDot, { backgroundColor: '#F97316' }]} />
+            <Text style={styles.miniCoachLoad}>68%</Text>
+          </View>
+          <View style={styles.suburbanMiniCoachItem}>
+            <Text style={styles.miniCoachId}>C6</Text>
+            <View style={[styles.miniCoachDot, { backgroundColor: '#EF4444' }]} />
+            <Text style={styles.miniCoachLoad}>74%</Text>
+          </View>
+          <View style={styles.suburbanMiniCoachItem}>
+            <Text style={styles.miniCoachId}>C7</Text>
+            <View style={[styles.miniCoachDot, { backgroundColor: '#EAB308' }]} />
+            <Text style={styles.miniCoachLoad}>44%</Text>
+          </View>
+          <View style={styles.suburbanMiniCoachItem}>
+            <Text style={styles.miniCoachId}>C8</Text>
+            <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
+            <Text style={styles.miniCoachLoad}>30%</Text>
+          </View>
+          <View style={[styles.suburbanMiniCoachItem, styles.miniCoachBest]}>
+            <Text style={styles.miniCoachId}>C9 ⭐</Text>
+            <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
+            <Text style={[styles.miniCoachLoad, { color: '#10B981' }]}>25%</Text>
+          </View>
+        </View>
+
+        <View style={styles.suburbanHeroFooter}>
+          <Text style={styles.suburbanHeroFooterText}>
+            💡 <Text style={{ color: '#10B981', fontWeight: 'bold' }}>Coach C3 & C9</Text> have lowest device density (~16 phone signals).
+          </Text>
+        </View>
+      </TouchableOpacity>
 
       {/* 4 Core Action Cards (Prompt Requirement) */}
       <View style={styles.sectionTitleRow}>
@@ -306,17 +459,17 @@ export const HomeScreen: React.FC = () => {
         <Text style={styles.aiBannerArrow}>→</Text>
       </TouchableOpacity>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
   },
   contentContainer: {
     padding: 16,
-    paddingTop: Platform.OS === 'ios' ? 50 : 35,
     paddingBottom: 40,
   },
   topHeader: {
@@ -334,7 +487,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 12,
-    backgroundColor: 'rgba(255, 103, 31, 0.2)',
+    backgroundColor: '#FFF7ED',
     borderWidth: 1.5,
     borderColor: '#FF671F',
     alignItems: 'center',
@@ -344,7 +497,7 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: '#0F172A',
     letterSpacing: 0.5,
   },
   brandSubtitle: {
@@ -362,11 +515,15 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#0B2545',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
   },
   alertDot: {
     position: 'absolute',
@@ -376,6 +533,24 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: '#EF4444',
+  },
+  heroTextContainer: {
+    marginBottom: 4,
+    marginTop: 6,
+  },
+  heroHeadline: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#0F172A',
+    lineHeight: 30,
+    letterSpacing: 0.5,
+  },
+  heroSubheadline: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 6,
+    lineHeight: 16,
+    fontWeight: '500',
   },
   heroSection: {
     alignItems: 'center',
@@ -387,16 +562,16 @@ const styles = StyleSheet.create({
     width: 240,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(255, 103, 31, 0.12)',
+    backgroundColor: 'rgba(255, 103, 31, 0.08)',
     top: 20,
   },
   taglineBadge: {
-    backgroundColor: 'rgba(11, 37, 69, 0.8)',
+    backgroundColor: '#FFF7ED',
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 103, 31, 0.3)',
+    borderColor: '#FFEDD5',
     marginTop: -8,
   },
   taglineText: {
@@ -406,12 +581,17 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
   },
   searchCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
     marginTop: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
   },
   searchCardHeader: {
     flexDirection: 'row',
@@ -422,20 +602,20 @@ const styles = StyleSheet.create({
   searchCardTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   demoBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    backgroundColor: '#ECFDF5',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.4)',
+    borderColor: '#A7F3D0',
   },
   demoBadgeText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#10B981',
+    color: '#059669',
   },
   stationsRow: {
     flexDirection: 'row',
@@ -445,22 +625,22 @@ const styles = StyleSheet.create({
   },
   stationInputBox: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     borderRadius: 12,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   stationInputLabel: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
     letterSpacing: 1,
   },
   stationInput: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
     paddingVertical: 2,
   },
   stationCityText: {
@@ -474,6 +654,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF671F',
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 2,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.3,
   },
   swapIcon: {
     fontSize: 16,
@@ -481,22 +664,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   dateSelector: {
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     borderRadius: 12,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
     marginBottom: 14,
   },
   dateLabel: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   dateInput: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
     paddingVertical: 2,
   },
   searchCta: {
@@ -504,12 +687,57 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.2,
   },
   searchCtaText: {
     color: '#FFFFFF',
     fontSize: 13,
     fontWeight: 'bold',
     letterSpacing: 0.5,
+  },
+  quickServicesScroll: {
+    marginTop: 14,
+    marginBottom: 4,
+  },
+  quickServicesContent: {
+    gap: 10,
+    paddingRight: 10,
+  },
+  quickServiceCard: {
+    width: 110,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  quickServiceIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 6,
+    borderWidth: 1,
+  },
+  quickServiceTitle: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    textAlign: 'center',
+    marginBottom: 2,
+  },
+  quickServiceSub: {
+    fontSize: 8,
+    color: '#64748B',
+    textAlign: 'center',
   },
   sectionTitleRow: {
     flexDirection: 'row',
@@ -521,7 +749,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   sectionSubtitle: {
     fontSize: 11,
@@ -535,15 +763,19 @@ const styles = StyleSheet.create({
   },
   actionCard: {
     width: '48%',
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
   },
   actionCardHighlight: {
-    borderColor: 'rgba(255, 103, 31, 0.4)',
-    backgroundColor: 'rgba(19, 47, 86, 0.9)',
+    borderColor: '#FED7AA',
+    backgroundColor: '#FFFBF5',
   },
   actionIconBox: {
     width: 42,
@@ -556,16 +788,16 @@ const styles = StyleSheet.create({
   actionCardTitle: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   actionCardSub: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   actionCardBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#F1F5F9',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
@@ -586,24 +818,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    backgroundColor: '#0B2545',
+    backgroundColor: '#FFFFFF',
     paddingVertical: 10,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   extraFeatureText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#CBD5E1',
+    color: '#334155',
   },
   statusPillCard: {
-    backgroundColor: 'rgba(11, 37, 69, 0.8)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 14,
     marginTop: 16,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   statusPillHeader: {
     flexDirection: 'row',
@@ -614,7 +852,7 @@ const styles = StyleSheet.create({
   statusPillTitle: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
     letterSpacing: 1,
   },
   liveTick: {
@@ -631,7 +869,7 @@ const styles = StyleSheet.create({
   liveTickText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#10B981',
+    color: '#059669',
   },
   statusPillRow: {
     flexDirection: 'row',
@@ -645,24 +883,24 @@ const styles = StyleSheet.create({
   statusNumber: {
     fontSize: 16,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   statusLabel: {
     fontSize: 9,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 1,
   },
   statusDivider: {
     width: 1,
     height: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#E2E8F0',
   },
   aiBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 103, 31, 0.12)',
+    backgroundColor: '#FFF7ED',
     borderWidth: 1,
-    borderColor: 'rgba(255, 103, 31, 0.3)',
+    borderColor: '#FFEDD5',
     borderRadius: 16,
     padding: 14,
     marginTop: 16,
@@ -679,11 +917,11 @@ const styles = StyleSheet.create({
   aiBannerTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   aiBannerSub: {
     fontSize: 10,
-    color: '#CBD5E1',
+    color: '#64748B',
     marginTop: 2,
   },
   aiBannerArrow: {
@@ -691,5 +929,128 @@ const styles = StyleSheet.create({
     color: '#FF671F',
     fontWeight: 'bold',
     marginLeft: 6,
+  },
+  suburbanHeroSegment: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#BAE6FD',
+    marginBottom: 20,
+    shadowColor: '#0284C7',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  suburbanHeroTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  suburbanHeroBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  suburbanLivePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  suburbanPulseDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#10B981',
+  },
+  suburbanLivePillText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#059669',
+  },
+  googleTechBadge: {
+    backgroundColor: '#F0F9FF',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+  },
+  googleTechBadgeText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#0284C7',
+  },
+  suburbanHeroArrow: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#FF671F',
+  },
+  suburbanHeroTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 2,
+  },
+  suburbanHeroSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginBottom: 12,
+  },
+  suburbanMiniHeatmap: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 10,
+  },
+  suburbanMiniCoachItem: {
+    alignItems: 'center',
+    paddingHorizontal: 2,
+  },
+  miniCoachBest: {
+    backgroundColor: '#ECFDF5',
+    borderRadius: 6,
+    paddingHorizontal: 4,
+  },
+  miniCoachId: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#334155',
+    marginBottom: 2,
+  },
+  miniCoachDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginBottom: 2,
+  },
+  miniCoachLoad: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#64748B',
+  },
+  suburbanHeroFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  suburbanHeroFooterText: {
+    fontSize: 10,
+    color: '#166534',
   },
 });

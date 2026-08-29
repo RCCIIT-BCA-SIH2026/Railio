@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
+import { AppBackground } from '../components/AppBackground';
 
 export const SearchTrainScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -23,7 +24,8 @@ export const SearchTrainScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="blue">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>Plan Your Train Journey</Text>
         <Text style={styles.subtext}>Search over 20+ express, Rajdhani, and Vande Bharat trains</Text>
@@ -70,6 +72,29 @@ export const SearchTrainScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
+      {/* 🌟 Suburban Local Trains Special Segment */}
+      <View style={styles.suburbanSection}>
+        <View style={styles.suburbanHeaderRow}>
+          <Text style={styles.suburbanTitle}>🚉 Kolkata Suburban Local Network</Text>
+          <View style={styles.livePulseTag}>
+            <Text style={styles.livePulseTagText}>CELLULAR TRACKING</Text>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={styles.suburbanCardBtn}
+          onPress={() => navigation.navigate('SuburbanLocal', { from: 'DAKE', to: 'SDAH' })}
+        >
+          <View style={{ flex: 1 }}>
+            <Text style={styles.suburbanCardTitle}>Dakshineswar ⇄ Sealdah Local</Text>
+            <Text style={styles.suburbanCardSub}>
+              Live upcoming locals based on current time + 12-coach cellular crowd heatmap
+            </Text>
+          </View>
+          <Text style={styles.suburbanCardArrow}>→</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Popular Routes */}
       <View style={styles.popularSection}>
         <Text style={styles.popularTitle}>Popular High-Speed Corridors</Text>
@@ -90,13 +115,14 @@ export const SearchTrainScreen: React.FC = () => {
         </View>
       </View>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 16,
@@ -108,20 +134,23 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   card: {
-    backgroundColor: 'rgba(19, 47, 86, 0.75)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
     marginBottom: 20,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   inputGroup: {
     marginBottom: 12,
@@ -129,19 +158,19 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
     marginBottom: 6,
     textTransform: 'uppercase',
   },
   input: {
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    color: '#FFFFFF',
+    color: '#0F172A',
     fontSize: 13,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   searchBtn: {
     backgroundColor: '#FF671F',
@@ -149,6 +178,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
     marginTop: 8,
+    elevation: 2,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.2,
   },
   searchBtnText: {
     color: '#FFFFFF',
@@ -161,23 +193,82 @@ const styles = StyleSheet.create({
   popularTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginBottom: 10,
   },
   routesList: {
     gap: 8,
   },
   routeChip: {
-    backgroundColor: 'rgba(11, 37, 69, 0.8)',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
   },
   routeChipText: {
     fontSize: 12,
-    color: '#CBD5E1',
+    color: '#334155',
     fontWeight: '600',
+  },
+  suburbanSection: {
+    marginBottom: 20,
+  },
+  suburbanHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  suburbanTitle: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  livePulseTag: {
+    backgroundColor: '#F0F9FF',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+  },
+  livePulseTagText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#0284C7',
+  },
+  suburbanCardBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: '#BAE6FD',
+    elevation: 2,
+    shadowColor: '#0284C7',
+    shadowOpacity: 0.08,
+  },
+  suburbanCardTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginBottom: 2,
+  },
+  suburbanCardSub: {
+    fontSize: 11,
+    color: '#64748B',
+    lineHeight: 15,
+  },
+  suburbanCardArrow: {
+    fontSize: 18,
+    color: '#FF671F',
+    fontWeight: 'bold',
+    marginLeft: 10,
   },
 });

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
+import { AppBackground } from '../components/AppBackground';
 
 export const RegisterScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -16,7 +17,8 @@ export const RegisterScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <AppBackground variant="blue">
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>Create Passenger Account</Text>
         <Text style={styles.subtitle}>Join RailSathi for AI-assisted journeys & live tracking</Text>
@@ -81,13 +83,14 @@ export const RegisterScreen: React.FC = () => {
         </Text>
       </TouchableOpacity>
     </ScrollView>
+    </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 24,
@@ -99,19 +102,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   subtitle: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 4,
   },
   card: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   inputGroup: {
     marginBottom: 14,
@@ -119,19 +125,19 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#CBD5E1',
+    color: '#64748B',
     marginBottom: 6,
     textTransform: 'uppercase',
   },
   input: {
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    color: '#FFFFFF',
+    color: '#0F172A',
     fontSize: 13,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   registerButton: {
     backgroundColor: '#FF671F',
@@ -139,6 +145,9 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
     marginTop: 10,
+    elevation: 2,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.2,
   },
   registerButtonText: {
     color: '#FFFFFF',
@@ -151,6 +160,6 @@ const styles = StyleSheet.create({
   },
   loginText: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
   },
 });

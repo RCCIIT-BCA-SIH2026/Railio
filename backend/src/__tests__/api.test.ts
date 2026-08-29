@@ -106,9 +106,39 @@ async function runTests() {
     failed++;
   }
 
+  // 7. Test Dakshineswar-Sealdah Suburban Local Upcoming Trains
+  try {
+    const res = await axios.get(`${BASE_URL}/suburban/upcoming?from=DAKE&to=SDAH&time=23:31`);
+    if (res.data.success && res.data.trains && res.data.trains.length > 0) {
+      const first = res.data.trains[0];
+      console.log(`✅ TEST 7 PASSED: Suburban Local Search DAKE -> SDAH (Found ${res.data.trains.length} upcoming locals, Next: Train #${first.trainNumber} in ${first.minutesUntilDeparture}m, Best Coach: ${first.recommendedCoach})`);
+      passed++;
+    } else {
+      throw new Error('No suburban trains returned for DAKE -> SDAH');
+    }
+  } catch (err: any) {
+    console.error('❌ TEST 7 FAILED: Suburban Local Search', err.message);
+    failed++;
+  }
+
+  // 8. Test Google Maps-Style Cellular Coach Crowd Telemetry
+  try {
+    const res = await axios.get(`${BASE_URL}/suburban/crowd-telemetry/32216`);
+    if (res.data.success && res.data.telemetry?.coaches?.length === 12) {
+      console.log(`✅ TEST 8 PASSED: Google Maps Cellular Crowd Telemetry (12 Coaches, Best Coach: ${res.data.telemetry.recommendedCoach}, Tracked: ${res.data.telemetry.telemetryStats?.totalTrackedDevices} Phones)`);
+      passed++;
+    } else {
+      throw new Error('Invalid coach telemetry response');
+    }
+  } catch (err: any) {
+    console.error('❌ TEST 8 FAILED: Coach Crowd Telemetry', err.message);
+    failed++;
+  }
+
   console.log('====================================================');
   console.log(`🎉 TEST RUN COMPLETE: ${passed} PASSED, ${failed} FAILED`);
   console.log('====================================================');
 }
 
 runTests();
+
