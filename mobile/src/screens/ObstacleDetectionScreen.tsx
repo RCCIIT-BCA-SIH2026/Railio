@@ -176,7 +176,7 @@ export const ObstacleDetectionScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
   },
   content: {
     padding: 16,
@@ -188,21 +188,21 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   tabRow: {
     flexDirection: 'row',
-    backgroundColor: '#0B2545',
+    backgroundColor: '#F1F5F9',
     borderRadius: 12,
     padding: 4,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#E2E8F0',
   },
   tabBtn: {
     flex: 1,
@@ -216,14 +216,14 @@ const styles = StyleSheet.create({
   tabBtnText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   tabBtnTextActive: {
     color: '#FFFFFF',
   },
   cameraViewfinder: {
     height: 240,
-    backgroundColor: '#020617',
+    backgroundColor: '#0F172A',
     borderRadius: 20,
     borderWidth: 1.5,
     borderColor: '#38BDF8',
@@ -232,6 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 12,
     marginBottom: 14,
+    elevation: 3,
   },
   cameraRailTracks: {
     ...StyleSheet.absoluteFillObject,
@@ -244,7 +245,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     top: 40,
     width: 3,
-    backgroundColor: '#334155',
+    backgroundColor: '#64748B',
     transform: [{ rotate: '-25deg' }],
   },
   trackPerspectiveRight: {
@@ -253,7 +254,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     top: 40,
     width: 3,
-    backgroundColor: '#334155',
+    backgroundColor: '#64748B',
     transform: [{ rotate: '25deg' }],
   },
   boundingBoxOverlay: {
@@ -310,11 +311,14 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
   },
   resultCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1.5,
     marginBottom: 14,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   resultHeader: {
     flexDirection: 'row',
@@ -329,7 +333,7 @@ const styles = StyleSheet.create({
   resultObject: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginTop: 2,
   },
   riskBadge: {
@@ -344,12 +348,12 @@ const styles = StyleSheet.create({
   },
   detailsRow: {
     flexDirection: 'row',
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     borderRadius: 12,
     padding: 10,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   detailCol: {
     flex: 1,
@@ -357,34 +361,39 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 9,
-    color: '#94A3B8',
+    color: '#64748B',
   },
   detailVal: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginTop: 2,
   },
   actionNote: {
-    backgroundColor: 'rgba(11, 37, 69, 0.6)',
+    backgroundColor: '#F8FAFC',
     padding: 10,
     borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   actionNoteText: {
     fontSize: 11,
-    color: '#CBD5E1',
+    color: '#334155',
     lineHeight: 16,
   },
   disclaimerCard: {
-    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
   },
   disclaimerText: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#64748B',
     lineHeight: 15,
   },
 });

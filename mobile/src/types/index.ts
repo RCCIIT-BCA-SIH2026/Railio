@@ -11,6 +11,7 @@ export type RootStackParamList = {
   CanICatch: { trainNumber?: string };
   CrowdStatus: { stationCode?: string };
   CoachCrowd: { trainNumber?: string };
+  SuburbanLocal: { from?: string; to?: string } | undefined;
   WeatherIntelligence: { stationCode?: string };
   ObstacleDetection: undefined;
   AIAssistant: { initialQuery?: string } | undefined;
@@ -21,6 +22,62 @@ export type RootStackParamList = {
   Profile: undefined;
   Settings: undefined;
 };
+
+export interface CoachSignalCrowd {
+  coach: string;
+  name: string;
+  density: number;
+  status: 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED' | 'CRITICAL';
+  activePhoneSignals: number;
+  signalStrengthDbm: number;
+  bleBeacons: number;
+  coachType: 'GENERAL' | 'LADIES' | 'VENDOR' | 'HANDICAPPED';
+  platformMarker: string;
+  advice: string;
+}
+
+export interface SuburbanDeparture {
+  trainNumber: string;
+  name: string;
+  type: string;
+  source: string;
+  destination: string;
+  fromStation: string;
+  toStation: string;
+  scheduledDeparture: string;
+  predictedDeparture: string;
+  scheduledArrival: string;
+  predictedArrival: string;
+  minutesUntilDeparture: number;
+  delayMinutes: number;
+  platform: number;
+  status: 'ON_TIME' | 'DELAYED' | 'ARRIVING_NOW' | 'DEPARTED';
+  overallCrowdPct: number;
+  overallCrowdStatus: 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED' | 'CRITICAL';
+  coaches: CoachSignalCrowd[];
+  recommendedCoach: string;
+  recommendedCoaches: string[];
+  bestPlatformZone: string;
+  reason: string;
+  telemetry: {
+    trackedDevices: number;
+    signalConfidence: number;
+    cellularTechnology: string;
+    velocityKmh: number;
+    lastUpdatedSecs: number;
+  };
+}
+
+export interface SuburbanCorridor {
+  id: string;
+  name: string;
+  from: string;
+  to: string;
+  frequencyMin: number;
+  dailyTrains: number;
+  isPopular: boolean;
+  stations: string[];
+}
 
 export type BottomTabParamList = {
   HomeTab: undefined;

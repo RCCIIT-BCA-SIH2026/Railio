@@ -168,35 +168,35 @@ export const SearchResultsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
   },
   routeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#0B2545',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#1E4273',
+    borderBottomColor: '#E2E8F0',
   },
   routeText: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   dateSubtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   modifyBtn: {
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: 'rgba(255, 103, 31, 0.15)',
+    backgroundColor: '#FFF7ED',
     borderWidth: 1,
-    borderColor: 'rgba(255, 103, 31, 0.4)',
+    borderColor: '#FED7AA',
   },
   modifyBtnText: {
     fontSize: 11,
@@ -208,16 +208,19 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   card: {
-    backgroundColor: 'rgba(19, 47, 86, 0.75)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 16,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   cardVB: {
-    borderColor: 'rgba(255, 103, 31, 0.35)',
-    backgroundColor: 'rgba(19, 47, 86, 0.9)',
+    borderColor: '#FED7AA',
+    backgroundColor: '#FFFBF5',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -233,40 +236,40 @@ const styles = StyleSheet.create({
   trainNumber: {
     fontSize: 16,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   typeBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#F1F5F9',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   typeBadgeVB: {
-    backgroundColor: 'rgba(255, 103, 31, 0.2)',
+    backgroundColor: '#FFF7ED',
   },
   typeBadgeText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   trainName: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#CBD5E1',
+    color: '#475569',
     marginTop: 2,
   },
   confidenceBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: '#ECFDF5',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
+    borderColor: '#A7F3D0',
   },
   confidenceText: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#10B981',
+    color: '#059669',
   },
   timingRow: {
     flexDirection: 'row',
@@ -275,7 +278,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.06)',
+    borderColor: '#F1F5F9',
     marginVertical: 10,
   },
   timingCol: {
@@ -284,12 +287,12 @@ const styles = StyleSheet.create({
   timeLabel: {
     fontSize: 8.5,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   timeVal: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginTop: 2,
   },
   stationLabel: {
@@ -304,7 +307,7 @@ const styles = StyleSheet.create({
   durationText: {
     fontSize: 9,
     fontWeight: '600',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   durationLine: {
     flexDirection: 'row',
@@ -321,7 +324,7 @@ const styles = StyleSheet.create({
   durationBar: {
     flex: 1,
     height: 1.5,
-    backgroundColor: '#1E4273',
+    backgroundColor: '#CBD5E1',
   },
   distanceText: {
     fontSize: 9,
@@ -340,12 +343,12 @@ const styles = StyleSheet.create({
   },
   predictedLabel: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#64748B',
   },
   predictedVal: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   delayStatusBadge: {
     paddingHorizontal: 8,
@@ -354,12 +357,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   delayStatusOnTime: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderColor: 'rgba(16, 185, 129, 0.3)',
+    backgroundColor: '#ECFDF5',
+    borderColor: '#A7F3D0',
   },
   delayStatusLate: {
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    backgroundColor: '#FEF3C7',
+    borderColor: '#FDE68A',
   },
   delayStatusText: {
     fontSize: 10,
@@ -371,12 +374,12 @@ const styles = StyleSheet.create({
   },
   cardActionBtn: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     paddingVertical: 8,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   cardActionBtnPrimary: {
     backgroundColor: '#FF671F',
@@ -385,7 +388,7 @@ const styles = StyleSheet.create({
   cardActionBtnText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#CBD5E1',
+    color: '#334155',
   },
   loaderCenter: {
     flex: 1,
@@ -395,7 +398,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
   },
   emptyContainer: {
     alignItems: 'center',
@@ -404,11 +407,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   emptySub: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 4,
   },
 });

@@ -217,30 +217,22 @@ export const TrainDetailsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
   },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
-  loaderCenter: {
-    flex: 1,
-    backgroundColor: '#07162C',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 12,
-    color: '#94A3B8',
-  },
   summaryCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
     marginBottom: 14,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   summaryTop: {
     flexDirection: 'row',
@@ -258,7 +250,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '900',
     color: '#FF671F',
-    backgroundColor: 'rgba(255, 103, 31, 0.15)',
+    backgroundColor: '#FFF7ED',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
@@ -266,12 +258,12 @@ const styles = StyleSheet.create({
   typeBadge: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: '#64748B',
   },
   trainName: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   delayPill: {
     paddingHorizontal: 10,
@@ -280,12 +272,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   delayPillOnTime: {
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
-    borderColor: 'rgba(16, 185, 129, 0.4)',
+    backgroundColor: '#ECFDF5',
+    borderColor: '#A7F3D0',
   },
   delayPillLate: {
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
-    borderColor: 'rgba(245, 158, 11, 0.4)',
+    backgroundColor: '#FEF3C7',
+    borderColor: '#FDE68A',
   },
   delayPillText: {
     fontSize: 11,
@@ -295,11 +287,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   gaugeItem: {
     alignItems: 'center',
@@ -308,25 +300,28 @@ const styles = StyleSheet.create({
   gaugeVal: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   gaugeLabel: {
     fontSize: 9,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   gaugeDivider: {
     width: 1,
     height: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#CBD5E1',
   },
   xaiCard: {
-    backgroundColor: 'rgba(11, 37, 69, 0.9)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 103, 31, 0.3)',
+    borderColor: '#FED7AA',
     marginBottom: 14,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   xaiHeader: {
     flexDirection: 'row',
@@ -341,15 +336,15 @@ const styles = StyleSheet.create({
   },
   xaiSub: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginBottom: 10,
   },
   xaiFactorsList: {
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     borderRadius: 12,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#E2E8F0',
   },
   xaiFactorItem: {
     flexDirection: 'row',
@@ -359,12 +354,12 @@ const styles = StyleSheet.create({
   },
   xaiFactorName: {
     fontSize: 11,
-    color: '#CBD5E1',
+    color: '#334155',
   },
   xaiFactorImpact: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#F59E0B',
+    color: '#D97706',
     fontFamily: 'monospace',
   },
   xaiTotalRow: {
@@ -374,12 +369,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopColor: '#E2E8F0',
   },
   xaiTotalLabel: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   xaiTotalVal: {
     fontSize: 11,
@@ -401,27 +396,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF671F',
   },
   actionBtnLive: {
-    backgroundColor: '#0B2545',
+    backgroundColor: '#F0F9FF',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#BAE6FD',
   },
   actionBtnText: {
-    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: 'bold',
   },
   timelineSection: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
     marginBottom: 16,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   timelineSectionTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
     marginBottom: 14,
   },
   timelineContainer: {
@@ -437,7 +434,7 @@ const styles = StyleSheet.create({
   timelineDepTime: {
     fontSize: 12,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   timelineKm: {
     fontSize: 9,
@@ -458,12 +455,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#10B981',
   },
   timelineDotFuture: {
-    backgroundColor: '#64748B',
+    backgroundColor: '#CBD5E1',
   },
   timelineLine: {
     flex: 1,
     width: 2,
-    backgroundColor: '#1E4273',
+    backgroundColor: '#E2E8F0',
     marginVertical: 2,
   },
   timelineInfoCol: {
@@ -478,30 +475,33 @@ const styles = StyleSheet.create({
   timelineStationCode: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   platformBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    backgroundColor: '#F1F5F9',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   platformBadgeText: {
     fontSize: 9,
-    color: '#94A3B8',
+    color: '#64748B',
     fontWeight: 'bold',
   },
   timelineArrDep: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   coachSection: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   coachHeaderRow: {
     flexDirection: 'row',
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
   coachSectionTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   coachViewCrowdText: {
     fontSize: 11,
@@ -537,20 +537,31 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   coachBox: {
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 8,
     marginRight: 6,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
     minWidth: 42,
     alignItems: 'center',
     justifyContent: 'center',
   },
   coachText: {
-    color: '#CBD5E1',
+    color: '#334155',
     fontSize: 11,
     fontWeight: 'bold',
+  },
+  loaderCenter: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F8FAFC',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 12,
+    color: '#64748B',
   },
 });

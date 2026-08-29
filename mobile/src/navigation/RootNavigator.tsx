@@ -17,6 +17,7 @@ import { StationArrivalBoardScreen } from '../screens/StationArrivalBoardScreen'
 import { CanICatchScreen } from '../screens/CanICatchScreen';
 import { CrowdStatusScreen } from '../screens/CrowdStatusScreen';
 import { CoachCrowdScreen } from '../screens/CoachCrowdScreen';
+import { SuburbanLocalScreen } from '../screens/SuburbanLocalScreen';
 import { WeatherIntelligenceScreen } from '../screens/WeatherIntelligenceScreen';
 import { ObstacleDetectionScreen } from '../screens/ObstacleDetectionScreen';
 import { AIAssistantScreen } from '../screens/AIAssistantScreen';
@@ -36,15 +37,20 @@ const MainTabNavigator: React.FC = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#0B2545',
-          borderTopColor: '#1E4273',
+          backgroundColor: '#FFFFFF',
+          borderTopColor: '#E2E8F0',
           borderTopWidth: 1,
-          height: 60,
+          height: 62,
           paddingBottom: 8,
           paddingTop: 6,
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 4,
         },
         tabBarActiveTintColor: '#FF671F',
-        tabBarInactiveTintColor: '#94A3B8',
+        tabBarInactiveTintColor: '#64748B',
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: 'bold',
@@ -102,15 +108,17 @@ export const RootNavigator: React.FC = () => {
       initialRouteName="Splash"
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0B2545',
+          backgroundColor: '#FFFFFF',
         },
-        headerTintColor: '#FFFFFF',
+        headerTintColor: '#0F172A',
+        headerShadowVisible: false,
         headerTitleStyle: {
           fontWeight: 'bold',
           fontSize: 16,
+          color: '#0F172A',
         },
         contentStyle: {
-          backgroundColor: '#07162C',
+          backgroundColor: '#F8FAFC',
         },
       }}
     >
@@ -125,6 +133,7 @@ export const RootNavigator: React.FC = () => {
       <Stack.Screen name="CanICatch" component={CanICatchScreen} options={{ title: 'Can I Catch My Train?' }} />
       <Stack.Screen name="CrowdStatus" component={CrowdStatusScreen} options={{ title: 'Platform Crowd Status' }} />
       <Stack.Screen name="CoachCrowd" component={CoachCrowdScreen} options={{ title: 'Coach-Wise Crowd Heatmap' }} />
+      <Stack.Screen name="SuburbanLocal" component={SuburbanLocalScreen} options={{ title: 'Dakshineswar ⇄ Sealdah Local' }} />
       <Stack.Screen name="WeatherIntelligence" component={WeatherIntelligenceScreen} options={{ title: 'Weather Intelligence' }} />
       <Stack.Screen name="ObstacleDetection" component={ObstacleDetectionScreen} options={{ title: 'Smartphone Obstacle Vision' }} />
       <Stack.Screen name="AIAssistant" component={AIAssistantScreen} options={{ title: 'RailSathi AI Travel Assistant' }} />

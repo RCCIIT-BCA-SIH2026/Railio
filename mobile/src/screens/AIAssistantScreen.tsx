@@ -160,25 +160,25 @@ export const AIAssistantScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
   },
   promptsContainer: {
     paddingVertical: 10,
-    backgroundColor: '#0B2545',
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#1E4273',
+    borderBottomColor: '#E2E8F0',
   },
   promptsScroll: {
     paddingHorizontal: 16,
     gap: 8,
   },
   promptChip: {
-    backgroundColor: 'rgba(255, 103, 31, 0.15)',
+    backgroundColor: '#FFF7ED',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 103, 31, 0.3)',
+    borderColor: '#FED7AA',
   },
   promptChipText: {
     fontSize: 11,
@@ -219,18 +219,22 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   bubbleAi: {
-    backgroundColor: 'rgba(19, 47, 86, 0.85)',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#E2E8F0',
     borderBottomLeftRadius: 4,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
   },
   bubbleUser: {
     backgroundColor: '#FF671F',
     borderBottomRightRadius: 4,
+    elevation: 1,
   },
   msgText: {
     fontSize: 12.5,
-    color: '#F1F5F9',
+    color: '#0F172A',
     lineHeight: 18,
   },
   msgTextUser: {
@@ -244,12 +248,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   toolChipsContainer: {
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     padding: 8,
     borderRadius: 10,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   toolHeader: {
     fontSize: 9,
@@ -262,7 +266,7 @@ const styles = StyleSheet.create({
   },
   toolChipText: {
     fontSize: 9.5,
-    color: '#38BDF8',
+    color: '#0284C7',
     fontFamily: 'monospace',
   },
   aiTyping: {
@@ -273,28 +277,28 @@ const styles = StyleSheet.create({
   },
   typingText: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     fontStyle: 'italic',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#0B2545',
+    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#1E4273',
+    borderTopColor: '#E2E8F0',
     gap: 10,
   },
   input: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    color: '#FFFFFF',
+    color: '#0F172A',
     fontSize: 13,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#CBD5E1',
   },
   sendButton: {
     backgroundColor: '#FF671F',

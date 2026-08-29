@@ -69,7 +69,7 @@ export const AlertsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: '#F8FAFC',
   },
   content: {
     padding: 16,
@@ -81,11 +81,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: '#0F172A',
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: '#64748B',
     marginTop: 2,
   },
   alertsList: {
@@ -95,14 +95,17 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 16,
     borderWidth: 1.5,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
   },
   cardCritical: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-    borderColor: 'rgba(239, 68, 68, 0.4)',
+    backgroundColor: '#FEF2F2',
+    borderColor: '#FECACA',
   },
   cardWarning: {
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
-    borderColor: 'rgba(245, 158, 11, 0.4)',
+    backgroundColor: '#FFFBEB',
+    borderColor: '#FDE68A',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -114,7 +117,7 @@ const styles = StyleSheet.create({
   alertTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#0F172A',
     flex: 1,
   },
   badge: {
@@ -129,20 +132,20 @@ const styles = StyleSheet.create({
   },
   alertDesc: {
     fontSize: 11.5,
-    color: '#CBD5E1',
+    color: '#334155',
     lineHeight: 17,
   },
   actionBox: {
-    backgroundColor: '#07162C',
+    backgroundColor: '#FFFFFF',
     borderRadius: 10,
     padding: 10,
     marginTop: 10,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: '#E2E8F0',
   },
   actionText: {
     fontSize: 11,
-    color: '#F59E0B',
+    color: '#D97706',
     fontWeight: '600',
   },
   cardFooter: {
@@ -152,11 +155,11 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+    borderTopColor: 'rgba(0, 0, 0, 0.06)',
   },
   categoryText: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#64748B',
   },
   timeText: {
     fontSize: 10,

@@ -83,7 +83,33 @@ class RailSathiAgent:
             )
             return AgentResponse(answer=ans, toolsExecuted=tools_executed, confidenceScore=0.96, retrievedKnowledgeDocs=[])
 
-        # 3. Crowd / Coach query intent
+        # 3. Suburban Local (Dakshineswar - Sealdah) or Crowd / Coach query intent
+        elif "dakshineswar" in query or "sealdah" in query or "suburban" in query or "local" in query:
+            tools_executed.append(ToolExecutionLog(
+                tool="SuburbanCellularCrowdTool",
+                input={"corridor": "DAKE-SDAH", "trainNumber": "32216", "method": "GoogleMapsCellularSignalClustering"},
+                output="Google Maps Telemetry: 348 active mobile signals. Coach C3 (22% load) & C9 (25% load) least crowded."
+            ))
+            tools_executed.append(ToolExecutionLog(
+                tool="SuburbanUpcomingScheduleTool",
+                input={"from": "DAKE", "to": "SDAH"},
+                output="Upcoming Trains: #32216 in 4 min (Plat 2), #32214 in 18 min (Plat 2), #32250 in 35 min"
+            ))
+            ans = (
+                "🚉 **Dakshineswar ⇄ Sealdah Suburban Intelligence (Google Maps Signal Tech)**:\n\n"
+                "• **Upcoming Train**: Dankuni - Sealdah Night Local (**#32216**)\n"
+                "• **Departure**: In **4 minutes** (Platform 2 at Dakshineswar • On Time)\n"
+                "• **Next Train**: Dankuni - Sealdah Local (**#32214**) departing in 18 minutes\n\n"
+                "📱 **Google Maps-Style Cellular Crowd Heatmap (12-Coach EMU Rake)**:\n"
+                "• **Coach C1 (Front General)**: 28% load (22 active phones 🟢)\n"
+                "• **Coach C3 (Front-Mid General)**: **22% load (16 active phones 🟢 BEST)**\n"
+                "• **Coach C5 & C6 (Mid General)**: 65–72% load (52–60 active phones 🟠 Stairs Rush)\n"
+                "• **Coach C8 (Ladies)**: 30% load (15 active phones 🟢)\n"
+                "• **Coach C9 (Rear General)**: 25% load (19 active phones 🟢)\n\n"
+                "💡 **Smart Boarding Advice**: Walk 30 meters away from the middle staircase to **Coach C3** (Front-Middle) or **Coach C9** (Rear) for **70% less crowd density** and guaranteed sitting space!"
+            )
+            return AgentResponse(answer=ans, toolsExecuted=tools_executed, confidenceScore=0.96, retrievedKnowledgeDocs=[])
+
         elif "crowd" in query or "coach" in query or "seat" in query:
             tools_executed.append(ToolExecutionLog(
                 tool="CrowdTool",

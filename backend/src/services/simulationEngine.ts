@@ -5,6 +5,7 @@ export class SimulationEngine {
   private io: SocketIOServer | null = null;
   private intervalId: NodeJS.Timeout | null = null;
   private tickCount: number = 0;
+  private lastPhysicalTelemetryTimestamp: number = 0;
 
   public init(io: SocketIOServer) {
     this.io = io;
@@ -45,33 +46,7 @@ export class SimulationEngine {
       }
     });
 
-    // 2. Generate simulated ESP32 MPU6050 vibration telemetry for track section B-17
-    const baseVibration = 1.2;
-    const anomalySpike = (this.tickCount % 8 === 0) ? (Math.random() * 2.2 + 1.5) : (Math.random() * 0.4);
-    const totalRms = Number((baseVibration + anomalySpike).toFixed(2));
-    const isAnomaly = totalRms > 2.8;
-
-    const sensorTelemetry = {
-      timestamp: new Date().toISOString(),
-      sectionId: 'HWH-B17',
-      trainNumber: '12301',
-      accel: {
-        x: Number((Math.sin(this.tickCount) * 0.4 + 0.1).toFixed(3)),
-        y: Number((Math.cos(this.tickCount) * 0.3 - 0.05).toFixed(3)),
-        z: Number((0.98 + (isAnomaly ? 0.6 : 0.05) * Math.random()).toFixed(3)),
-      },
-      gyro: {
-        x: Number((Math.sin(this.tickCount * 0.8) * 1.5).toFixed(2)),
-        y: Number((Math.cos(this.tickCount * 0.8) * 1.2).toFixed(2)),
-        z: Number((Math.random() * 0.8).toFixed(2)),
-      },
-      vibrationRms: totalRms,
-      isAnomaly,
-      severity: isAnomaly ? 'HIGH_RISK' : 'NORMAL',
-      confidence: 0.88,
-    };
-
-    // 3. Broadcast real-time payloads via Socket.IO
+    // Broadcast real-time train updates via Socket.IO
     if (this.io) {
       this.io.emit('trains_update', db.trains.map((t) => ({
         trainNumber: t.trainNumber,
@@ -87,8 +62,6 @@ export class SimulationEngine {
         status: t.liveState.status,
       })));
 
-      this.io.emit('sensor_telemetry', sensorTelemetry);
-
       if (this.tickCount % 5 === 0) {
         this.io.emit('crowd_update', {
           station: 'HWH',
@@ -99,7 +72,24 @@ export class SimulationEngine {
             platform3: 21,
           }
         });
+
+        // Broadcast live Google Maps-style cellular device pulse for Dakshineswar-Sealdah local
+        this.io.emit('suburban_cellular_pulse', {
+          trainNumber: '32216',
+          corridor: 'DAKE-SDAH',
+          timestamp: new Date().toISOString(),
+          activeDevicesTotal: 340 + Math.floor((Math.random() - 0.5) * 20),
+          recommendedCoach: 'C3',
+          coaches: db.generateSuburbanCoachCrowd('32216', false),
+        });
       }
+    }
+  }
+
+  public broadcastSensorTelemetry(sensorTelemetry: any) {
+    this.lastPhysicalTelemetryTimestamp = Date.now();
+    if (this.io) {
+      this.io.emit('sensor_telemetry', sensorTelemetry);
     }
   }
 

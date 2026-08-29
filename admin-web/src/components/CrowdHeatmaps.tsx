@@ -48,34 +48,34 @@ export const CrowdHeatmaps: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Station Selector Bar */}
-      <div className="glass-panel rounded-2xl p-6 border border-rail-border shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-purple-500/20">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="font-heading text-xl font-bold text-white flex items-center space-x-2">
+            <h2 className="font-heading text-xl font-bold text-slate-900 flex items-center space-x-2">
               <span>Computer Vision Platform Crowd Intelligence</span>
-              <span className="px-2.5 py-0.5 text-xs font-bold bg-purple-950 text-purple-400 border border-purple-500/30 rounded-full">
+              <span className="px-2.5 py-0.5 text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200 rounded-full">
                 YOLO CV Model Active
               </span>
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Live automated person counting, platform density heatmaps, and surge detection
             </p>
           </div>
         </div>
 
         {/* Station Tabs */}
-        <div className="flex items-center space-x-2 bg-slate-950/80 p-1.5 rounded-xl border border-rail-border">
+        <div className="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
           {Object.keys(stationData).map((code) => (
             <button
               key={code}
               onClick={() => setSelectedStation(code)}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
                 selectedStation === code
-                  ? 'bg-rail-orange text-white shadow-md'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-rail-orange text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               {code} ({stationData[code].name.split(' ')[0]})
@@ -90,39 +90,39 @@ export const CrowdHeatmaps: React.FC = () => {
           const isRed = p.density > 80;
           const isYellow = p.density > 45 && p.density <= 80;
           const badgeColor = isRed
-            ? 'bg-red-950/80 text-red-400 border-red-500/40'
+            ? 'bg-red-50 text-red-700 border-red-200'
             : isYellow
-            ? 'bg-amber-950/80 text-amber-400 border-amber-500/40'
-            : 'bg-emerald-950/80 text-emerald-400 border-emerald-500/40';
+            ? 'bg-amber-50 text-amber-700 border-amber-200'
+            : 'bg-emerald-50 text-emerald-700 border-emerald-200';
 
           return (
             <div
               key={p.num}
-              className="glass-panel glass-card-hover rounded-2xl p-5 border border-rail-border shadow-xl relative overflow-hidden"
+              className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all relative overflow-hidden"
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="font-heading text-lg font-bold text-white">Platform {p.num}</span>
+                <span className="font-heading text-lg font-bold text-slate-900">Platform {p.num}</span>
                 <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${badgeColor}`}>
                   {p.level} ({p.density}%)
                 </span>
               </div>
 
               {/* Density Progress Bar */}
-              <div className="w-full h-3 bg-slate-900 rounded-full overflow-hidden mb-3 border border-rail-border/60">
+              <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden mb-3 border border-slate-200">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
-                    isRed ? 'bg-red-500' : isYellow ? 'bg-amber-400' : 'bg-emerald-400'
+                    isRed ? 'bg-red-500' : isYellow ? 'bg-amber-500' : 'bg-emerald-500'
                   }`}
                   style={{ width: `${p.density}%` }}
                 />
               </div>
 
               <div className="flex items-center justify-between text-xs mb-2">
-                <span className="text-slate-400">Detected Count:</span>
-                <span className="font-mono font-bold text-white">{p.count} Persons</span>
+                <span className="text-slate-500">Detected Count:</span>
+                <span className="font-mono font-bold text-slate-900">{p.count} Persons</span>
               </div>
 
-              <p className="text-xs text-slate-300 bg-slate-900/60 p-2.5 rounded-lg border border-rail-border/40">
+              <p className="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200">
                 {p.notes}
               </p>
             </div>
@@ -131,22 +131,22 @@ export const CrowdHeatmaps: React.FC = () => {
       </div>
 
       {/* AI Crowd Mitigation Recommendation */}
-      <div className="glass-panel rounded-2xl p-5 border border-rail-border shadow-xl flex items-center justify-between">
+      <div className="bg-orange-50/60 rounded-2xl p-5 border border-orange-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-xl bg-rail-orange/20 border border-rail-orange/40 flex items-center justify-center text-rail-orange">
+          <div className="w-9 h-9 rounded-xl bg-orange-100 border border-orange-300 flex items-center justify-center text-rail-orange shadow-sm">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
             <div className="text-xs font-bold text-rail-orange uppercase tracking-wider">
               AI Crowd Flow Directive
             </div>
-            <div className="text-sm font-semibold text-white">{current.aiAction}</div>
+            <div className="text-sm font-semibold text-slate-900">{current.aiAction}</div>
           </div>
         </div>
 
         <button
           onClick={() => alert(`Crowd advisory broadcast to ${current.name} public address system & station display boards.`)}
-          className="px-4 py-2 bg-rail-orange hover:bg-rail-saffron text-white rounded-lg text-xs font-bold transition shadow-md shadow-rail-orange/20"
+          className="px-4 py-2 bg-rail-orange hover:bg-rail-saffron text-white rounded-lg text-xs font-bold transition shadow-sm self-end sm:self-auto"
         >
           Broadcast to Station PA
         </button>

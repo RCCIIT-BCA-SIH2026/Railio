@@ -9,19 +9,34 @@ export default {
     extend: {
       colors: {
         rail: {
-          dark: '#07162c',
-          navy: '#0B2545',
-          card: '#132F56',
-          border: '#1E4273',
+          light: '#F8FAFC',
+          surface: '#F1F5F9',
+          white: '#FFFFFF',
+          card: '#FFFFFF',
+          cardSubtle: '#F8FAFC',
+          border: '#E2E8F0',
+          borderSubtle: '#CBD5E1',
           orange: '#FF671F',
-          saffron: '#FF7722',
+          orangeLight: '#FFF7ED',
+          orangeBorder: '#FED7AA',
+          saffron: '#EA580C',
           green: '#10B981',
-          gold: '#F59E0B',
+          greenLight: '#ECFDF5',
+          greenBorder: '#A7F3D0',
+          blue: '#0284C7',
+          blueLight: '#F0F9FF',
+          blueBorder: '#BAE6FD',
+          gold: '#D97706',
+          goldLight: '#FEF3C7',
           red: '#EF4444',
-          cyan: '#06B6D4'
+          redLight: '#FEF2F2',
+          navy: '#0F172A',
+          text: '#1E293B',
+          muted: '#64748B',
         }
       }
     },
   },
   plugins: [],
 }
+
