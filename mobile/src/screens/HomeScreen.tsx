@@ -92,13 +92,21 @@ export const HomeScreen: React.FC = () => {
         </View>
       </View>
 
+      {/* Hero Visual Headline */}
+      <View style={styles.heroTextContainer}>
+        <Text style={styles.heroHeadline}>
+          India Moves{'\n'}
+          <Text style={{ color: '#FF671F' }}>With Progress</Text>
+        </Text>
+        <Text style={styles.heroSubheadline}>
+          Smart Journey. Stronger Connections. Real-time train updates, seamless booking, and a better travel experience for every Indian.
+        </Text>
+      </View>
+
       {/* Hero Visual Area with Vande Bharat Train */}
       <View style={styles.heroSection}>
         <View style={styles.heroGlow} />
-        <VandeBharatHero height={170} />
-        <View style={styles.taglineBadge}>
-          <Text style={styles.taglineText}>PREDICT • PROTECT • CONNECT</Text>
-        </View>
+        <VandeBharatHero height={160} />
       </View>
 
       {/* Main Train Search Card */}
@@ -162,6 +170,69 @@ export const HomeScreen: React.FC = () => {
           <Text style={styles.searchCtaText}>SEARCH TRAINS WITH AI</Text>
         </TouchableOpacity>
       </View>
+
+      {/* 5-Card Quick Service Row */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickServicesScroll} contentContainerStyle={styles.quickServicesContent}>
+        {/* 1. Live Train Status */}
+        <TouchableOpacity
+          style={styles.quickServiceCard}
+          onPress={() => navigation.navigate('LiveTrain', { trainNumber: '12301' })}
+        >
+          <View style={[styles.quickServiceIcon, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}>
+            <Text style={{ fontSize: 18 }}>🚆</Text>
+          </View>
+          <Text style={styles.quickServiceTitle}>Live Train Status</Text>
+          <Text style={styles.quickServiceSub}>Get real-time updates</Text>
+        </TouchableOpacity>
+
+        {/* 2. PNR Enquiry */}
+        <TouchableOpacity
+          style={styles.quickServiceCard}
+          onPress={() => navigation.navigate('SearchResults', { from: fromStation, to: toStation, date: journeyDate })}
+        >
+          <View style={[styles.quickServiceIcon, { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' }]}>
+            <Text style={{ fontSize: 18 }}>🎫</Text>
+          </View>
+          <Text style={styles.quickServiceTitle}>PNR Enquiry</Text>
+          <Text style={styles.quickServiceSub}>Check your status</Text>
+        </TouchableOpacity>
+
+        {/* 3. Seat Availability */}
+        <TouchableOpacity
+          style={styles.quickServiceCard}
+          onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
+        >
+          <View style={[styles.quickServiceIcon, { backgroundColor: '#CCFBF1', borderColor: '#99F6E4' }]}>
+            <Text style={{ fontSize: 18 }}>⏱️</Text>
+          </View>
+          <Text style={styles.quickServiceTitle}>Seat Availability</Text>
+          <Text style={styles.quickServiceSub}>Find seats with ease</Text>
+        </TouchableOpacity>
+
+        {/* 4. Station Info */}
+        <TouchableOpacity
+          style={styles.quickServiceCard}
+          onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
+        >
+          <View style={[styles.quickServiceIcon, { backgroundColor: '#FFEDD5', borderColor: '#FED7AA' }]}>
+            <Text style={{ fontSize: 18 }}>🚉</Text>
+          </View>
+          <Text style={styles.quickServiceTitle}>Station Info</Text>
+          <Text style={styles.quickServiceSub}>Explore stations</Text>
+        </TouchableOpacity>
+
+        {/* 5. 24/7 Support */}
+        <TouchableOpacity
+          style={styles.quickServiceCard}
+          onPress={() => navigation.navigate('Alerts')}
+        >
+          <View style={[styles.quickServiceIcon, { backgroundColor: '#E0F2FE', borderColor: '#BAE6FD' }]}>
+            <Text style={{ fontSize: 18 }}>🎧</Text>
+          </View>
+          <Text style={styles.quickServiceTitle}>24/7 Support</Text>
+          <Text style={styles.quickServiceSub}>Safety & help</Text>
+        </TouchableOpacity>
+      </ScrollView>
 
       {/* 🌟 Suburban Local & Google Maps Cellular Signal Crowd Pulse Segment */}
       <TouchableOpacity
@@ -463,6 +534,24 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: '#EF4444',
   },
+  heroTextContainer: {
+    marginBottom: 4,
+    marginTop: 6,
+  },
+  heroHeadline: {
+    fontSize: 26,
+    fontWeight: '900',
+    color: '#0F172A',
+    lineHeight: 30,
+    letterSpacing: 0.5,
+  },
+  heroSubheadline: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 6,
+    lineHeight: 16,
+    fontWeight: '500',
+  },
   heroSection: {
     alignItems: 'center',
     marginVertical: 4,
@@ -607,6 +696,48 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: 'bold',
     letterSpacing: 0.5,
+  },
+  quickServicesScroll: {
+    marginTop: 14,
+    marginBottom: 4,
+  },
+  quickServicesContent: {
+    gap: 10,
+    paddingRight: 10,
+  },
+  quickServiceCard: {
+    width: 110,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowOffset: { width: 0, height: 1 },
+  },
+  quickServiceIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 6,
+    borderWidth: 1,
+  },
+  quickServiceTitle: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    textAlign: 'center',
+    marginBottom: 2,
+  },
+  quickServiceSub: {
+    fontSize: 8,
+    color: '#64748B',
+    textAlign: 'center',
   },
   sectionTitleRow: {
     flexDirection: 'row',

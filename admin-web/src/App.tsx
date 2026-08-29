@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
+import { HeroSection } from './components/HeroSection';
 import { KPICards } from './components/KPICards';
 import { LiveRailwayMap } from './components/LiveRailwayMap';
 import { DigitalTwinStudio } from './components/DigitalTwinStudio';
@@ -84,9 +85,9 @@ export const App: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen text-slate-800 flex flex-col selection:bg-rail-orange selection:text-white relative bg-slate-50 transition-all duration-500 ease-in-out"
+      className="min-h-screen text-slate-800 flex flex-col selection:bg-rail-orange selection:text-white relative transition-all duration-500 ease-in-out bg-slate-100"
       style={{
-        backgroundImage: `linear-gradient(rgba(248, 250, 252, 0.60), rgba(248, 250, 252, 0.75)), url(${currentBg})`,
+        backgroundImage: `linear-gradient(rgba(248, 250, 252, 0.65), rgba(248, 250, 252, 0.78)), url(${currentBg})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center top',
         backgroundAttachment: 'fixed',
@@ -98,12 +99,11 @@ export const App: React.FC = () => {
 
       {/* Main Dashboard Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Top KPI Metrics Bar */}
-        <KPICards metrics={metrics} />
-
-        {/* Tab 1: Operations Overview (Map + Delay Propagation + Incident Ticker) */}
+        {/* Tab 1: Operations Overview (Hero Banner + KPI Metrics + Map + Delay Tree) */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
+            <HeroSection onNavigateTab={setActiveTab} />
+            <KPICards metrics={metrics} />
             <LiveRailwayMap trains={trains} trackSections={trackSections} />
             <DelayPropagationTree />
           </div>
@@ -112,36 +112,53 @@ export const App: React.FC = () => {
         {/* Tab 2: Live Network Map */}
         {activeTab === 'map' && (
           <div className="space-y-6">
+            <KPICards metrics={metrics} />
             <LiveRailwayMap trains={trains} trackSections={trackSections} />
           </div>
         )}
 
         {/* Tab 3: Digital Twin & What-If Precedence Lab */}
-        {activeTab === 'digital-twin' && <DigitalTwinStudio />}
+        {activeTab === 'digital-twin' && (
+          <div className="space-y-6">
+            <KPICards metrics={metrics} />
+            <DigitalTwinStudio />
+          </div>
+        )}
 
         {/* Tab 4: Track Health & ESP32 IoT Monitor */}
         {activeTab === 'track-health' && (
-          <TrackHealthMonitor
-            trackSections={trackSections}
-            progressiveHistory={progressiveHistory}
-            liveTelemetry={liveTelemetry}
-          />
+          <div className="space-y-6">
+            <KPICards metrics={metrics} />
+            <TrackHealthMonitor
+              trackSections={trackSections}
+              progressiveHistory={progressiveHistory}
+              liveTelemetry={liveTelemetry}
+            />
+          </div>
         )}
 
         {/* Tab 5: Station Crowd Heatmaps */}
-        {activeTab === 'crowd' && <CrowdHeatmaps />}
+        {activeTab === 'crowd' && (
+          <div className="space-y-6">
+            <KPICards metrics={metrics} />
+            <CrowdHeatmaps />
+          </div>
+        )}
 
         {/* Tab 6: Incident Control & Alerts Manager */}
         {activeTab === 'alerts' && (
-          <AlertsManager
-            alerts={alerts}
-            onNewAlert={(newAlt) => setAlerts((prev) => [newAlt, ...prev])}
-          />
+          <div className="space-y-6">
+            <KPICards metrics={metrics} />
+            <AlertsManager
+              alerts={alerts}
+              onNewAlert={(newAlt) => setAlerts((prev) => [newAlt, ...prev])}
+            />
+          </div>
         )}
       </main>
 
       {/* Footer */}
-      <footer className="bg-white/90 backdrop-blur-md border-t border-slate-200/80 py-4 text-center text-xs text-slate-500 shadow-sm mt-auto">
+      <footer className="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 shadow-sm mt-auto">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div>
             <span className="font-bold text-slate-900 font-heading">RailSathi</span> — AI-Powered Railway Intelligence Ecosystem (Predict • Protect • Connect)
