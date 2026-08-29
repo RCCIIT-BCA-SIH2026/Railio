@@ -17,7 +17,7 @@ echo [3/4] Starting Admin Web Dashboard (Port 3000)...
 start "RailSathi-Admin-Web" cmd /k "cd admin-web && npm run dev"
 
 echo [4/4] Starting Mobile Expo App (Metro + Expo Go QR)...
-start "RailSathi-Mobile" cmd /k "cd mobile && npx expo start -c"
+start "RailSathi-Mobile" cmd /k "cd mobile && set NODE_OPTIONS=--max-old-space-size=8192 && npx expo start -c"
 
 echo.
 echo =================================================================

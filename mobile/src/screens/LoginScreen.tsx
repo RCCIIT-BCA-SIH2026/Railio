@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
+import { colors } from '../theme/colors';
 
 export const LoginScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -99,7 +100,7 @@ export const LoginScreen: React.FC = () => {
             style={[styles.demoBtn, styles.demoBtnAdmin]}
             onPress={() => handleQuickDemo('ADMIN')}
           >
-            <Text style={[styles.demoBtnText, { color: '#FF671F' }]}>🛡️ Demo Controller</Text>
+            <Text style={[styles.demoBtnText, { color: colors.primary }]}>🛡️ Demo Controller</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -109,7 +110,7 @@ export const LoginScreen: React.FC = () => {
         onPress={() => navigation.navigate('Register')}
       >
         <Text style={styles.registerText}>
-          Don't have an account? <Text style={{ color: '#FF671F', fontWeight: 'bold' }}>Register</Text>
+          Don't have an account? <Text style={{ color: colors.primary, fontWeight: 'bold' }}>Register</Text>
         </Text>
       </TouchableOpacity>
     </ScrollView>
@@ -119,7 +120,7 @@ export const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 24,
@@ -133,9 +134,9 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 103, 31, 0.2)',
+    backgroundColor: colors.primaryLight,
     borderWidth: 1.5,
-    borderColor: '#FF671F',
+    borderColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
@@ -143,21 +144,26 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   subtitle: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 4,
   },
   roleContainer: {
     flexDirection: 'row',
-    backgroundColor: '#0B2545',
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 4,
     marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   roleButton: {
     flex: 1,
@@ -166,23 +172,28 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   roleActive: {
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
   },
   roleText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   roleTextActive: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontWeight: 'bold',
   },
   card: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   inputGroup: {
     marginBottom: 16,
@@ -190,44 +201,44 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#CBD5E1',
+    color: colors.textLight,
     marginBottom: 6,
     textTransform: 'uppercase',
   },
   input: {
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 12,
-    color: '#FFFFFF',
+    color: colors.text,
     fontSize: 13,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   loginButton: {
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
     marginTop: 8,
   },
   loginButtonText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 14,
     fontWeight: 'bold',
   },
   quickAccessSection: {
     marginTop: 24,
     padding: 16,
-    backgroundColor: 'rgba(11, 37, 69, 0.5)',
+    backgroundColor: colors.background,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   quickAccessTitle: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: colors.textMuted,
     letterSpacing: 1,
     marginBottom: 10,
     textAlign: 'center',
@@ -238,18 +249,23 @@ const styles = StyleSheet.create({
   },
   demoBtn: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.card,
     paddingVertical: 10,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   demoBtnAdmin: {
-    borderColor: 'rgba(255, 103, 31, 0.4)',
+    borderColor: colors.primaryLight,
   },
   demoBtnText: {
-    color: '#CBD5E1',
+    color: colors.text,
     fontSize: 11,
     fontWeight: 'bold',
   },
@@ -259,6 +275,6 @@ const styles = StyleSheet.create({
   },
   registerText: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
 });

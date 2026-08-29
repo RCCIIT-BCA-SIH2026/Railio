@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
+import { colors } from '../theme/colors';
 
 export const SearchTrainScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -96,7 +97,7 @@ export const SearchTrainScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
@@ -108,20 +109,25 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 2,
   },
   card: {
-    backgroundColor: 'rgba(19, 47, 86, 0.75)',
+    backgroundColor: colors.card,
     borderRadius: 18,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
     marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   inputGroup: {
     marginBottom: 12,
@@ -129,29 +135,29 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 10,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginBottom: 6,
     textTransform: 'uppercase',
   },
   input: {
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    color: '#FFFFFF',
+    color: colors.text,
     fontSize: 13,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   searchBtn: {
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
     marginTop: 8,
   },
   searchBtnText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 13,
     fontWeight: 'bold',
   },
@@ -161,23 +167,28 @@ const styles = StyleSheet.create({
   popularTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
     marginBottom: 10,
   },
   routesList: {
     gap: 8,
   },
   routeChip: {
-    backgroundColor: 'rgba(11, 37, 69, 0.8)',
+    backgroundColor: colors.card,
     paddingHorizontal: 14,
     paddingVertical: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   routeChipText: {
     fontSize: 12,
-    color: '#CBD5E1',
+    color: colors.text,
     fontWeight: '600',
   },
 });

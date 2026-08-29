@@ -4,6 +4,7 @@ import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { getLiveTrainApi } from '../services/api';
+import { colors } from '../theme/colors';
 
 export const LiveTrainScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'LiveTrain'>>();
@@ -155,7 +156,7 @@ export const LiveTrainScreen: React.FC = () => {
       <View style={styles.infoCard}>
         <Text style={styles.infoTitle}>Next Interlocking Clearance</Text>
         <Text style={styles.infoDesc}>
-          Train is approaching <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>{train.liveState.nextStation || 'Prayagraj Junction'}</Text>. AI predicts 4 min outer signal clearance delay before platform docking.
+          Train is approaching <Text style={{ color: colors.text, fontWeight: 'bold' }}>{train.liveState.nextStation || 'Prayagraj Junction'}</Text>. AI predicts 4 min outer signal clearance delay before platform docking.
         </Text>
       </View>
     </ScrollView>
@@ -165,19 +166,24 @@ export const LiveTrainScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
   headerCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: 18,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
     marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   headerTop: {
     flexDirection: 'row',
@@ -188,35 +194,35 @@ const styles = StyleSheet.create({
   trainNumText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#FF671F',
+    color: colors.primary,
   },
   trainNameText: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
     marginTop: 2,
   },
   liveGpsBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: colors.greenLight,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.4)',
+    borderColor: colors.green,
     gap: 4,
   },
   livePulseDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#10B981',
+    backgroundColor: colors.green,
   },
   liveGpsText: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#10B981',
+    color: colors.greenDark,
   },
   telemetryGrid: {
     flexDirection: 'row',
@@ -224,36 +230,41 @@ const styles = StyleSheet.create({
   },
   telemetryBox: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     borderRadius: 14,
     padding: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   telemetryVal: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   telemetryUnit: {
     fontSize: 8,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 1,
   },
   telemetryLabel: {
     fontSize: 9,
-    color: '#64748B',
+    color: colors.textLight,
     marginTop: 4,
   },
   mapCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.75)',
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
     marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   mapCardHeader: {
     marginBottom: 12,
@@ -261,19 +272,19 @@ const styles = StyleSheet.create({
   mapCardTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   mapCardSub: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 2,
   },
   trackCanvas: {
     height: 160,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
     justifyContent: 'center',
     position: 'relative',
     overflow: 'hidden',
@@ -289,14 +300,14 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     height: 4,
-    backgroundColor: '#1E4273',
+    backgroundColor: colors.border,
   },
   railTrackInner: {
     position: 'absolute',
     left: 20,
     right: 20,
     height: 2,
-    backgroundColor: '#38BDF8',
+    backgroundColor: colors.info,
     opacity: 0.6,
   },
   stationNode: {
@@ -309,23 +320,23 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: colors.white,
   },
   stationDotPassed: {
-    backgroundColor: '#10B981',
+    backgroundColor: colors.green,
   },
   stationDotNext: {
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
   },
   stationNodeName: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
     marginTop: 4,
   },
   stationNodeStatus: {
     fontSize: 9,
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   liveTrainMarker: {
     position: 'absolute',
@@ -338,32 +349,32 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(255, 103, 31, 0.25)',
+    backgroundColor: colors.primaryLight,
     top: -5,
   },
   trainMarkerCircle: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderColor: colors.white,
   },
   trainTooltip: {
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#FF671F',
+    borderColor: colors.primary,
     marginTop: 4,
   },
   trainTooltipText: {
     fontSize: 8,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   coordinatesRow: {
     marginTop: 10,
@@ -372,16 +383,16 @@ const styles = StyleSheet.create({
   coordText: {
     fontSize: 10,
     fontFamily: 'monospace',
-    color: '#64748B',
+    color: colors.textLight,
   },
   catchCtaButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 103, 31, 0.15)',
+    backgroundColor: colors.primaryLight,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 103, 31, 0.4)',
+    borderColor: colors.primaryLight,
     marginBottom: 14,
   },
   catchCtaIcon: {
@@ -391,34 +402,39 @@ const styles = StyleSheet.create({
   catchCtaTitle: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   catchCtaSub: {
     fontSize: 10,
-    color: '#CBD5E1',
+    color: colors.textMuted,
     marginTop: 2,
   },
   catchCtaArrow: {
     fontSize: 20,
-    color: '#FF671F',
+    color: colors.primary,
     fontWeight: 'bold',
   },
   infoCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.6)',
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   infoTitle: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#CBD5E1',
+    color: colors.text,
     marginBottom: 4,
   },
   infoDesc: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     lineHeight: 16,
   },
 });

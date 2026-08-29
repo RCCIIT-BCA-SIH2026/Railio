@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { colors } from '../theme/colors';
 
 export const CrowdStatusScreen: React.FC = () => {
   const [selectedStation, setSelectedStation] = useState('HWH');
@@ -55,39 +56,49 @@ export const CrowdStatusScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
   headerCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: colors.card,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 4,
   },
   platformsContainer: {
     gap: 12,
   },
   platformCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.7)',
+    backgroundColor: colors.card,
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -98,7 +109,7 @@ const styles = StyleSheet.create({
   pfTitle: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   badge: {
     paddingHorizontal: 8,
@@ -113,7 +124,7 @@ const styles = StyleSheet.create({
   barBackground: {
     width: '100%',
     height: 8,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     borderRadius: 4,
     overflow: 'hidden',
     marginBottom: 10,
@@ -130,10 +141,10 @@ const styles = StyleSheet.create({
   countText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#CBD5E1',
+    color: colors.text,
   },
   labelText: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
 });

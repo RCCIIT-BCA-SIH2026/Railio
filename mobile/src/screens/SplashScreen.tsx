@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { VandeBharatHero } from '../components/VandeBharatHero';
+import { colors } from '../theme/colors';
 
 export const SplashScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -49,7 +50,7 @@ export const SplashScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
     width: 320,
     height: 320,
     borderRadius: 160,
-    backgroundColor: 'rgba(255, 103, 31, 0.12)',
+    backgroundColor: colors.primaryLight,
     top: '25%',
   },
   content: {
@@ -70,12 +71,17 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 24,
-    backgroundColor: 'rgba(255, 103, 31, 0.2)',
+    backgroundColor: colors.primaryLight,
     borderWidth: 2,
-    borderColor: '#FF671F',
+    borderColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   trainEmoji: {
     fontSize: 42,
@@ -83,20 +89,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 34,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: colors.text,
     letterSpacing: 1.5,
   },
   tagline: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#FF671F',
+    color: colors.primary,
     marginTop: 6,
     letterSpacing: 2,
     textTransform: 'uppercase',
   },
   subtext: {
     fontSize: 12,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 4,
     marginBottom: 20,
   },
@@ -110,32 +116,37 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: 'rgba(19, 47, 86, 0.6)',
+    backgroundColor: colors.card,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   pulseDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#10B981',
+    backgroundColor: colors.green,
     marginRight: 8,
   },
   loadingText: {
     fontSize: 11,
-    color: '#CBD5E1',
+    color: colors.textMuted,
     fontWeight: '500',
   },
   skipButton: {
     marginTop: 32,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
     borderRadius: 12,
   },
   skipText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 13,
     fontWeight: 'bold',
   },

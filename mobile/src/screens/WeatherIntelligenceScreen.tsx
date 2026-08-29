@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { getWeatherApi } from '../services/api';
+import { colors } from '../theme/colors';
 
 export const WeatherIntelligenceScreen: React.FC = () => {
   const [weatherData, setWeatherData] = useState<any>(null);
@@ -78,19 +79,24 @@ export const WeatherIntelligenceScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
     paddingBottom: 40,
   },
   headerCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: colors.card,
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
     marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   headerTop: {
     flexDirection: 'row',
@@ -101,18 +107,18 @@ const styles = StyleSheet.create({
   city: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   conditionText: {
     fontSize: 13,
-    color: '#38BDF8',
+    color: colors.primary,
     marginTop: 2,
     fontWeight: '600',
   },
   tempText: {
     fontSize: 34,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   metricsGrid: {
     flexDirection: 'row',
@@ -120,29 +126,29 @@ const styles = StyleSheet.create({
   },
   metricBox: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     padding: 10,
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   metricVal: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   metricLabel: {
     fontSize: 9,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 2,
   },
   impactCard: {
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+    backgroundColor: colors.warningLight,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.3)',
+    borderColor: colors.warning,
   },
   impactHeader: {
     flexDirection: 'row',
@@ -153,22 +159,22 @@ const styles = StyleSheet.create({
   impactTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#F59E0B',
+    color: colors.warningDark,
   },
   impactDesc: {
     fontSize: 12,
-    color: '#CBD5E1',
+    color: colors.text,
     lineHeight: 18,
   },
   impactFooter: {
     marginTop: 12,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+    borderTopColor: colors.border,
   },
   impactFooterText: {
     fontSize: 9.5,
-    color: '#94A3B8',
+    color: colors.textMuted,
     fontStyle: 'italic',
   },
 });

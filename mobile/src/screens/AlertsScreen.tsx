@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { getAlertsApi } from '../services/api';
 import { AlertItem } from '../types';
+import { colors } from '../theme/colors';
 
 export const AlertsScreen: React.FC = () => {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
@@ -69,7 +70,7 @@ export const AlertsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
@@ -81,11 +82,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 2,
   },
   alertsList: {
@@ -95,14 +96,19 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 16,
     borderWidth: 1.5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   cardCritical: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-    borderColor: 'rgba(239, 68, 68, 0.4)',
+    backgroundColor: colors.dangerLight,
+    borderColor: colors.danger,
   },
   cardWarning: {
-    backgroundColor: 'rgba(245, 158, 11, 0.12)',
-    borderColor: 'rgba(245, 158, 11, 0.4)',
+    backgroundColor: colors.warningLight,
+    borderColor: colors.warning,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -114,7 +120,7 @@ const styles = StyleSheet.create({
   alertTitle: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
     flex: 1,
   },
   badge: {
@@ -129,20 +135,20 @@ const styles = StyleSheet.create({
   },
   alertDesc: {
     fontSize: 11.5,
-    color: '#CBD5E1',
+    color: colors.textMuted,
     lineHeight: 17,
   },
   actionBox: {
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     borderRadius: 10,
     padding: 10,
     marginTop: 10,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   actionText: {
     fontSize: 11,
-    color: '#F59E0B',
+    color: colors.warningDark,
     fontWeight: '600',
   },
   cardFooter: {
@@ -152,15 +158,15 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+    borderTopColor: colors.border,
   },
   categoryText: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   timeText: {
     fontSize: 10,
-    color: '#64748B',
+    color: colors.textLight,
     fontFamily: 'monospace',
   },
 });

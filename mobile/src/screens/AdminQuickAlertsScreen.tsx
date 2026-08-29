@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { colors } from '../theme/colors';
 
 export const AdminQuickAlertsScreen: React.FC = () => {
   const [approved, setApproved] = useState(false);
@@ -34,7 +35,7 @@ export const AdminQuickAlertsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
@@ -46,49 +47,54 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 2,
   },
   alertCard: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
+    backgroundColor: colors.dangerLight,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1.5,
-    borderColor: 'rgba(239, 68, 68, 0.4)',
+    borderColor: colors.danger,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   alertCategory: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#EF4444',
+    color: colors.dangerDark,
   },
   alertTitle: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
     marginTop: 4,
   },
   alertDesc: {
     fontSize: 11.5,
-    color: '#CBD5E1',
+    color: colors.textMuted,
     marginTop: 6,
     lineHeight: 16,
   },
   actionBtn: {
-    backgroundColor: '#EF4444',
+    backgroundColor: colors.danger,
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 14,
   },
   actionBtnApproved: {
-    backgroundColor: '#10B981',
+    backgroundColor: colors.green,
   },
   actionBtnText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 12,
     fontWeight: 'bold',
   },

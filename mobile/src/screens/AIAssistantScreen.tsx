@@ -13,6 +13,7 @@ import {
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types';
 import { chatAIApi } from '../services/api';
+import { colors } from '../theme/colors';
 
 export const AIAssistantScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'AIAssistant'>>();
@@ -160,29 +161,29 @@ export const AIAssistantScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   promptsContainer: {
     paddingVertical: 10,
-    backgroundColor: '#0B2545',
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
-    borderBottomColor: '#1E4273',
+    borderBottomColor: colors.border,
   },
   promptsScroll: {
     paddingHorizontal: 16,
     gap: 8,
   },
   promptChip: {
-    backgroundColor: 'rgba(255, 103, 31, 0.15)',
+    backgroundColor: colors.primaryLight,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 103, 31, 0.3)',
+    borderColor: colors.primaryLight,
   },
   promptChipText: {
     fontSize: 11,
-    color: '#FF671F',
+    color: colors.primary,
     fontWeight: 'bold',
   },
   messagesContainer: {
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,
@@ -217,44 +218,49 @@ const styles = StyleSheet.create({
     maxWidth: '82%',
     padding: 14,
     borderRadius: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   bubbleAi: {
-    backgroundColor: 'rgba(19, 47, 86, 0.85)',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
     borderBottomLeftRadius: 4,
   },
   bubbleUser: {
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
     borderBottomRightRadius: 4,
   },
   msgText: {
     fontSize: 12.5,
-    color: '#F1F5F9',
+    color: colors.text,
     lineHeight: 18,
   },
   msgTextUser: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontWeight: '600',
   },
   msgTime: {
     fontSize: 8.5,
-    color: '#94A3B8',
+    color: colors.textMuted,
     alignSelf: 'flex-end',
     marginTop: 4,
   },
   toolChipsContainer: {
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     padding: 8,
     borderRadius: 10,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   toolHeader: {
     fontSize: 9,
     fontWeight: 'bold',
-    color: '#FF671F',
+    color: colors.primary,
     marginBottom: 4,
   },
   toolChip: {
@@ -262,7 +268,7 @@ const styles = StyleSheet.create({
   },
   toolChipText: {
     fontSize: 9.5,
-    color: '#38BDF8',
+    color: colors.info,
     fontFamily: 'monospace',
   },
   aiTyping: {
@@ -273,37 +279,37 @@ const styles = StyleSheet.create({
   },
   typingText: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     fontStyle: 'italic',
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: '#0B2545',
+    backgroundColor: colors.card,
     borderTopWidth: 1,
-    borderTopColor: '#1E4273',
+    borderTopColor: colors.border,
     gap: 10,
   },
   input: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 10,
-    color: '#FFFFFF',
+    color: colors.text,
     fontSize: 13,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   sendButton: {
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
     paddingHorizontal: 18,
     paddingVertical: 11,
     borderRadius: 14,
   },
   sendButtonText: {
-    color: '#FFFFFF',
+    color: colors.white,
     fontSize: 12,
     fontWeight: 'bold',
   },

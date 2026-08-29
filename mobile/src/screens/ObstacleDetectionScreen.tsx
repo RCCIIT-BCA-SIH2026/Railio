@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { colors } from '../theme/colors';
 
 export const ObstacleDetectionScreen: React.FC = () => {
   const [activeScenario, setActiveScenario] = useState<'PERSON' | 'CATTLE' | 'CLEAR'>('PERSON');
@@ -176,7 +177,7 @@ export const ObstacleDetectionScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
   },
   content: {
     padding: 16,
@@ -188,21 +189,21 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
   },
   subtext: {
     fontSize: 11,
-    color: '#94A3B8',
+    color: colors.textMuted,
     marginTop: 2,
   },
   tabRow: {
     flexDirection: 'row',
-    backgroundColor: '#0B2545',
+    backgroundColor: colors.card,
     borderRadius: 12,
     padding: 4,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   tabBtn: {
     flex: 1,
@@ -211,27 +212,32 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   tabBtnActive: {
-    backgroundColor: '#FF671F',
+    backgroundColor: colors.primary,
   },
   tabBtnText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   tabBtnTextActive: {
-    color: '#FFFFFF',
+    color: colors.white,
   },
   cameraViewfinder: {
     height: 240,
-    backgroundColor: '#020617',
+    backgroundColor: colors.card,
     borderRadius: 20,
     borderWidth: 1.5,
-    borderColor: '#38BDF8',
+    borderColor: colors.info,
     position: 'relative',
     overflow: 'hidden',
     justifyContent: 'space-between',
     padding: 12,
     marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
   },
   cameraRailTracks: {
     ...StyleSheet.absoluteFillObject,
@@ -244,7 +250,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     top: 40,
     width: 3,
-    backgroundColor: '#334155',
+    backgroundColor: colors.border,
     transform: [{ rotate: '-25deg' }],
   },
   trackPerspectiveRight: {
@@ -253,7 +259,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     top: 40,
     width: 3,
-    backgroundColor: '#334155',
+    backgroundColor: colors.border,
     transform: [{ rotate: '25deg' }],
   },
   boundingBoxOverlay: {
@@ -273,7 +279,7 @@ const styles = StyleSheet.create({
   boxLabelText: {
     fontSize: 8,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.white,
   },
   cameraHudTop: {
     flexDirection: 'row',
@@ -285,12 +291,12 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#EF4444',
+    backgroundColor: colors.danger,
   },
   hudText: {
     fontSize: 9,
     fontFamily: 'monospace',
-    color: '#38BDF8',
+    color: colors.info,
     fontWeight: 'bold',
   },
   cameraHudBottom: {
@@ -301,7 +307,7 @@ const styles = StyleSheet.create({
   },
   hudSub: {
     fontSize: 9.5,
-    color: '#CBD5E1',
+    color: colors.textMuted,
     fontFamily: 'monospace',
   },
   hudRisk: {
@@ -310,11 +316,16 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace',
   },
   resultCard: {
-    backgroundColor: 'rgba(19, 47, 86, 0.8)',
+    backgroundColor: colors.card,
     borderRadius: 18,
     padding: 16,
     borderWidth: 1.5,
     marginBottom: 14,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
   },
   resultHeader: {
     flexDirection: 'row',
@@ -329,7 +340,7 @@ const styles = StyleSheet.create({
   resultObject: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: colors.text,
     marginTop: 2,
   },
   riskBadge: {
@@ -344,12 +355,12 @@ const styles = StyleSheet.create({
   },
   detailsRow: {
     flexDirection: 'row',
-    backgroundColor: '#07162C',
+    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 10,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#1E4273',
+    borderColor: colors.border,
   },
   detailCol: {
     flex: 1,
@@ -357,34 +368,34 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 9,
-    color: '#94A3B8',
+    color: colors.textMuted,
   },
   detailVal: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: colors.text,
     marginTop: 2,
   },
   actionNote: {
-    backgroundColor: 'rgba(11, 37, 69, 0.6)',
+    backgroundColor: colors.background,
     padding: 10,
     borderRadius: 10,
   },
   actionNoteText: {
     fontSize: 11,
-    color: '#CBD5E1',
+    color: colors.textMuted,
     lineHeight: 16,
   },
   disclaimerCard: {
-    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+    backgroundColor: colors.card,
     borderRadius: 14,
     padding: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: colors.border,
   },
   disclaimerText: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: colors.textMuted,
     lineHeight: 15,
   },
 });

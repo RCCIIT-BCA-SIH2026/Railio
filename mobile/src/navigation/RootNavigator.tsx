@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text } from 'react-native';
 import { RootStackParamList, BottomTabParamList } from '../types';
+import { colors } from '../theme/colors';
 
 // Screens
 import { SplashScreen } from '../screens/SplashScreen';
@@ -36,15 +37,15 @@ const MainTabNavigator: React.FC = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#0B2545',
-          borderTopColor: '#1E4273',
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
           borderTopWidth: 1,
           height: 60,
           paddingBottom: 8,
           paddingTop: 6,
         },
-        tabBarActiveTintColor: '#FF671F',
-        tabBarInactiveTintColor: '#94A3B8',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: 'bold',
@@ -102,15 +103,15 @@ export const RootNavigator: React.FC = () => {
       initialRouteName="Splash"
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#0B2545',
+          backgroundColor: colors.card,
         },
-        headerTintColor: '#FFFFFF',
+        headerTintColor: colors.text,
         headerTitleStyle: {
           fontWeight: 'bold',
           fontSize: 16,
         },
         contentStyle: {
-          backgroundColor: '#07162C',
+          backgroundColor: colors.background,
         },
       }}
     >
