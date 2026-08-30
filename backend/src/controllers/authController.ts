@@ -1,74 +1,119 @@
 import { Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import { db } from '../models/dataStore';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'railsathi-super-secret-jwt-key-2026';
+import { supabaseAdmin } from '../lib/supabase';
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body;
 
-    // Quick demo matching
-    const user = db.users.find((u) => u.email.toLowerCase() === (email || '').toLowerCase());
-
-    if (!user && !email.includes('demo')) {
-      // Demo auto-register for convenience in hackathons
-      const newUser = {
-        id: `usr-${Date.now()}`,
-        email,
-        password,
-        fullName: email.split('@')[0] || 'Rail Passenger',
-        role: role || 'PASSENGER',
-        phoneNumber: '+91 98765 00000',
-      };
-      db.users.push(newUser);
-      const token = jwt.sign({ id: newUser.id, role: newUser.role, email: newUser.email }, JWT_SECRET, { expiresIn: '7d' });
-      res.json({ success: true, token, user: newUser });
+    if (!email || !password) {
+      res.status(400).json({ success: false, error: 'Email and password are required' });
       return;
     }
 
-    const matched = user || db.users[0];
-    const token = jwt.sign({ id: matched.id, role: matched.role, email: matched.email }, JWT_SECRET, { expiresIn: '7d' });
+    // Authenticate via Supabase Auth Admin
+    const { data: authData, error: authError } = await supabaseAdmin.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (authError || !authData.user) {
+      res.status(401).json({ success: false, error: authError?.message || 'Invalid credentials' });
+      return;
+    }
+
+    // Fetch Profile from Supabase profiles table
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .eq('auth_user_id', authData.user.id)
+      .single();
 
     res.json({
       success: true,
-      token,
+      token: authData.session?.access_token,
+      refreshToken: authData.session?.refresh_token,
       user: {
-        id: matched.id,
-        email: matched.email,
-        fullName: matched.fullName,
-        role: matched.role,
-        phoneNumber: matched.phoneNumber,
-      }
+        id: authData.user.id,
+        email: authData.user.email,
+        fullName: profile?.full_name || authData.user.email?.split('@')[0],
+        role: profile?.role || 'user',
+        phoneNumber: profile?.phone_number,
+        phoneVerified: profile?.phone_verified || false,
+      },
     });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Authentication failed' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Authentication failed' });
   }
 };
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, fullName, role, phoneNumber } = req.body;
+    const { email, password, fullName, phoneNumber } = req.body;
 
-    if (db.users.some((u) => u.email === email)) {
-      res.status(400).json({ success: false, error: 'User already registered' });
+    if (!email || !password) {
+      res.status(400).json({ success: false, error: 'Email and password are required' });
       return;
     }
 
-    const newUser = {
-      id: `usr-${Date.now()}`,
+    // Create user via Supabase Auth Admin (Force role = 'user' on public API)
+    const { data: authData, error: createError } = await supabaseAdmin.auth.admin.createUser({
       email,
       password,
-      fullName: fullName || 'Rail User',
-      role: role || 'PASSENGER',
-      phoneNumber: phoneNumber || '+91 90000 00000',
-    };
+      email_confirm: true,
+      user_metadata: {
+        full_name: fullName,
+        phone_number: phoneNumber,
+        role: 'user', // Enforce 'user' role for public API registration
+      },
+    });
 
-    db.users.push(newUser);
-    const token = jwt.sign({ id: newUser.id, role: newUser.role, email: newUser.email }, JWT_SECRET, { expiresIn: '7d' });
+    if (createError || !authData.user) {
+      res.status(400).json({ success: false, error: createError?.message || 'Registration failed' });
+      return;
+    }
 
-    res.status(201).json({ success: true, token, user: newUser });
-  } catch (error) {
-    res.status(500).json({ success: false, error: 'Registration failed' });
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully via Supabase Auth',
+      user: {
+        id: authData.user.id,
+        email: authData.user.email,
+        fullName,
+        role: 'user',
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Registration failed' });
+  }
+};
+
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = (req as any).user;
+    if (!user) {
+      res.status(401).json({ success: false, error: 'Unauthorized' });
+      return;
+    }
+    
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: profile?.full_name || user.fullName,
+        role: profile?.role || user.role,
+        phoneNumber: profile?.phone_number,
+        phoneVerified: profile?.phone_verified || false,
+        createdAt: profile?.created_at,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Failed to fetch user' });
   }
 };

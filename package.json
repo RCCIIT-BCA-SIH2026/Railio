@@ -1,0 +1,17 @@
+{
+  "name": "railsathi-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix admin-web run build && npm --prefix backend run build",
+    "build:admin": "npm --prefix admin-web run build",
+    "build:backend": "npm --prefix backend run build",
+    "dev:admin": "npm --prefix admin-web run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:mobile": "npm --prefix mobile run start",
+    "start:backend": "npm --prefix backend run start"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.48.1"
+  }
+}

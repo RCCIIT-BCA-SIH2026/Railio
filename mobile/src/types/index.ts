@@ -2,6 +2,7 @@ export type RootStackParamList = {
   Splash: undefined;
   Login: undefined;
   Register: undefined;
+  PhoneVerification: undefined;
   MainTabs: undefined;
   SearchTrain: undefined;
   SearchResults: { from: string; to: string; date?: string };

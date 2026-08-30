@@ -3,11 +3,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Text } from 'react-native';
 import { RootStackParamList, BottomTabParamList } from '../types';
+import { useAuth } from '../context/AuthContext';
 
 // Screens
 import { SplashScreen } from '../screens/SplashScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
+import { PhoneVerificationScreen } from '../screens/PhoneVerificationScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { SearchTrainScreen } from '../screens/SearchTrainScreen';
 import { SearchResultsScreen } from '../screens/SearchResultsScreen';
@@ -103,9 +105,15 @@ const MainTabNavigator: React.FC = () => {
 };
 
 export const RootNavigator: React.FC = () => {
+  const { isLoading } = useAuth();
+
+  if (isLoading) {
+    return <SplashScreen />;
+  }
+
   return (
     <Stack.Navigator
-      initialRouteName="Splash"
+      initialRouteName="MainTabs"
       screenOptions={{
         headerStyle: {
           backgroundColor: '#FFFFFF',
@@ -125,6 +133,7 @@ export const RootNavigator: React.FC = () => {
       <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'Create Account' }} />
+      <Stack.Screen name="PhoneVerification" component={PhoneVerificationScreen} options={{ title: 'Identity Verification' }} />
       <Stack.Screen name="MainTabs" component={MainTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="SearchResults" component={SearchResultsScreen} options={{ title: 'Train Results & Predictions' }} />
       <Stack.Screen name="TrainDetails" component={TrainDetailsScreen} options={{ title: 'Train Telemetry & XAI' }} />

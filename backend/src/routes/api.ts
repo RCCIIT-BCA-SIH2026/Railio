@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { login, register } from '../controllers/authController';
+import { login, register, getMe } from '../controllers/authController';
+import { authenticateToken } from '../middleware/authMiddleware';
 import { getTrains, getTrainByNumber, getLiveTrainStatus, getTrainETAPrediction } from '../controllers/trainController';
 import { getStations, getStationArrivals } from '../controllers/stationController';
 import { calculateCatchProbability } from '../controllers/catchController';
@@ -15,6 +16,7 @@ const router = Router();
 // 1. Auth routes
 router.post('/auth/login', login);
 router.post('/auth/register', register);
+router.get('/auth/me', authenticateToken as any, getMe);
 
 // 2. Train routes
 router.get('/trains', getTrains);

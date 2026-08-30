@@ -2,11 +2,14 @@ import express from 'express';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import cors from 'cors';
+import path from 'path';
 import dotenv from 'dotenv';
 import apiRouter from './routes/api';
 import { simulationEngine } from './services/simulationEngine';
 
-dotenv.config();
+// Load master root .env file
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const app = express();
 const server = http.createServer(app);

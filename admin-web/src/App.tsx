@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { AuthProvider } from './context/AuthContext';
+import { AdminAuthGuard } from './components/AdminAuthGuard';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { KPICards } from './components/KPICards';
@@ -22,7 +24,7 @@ const tabBackgrounds: Record<string, string> = {
   'alerts': bgBlue,
 };
 
-export const App: React.FC = () => {
+const DashboardContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     activeTrains: 142,
@@ -41,7 +43,6 @@ export const App: React.FC = () => {
   const [liveTelemetry, setLiveTelemetry] = useState<any>(null);
 
   useEffect(() => {
-    // Initial fetch
     const loadData = async () => {
       try {
         const data = await fetchDashboardData();
@@ -61,7 +62,6 @@ export const App: React.FC = () => {
     };
     loadData();
 
-    // Socket.IO Real-time Connection
     const socket = initSocket();
 
     socket.on('connect', () => {
@@ -99,7 +99,6 @@ export const App: React.FC = () => {
 
       {/* Main Dashboard Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Tab 1: Operations Overview (Hero Banner + KPI Metrics + Map + Delay Tree) */}
         {activeTab === 'overview' && (
           <div className="space-y-6">
             <HeroSection onNavigateTab={setActiveTab} />
@@ -109,7 +108,6 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* Tab 2: Live Network Map */}
         {activeTab === 'map' && (
           <div className="space-y-6">
             <KPICards metrics={metrics} />
@@ -117,7 +115,6 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* Tab 3: Digital Twin & What-If Precedence Lab */}
         {activeTab === 'digital-twin' && (
           <div className="space-y-6">
             <KPICards metrics={metrics} />
@@ -125,7 +122,6 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* Tab 4: Track Health & ESP32 IoT Monitor */}
         {activeTab === 'track-health' && (
           <div className="space-y-6">
             <KPICards metrics={metrics} />
@@ -137,7 +133,6 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* Tab 5: Station Crowd Heatmaps */}
         {activeTab === 'crowd' && (
           <div className="space-y-6">
             <KPICards metrics={metrics} />
@@ -145,7 +140,6 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* Tab 6: Incident Control & Alerts Manager */}
         {activeTab === 'alerts' && (
           <div className="space-y-6">
             <KPICards metrics={metrics} />
@@ -164,11 +158,21 @@ export const App: React.FC = () => {
             <span className="font-bold text-slate-900 font-heading">RailSathi</span> — AI-Powered Railway Intelligence Ecosystem (Predict • Protect • Connect)
           </div>
           <div className="text-[11px] text-slate-400">
-            Hackathon Production Prototype • Decision Support Systems Active
+            Hackathon Production Prototype • Supabase Unified Infrastructure Active
           </div>
         </div>
       </footer>
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AdminAuthGuard>
+        <DashboardContent />
+      </AdminAuthGuard>
+    </AuthProvider>
   );
 };
 
