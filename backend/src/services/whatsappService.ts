@@ -54,7 +54,15 @@ export class WhatsAppService {
       return { success: true, messageId };
     } catch (error: any) {
       const errDetail = error.response?.data?.error?.message || error.message;
-      console.error(`[WhatsApp Service Error] Failed to send message to ${formattedRecipient}:`, errDetail);
+      const errCode = error.response?.data?.error?.code;
+      const errSubcode = error.response?.data?.error?.error_subcode;
+      const httpStatus = error.response?.status;
+      console.error(`[WhatsApp Service Error] Failed to send message to ${formattedRecipient} (HTTP ${httpStatus}):`, {
+        message: errDetail,
+        code: errCode,
+        subcode: errSubcode,
+        details: error.response?.data?.error,
+      });
       return { success: false, error: errDetail };
     }
   }
@@ -114,7 +122,13 @@ export class WhatsAppService {
       return { success: true, messageId };
     } catch (error: any) {
       const errDetail = error.response?.data?.error?.message || error.message;
-      console.error(`[WhatsApp Service Error] Failed to send interactive buttons to ${formattedRecipient}:`, errDetail);
+      const errCode = error.response?.data?.error?.code;
+      const httpStatus = error.response?.status;
+      console.error(`[WhatsApp Service Error] Failed to send interactive buttons to ${formattedRecipient} (HTTP ${httpStatus}):`, {
+        message: errDetail,
+        code: errCode,
+        details: error.response?.data?.error,
+      });
       // Fallback: send text with options if interactive buttons fail
       const fallbackText = `${headerText ? `*${headerText}*\n\n` : ''}${bodyText}\n\nOptions:\n` +
         buttons.map((b, i) => `${i + 1}. ${b.title}`).join('\n');
