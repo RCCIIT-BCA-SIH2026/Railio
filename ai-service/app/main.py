@@ -1,3 +1,9 @@
+import os
+from dotenv import load_dotenv
+
+# Load .env for local development (no-op if not present on Render — Render injects env vars directly)
+load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import router as api_router
@@ -16,15 +22,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount router once with /api prefix (covers /api/ai/whatsapp-webhook)
 app.include_router(api_router, prefix="/api")
-app.include_router(api_router)
 
 @app.get("/health")
 def health():
+    # Report env var presence — never expose actual secret values
+    wa_token_set = bool(os.getenv("WHATSAPP_ACCESS_TOKEN") or os.getenv("META_WHATSAPP_TOKEN"))
+    wa_phone_id_set = bool(os.getenv("WHATSAPP_PHONE_NUMBER_ID"))
+    wa_verify_set = bool(os.getenv("WHATSAPP_VERIFY_TOKEN"))
     return {
         "status": "healthy",
         "service": "RailSathi AI/ML Engine",
-        "models": ["XGBoost Delay", "SHAP XAI", "NetworkX Digital Twin", "YOLO CV Simulator", "RAG Agent"]
+        "models": ["XGBoost Delay", "SHAP XAI", "NetworkX Digital Twin", "YOLO CV Simulator", "RAG Agent"],
+        "whatsapp_env": {
+            "WHATSAPP_ACCESS_TOKEN": "PRESENT" if wa_token_set else "MISSING",
+            "WHATSAPP_PHONE_NUMBER_ID": "PRESENT" if wa_phone_id_set else "MISSING",
+            "WHATSAPP_VERIFY_TOKEN": "PRESENT" if wa_verify_set else "MISSING",
+        }
     }
 
 @app.get("/")

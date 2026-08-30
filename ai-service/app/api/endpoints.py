@@ -1,7 +1,7 @@
 import os
 import httpx
 import asyncio
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response
 from fastapi.responses import JSONResponse, PlainTextResponse
 from app.ml.eta_delay_predictor import eta_predictor, DelayPredictionRequest, DelayPredictionResponse, DelayPrediction
 from app.ml.catch_probability import catch_engine, CatchProbabilityInput, CatchProbabilityOutput
@@ -145,7 +145,7 @@ async def process_and_reply_whatsapp(from_number: str, text_body: str):
 @router.api_route("/whatsapp-webhook", methods=["GET", "POST"])
 @router.api_route("/ai/whatsapp/webhook", methods=["GET", "POST"])
 @router.api_route("/whatsapp/webhook", methods=["GET", "POST"])
-async def handle_whatsapp_webhook(request: Request):
+async def handle_whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
     if request.method == "GET":
         params = dict(request.query_params)
         print(f"[WHATSAPP] Webhook verification request received: {params}")
@@ -185,8 +185,8 @@ async def handle_whatsapp_webhook(request: Request):
                 text_body = msg.get("interactive", {}).get("button_reply", {}).get("title", "")
             
             if from_number and text_body:
-                # Schedule background execution to acknowledge Meta immediately (HTTP 200)
-                asyncio.create_task(process_and_reply_whatsapp(from_number, text_body))
+                # Use FastAPI BackgroundTasks — lifecycle-safe, guaranteed to run after HTTP 200 is sent
+                background_tasks.add_task(process_and_reply_whatsapp, from_number, text_body)
         else:
             statuses = value.get("statuses", [])
             if statuses:
