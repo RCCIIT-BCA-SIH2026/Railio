@@ -1,3 +1,5 @@
+import { whatsappService } from './whatsappService';
+
 export interface CommunicationChannel {
   channelName: string;
   sendMessage(recipient: string, message: string, metadata?: Record<string, any>): Promise<{ success: boolean; messageId: string }>;
@@ -16,16 +18,19 @@ export class MobilePushNotificationChannel implements CommunicationChannel {
 }
 
 export class WhatsAppChannelSimulator implements CommunicationChannel {
+
   channelName = 'WHATSAPP';
 
   async sendMessage(recipient: string, message: string, metadata?: Record<string, any>) {
-    console.log(`[WhatsApp Simulator] Sent to ${recipient}: "${message}"`, metadata || {});
+    console.log(`[WhatsApp Channel] Dispatching to ${recipient}: "${message}"`, metadata || {});
+    const result = await whatsappService.sendMessage(recipient, message);
     return {
-      success: true,
-      messageId: `wa-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      success: result.success,
+      messageId: result.messageId || `wa-${Date.now()}`,
     };
   }
 }
+
 
 export class SMSChannelAdapter implements CommunicationChannel {
   channelName = 'SMS';

@@ -7,7 +7,8 @@ import { calculateCatchProbability } from '../controllers/catchController';
 import { getStationCrowd, getTrainCoachCrowd } from '../controllers/crowdController';
 import { getTrackRisk, ingestSensorTelemetry, getRealTelemetryHistory } from '../controllers/trackController';
 import { simulateWhatIfScenario } from '../controllers/digitalTwinController';
-import { handleAIChat, handleWhatsAppWebhook } from '../controllers/aiController';
+import { handleAIChat } from '../controllers/aiController';
+import { verifyWebhook, handleIncomingWebhook } from '../controllers/whatsappController';
 import { getDashboardOverview, getAlerts, createAlert, getWeatherIntelligence } from '../controllers/adminController';
 import { getUpcomingSuburbanTrains, getCoachCrowdTelemetry, getSuburbanCorridors } from '../controllers/suburbanController';
 
@@ -48,10 +49,13 @@ router.post('/track/sensor', ingestSensorTelemetry);
 // 7. Digital Twin & What-If Simulation
 router.post('/digital-twin/simulate', simulateWhatIfScenario);
 
-// 8. AI Agent & WhatsApp
+// 8. AI Agent & Meta WhatsApp Cloud API Webhook
 router.post('/ai/chat', handleAIChat);
 router.post('/ai/agent', handleAIChat);
-router.post('/ai/whatsapp-webhook', handleWhatsAppWebhook);
+router.get('/ai/whatsapp-webhook', verifyWebhook);
+router.post('/ai/whatsapp-webhook', handleIncomingWebhook);
+router.get('/whatsapp/webhook', verifyWebhook);
+router.post('/whatsapp/webhook', handleIncomingWebhook);
 
 // 9. Weather Intelligence
 router.get('/weather', getWeatherIntelligence);
@@ -62,3 +66,4 @@ router.get('/admin/alerts', getAlerts);
 router.post('/admin/alerts', createAlert);
 
 export default router;
+
