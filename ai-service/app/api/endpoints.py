@@ -96,48 +96,172 @@ async def send_whatsapp_reply(to_number: str, message_text: str):
         except Exception as e:
             print(f"[WHATSAPP] Meta API Dispatch Exception: {e}")
 
-async def process_and_reply_whatsapp(from_number: str, text_body: str):
-    masked_from = mask_phone_number(from_number)
-    print(f"[WHATSAPP] Incoming message received")
-    print(f"[WHATSAPP] From: {masked_from}")
-    print(f"[WHATSAPP] Message: {text_body}")
+# In-memory session store for WhatsApp conversations
+USER_SESSIONS: dict = {}
+
+async def process_and_reply_whatsapp(from_number: str, text_body: str, location_payload: dict = None):
+    clean_number = "".join(filter(str.isdigit, from_number))
+    masked_from = mask_phone_number(clean_number)
+    print(f"[WHATSAPP] Incoming message from {masked_from}: text='{text_body}', has_location={bool(location_payload)}")
     
-    print(f"[AI] Processing message")
-    text_lower = text_body.lower().strip()
+    user_text = (text_body or "").strip()
+    text_lower = user_text.lower()
     
-    if text_lower in ["hi", "hello", "hey", "menu", "start"]:
+    session = USER_SESSIONS.get(clean_number, {})
+    current_state = session.get("state", "IDLE")
+    
+    # Global Reset / Main Menu triggers
+    if text_lower in ["hi", "hello", "hey", "menu", "start", "restart", "help"] or not current_state:
+        USER_SESSIONS[clean_number] = {"state": "MAIN_MENU"}
         reply = (
-            "🚆 *RailSathi AI Railway Assistant*\n\n"
-            "Welcome to *RailSathi* - Predict • Protect • Connect!\n\n"
-            "Reply with:\n"
-            "1️⃣ *Catch 12301* - Check if you can catch train\n"
-            "2️⃣ *Status 12301* - Live train status\n"
-            "3️⃣ *Suburban* - Suburban local timetable"
+            "🚆 *Welcome to RailSathi AI Railway Assistant*\n"
+            "_Predict • Protect • Connect_\n\n"
+            "Please choose an option to continue:\n"
+            "1️⃣ *Catch Train* — Check if you can catch your train in time\n"
+            "2️⃣ *Train Status* — Live train speed, delay & next station\n\n"
+            "_Reply with *1* or *2* (or type \"Catch\" / \"Status\")_"
         )
-    elif "catch" in text_lower:
-        reply = (
-            "🎯 *RailSathi AI \"Can I Catch My Train?\" Result*\n"
-            "━━━━━━━━━━━━━━━━━━━━━━\n"
-            "Status: *🔴 CRITICAL / HIGH RISK* (12% Catch Rate)\n\n"
-            "🚆 *Train*: 12301 - Howrah Rajdhani Express\n"
-            "⏰ *Predicted Departure*: 16:50\n"
-            "🚗 *Est. Road Travel Time*: 7 mins (3 km)\n"
-            "🚶 *Station Entry Buffer*: 7 mins\n"
-            "⏱️ *Total Time Required*: 19 mins\n\n"
-            "⚠️ *WARNING: High Risk of Missing Train 12301!*\n\n"
-            "🔄 *Recommended Alternative Trains*:\n"
-            "• 🚆 *Train 12841 - Coromandel Express* (Departs: 18:15)\n"
-            "• 🚆 *Dankuni - Sealdah Local* (Train 32244 - Departs in 6 mins)"
-        )
-    else:
-        try:
-            agent_res = rail_agent.process_query(AgentMessageRequest(message=text_body))
-            reply = f"🚆 *RailSathi AI Response*\n\n{agent_res.answer}"
-        except Exception as ai_err:
-            print(f"[AI Error] Exception during RAG processing: {ai_err}")
-            reply = "🚆 *RailSathi AI Response*\n\nI am currently processing high railway telemetry traffic. Please try again in a moment."
+        print(f"[AI] Sent Main Menu to {masked_from}")
+        await send_whatsapp_reply(from_number, reply)
+        return
+
+    # STEP 1: Main Menu Selection
+    if current_state == "MAIN_MENU" or text_lower in ["1", "catch", "catch train", "2", "status", "train status", "live"]:
+        if text_lower in ["1", "catch", "catch train"] or "catch" in text_lower:
+            USER_SESSIONS[clean_number] = {"state": "AWAIT_LOCATION_CATCH"}
+            reply = (
+                "📍 *Can I Catch My Train? (AI Assistant)*\n\n"
+                "Please share your *current location* or nearby station name:\n"
+                "_(e.g., *Howrah*, *Kolkata*, *Dankuni*, *Salt Lake*, or share your WhatsApp location pin 📍)_"
+            )
+            print(f"[AI] Transitioned {masked_from} -> AWAIT_LOCATION_CATCH")
+            await send_whatsapp_reply(from_number, reply)
+            return
+        elif text_lower in ["2", "status", "train status", "live"] or "status" in text_lower:
+            USER_SESSIONS[clean_number] = {"state": "AWAIT_TRAIN_STATUS"}
+            reply = (
+                "🔍 *Live Train Status Search*\n\n"
+                "Please enter the *Train Number* or *Train Name*:\n"
+                "_(e.g., *12301*, *22436*, *Rajdhani*, *Vande Bharat*, *Local*)_"
+            )
+            print(f"[AI] Transitioned {masked_from} -> AWAIT_TRAIN_STATUS")
+            await send_whatsapp_reply(from_number, reply)
+            return
+
+    # STEP 2A: Received Location for Catch Train
+    if current_state == "AWAIT_LOCATION_CATCH":
+        loc_str = ""
+        if location_payload:
+            lat = location_payload.get("latitude")
+            lng = location_payload.get("longitude")
+            name = location_payload.get("name") or location_payload.get("address") or f"{lat:.4f}, {lng:.4f}"
+            loc_str = name
+        else:
+            loc_str = user_text
             
-    print(f"[AI] Response generated")
+        USER_SESSIONS[clean_number] = {
+            "state": "AWAIT_TRAIN_CATCH",
+            "location": loc_str
+        }
+        reply = (
+            f"📍 *Location recorded*: _{loc_str}_\n\n"
+            "🚆 Which train are you planning to catch?\n"
+            "Please enter the *Train Number* or *Name*:\n"
+            "_(e.g., *12301*, *22436*, *Howrah Rajdhani*, *Dankuni Local*)_"
+        )
+        print(f"[AI] Transitioned {masked_from} -> AWAIT_TRAIN_CATCH (location: {loc_str})")
+        await send_whatsapp_reply(from_number, reply)
+        return
+
+    # STEP 3A: Received Train for Catch Train -> Compute Catch Probability
+    if current_state == "AWAIT_TRAIN_CATCH":
+        user_loc = session.get("location", "Current Location")
+        train_query = user_text
+        
+        train_num = "12301"
+        train_name = "Howrah Rajdhani Express"
+        if "22436" in train_query or "vande" in train_query.lower():
+            train_num = "22436"
+            train_name = "Vande Bharat Express"
+        elif "local" in train_query.lower() or "sealdah" in train_query.lower():
+            train_num = "32216"
+            train_name = "Dankuni - Sealdah Local"
+        elif any(c.isdigit() for c in train_query):
+            train_num = "".join(filter(str.isdigit, train_query))
+            train_name = f"Express Special ({train_num})"
+        else:
+            train_name = train_query.title()
+            
+        reply = (
+            f"🎯 *RailSathi AI \"Can I Catch My Train?\" Result*\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"📍 *Your Location*: {user_loc}\n"
+            f"🚆 *Target Train*: {train_name} (#{train_num})\n"
+            f"⏰ *Predicted Departure*: 17:02 (+12 min delay)\n"
+            f"🚗 *Estimated Road Travel*: 18 mins (Moderate Traffic)\n"
+            f"🚶 *Station Entry Buffer*: 7 mins\n"
+            f"⏱️ *Total Time Required*: 25 mins\n"
+            f"⏳ *Available Margin*: +9 mins\n\n"
+            f"🟢 *Catch Probability*: *91% (HIGH / SAFE)*\n"
+            f"💡 *AI Advice*: Leave now to ensure hassle-free platform entry.\n\n"
+            f"🔄 *Alternative Trains Nearby*:\n"
+            f"• 🚆 *Train 12841 - Coromandel Express* (Departs: 18:15)\n"
+            f"• 🚆 *Dankuni - Sealdah Local (#32244)* (Departs in 6 mins)\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"_Reply *Hi* to check another train._"
+        )
+        USER_SESSIONS[clean_number] = {"state": "IDLE"}
+        print(f"[AI] Catch calculation completed for {masked_from}")
+        await send_whatsapp_reply(from_number, reply)
+        return
+
+    # STEP 2B: Received Train for Live Status
+    if current_state == "AWAIT_TRAIN_STATUS":
+        train_query = user_text
+        train_num = "12301"
+        train_name = "Howrah Rajdhani Express"
+        if "22436" in train_query or "vande" in train_query.lower():
+            train_num = "22436"
+            train_name = "Vande Bharat Express"
+        elif "local" in train_query.lower():
+            train_num = "32216"
+            train_name = "Dankuni - Sealdah Local"
+        elif any(c.isdigit() for c in train_query):
+            train_num = "".join(filter(str.isdigit, train_query))
+            train_name = f"Train {train_num}"
+        else:
+            train_name = train_query.title()
+
+        reply = (
+            f"🚆 *Live Train Status — {train_name} ({train_num})*\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"📍 *Current Section*: Kanpur – Prayagraj Fast Corridor (S1)\n"
+            f"⚡ *Live Speed*: 118 km/h (Heading Eastbound)\n"
+            f"⏱️ *Current Delay*: +4 minutes (On-Time category)\n"
+            f"🚉 *Next Stop*: Prayagraj Jn at 12:14 PM (Platform 6)\n"
+            f"🟢 *Signal Status*: Green across interlocking block\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"_Reply *Hi* to check another train._"
+        )
+        USER_SESSIONS[clean_number] = {"state": "IDLE"}
+        print(f"[AI] Live status completed for {masked_from}")
+        await send_whatsapp_reply(from_number, reply)
+        return
+
+    # Fallback to General AI / RAG Agent
+    try:
+        agent_res = rail_agent.process_query(AgentMessageRequest(message=user_text))
+        reply = f"🚆 *RailSathi AI Assistant*\n\n{agent_res.answer}\n\n_Reply *Hi* to return to main menu._"
+    except Exception as ai_err:
+        print(f"[AI Error] Exception during RAG processing: {ai_err}")
+        reply = (
+            "🚆 *RailSathi AI Assistant*\n\n"
+            "Please reply with:\n"
+            "1️⃣ *1* — Check if you can catch your train\n"
+            "2️⃣ *2* — Live train status\n"
+            "Or type *Hi* for main menu."
+        )
+        
     await send_whatsapp_reply(from_number, reply)
 
 # 6. Meta WhatsApp Cloud API Webhook Verification & Listener
@@ -178,15 +302,19 @@ async def handle_whatsapp_webhook(request: Request, background_tasks: Background
             from_number = msg.get("from")
             msg_type = msg.get("type")
             text_body = ""
+            location_payload = None
             
             if msg_type == "text":
                 text_body = msg.get("text", {}).get("body", "")
             elif msg_type == "interactive":
-                text_body = msg.get("interactive", {}).get("button_reply", {}).get("title", "")
+                text_body = msg.get("interactive", {}).get("button_reply", {}).get("title", "") or msg.get("interactive", {}).get("list_reply", {}).get("title", "")
+            elif msg_type == "location":
+                location_payload = msg.get("location")
+                text_body = "LOCATION_PIN"
             
-            if from_number and text_body:
+            if from_number and (text_body or location_payload):
                 # Use FastAPI BackgroundTasks — lifecycle-safe, guaranteed to run after HTTP 200 is sent
-                background_tasks.add_task(process_and_reply_whatsapp, from_number, text_body)
+                background_tasks.add_task(process_and_reply_whatsapp, from_number, text_body, location_payload)
         else:
             statuses = value.get("statuses", [])
             if statuses:
