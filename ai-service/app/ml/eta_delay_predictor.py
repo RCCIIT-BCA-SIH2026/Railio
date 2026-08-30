@@ -24,6 +24,10 @@ class DelayPredictionResponse(BaseModel):
     explainability: List[ExplainabilityFactor]
     modelType: str = "XGBoost + SHAP Explainable Baseline"
 
+# Alias for convenience / backward compatibility
+DelayPrediction = DelayPredictionResponse
+
+
 class ETADelayPredictor:
     def __init__(self):
         # Weights representing trained ML feature importance

@@ -1,3 +1,4 @@
+/// <reference path="../deno.d.ts" />
 // RailSathi Edge Function: verify-phone
 // Truecaller & Phone Number Verification Layer State Machine
 
@@ -19,7 +20,7 @@ interface VerifyPhoneRequest {
   };
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }

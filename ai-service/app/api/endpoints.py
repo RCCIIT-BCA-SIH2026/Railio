@@ -2,7 +2,7 @@ import os
 import httpx
 from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.responses import JSONResponse, PlainTextResponse
-from app.ml.eta_delay_predictor import eta_predictor, DelayPredictionRequest, DelayPredictionResponse
+from app.ml.eta_delay_predictor import eta_predictor, DelayPredictionRequest, DelayPredictionResponse, DelayPrediction
 from app.ml.catch_probability import catch_engine, CatchProbabilityInput, CatchProbabilityOutput
 from app.cv.crowd_detector import crowd_cv, PlatformCrowdResult
 from app.cv.obstacle_detector import obstacle_cv, ObstacleDetectionResponse

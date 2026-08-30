@@ -1,3 +1,4 @@
+/// <reference path="../deno.d.ts" />
 // RailSathi Edge Function: admin-user-management
 // Handles administrative operations, role modifications & audit logging
 
@@ -16,7 +17,7 @@ interface AdminActionRequest {
   reason?: string;
 }
 
-serve(async (req) => {
+serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
