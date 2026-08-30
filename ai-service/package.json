@@ -1,0 +1,8 @@
+{
+  "name": "railsathi-ai-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}"
+  }
+}
