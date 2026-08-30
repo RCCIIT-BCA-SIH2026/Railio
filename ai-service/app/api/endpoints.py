@@ -80,6 +80,8 @@ async def send_whatsapp_reply(to_number: str, message_text: str):
 # 6. Meta WhatsApp Cloud API Webhook Verification & Listener
 @router.api_route("/ai/whatsapp-webhook", methods=["GET", "POST"])
 @router.api_route("/whatsapp-webhook", methods=["GET", "POST"])
+@router.api_route("/ai/whatsapp/webhook", methods=["GET", "POST"])
+@router.api_route("/whatsapp/webhook", methods=["GET", "POST"])
 async def handle_whatsapp_webhook(request: Request):
     if request.method == "GET":
         params = dict(request.query_params)
