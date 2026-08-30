@@ -47,11 +47,16 @@ def chat_agent(req: AgentMessageRequest):
 
 async def send_whatsapp_reply(to_number: str, message_text: str):
     phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "1362878316903671")
-    access_token = os.getenv("WHATSAPP_ACCESS_TOKEN", "EAATDntivkZCkBSbAShiuItsjlIQknZAy95SXfeY6MhYkY9lG3Yy58plMZCPNMmGG7M6ZClqVwfyZBMYzTXxNToEhYjhfMLU916v2G0kChH2dWqIF4zPB9PccaubMOwePqxmRku0HZBc6ZC1OwET5xCT6MwVVwZCIBJvwTXDJ1C4Hu3SifgJQGbjaOkJED6QqsXxuyK35roJgFxrh7VW8zLFTGcbUzpF9jlsqbiWvEZC5VmVOtNyPTk4Dz3koh946QHIzos0nbXz9w22GVUTDeIY3TEvl6")
+    access_token = os.getenv("WHATSAPP_ACCESS_TOKEN", "")
     url = f"https://graph.facebook.com/v18.0/{phone_number_id}/messages"
     
     clean_to = "".join(filter(str.isdigit, to_number))
+    print(f"[WhatsApp Dispatch] Sending to {clean_to} using Phone ID {phone_number_id}...")
     
+    if not access_token:
+        print("[WhatsApp Dispatch Warning] WHATSAPP_ACCESS_TOKEN not set in environment!")
+        return
+
     payload = {
         "messaging_product": "whatsapp",
         "recipient_type": "individual",
@@ -68,9 +73,9 @@ async def send_whatsapp_reply(to_number: str, message_text: str):
     async with httpx.AsyncClient() as client:
         try:
             res = await client.post(url, json=payload, headers=headers, timeout=8.0)
-            print(f"[WhatsApp Dispatch] Status: {res.status_code}, Response: {res.text}")
+            print(f"[WhatsApp Dispatch Result] HTTP {res.status_code} | Response: {res.text}")
         except Exception as e:
-            print(f"[WhatsApp Dispatch Error] {e}")
+            print(f"[WhatsApp Dispatch Exception] {e}")
 
 # 6. Meta WhatsApp Cloud API Webhook Verification & Listener
 @router.api_route("/ai/whatsapp-webhook", methods=["GET", "POST"])
@@ -78,6 +83,7 @@ async def send_whatsapp_reply(to_number: str, message_text: str):
 async def handle_whatsapp_webhook(request: Request):
     if request.method == "GET":
         params = dict(request.query_params)
+        print(f"[WhatsApp Webhook GET Verification] Params: {params}")
         mode = params.get("hub.mode") or params.get("hub_mode")
         token = params.get("hub.verify_token") or params.get("hub_verify_token")
         challenge = params.get("hub.challenge") or params.get("hub_challenge")
@@ -85,13 +91,16 @@ async def handle_whatsapp_webhook(request: Request):
         expected_token = os.getenv("WHATSAPP_VERIFY_TOKEN", "railsathi_whatsapp_verify_token_2026")
         
         if token == expected_token or mode == "subscribe":
+            print(f"[WhatsApp Webhook Verification Success] Challenge: {challenge}")
             return PlainTextResponse(content=str(challenge or "VERIFIED"), status_code=200)
         
+        print(f"[WhatsApp Webhook Verification Failed] Expected: {expected_token}, Got: {token}")
         return PlainTextResponse(content="Forbidden - Invalid verify token", status_code=403)
     
     # POST Webhook Event Handler
     try:
         body = await request.json()
+        print(f"[WhatsApp Webhook POST Event Received]: {body}")
         entry = body.get("entry", [{}])[0]
         change = entry.get("changes", [{}])[0]
         value = change.get("value", {})
@@ -108,6 +117,8 @@ async def handle_whatsapp_webhook(request: Request):
             elif msg_type == "interactive":
                 text_body = msg.get("interactive", {}).get("button_reply", {}).get("title", "")
             
+            print(f"[WhatsApp Incoming Message] From: {from_number} | Type: {msg_type} | Text: '{text_body}'")
+
             if from_number:
                 if text_body.lower().strip() in ["hi", "hello", "hey", "menu", "start"]:
                     reply = (
@@ -142,5 +153,5 @@ async def handle_whatsapp_webhook(request: Request):
 
         return JSONResponse(content={"status": "received"}, status_code=200)
     except Exception as e:
-        print(f"[Webhook Error]: {e}")
+        print(f"[Webhook Processing Error]: {e}")
         return JSONResponse(content={"status": "received"}, status_code=200)
