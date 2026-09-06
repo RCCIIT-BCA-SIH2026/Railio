@@ -14,7 +14,7 @@ export const WhatsAppSimulatorScreen: React.FC = () => {
     {
       id: '2',
       sender: 'bot',
-      text: '🚆 *RailSathi WhatsApp Intelligence*\n\n*Train 12301 (Howrah Rajdhani Express)*\n\n• Predicted Departure: *17:02*\n• Road Travel Time: *18 min*\n• Traffic: *Moderate (Kona Exp)*\n• Station Entry Buffer: *7 min*\n• Total Required: *25 min*\n• Available Time: *34 min*\n\n🟢 *91% Probability*: High chance of catching your train.\n_Recommendation: Leave now via NH16 approach._',
+      text: '🚆 *RailIo WhatsApp Intelligence*\n\n*Train 12301 (Howrah Rajdhani Express)*\n\n• Predicted Departure: *17:02*\n• Road Travel Time: *18 min*\n• Traffic: *Moderate (Kona Exp)*\n• Station Entry Buffer: *7 min*\n• Total Required: *25 min*\n• Available Time: *34 min*\n\n🟢 *91% Probability*: High chance of catching your train.\n_Recommendation: Leave now via NH16 approach._',
       time: '16:15',
     },
   ]);
@@ -25,7 +25,7 @@ export const WhatsAppSimulatorScreen: React.FC = () => {
     const botMsg = {
       id: (Date.now() + 1).toString(),
       sender: 'bot',
-      text: `🚆 *RailSathi Assistant*\n\nChecked live signals for "${input}".\n\n• Train 12301 is running +12m delayed near DDU Junction.\n• Coach A3 has the lowest crowd (29% occupancy).\n• 91% catch probability if you depart in 5 mins.`,
+      text: `🚆 *RailIo Assistant*\n\nChecked live signals for "${input}".\n\n• Train 12301 is running +12m delayed near DDU Junction.\n• Coach A3 has the lowest crowd (29% occupancy).\n• 91% catch probability if you depart in 5 mins.`,
       time: '16:16',
     };
     setMessages((prev) => [...prev, userMsg, botMsg]);
@@ -41,7 +41,7 @@ export const WhatsAppSimulatorScreen: React.FC = () => {
           <Text style={{ fontSize: 18 }}>🚆</Text>
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.headerName}>RailSathi AI Official</Text>
+          <Text style={styles.headerName}>RailIo AI Official</Text>
           <Text style={styles.headerStatus}>Verified Indian Railways Sathi Bot</Text>
         </View>
       </View>
@@ -67,7 +67,7 @@ export const WhatsAppSimulatorScreen: React.FC = () => {
           style={styles.input}
           value={input}
           onChangeText={setInput}
-          placeholder="Message RailSathi on WhatsApp..."
+          placeholder="Message RailIo on WhatsApp..."
           placeholderTextColor="#64748B"
         />
         <TouchableOpacity style={styles.sendBtn} onPress={handleSend}>

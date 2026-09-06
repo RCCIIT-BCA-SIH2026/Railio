@@ -1,0 +1,18 @@
+{
+  "name": "railio-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "cd ai-service && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}",
+    "build": "npm --prefix admin-web run build && npm --prefix backend run build",
+    "build:admin": "npm --prefix admin-web run build",
+    "build:backend": "npm --prefix backend run build",
+    "dev:admin": "npm --prefix admin-web run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:mobile": "npm --prefix mobile run start",
+    "start:backend": "npm --prefix backend run start"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.48.1"
+  }
+}

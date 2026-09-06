@@ -1,0 +1,16 @@
+# RailSathi Supabase Project Config
+project_id = "railsathi-central"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "auth"]
+
+[db]
+port = 54322
+
+[functions.verify-phone]
+verify_jwt = true
+
+[functions.admin-user-management]
+verify_jwt = true

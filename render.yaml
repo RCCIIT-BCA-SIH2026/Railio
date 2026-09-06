@@ -1,0 +1,38 @@
+services:
+  # 1. Primary Python FastAPI AI & Prediction Microservice
+  - type: web
+    name: railsathi-ai-service
+    runtime: python
+    rootDir: ai-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: PYTHON_VERSION
+        value: 3.12.8
+
+  # 2. Node.js Express Gateway API & Simulation Engine
+  - type: web
+    name: railsathi-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:backend
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+
+  # 3. Admin Web Dashboard (Vite + React Static Site)
+  - type: web
+    name: railsathi-admin-web
+    runtime: static
+    rootDir: admin-web
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist

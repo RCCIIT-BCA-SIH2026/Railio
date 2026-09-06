@@ -1,157 +1,175 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
+import { useAuth } from '../context/AuthContext';
+import { AuthService } from '../services/authService';
 import { AppBackground } from '../components/AppBackground';
 
-export const ProfileScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const { profile, user, signOut, refreshProfile } = useAuth();
+
+  const [fullName, setFullName] = useState(profile?.full_name || '');
+  const [phoneNumber, setPhoneNumber] = useState(profile?.phone_number || '');
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleUpdateProfile = async () => {
+    if (!user) return;
+    setIsUpdating(true);
+    try {
+      await AuthService.updateProfile(user.id, {
+        full_name: fullName,
+        phone_number: phoneNumber,
+      });
+      await refreshProfile();
+      Alert.alert('Profile Updated', 'Your profile details have been saved.');
+    } catch (err: any) {
+      Alert.alert('Update Failed', err.message || 'Could not update profile.');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigation.replace('Login');
+  };
 
   return (
     <AppBackground variant="orange">
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Profile Header */}
-      <View style={styles.profileCard}>
-        <View style={styles.avatar}>
-          <Text style={{ fontSize: 32 }}>👤</Text>
+        {/* User Header */}
+        <View style={styles.headerCard}>
+          <View style={styles.avatarCircle}>
+            <Text style={{ fontSize: 32 }}>👤</Text>
+          </View>
+          <Text style={styles.userName}>{profile?.full_name || user?.email?.split('@')[0] || 'Rail Passenger'}</Text>
+          <Text style={styles.userEmail}>{user?.email}</Text>
+
+          {/* Badges Row */}
+          <View style={styles.badgesRow}>
+            <View style={[styles.badge, { backgroundColor: profile?.role === 'admin' ? '#FEF3C7' : '#E0F2FE' }]}>
+              <Text style={[styles.badgeText, { color: profile?.role === 'admin' ? '#D97706' : '#0284C7' }]}>
+                ROLE: {profile?.role?.toUpperCase() || 'USER'}
+              </Text>
+            </View>
+            <View style={[styles.badge, { backgroundColor: profile?.phone_verified ? '#DCFCE7' : '#FEE2E2' }]}>
+              <Text style={[styles.badgeText, { color: profile?.phone_verified ? '#16A34A' : '#DC2626' }]}>
+                {profile?.phone_verified ? 'VERIFIED PHONE ✓' : 'UNVERIFIED PHONE ✗'}
+              </Text>
+            </View>
+          </View>
         </View>
-        <Text style={styles.userName}>Aarav Sharma</Text>
-        <Text style={styles.userEmail}>passenger@railsathi.ai • +91 98765 43210</Text>
-        <View style={styles.verifiedBadge}>
-          <Text style={styles.verifiedText}>✓ IRCTC DigiLocker Verified</Text>
+
+        {/* Verification Callout if unverified */}
+        {!profile?.phone_verified && (
+          <TouchableOpacity
+            style={styles.verifyCallout}
+            onPress={() => navigation.navigate('PhoneVerification')}
+          >
+            <Text style={styles.verifyCalloutTitle}>⚡ Complete Phone Verification</Text>
+            <Text style={styles.verifyCalloutSub}>Verify with Truecaller to enable safety alerts & real-time SOS</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Edit Form */}
+        <View style={styles.card}>
+          <Text style={styles.cardHeaderTitle}>Edit Profile Information</Text>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Full Name</Text>
+            <TextInput
+              style={styles.input}
+              value={fullName}
+              onChangeText={setFullName}
+              placeholder="Your full name"
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Phone Number</Text>
+            <TextInput
+              style={styles.input}
+              value={phoneNumber}
+              onChangeText={setPhoneNumber}
+              placeholder="+91 98765 00000"
+              keyboardType="phone-pad"
+            />
+          </View>
+
+          <TouchableOpacity style={styles.saveBtn} onPress={handleUpdateProfile} disabled={isUpdating}>
+            {isUpdating ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.saveBtnText}>Save Profile Changes</Text>}
+          </TouchableOpacity>
         </View>
-      </View>
 
-      {/* Quick Menu Options */}
-      <View style={styles.menuCard}>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
-        >
-          <Text style={styles.menuText}>🎯 Can I Catch My Train?</Text>
-          <Text style={styles.menuArrow}>→</Text>
+        {/* Sign Out */}
+        <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
+          <Text style={styles.signOutBtnText}>Sign Out of Supabase</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('AIAssistant', undefined)}
-        >
-          <Text style={styles.menuText}>🤖 AI Travel Sathi Assistant</Text>
-          <Text style={styles.menuArrow}>→</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('WhatsAppSimulator')}
-        >
-          <Text style={styles.menuText}>💬 WhatsApp Bot Simulator</Text>
-          <Text style={styles.menuArrow}>→</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('AdminQuickAlerts')}
-        >
-          <Text style={styles.menuText}>🛡️ Switch to Controller View</Text>
-          <Text style={styles.menuArrow}>→</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.menuItem, { borderBottomWidth: 0 }]}
-          onPress={() => navigation.navigate('Settings')}
-        >
-          <Text style={styles.menuText}>⚙️ App Preferences & Demo Mode</Text>
-          <Text style={styles.menuArrow}>→</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
     </AppBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  content: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  profileCard: {
+  container: { flex: 1, backgroundColor: 'transparent' },
+  content: { padding: 20, paddingTop: 20 },
+  headerCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 20,
     alignItems: 'center',
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    marginBottom: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
   },
-  avatar: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+  avatarCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
     backgroundColor: '#FFF7ED',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 10,
     borderWidth: 2,
     borderColor: '#FF671F',
-    marginBottom: 10,
   },
-  userName: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#0F172A',
+  userName: { fontSize: 20, fontWeight: 'bold', color: '#0F172A' },
+  userEmail: { fontSize: 13, color: '#64748B', marginTop: 2 },
+  badgesRow: { flexDirection: 'row', gap: 8, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' },
+  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  badgeText: { fontSize: 10, fontWeight: 'bold' },
+  verifyCallout: {
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1.5,
+    borderColor: '#FF671F',
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
   },
-  userEmail: {
-    fontSize: 11,
-    color: '#64748B',
-    marginTop: 2,
-  },
-  verifiedBadge: {
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-  },
-  verifiedText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#059669',
-  },
-  menuCard: {
+  verifyCalloutTitle: { fontSize: 13, fontWeight: 'bold', color: '#C2410C' },
+  verifyCalloutSub: { fontSize: 11, color: '#9A3412', marginTop: 2 },
+  card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
-    paddingHorizontal: 16,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
   },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-  },
-  menuText: {
-    fontSize: 13,
-    fontWeight: '600',
+  cardHeaderTitle: { fontSize: 14, fontWeight: 'bold', color: '#0F172A', marginBottom: 14 },
+  inputGroup: { marginBottom: 14 },
+  label: { fontSize: 11, fontWeight: '600', color: '#64748B', marginBottom: 4, textTransform: 'uppercase' },
+  input: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     color: '#0F172A',
+    fontSize: 13,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
   },
-  menuArrow: {
-    fontSize: 16,
-    color: '#FF671F',
-    fontWeight: 'bold',
-  },
+  saveBtn: { backgroundColor: '#FF671F', borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: 6 },
+  saveBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: 'bold' },
+  signOutBtn: { backgroundColor: '#FEE2E2', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 8 },
+  signOutBtnText: { color: '#DC2626', fontSize: 14, fontWeight: 'bold' },
 });

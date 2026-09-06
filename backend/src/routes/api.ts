@@ -1,20 +1,31 @@
 import { Router } from 'express';
-import { login, register } from '../controllers/authController';
+import { login, register, getMe } from '../controllers/authController';
+import { authenticateToken } from '../middleware/authMiddleware';
 import { getTrains, getTrainByNumber, getLiveTrainStatus, getTrainETAPrediction } from '../controllers/trainController';
 import { getStations, getStationArrivals } from '../controllers/stationController';
 import { calculateCatchProbability } from '../controllers/catchController';
 import { getStationCrowd, getTrainCoachCrowd } from '../controllers/crowdController';
 import { getTrackRisk, ingestSensorTelemetry, getRealTelemetryHistory } from '../controllers/trackController';
 import { simulateWhatIfScenario } from '../controllers/digitalTwinController';
-import { handleAIChat, handleWhatsAppWebhook } from '../controllers/aiController';
+import { handleAIChat } from '../controllers/aiController';
+import { verifyWebhook, handleIncomingWebhook } from '../controllers/whatsappController';
 import { getDashboardOverview, getAlerts, createAlert, getWeatherIntelligence } from '../controllers/adminController';
 import { getUpcomingSuburbanTrains, getCoachCrowdTelemetry, getSuburbanCorridors } from '../controllers/suburbanController';
+import {
+  analyzeScene,
+  analyzeSign,
+  createSession,
+  logNavigationEvent,
+  recalculateRoute,
+  getEnvironmentDefinition
+} from '../controllers/navigationController';
 
 const router = Router();
 
 // 1. Auth routes
 router.post('/auth/login', login);
 router.post('/auth/register', register);
+router.get('/auth/me', authenticateToken as any, getMe);
 
 // 2. Train routes
 router.get('/trains', getTrains);
@@ -46,10 +57,13 @@ router.post('/track/sensor', ingestSensorTelemetry);
 // 7. Digital Twin & What-If Simulation
 router.post('/digital-twin/simulate', simulateWhatIfScenario);
 
-// 8. AI Agent & WhatsApp
+// 8. AI Agent & Meta WhatsApp Cloud API Webhook
 router.post('/ai/chat', handleAIChat);
 router.post('/ai/agent', handleAIChat);
-router.post('/ai/whatsapp-webhook', handleWhatsAppWebhook);
+router.get('/ai/whatsapp-webhook', verifyWebhook);
+router.post('/ai/whatsapp-webhook', handleIncomingWebhook);
+router.get('/whatsapp/webhook', verifyWebhook);
+router.post('/whatsapp/webhook', handleIncomingWebhook);
 
 // 9. Weather Intelligence
 router.get('/weather', getWeatherIntelligence);
@@ -59,4 +73,13 @@ router.get('/admin/dashboard', getDashboardOverview);
 router.get('/admin/alerts', getAlerts);
 router.post('/admin/alerts', createAlert);
 
+// 11. AI Camera-Based Indoor Navigation Routes
+router.post('/navigation/analyze-scene', analyzeScene);
+router.post('/navigation/analyze-sign', analyzeSign);
+router.post('/navigation/session', createSession);
+router.post('/navigation/event', logNavigationEvent);
+router.post('/navigation/recalculate', recalculateRoute);
+router.get('/navigation/environments/:id', getEnvironmentDefinition);
+
 export default router;
+

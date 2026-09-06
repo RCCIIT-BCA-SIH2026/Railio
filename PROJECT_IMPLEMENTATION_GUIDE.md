@@ -1,14 +1,14 @@
-# 🚆 RailSathi (Smart Rail AI) — Implementation & Developer Handover Guide
+# 🚆 RailIo (Smart Rail AI) — Implementation & Developer Handover Guide
 
 > **Tagline:** *Predict • Protect • Connect*  
-> **Repository:** `shibashisdas76/RailSathi`  
+> **Repository:** `shibashisdas76/RailIo`  
 > **Core Purpose:** End-to-end intelligent railway operations and passenger assistance platform bridging high-frequency telemetry (ESP32 IoT track sensors, locomotive GPS, CCTV streams) with AI/ML decision engines, a Dispatcher Digital Twin, and the hero **"Can I Catch My Train?"** multi-factor calculator.
 
 ---
 
 ## 1. 🏗️ High-Level System Architecture
 
-RailSathi is organized as a **hybrid monorepo** featuring 4 concurrently executing services, plus IoT edge firmware and a spatial database schema.
+RailIo is organized as a **hybrid monorepo** featuring 4 concurrently executing services, plus IoT edge firmware and a spatial database schema.
 
 ```mermaid
 flowchart TD
@@ -79,7 +79,7 @@ The workspace is configured with standard `package.json` scripts across `backend
 ## 3. 📁 Monorepo Directory Structure
 
 ```
-railsathi/
+railio/
 ├── ai-service/                          # 🧠 FastAPI AI/ML Microservice (Port 8000)
 │   ├── app/
 │   │   ├── agent/                      # 10-Tool Agentic AI Router (rail_agent.py)
@@ -249,7 +249,7 @@ All routes are served at `http://localhost:5000/api` and mapped in `backend/src/
 
 ## 8. 🛡️ Resilience & 100% Offline Demo Mode
 
-RailSathi implements a **three-tier fallback architecture** to ensure zero demo crashes:
+RailIo implements a **three-tier fallback architecture** to ensure zero demo crashes:
 
 1. **Frontend Offline Fallback**: `mobile/src/services/api.ts` contains static seed data for all trains (`22436 Vande Bharat`, `12301 Rajdhani`, `12004 Shatabdi`, etc.), station boards, coach crowd heatmaps, and weather alerts.
 2. **Backend AI Proxy Fallback**: `backend/src/services/aiServiceGateway.ts` forwards requests to FastAPI (`http://localhost:8000/api`). If the Python microservice is offline, the backend calculates algorithmic fallbacks for delay predictions and catch probabilities.

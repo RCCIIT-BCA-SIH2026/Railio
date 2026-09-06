@@ -1,0 +1,12 @@
+{
+  "interpreter": "/Users/ankitkarmakar/Documents/MY PROJECTS ALL IN /Rail Sathi/RailIo/ai-service/.venv/bin/python",
+  "python_path": "/Users/ankitkarmakar/Documents/MY PROJECTS ALL IN /Rail Sathi/RailIo/ai-service/.venv/bin/python",
+  "search_path": [
+    "/Users/ankitkarmakar/Documents/MY PROJECTS ALL IN /Rail Sathi/RailIo/ai-service",
+    "/Users/ankitkarmakar/Documents/MY PROJECTS ALL IN /Rail Sathi/RailIo/ai-service/app",
+    "/Users/ankitkarmakar/Documents/MY PROJECTS ALL IN /Rail Sathi/RailIo/ai-service/.venv/lib/python3.12/site-packages",
+    ".",
+    "app",
+    ".venv/lib/python3.12/site-packages"
+  ]
+}
