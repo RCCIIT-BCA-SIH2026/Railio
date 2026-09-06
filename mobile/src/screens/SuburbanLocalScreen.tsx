@@ -524,13 +524,13 @@ export const SuburbanLocalScreen: React.FC = () => {
 
             <ScrollView style={{ maxHeight: 380 }}>
               <Text style={styles.techText}>
-                Just as <Text style={{ color: '#FF671F', fontWeight: 'bold' }}>Google Maps</Text> predicts road traffic by analyzing anonymous active smartphone location pings and cellular tower handovers, RailSathi applies this exact RF telemetry model to Indian Railways Suburban EMU Trains:
+                Just as <Text style={{ color: '#FF671F', fontWeight: 'bold' }}>Google Maps</Text> predicts road traffic by analyzing anonymous active smartphone location pings and cellular tower handovers, RailIo applies this exact RF telemetry model to Indian Railways Suburban EMU Trains:
               </Text>
 
               <View style={styles.techStepBox}>
                 <Text style={styles.techStepTitle}>1. Anonymized Cellular & RF Clustering</Text>
                 <Text style={styles.techStepDesc}>
-                  Passenger smartphones emit passive cellular probe requests and Bluetooth Low Energy (BLE) beacon pulses. RailSathi clusters these device pings spatial-binned per 18-meter EMU coach.
+                  Passenger smartphones emit passive cellular probe requests and Bluetooth Low Energy (BLE) beacon pulses. RailIo clusters these device pings spatial-binned per 18-meter EMU coach.
                 </Text>
               </View>
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-RailSathi - ESP32 MPU6050 Track Vibration Telemetry Simulator
+RailIo - ESP32 MPU6050 Track Vibration Telemetry Simulator
 Simulates live sensor stream into Node.js / FastAPI backend.
 """
 
@@ -47,7 +47,7 @@ def generate_telemetry(tick, force_anomaly=False):
 
 def run_simulation(duration_seconds=30, interval_seconds=2.0):
     print("=" * 65)
-    print(f"🚆 RailSathi - ESP32 Track Vibration Simulator Started")
+    print(f"🚆 RailIo - ESP32 Track Vibration Simulator Started")
     print(f"📡 Target: {SERVER_URL} | Section: {SECTION_ID}")
     print("=" * 65)
 

@@ -1,42 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ActivityIndicator,
+  View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
+  KeyboardAvoidingView, Platform, ActivityIndicator, Image, Pressable
 } from 'react-native';
-import { useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../types';
 import { chatAIApi } from '../services/api';
-import { AppBackground } from '../components/AppBackground';
+import { 
+  ArrowLeft, Train, Ticket, MapPin, Clock, CreditCard, 
+  Route, Plus, Mic, Send, ChevronRight
+} from 'lucide-react-native';
+
+const COLORS = {
+  primary: '#FF6B1A',
+  navy: '#111827',
+  textSecondary: '#64748B',
+  bg: '#F7F8FA',
+  card: '#FFFFFF',
+  border: '#E5E7EB',
+  success: '#22C55E',
+};
 
 export const AIAssistantScreen: React.FC = () => {
+  const navigation = useNavigation();
   const route = useRoute<RouteProp<RootStackParamList, 'AIAssistant'>>();
+  const insets = useSafeAreaInsets();
+  const scrollViewRef = useRef<ScrollView>(null);
+  
   const { initialQuery } = route.params || {};
 
   const [input, setInput] = useState(initialQuery || '');
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState<any[]>([
-    {
-      id: '1',
-      sender: 'ai',
-      text: 'Namaste! I am your RailSathi AI Assistant.\n\nI can check live train locations, calculate catch probabilities, predict delays with explainability, inspect coach crowd levels, and guide you on Indian Railways policies.',
-      tools: [],
-      time: 'Just now',
-    },
-  ]);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
 
-  const quickPrompts = [
-    'Can I catch train 12301?',
-    'Where is my train?',
-    'Which coach is less crowded?',
-    'Why is train 12301 delayed?',
-    'What are Tatkal refund rules?',
+  // Send initial query if provided
+  useEffect(() => {
+    if (initialQuery) {
+      handleSend(initialQuery);
+    }
+  }, [initialQuery]);
+
+  const quickActions = [
+    { id: '1', title: 'Find a Train', icon: <Train size={18} color={COLORS.primary} strokeWidth={2.5} /> },
+    { id: '2', title: 'Check PNR', icon: <Ticket size={18} color={COLORS.primary} strokeWidth={2.5} /> },
+    { id: '3', title: 'Seat Availability', icon: <CreditCard size={18} color={COLORS.primary} strokeWidth={2.5} /> },
+    { id: '4', title: 'Train Status', icon: <Clock size={18} color={COLORS.primary} strokeWidth={2.5} /> },
+    { id: '5', title: 'Plan Journey', icon: <Route size={18} color={COLORS.primary} strokeWidth={2.5} /> },
+    { id: '6', title: 'Check Fare', icon: <MapPin size={18} color={COLORS.primary} strokeWidth={2.5} /> },
+  ];
+
+  const suggestedPrompts = [
+    'Find trains to Delhi',
+    'Check my PNR',
+    'Kolkata to Mumbai',
+    'Train running status',
+    'Best route to Delhi',
   ];
 
   const handleSend = async (queryText?: string) => {
@@ -52,154 +72,466 @@ export const AIAssistantScreen: React.FC = () => {
 
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
-    setLoading(true);
+    setIsTyping(true);
+    
+    // Auto scroll
+    setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
 
     try {
-      const res = await chatAIApi(textToSend);
+      // Pass previous messages as history to provide context to the AI
+      const res = await chatAIApi(textToSend, messages);
+      
       const aiMsg = {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
         text: res.answer,
-        tools: res.toolsExecuted || [],
+        isRichCard: false, // Disabled hardcoded mock card
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
+      
       setMessages((prev) => [...prev, aiMsg]);
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      setIsTyping(false);
+      setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
     }
   };
 
-  return (
-    <AppBackground variant="blue">
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={80}
-      >
-        {/* Quick Prompts Bar */}
-        <View style={styles.promptsContainer}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.promptsScroll}>
-            {quickPrompts.map((p, i) => (
-              <TouchableOpacity key={i} style={styles.promptChip} onPress={() => handleSend(p)}>
-                <Text style={styles.promptChipText}>{p}</Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+  const renderWelcomeSection = () => (
+    <View style={styles.welcomeContainer}>
+      <View style={styles.mascotLargeContainer}>
+        <Image source={require('../../assets/railio-ai-nobg.png')} style={styles.mascotLarge} />
+      </View>
+      <Text style={styles.welcomeTitle}>Hi, I’m Railio 👋</Text>
+      <Text style={styles.welcomeSubtitle}>Your smart railway travel assistant.</Text>
+    </View>
+  );
 
-        {/* Messages Feed */}
-      <ScrollView style={styles.messagesContainer} contentContainerStyle={styles.messagesContent}>
-        {messages.map((msg) => {
-          const isUser = msg.sender === 'user';
-          return (
-            <View
-              key={msg.id}
-              style={[
-                styles.messageWrapper,
-                isUser ? styles.msgWrapperUser : styles.msgWrapperAi,
-              ]}
-            >
-              {!isUser && (
-                <View style={styles.aiAvatar}>
-                  <Text style={{ fontSize: 14 }}>🤖</Text>
-                </View>
-              )}
-
-              <View
-                style={[
-                  styles.bubble,
-                  isUser ? styles.bubbleUser : styles.bubbleAi,
-                ]}
-              >
-                {/* Tool Execution Chips (Prompt Requirement) */}
-                {msg.tools && msg.tools.length > 0 && (
-                  <View style={styles.toolChipsContainer}>
-                    <Text style={styles.toolHeader}>⚡ Tools Executed by Agent:</Text>
-                    {msg.tools.map((t: any, idx: number) => (
-                      <View key={idx} style={styles.toolChip}>
-                        <Text style={styles.toolChipText}>🔧 {t.tool || t.name}: {t.output || 'OK'}</Text>
-                      </View>
-                    ))}
-                  </View>
-                )}
-
-                <Text style={[styles.msgText, isUser && styles.msgTextUser]}>
-                  {msg.text}
-                </Text>
-                <Text style={styles.msgTime}>{msg.time}</Text>
-              </View>
+  const renderQuickActions = () => (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Quick actions</Text>
+      <View style={styles.gridContainer}>
+        {quickActions.map((action) => (
+          <TouchableOpacity 
+            key={action.id} 
+            style={styles.actionCard}
+            activeOpacity={0.7}
+            onPress={() => handleSend(action.title)}
+          >
+            <View style={styles.actionIconWrapper}>
+              {action.icon}
             </View>
-          );
-        })}
+            <Text style={styles.actionCardTitle}>{action.title}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
 
-        {loading && (
-          <View style={styles.aiTyping}>
-            <ActivityIndicator size="small" color="#FF671F" />
-            <Text style={styles.typingText}>Agent reasoning over railway data & tools...</Text>
-          </View>
-        )}
+  const renderSuggestedPrompts = () => (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Try asking Railio</Text>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.promptsScroll}>
+        {suggestedPrompts.map((prompt, i) => (
+          <TouchableOpacity 
+            key={i} 
+            style={styles.promptPill}
+            onPress={() => handleSend(prompt)}
+          >
+            <Text style={styles.promptPillText}>{prompt}</Text>
+          </TouchableOpacity>
+        ))}
       </ScrollView>
+    </View>
+  );
 
-      {/* Input Bar */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={input}
-          onChangeText={setInput}
-          placeholder="Ask RailSathi anything..."
-          placeholderTextColor="#64748B"
-        />
-        <TouchableOpacity style={styles.sendButton} onPress={() => handleSend()}>
-          <Text style={styles.sendButtonText}>Send</Text>
+  const renderRichCard = () => (
+    <View style={styles.richCard}>
+      <Text style={styles.richCardTitle}>Best trains for your journey</Text>
+      <View style={styles.richCardDivider} />
+      <View style={styles.richCardRow}>
+        <View style={styles.richCardIcon}>
+          <Train size={20} color={COLORS.primary} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.richCardTrainName}>Rajdhani Express (12301)</Text>
+          <Text style={styles.richCardRoute}>Kolkata → New Delhi</Text>
+          <Text style={styles.richCardMeta}>Tomorrow • 16h 55m</Text>
+        </View>
+      </View>
+      <View style={styles.richCardTimeRow}>
+        <View>
+          <Text style={styles.richCardTimeLabel}>Departure</Text>
+          <Text style={styles.richCardTimeValue}>16:50</Text>
+        </View>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text style={styles.richCardTimeLabel}>Arrival</Text>
+          <Text style={styles.richCardTimeValue}>09:45</Text>
+        </View>
+      </View>
+      <View style={styles.richCardActions}>
+        <TouchableOpacity style={styles.richCardButtonOutline}>
+          <Text style={styles.richCardButtonTextOutline}>View Train</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.richCardButtonSolid}>
+          <Text style={styles.richCardButtonTextSolid}>Check Seats</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
-    </AppBackground>
+    </View>
+  );
+
+  return (
+    <View style={[styles.mainContainer, { paddingTop: insets.top }]}>
+      {/* Top Header */}
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={() => navigation.goBack()}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <ArrowLeft color={COLORS.navy} size={24} />
+        </TouchableOpacity>
+        
+        <View style={styles.headerCenter}>
+          <View style={styles.headerMascotWrapper}>
+            <Image source={require('../../assets/railio-ai-nobg.png')} style={styles.headerMascot} />
+          </View>
+          <View>
+            <Text style={styles.headerTitle}>Railio</Text>
+            <Text style={styles.headerSubtitle}>AI Travel Assistant</Text>
+          </View>
+        </View>
+
+        <View style={styles.onlineIndicatorWrapper}>
+          <View style={styles.onlineDot} />
+          <Text style={styles.onlineText}>Online</Text>
+        </View>
+      </View>
+
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView 
+          ref={scrollViewRef}
+          style={styles.chatScroll} 
+          contentContainerStyle={[styles.chatContent, { paddingBottom: 20 }]}
+          showsVerticalScrollIndicator={false}
+        >
+          {messages.length === 0 ? (
+            <>
+              {renderWelcomeSection()}
+              {renderQuickActions()}
+              {renderSuggestedPrompts()}
+            </>
+          ) : (
+            <View style={styles.messagesContainer}>
+              {messages.map((msg) => {
+                const isUser = msg.sender === 'user';
+                return (
+                  <View key={msg.id} style={[styles.msgWrapper, isUser ? styles.msgWrapperUser : styles.msgWrapperAi]}>
+                    {!isUser && (
+                      <View style={styles.aiAvatarSmall}>
+                        <Image source={require('../../assets/railio-ai-nobg.png')} style={{ width: 18, height: 18, resizeMode: 'contain' }} />
+                      </View>
+                    )}
+                    <View style={styles.bubbleGroup}>
+                      <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAi]}>
+                        <Text style={[styles.msgText, isUser && styles.msgTextUser]}>{msg.text}</Text>
+                      </View>
+                      
+                      {!isUser && msg.isRichCard && renderRichCard()}
+                      
+                      <Text style={[styles.msgTime, isUser && styles.msgTimeUser]}>{msg.time}</Text>
+                    </View>
+                  </View>
+                );
+              })}
+              
+              {isTyping && (
+                <View style={[styles.msgWrapper, styles.msgWrapperAi]}>
+                  <View style={styles.aiAvatarSmall}>
+                    <Image source={require('../../assets/railio-ai-nobg.png')} style={{ width: 18, height: 18, resizeMode: 'contain' }} />
+                  </View>
+                  <View style={[styles.bubble, styles.bubbleAi, { paddingHorizontal: 16, paddingVertical: 12 }]}>
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                  </View>
+                </View>
+              )}
+            </View>
+          )}
+        </ScrollView>
+
+        {/* Floating Composer */}
+        <View style={[styles.composerWrapper, { paddingBottom: Math.max(insets.bottom + 12, 12) }]}>
+          <View style={styles.composerContainer}>
+            <TouchableOpacity style={styles.composerIconButton}>
+              <Plus color={COLORS.textSecondary} size={22} />
+            </TouchableOpacity>
+            
+            <TextInput
+              style={styles.composerInput}
+              value={input}
+              onChangeText={setInput}
+              placeholder="Ask Railio anything..."
+              placeholderTextColor="#94A3B8"
+              multiline
+              maxLength={200}
+            />
+
+            {input.trim().length === 0 ? (
+              <TouchableOpacity style={styles.composerIconButton}>
+                <Mic color={COLORS.textSecondary} size={22} />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.sendButton} onPress={() => handleSend()}>
+                <Send color={COLORS.card} size={16} style={{ marginLeft: 2 }} />
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  mainContainer: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: COLORS.bg,
   },
-  promptsContainer: {
-    paddingVertical: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.88)',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
-  promptsScroll: {
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
-    gap: 8,
+    paddingVertical: 12,
+    backgroundColor: COLORS.card,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    zIndex: 10,
   },
-  promptChip: {
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  headerCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  headerMascotWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#FFF7ED',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#FED7AA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
-  promptChipText: {
+  headerMascot: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
+  headerTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.navy,
+  },
+  headerSubtitle: {
     fontSize: 11,
-    color: '#FF671F',
-    fontWeight: 'bold',
+    color: COLORS.textSecondary,
+    marginTop: 2,
   },
-  messagesContainer: {
+  onlineIndicatorWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+  },
+  onlineDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: COLORS.success,
+    marginRight: 4,
+  },
+  onlineText: {
+    fontSize: 10,
+    color: '#166534',
+    fontWeight: '600',
+  },
+  chatScroll: {
     flex: 1,
   },
-  messagesContent: {
-    padding: 16,
-    paddingBottom: 20,
-    gap: 14,
+  chatContent: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
   },
-  messageWrapper: {
+  welcomeContainer: {
+    alignItems: 'center',
+    marginBottom: 40,
+    marginTop: 20,
+  },
+  mascotLargeContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: COLORS.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  mascotLarge: {
+    width: 54,
+    height: 54,
+    resizeMode: 'contain',
+  },
+  welcomeTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: COLORS.navy,
+    marginBottom: 8,
+  },
+  welcomeSubtitle: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  sectionContainer: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.navy,
+    marginBottom: 12,
+  },
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  actionCard: {
+    width: '48%',
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOpacity: 0.02,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionIconWrapper: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#FFF7ED',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  actionCardTitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.navy,
+    flex: 1,
+  },
+  promptsScroll: {
+    gap: 10,
+    paddingRight: 16,
+  },
+  promptPill: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  promptPillText: {
+    fontSize: 13,
+    color: COLORS.navy,
+    fontWeight: '500',
+  },
+  composerWrapper: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    backgroundColor: COLORS.bg,
+  },
+  composerContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: 8,
+    backgroundColor: COLORS.card,
+    borderRadius: 24,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    minHeight: 52,
+  },
+  composerIconButton: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  composerInput: {
+    flex: 1,
+    fontSize: 15,
+    color: COLORS.navy,
+    paddingHorizontal: 8,
+    paddingTop: 8,
+    paddingBottom: 8,
+    maxHeight: 120,
+  },
+  sendButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: COLORS.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  messagesContainer: {
+    gap: 20,
+  },
+  msgWrapper: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    maxWidth: '100%',
   },
   msgWrapperUser: {
     justifyContent: 'flex-end',
@@ -207,111 +539,158 @@ const styles = StyleSheet.create({
   msgWrapperAi: {
     justifyContent: 'flex-start',
   },
-  aiAvatar: {
+  aiAvatarSmall: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#FF671F',
-    alignItems: 'center',
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
     justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
     marginBottom: 4,
   },
-  bubble: {
-    maxWidth: '82%',
-    padding: 14,
-    borderRadius: 18,
+  bubbleGroup: {
+    maxWidth: '85%',
   },
-  bubbleAi: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    borderBottomLeftRadius: 4,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
+  bubble: {
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 20,
   },
   bubbleUser: {
-    backgroundColor: '#FF671F',
+    backgroundColor: COLORS.primary,
     borderBottomRightRadius: 4,
+  },
+  bubbleAi: {
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderBottomLeftRadius: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.02,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
     elevation: 1,
   },
   msgText: {
-    fontSize: 12.5,
-    color: '#0F172A',
-    lineHeight: 18,
+    fontSize: 14,
+    color: COLORS.navy,
+    lineHeight: 22,
   },
   msgTextUser: {
     color: '#FFFFFF',
-    fontWeight: '600',
   },
   msgTime: {
-    fontSize: 8.5,
-    color: '#94A3B8',
+    fontSize: 10,
+    color: COLORS.textSecondary,
+    marginTop: 6,
+    marginLeft: 4,
+  },
+  msgTimeUser: {
     alignSelf: 'flex-end',
+    marginRight: 4,
+  },
+  richCard: {
+    marginTop: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.03,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 1,
+  },
+  richCardTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: COLORS.navy,
+    marginBottom: 12,
+  },
+  richCardDivider: {
+    height: 1,
+    backgroundColor: COLORS.border,
+    marginBottom: 12,
+  },
+  richCardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  richCardIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFF7ED',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  richCardTrainName: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.navy,
+  },
+  richCardRoute: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  richCardMeta: {
+    fontSize: 12,
+    color: COLORS.primary,
+    fontWeight: '600',
     marginTop: 4,
   },
-  toolChipsContainer: {
+  richCardTimeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     backgroundColor: '#F8FAFC',
-    padding: 8,
     borderRadius: 10,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-  },
-  toolHeader: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#FF671F',
-    marginBottom: 4,
-  },
-  toolChip: {
-    paddingVertical: 2,
-  },
-  toolChipText: {
-    fontSize: 9.5,
-    color: '#0284C7',
-    fontFamily: 'monospace',
-  },
-  aiTyping: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingLeft: 36,
-  },
-  typingText: {
-    fontSize: 11,
-    color: '#64748B',
-    fontStyle: 'italic',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     padding: 12,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    gap: 10,
+    marginBottom: 16,
   },
-  input: {
+  richCardTimeLabel: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginBottom: 2,
+  },
+  richCardTimeValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: COLORS.navy,
+  },
+  richCardActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  richCardButtonOutline: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
-    paddingHorizontal: 16,
     paddingVertical: 10,
-    color: '#0F172A',
-    fontSize: 13,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: COLORS.border,
+    alignItems: 'center',
   },
-  sendButton: {
-    backgroundColor: '#FF671F',
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    borderRadius: 14,
+  richCardButtonTextOutline: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.navy,
   },
-  sendButtonText: {
+  richCardButtonSolid: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+  },
+  richCardButtonTextSolid: {
+    fontSize: 13,
+    fontWeight: '600',
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
   },
 });

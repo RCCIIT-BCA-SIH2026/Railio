@@ -167,7 +167,7 @@ class DataStore {
   public users: any[] = [
     {
       id: 'usr-001',
-      email: 'passenger@railsathi.ai',
+      email: 'passenger@railio.ai',
       password: 'password123', // In demo, plain check or bcrypt
       fullName: 'Aarav Sharma',
       phoneNumber: '+91 98765 43210',
@@ -175,7 +175,7 @@ class DataStore {
     },
     {
       id: 'adm-001',
-      email: 'admin@railsathi.ai',
+      email: 'admin@railio.ai',
       password: 'adminpassword',
       fullName: 'Chief Controller Meera Sen',
       phoneNumber: '+91 98765 00001',

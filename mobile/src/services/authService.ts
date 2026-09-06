@@ -59,7 +59,7 @@ export class AuthService {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'railsathi://auth/callback',
+        redirectTo: 'railio://auth/callback',
       },
     });
 
@@ -80,7 +80,7 @@ export class AuthService {
    */
   static async resetPassword(email: string) {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'railsathi://auth/reset-password',
+      redirectTo: 'railio://auth/reset-password',
     });
 
     if (error) throw error;

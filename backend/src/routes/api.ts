@@ -11,6 +11,14 @@ import { handleAIChat } from '../controllers/aiController';
 import { verifyWebhook, handleIncomingWebhook } from '../controllers/whatsappController';
 import { getDashboardOverview, getAlerts, createAlert, getWeatherIntelligence } from '../controllers/adminController';
 import { getUpcomingSuburbanTrains, getCoachCrowdTelemetry, getSuburbanCorridors } from '../controllers/suburbanController';
+import {
+  analyzeScene,
+  analyzeSign,
+  createSession,
+  logNavigationEvent,
+  recalculateRoute,
+  getEnvironmentDefinition
+} from '../controllers/navigationController';
 
 const router = Router();
 
@@ -64,6 +72,14 @@ router.get('/weather', getWeatherIntelligence);
 router.get('/admin/dashboard', getDashboardOverview);
 router.get('/admin/alerts', getAlerts);
 router.post('/admin/alerts', createAlert);
+
+// 11. AI Camera-Based Indoor Navigation Routes
+router.post('/navigation/analyze-scene', analyzeScene);
+router.post('/navigation/analyze-sign', analyzeSign);
+router.post('/navigation/session', createSession);
+router.post('/navigation/event', logNavigationEvent);
+router.post('/navigation/recalculate', recalculateRoute);
+router.get('/navigation/environments/:id', getEnvironmentDefinition);
 
 export default router;
 

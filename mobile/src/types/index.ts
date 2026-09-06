@@ -15,6 +15,7 @@ export type RootStackParamList = {
   SuburbanLocal: { from?: string; to?: string } | undefined;
   WeatherIntelligence: { stationCode?: string };
   ObstacleDetection: undefined;
+  CameraNavigation: { destination?: string } | undefined;
   AIAssistant: { initialQuery?: string } | undefined;
   WhatsAppSimulator: undefined;
   Alerts: undefined;
@@ -83,8 +84,8 @@ export interface SuburbanCorridor {
 export type BottomTabParamList = {
   HomeTab: undefined;
   TrainsTab: undefined;
+  WhatsAppTab: undefined;
   MapTab: { trainNumber?: string } | undefined;
-  AISathiTab: undefined;
   ProfileTab: undefined;
 };
 

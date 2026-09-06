@@ -8,7 +8,7 @@ import { whatsappSessionManager } from '../services/whatsappSessionManager';
 
 async function runTests() {
   console.log('=======================================================');
-  console.log('🧪 Testing RailSathi Meta WhatsApp Cloud API Integration');
+  console.log('🧪 Testing RailIo Meta WhatsApp Cloud API Integration');
   console.log('=======================================================');
 
   const testPhone = '+15556783260';

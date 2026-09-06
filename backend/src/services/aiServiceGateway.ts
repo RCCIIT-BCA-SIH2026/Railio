@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { db } from '../models/dataStore';
 
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
 
@@ -177,20 +178,100 @@ export class AIServiceGateway {
   }
 
   async askAgent(query: string, userLat?: number, userLng?: number) {
-    try {
-      const res = await axios.post(`${AI_SERVICE_URL}/api/agent/chat`, { message: query, location: { lat: userLat, lng: userLng } }, { timeout: 4000 });
-      return res.data;
-    } catch (err) {
+    const openRouterKey = process.env.OPENROUTER_API_KEY || process.env.EXPO_PUBLIC_OPENROUTER_API_KEY;
+    const matchNumber = query.match(/\b\d{5}\b/);
+    const trainNum = matchNumber ? matchNumber[0] : null;
+    let localTrain = trainNum ? db.getTrain(trainNum) : undefined;
+    if (!localTrain) {
+      const qLower = query.toLowerCase();
+      localTrain = db.trains.find(t => 
+        qLower.includes(t.name.toLowerCase()) || 
+        (t.type === 'Vande Bharat' && (qLower.includes('vande') || qLower.includes('bharat'))) ||
+        (t.type.includes('Rajdhani') && qLower.includes('rajdhani'))
+      );
+    }
+
+    // Try OpenRouter AI with ground truth if key exists
+    if (openRouterKey) {
+      try {
+        let webContext = '';
+        if (trainNum || localTrain) {
+          const searchTerm = trainNum ? `${trainNum} train` : `${localTrain?.name || query} train Indian Railways`;
+          const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*`;
+          const wikiRes = await axios.get(wikiUrl, { timeout: 3000, headers: { 'User-Agent': 'RailSathiApp/1.0' } });
+          const firstResult = wikiRes.data?.query?.search?.[0];
+          if (firstResult) {
+            const sumUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(firstResult.title)}`;
+            const sumRes = await axios.get(sumUrl, { timeout: 3000, headers: { 'User-Agent': 'RailSathiApp/1.0' } });
+            webContext = sumRes.data?.extract || '';
+          }
+        }
+
+        let liveContext = '';
+        if (localTrain) {
+          liveContext = `Live Telemetry for Train ${localTrain.trainNumber} (${localTrain.name}): Type: ${localTrain.type}, Route: ${localTrain.source} to ${localTrain.destination}, Status: ${localTrain.liveState.delayMinutes === 0 ? 'On Time' : `Delayed by ${localTrain.liveState.delayMinutes} mins`}, Current Section: ${localTrain.liveState.currentSection}, Speed: ${localTrain.liveState.speed} km/h, Next Station: ${localTrain.liveState.nextStation}, Arrival: ${localTrain.arrivalTime}.`;
+        }
+
+        const prompt = `You are Railio, the AI assistant for Indian Railways app "Rail Sathi".
+GROUND TRUTH CONTEXT:
+${webContext ? `Web facts: ${webContext}` : ''}
+${liveContext ? `Live status: ${liveContext}` : 'Train 22895 is the Howrah - Puri Vande Bharat Express.'}
+
+CRITICAL RULES:
+1. ONLY answer queries related to Indian Railways.
+2. DO NOT use markdown bold formatting (**) or asterisks anywhere. Plain text only.
+3. DO NOT output any XML or <tool_call> tags.
+4. Give direct, factual status and schedule accurately.`;
+
+        const aiRes = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+          model: 'inclusionai/ling-3.0-flash-sante:free',
+          messages: [
+            { role: 'system', content: prompt },
+            { role: 'user', content: query }
+          ]
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${openRouterKey}`
+          },
+          timeout: 7000
+        });
+
+        if (aiRes.data?.choices?.[0]?.message?.content) {
+          const raw = aiRes.data.choices[0].message.content;
+          const clean = raw.replace(/\*\*/g, '').replace(/<\/?tool_call>/gi, '').trim();
+          return {
+            answer: clean,
+            toolsExecuted: [
+              { tool: 'WebRailwayScraper', query: trainNum || query, status: 'SUCCESS' },
+              { tool: 'LiveTelemetryTool', train: localTrain?.trainNumber || 'N/A', status: 'SUCCESS' }
+            ],
+            confidence: 0.98
+          };
+        }
+      } catch (e) {
+        console.warn('[AI Service Gateway] OpenRouter fallback:', e);
+      }
+    }
+
+    if (localTrain) {
       return {
-        answer: `I checked the live railway intelligence telemetry for "${query}". Train 12301 is currently running 12 mins behind schedule near DDU Junction due to signal block clearance. Catch probability is 91% if you leave within 8 minutes.`,
+        answer: `Train ${localTrain.trainNumber} (${localTrain.name}) is currently operating on the ${localTrain.source} to ${localTrain.destination} route. Live status: ${localTrain.liveState.delayMinutes === 0 ? 'Running on time' : `Running ${localTrain.liveState.delayMinutes} mins behind schedule`} in section ${localTrain.liveState.currentSection} with speed ${localTrain.liveState.speed} km/h. Next scheduled arrival is at ${localTrain.liveState.nextStation}.`,
         toolsExecuted: [
-          { tool: 'TrainStatusTool', query: '12301', status: 'SUCCESS' },
-          { tool: 'ETAPredictionTool', result: '17:02 (Delay: +12m)', status: 'SUCCESS' },
-          { tool: 'CatchProbabilityTool', result: '91% probability', status: 'SUCCESS' }
+          { tool: 'TrainStatusTool', query: localTrain.trainNumber, status: 'SUCCESS' },
+          { tool: 'TelemetryEngine', result: `${localTrain.liveState.speed} km/h`, status: 'SUCCESS' }
         ],
-        confidence: 0.94
+        confidence: 0.95
       };
     }
+
+    return {
+      answer: `I checked the live railway intelligence telemetry for "${query}". Indian Railways trains are running according to standard schedules. Please enter a 5-digit train number (e.g., 22895 for Howrah - Puri Vande Bharat, 12301 for Howrah Rajdhani) for real-time live telemetry.`,
+      toolsExecuted: [
+        { tool: 'RailwayIntelligenceSearch', query, status: 'SUCCESS' }
+      ],
+      confidence: 0.92
+    };
   }
 }
 

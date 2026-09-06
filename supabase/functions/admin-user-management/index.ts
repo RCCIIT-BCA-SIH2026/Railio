@@ -1,5 +1,5 @@
 /// <reference path="../deno.d.ts" />
-// RailSathi Edge Function: admin-user-management
+// RailIo Edge Function: admin-user-management
 // Handles administrative operations, role modifications & audit logging
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";

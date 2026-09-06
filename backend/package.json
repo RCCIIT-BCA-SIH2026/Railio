@@ -1,7 +1,7 @@
 {
-  "name": "railsathi-backend",
+  "name": "railio-backend",
   "version": "1.0.0",
-  "description": "RailSathi AI-Powered Railway Intelligence Gateway API & Simulation Engine",
+  "description": "RailIo AI-Powered Railway Intelligence Gateway API & Simulation Engine",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",

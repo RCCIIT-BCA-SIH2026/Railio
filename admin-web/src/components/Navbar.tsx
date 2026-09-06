@@ -48,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
               <div>
                 <div className="flex items-center space-x-2">
                   <span className="font-heading text-xl font-extrabold tracking-wider text-slate-900">
-                    RailSathi
+                    RailIo
                   </span>
                   <span className="px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase bg-orange-50 text-rail-orange border border-orange-200 rounded-full">
                     HQ Controller

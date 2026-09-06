@@ -6,7 +6,7 @@ import bgVandeOrange from '../assets/bg_vande_orange.jpg';
 export const AdminAuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, profile, isLoading, isAdmin, signIn } = useAdminAuth();
 
-  const [email, setEmail] = useState('admin@railsathi.ai');
+  const [email, setEmail] = useState('admin@railio.ai');
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -17,7 +17,7 @@ export const AdminAuthGuard: React.FC<{ children: React.ReactNode }> = ({ childr
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-900 p-4">
         <div className="w-14 h-14 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4 shadow-md shadow-orange-500/20" />
         <p className="text-slate-600 font-medium text-sm tracking-wide">
-          Loading RailSathi Control Portal...
+          Loading RailIo Control Portal...
         </p>
       </div>
     );
@@ -43,10 +43,10 @@ export const AdminAuthGuard: React.FC<{ children: React.ReactNode }> = ({ childr
   const handleQuickDemoAdmin = async () => {
     setErrorMsg(null);
     setIsSubmitting(true);
-    setEmail('admin@railsathi.ai');
+    setEmail('admin@railio.ai');
     setPassword('password123');
     try {
-      await signIn('admin@railsathi.ai', 'password123');
+      await signIn('admin@railio.ai', 'password123');
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to initialize demo controller session');
     } finally {
@@ -60,7 +60,7 @@ export const AdminAuthGuard: React.FC<{ children: React.ReactNode }> = ({ childr
       <div className="absolute inset-0 z-0 overflow-hidden">
         <img
           src={bgVandeOrange}
-          alt="RailSathi Vande Bharat Train Background"
+          alt="RailIo Vande Bharat Train Background"
           className="w-full h-full object-cover object-center opacity-65 filter contrast-105 scale-105 transition-all duration-700"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-slate-950/45 via-slate-900/30 to-slate-950/50 backdrop-blur-[1px]" />
@@ -78,7 +78,7 @@ export const AdminAuthGuard: React.FC<{ children: React.ReactNode }> = ({ childr
           </div>
 
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            RailSathi Admin Control
+            RailIo Admin Control
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-1">
             Sign in to access your railway operations portal
@@ -116,7 +116,7 @@ export const AdminAuthGuard: React.FC<{ children: React.ReactNode }> = ({ childr
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full bg-slate-50/80 border border-slate-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 rounded-2xl px-4 py-3 text-sm text-slate-900 placeholder-slate-400 focus:outline-none transition-all"
-                placeholder="admin@railsathi.ai"
+                placeholder="admin@railio.ai"
               />
             </div>
 
@@ -184,7 +184,7 @@ export const AdminAuthGuard: React.FC<{ children: React.ReactNode }> = ({ childr
         {/* Footer */}
         <div className="bg-slate-50 px-8 py-3.5 border-t border-slate-100 text-center">
           <p className="text-[11px] text-slate-500 font-medium">
-            RailSathi AI Railway Operating System
+            RailIo AI Railway Operating System
           </p>
         </div>
       </div>

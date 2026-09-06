@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   TextInput,
   RefreshControl,
   Platform,
+  InteractionManager,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -16,7 +18,7 @@ import { VandeBharatHero } from '../components/VandeBharatHero';
 import { AppBackground } from '../components/AppBackground';
 import { getAlertsApi } from '../services/api';
 
-export const HomeScreen: React.FC = () => {
+export const HomeScreen: React.FC = React.memo(() => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [fromStation, setFromStation] = useState('HWH');
   const [toStation, setToStation] = useState('NDLS');
@@ -24,36 +26,41 @@ export const HomeScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [activeAlertCount, setActiveAlertCount] = useState(3);
 
-  useEffect(() => {
-    loadAlerts();
-  }, []);
-
-  const loadAlerts = async () => {
+  const loadAlerts = useCallback(async () => {
     try {
       const alerts = await getAlertsApi();
       setActiveAlertCount(alerts.length);
-    } catch (err) {}
-  };
+    } catch (err) { }
+  }, []);
 
-  const onRefresh = async () => {
+  useEffect(() => {
+    // Run network tasks after initial frame layout completes
+    const task = InteractionManager.runAfterInteractions(() => {
+      loadAlerts();
+    });
+    return () => task.cancel();
+  }, [loadAlerts]);
+
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await loadAlerts();
     setRefreshing(false);
-  };
+  }, [loadAlerts]);
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     navigation.navigate('SearchResults', {
       from: fromStation,
       to: toStation,
       date: journeyDate,
     });
-  };
+  }, [navigation, fromStation, toStation, journeyDate]);
 
-  const swapStations = () => {
-    const temp = fromStation;
-    setFromStation(toStation);
-    setToStation(temp);
-  };
+  const swapStations = useCallback(() => {
+    setFromStation((prevFrom) => {
+      setToStation(prevFrom);
+      return toStation;
+    });
+  }, [toStation]);
 
   return (
     <AppBackground variant="orange">
@@ -62,406 +69,410 @@ export const HomeScreen: React.FC = () => {
         contentContainerStyle={styles.contentContainer}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FF671F" />}
       >
-      {/* Top Header Bar */}
-      <View style={styles.topHeader}>
-        <View style={styles.headerLeft}>
-          <View style={styles.logoBadge}>
-            <Text style={{ fontSize: 18 }}>🚆</Text>
+        {/* Top Header Bar */}
+        <View style={styles.topHeader}>
+          <View style={styles.headerLeft}>
+            <View style={styles.logoBadge}>
+              <Image source={require('../../assets/logo.png')} style={{ width: '100%', height: '100%', transform: [{ scale: 1.6 }] }} resizeMode="contain" />
+            </View>
+            <View>
+              <Text style={styles.brandTitle}>Rail<Text style={styles.brandTitleIo}>Io</Text></Text>
+              <Text style={styles.brandSubtitle}>AI RAILWAY INTELLIGENCE</Text>
+            </View>
           </View>
-          <View>
-            <Text style={styles.brandTitle}>RailSathi</Text>
-            <Text style={styles.brandSubtitle}>AI RAILWAY INTELLIGENCE</Text>
+
+          <View style={styles.headerRight}>
+            <TouchableOpacity
+              style={styles.headerIconBtn}
+              onPress={() => navigation.navigate('Alerts')}
+            >
+              <Text style={{ fontSize: 16 }}>🔔</Text>
+              {activeAlertCount > 0 && <View style={styles.alertDot} />}
+            </TouchableOpacity>
+
           </View>
         </View>
 
-        <View style={styles.headerRight}>
+        {/* Hero Visual Headline */}
+        <View style={styles.heroTextContainer}>
+          <Text style={styles.heroHeadline}>
+            India Moves{'\n'}
+            <Text style={{ color: '#FF671F' }}>With Progress</Text>
+          </Text>
+          <Text style={styles.heroSubheadline}>
+            Smart Journey. Stronger Connections. Real-time train updates, seamless booking, and a better travel experience for every Indian.
+          </Text>
+        </View>
+
+        {/* Hero Visual Area with Vande Bharat Train */}
+        <View style={styles.heroSection}>
+          <View style={styles.heroGlow} />
+          <VandeBharatHero height={160} />
+        </View>
+
+        {/* Main Train Search Card */}
+        <View style={styles.searchCard}>
+          <View style={styles.searchCardHeader}>
+            <Text style={styles.searchCardTitle}>🔍 Search Train & AI Predictions</Text>
+            <View style={styles.demoBadge}>
+              <Text style={styles.demoBadgeText}>LIVE GPS</Text>
+            </View>
+          </View>
+
+          {/* From & To Station Row with Swap Button */}
+          <View style={styles.stationsRow}>
+            <View style={styles.stationInputBox}>
+              <Text style={styles.stationInputLabel}>FROM</Text>
+              <TextInput
+                style={styles.stationInput}
+                value={fromStation}
+                onChangeText={setFromStation}
+                placeholder="HWH"
+                placeholderTextColor="#64748B"
+                autoCapitalize="characters"
+              />
+              <Text style={styles.stationCityText}>
+                {fromStation === 'HWH' ? 'Howrah Jn' : fromStation === 'NDLS' ? 'New Delhi' : 'Station Code'}
+              </Text>
+            </View>
+
+            <TouchableOpacity style={styles.swapButton} onPress={swapStations}>
+              <Text style={styles.swapIcon}>⇄</Text>
+            </TouchableOpacity>
+
+            <View style={styles.stationInputBox}>
+              <Text style={styles.stationInputLabel}>TO</Text>
+              <TextInput
+                style={styles.stationInput}
+                value={toStation}
+                onChangeText={setToStation}
+                placeholder="NDLS"
+                placeholderTextColor="#64748B"
+                autoCapitalize="characters"
+              />
+              <Text style={styles.stationCityText}>
+                {toStation === 'NDLS' ? 'New Delhi' : toStation === 'HWH' ? 'Howrah Jn' : 'Station Code'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Date Selector */}
+          <View style={styles.dateSelector}>
+            <Text style={styles.dateLabel}>JOURNEY DATE</Text>
+            <TextInput
+              style={styles.dateInput}
+              value={journeyDate}
+              onChangeText={setJourneyDate}
+            />
+          </View>
+
+          {/* Search CTA */}
+          <TouchableOpacity style={styles.searchCta} onPress={handleSearch}>
+            <Text style={styles.searchCtaText}>SEARCH TRAINS WITH AI</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* 5-Card Quick Service Row */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickServicesScroll} contentContainerStyle={styles.quickServicesContent}>
+          {/* 0. AI Camera Navigation (NEW HERO) */}
           <TouchableOpacity
-            style={styles.headerIconBtn}
+            style={[styles.quickServiceCard, { borderColor: '#FF671F', backgroundColor: '#FFF7ED' }]}
+            onPress={() => navigation.navigate('CameraNavigation')}
+          >
+            <View style={[styles.quickServiceIcon, { backgroundColor: '#FFEDD5', borderColor: '#FF671F' }]}>
+              <Text style={{ fontSize: 18 }}>📹</Text>
+            </View>
+            <Text style={[styles.quickServiceTitle, { color: '#FF671F' }]}>Camera Nav</Text>
+            <Text style={styles.quickServiceSub}>AI AR Indoor Wayfinding</Text>
+          </TouchableOpacity>
+
+          {/* 1. Live Train Status */}
+          <TouchableOpacity
+            style={styles.quickServiceCard}
+            onPress={() => navigation.navigate('LiveTrain', { trainNumber: '12301' })}
+          >
+            <View style={[styles.quickServiceIcon, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
+              <Image source={require('../../assets/logo.png')} style={{ width: 22, height: 22 }} resizeMode="contain" />
+            </View>
+            <Text style={styles.quickServiceTitle}>Live Train Status</Text>
+            <Text style={styles.quickServiceSub}>Get real-time updates</Text>
+          </TouchableOpacity>
+
+          {/* 2. PNR Enquiry */}
+          <TouchableOpacity
+            style={styles.quickServiceCard}
+            onPress={() => navigation.navigate('SearchResults', { from: fromStation, to: toStation, date: journeyDate })}
+          >
+            <View style={[styles.quickServiceIcon, { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' }]}>
+              <Text style={{ fontSize: 18 }}>🎫</Text>
+            </View>
+            <Text style={styles.quickServiceTitle}>PNR Enquiry</Text>
+            <Text style={styles.quickServiceSub}>Check your status</Text>
+          </TouchableOpacity>
+
+          {/* 3. Seat Availability */}
+          <TouchableOpacity
+            style={styles.quickServiceCard}
+            onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
+          >
+            <View style={[styles.quickServiceIcon, { backgroundColor: '#CCFBF1', borderColor: '#99F6E4' }]}>
+              <Text style={{ fontSize: 18 }}>⏱️</Text>
+            </View>
+            <Text style={styles.quickServiceTitle}>Seat Availability</Text>
+            <Text style={styles.quickServiceSub}>Find seats with ease</Text>
+          </TouchableOpacity>
+
+          {/* 4. Station Info */}
+          <TouchableOpacity
+            style={styles.quickServiceCard}
+            onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
+          >
+            <View style={[styles.quickServiceIcon, { backgroundColor: '#FFEDD5', borderColor: '#FED7AA' }]}>
+              <Text style={{ fontSize: 18 }}>🚉</Text>
+            </View>
+            <Text style={styles.quickServiceTitle}>Station Info</Text>
+            <Text style={styles.quickServiceSub}>Explore stations</Text>
+          </TouchableOpacity>
+
+          {/* 5. 24/7 Support */}
+          <TouchableOpacity
+            style={styles.quickServiceCard}
             onPress={() => navigation.navigate('Alerts')}
           >
-            <Text style={{ fontSize: 16 }}>🔔</Text>
-            {activeAlertCount > 0 && <View style={styles.alertDot} />}
+            <View style={[styles.quickServiceIcon, { backgroundColor: '#E0F2FE', borderColor: '#BAE6FD' }]}>
+              <Text style={{ fontSize: 18 }}>🎧</Text>
+            </View>
+            <Text style={styles.quickServiceTitle}>24/7 Support</Text>
+            <Text style={styles.quickServiceSub}>Safety & help</Text>
+          </TouchableOpacity>
+        </ScrollView>
+
+
+
+        {/* 🌟 Suburban Local & Google Maps Cellular Signal Crowd Pulse Segment */}
+        <TouchableOpacity
+          style={styles.suburbanHeroSegment}
+          onPress={() => navigation.navigate('SuburbanLocal', { from: 'DAKE', to: 'SDAH' })}
+        >
+          <View style={styles.suburbanHeroTop}>
+            <View style={styles.suburbanHeroBadgeRow}>
+              <View style={styles.suburbanLivePill}>
+                <View style={styles.suburbanPulseDot} />
+                <Text style={styles.suburbanLivePillText}>LIVE PULSE</Text>
+              </View>
+              <View style={styles.googleTechBadge}>
+                <Text style={styles.googleTechBadgeText}>GOOGLE MAPS SIGNAL TECH</Text>
+              </View>
+            </View>
+            <Text style={styles.suburbanHeroArrow}>Search Locals →</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+            <Image source={require('../../assets/logo.png')} style={{ width: 22, height: 22, marginRight: 8 }} resizeMode="contain" />
+            <Text style={[styles.suburbanHeroTitle, { marginBottom: 0 }]}>
+              Dakshineswar ⇄ Sealdah Local
+            </Text>
+          </View>
+          <Text style={styles.suburbanHeroSub}>
+            Next Train in 4 min • Live 12-Coach Cellular Crowd Heatmap & Smart Boarding Advice
+          </Text>
+
+          <View style={styles.suburbanMiniHeatmap}>
+            <View style={styles.suburbanMiniCoachItem}>
+              <Text style={styles.miniCoachId}>C1</Text>
+              <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
+              <Text style={styles.miniCoachLoad}>28%</Text>
+            </View>
+            <View style={styles.suburbanMiniCoachItem}>
+              <Text style={styles.miniCoachId}>C2</Text>
+              <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
+              <Text style={styles.miniCoachLoad}>35%</Text>
+            </View>
+            <View style={[styles.suburbanMiniCoachItem, styles.miniCoachBest]}>
+              <Text style={styles.miniCoachId}>C3 ⭐</Text>
+              <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
+              <Text style={[styles.miniCoachLoad, { color: '#10B981' }]}>22%</Text>
+            </View>
+            <View style={styles.suburbanMiniCoachItem}>
+              <Text style={styles.miniCoachId}>C4</Text>
+              <View style={[styles.miniCoachDot, { backgroundColor: '#EAB308' }]} />
+              <Text style={styles.miniCoachLoad}>48%</Text>
+            </View>
+            <View style={styles.suburbanMiniCoachItem}>
+              <Text style={styles.miniCoachId}>C5</Text>
+              <View style={[styles.miniCoachDot, { backgroundColor: '#F97316' }]} />
+              <Text style={styles.miniCoachLoad}>68%</Text>
+            </View>
+            <View style={styles.suburbanMiniCoachItem}>
+              <Text style={styles.miniCoachId}>C6</Text>
+              <View style={[styles.miniCoachDot, { backgroundColor: '#EF4444' }]} />
+              <Text style={styles.miniCoachLoad}>74%</Text>
+            </View>
+            <View style={styles.suburbanMiniCoachItem}>
+              <Text style={styles.miniCoachId}>C7</Text>
+              <View style={[styles.miniCoachDot, { backgroundColor: '#EAB308' }]} />
+              <Text style={styles.miniCoachLoad}>44%</Text>
+            </View>
+            <View style={styles.suburbanMiniCoachItem}>
+              <Text style={styles.miniCoachId}>C8</Text>
+              <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
+              <Text style={styles.miniCoachLoad}>30%</Text>
+            </View>
+            <View style={[styles.suburbanMiniCoachItem, styles.miniCoachBest]}>
+              <Text style={styles.miniCoachId}>C9 ⭐</Text>
+              <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
+              <Text style={[styles.miniCoachLoad, { color: '#10B981' }]}>25%</Text>
+            </View>
+          </View>
+
+          <View style={styles.suburbanHeroFooter}>
+            <Text style={styles.suburbanHeroFooterText}>
+              💡 <Text style={{ color: '#10B981', fontWeight: 'bold' }}>Coach C3 & C9</Text> have lowest device density (~16 phone signals).
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* 4 Core Action Cards (Prompt Requirement) */}
+        <View style={styles.sectionTitleRow}>
+          <Text style={styles.sectionTitle}>Intelligence Services</Text>
+          <Text style={styles.sectionSubtitle}>AI & IoT Powered</Text>
+        </View>
+
+        <View style={styles.actionGrid}>
+          {/* 1. Live Train Tracking */}
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => navigation.navigate('LiveTrain', { trainNumber: '12301' })}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(56, 189, 248, 0.15)' }]}>
+              <Text style={{ fontSize: 24 }}>🚆</Text>
+            </View>
+            <Text style={styles.actionCardTitle}>Live Train</Text>
+            <Text style={styles.actionCardSub}>Real-time GPS Tracking</Text>
+            <View style={styles.actionCardBadge}>
+              <Text style={[styles.actionCardBadgeText, { color: '#38BDF8' }]}>3s Updates</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* 2. Can I Catch My Train? (HERO FEATURE) */}
+          <TouchableOpacity
+            style={[styles.actionCard, styles.actionCardHighlight]}
+            onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(255, 103, 31, 0.2)' }]}>
+              <Text style={{ fontSize: 24 }}>🎯</Text>
+            </View>
+            <Text style={[styles.actionCardTitle, { color: '#FF671F' }]}>Can I Catch?</Text>
+            <Text style={styles.actionCardSub}>Traffic + Station Buffer</Text>
+            <View style={[styles.actionCardBadge, { backgroundColor: 'rgba(255, 103, 31, 0.2)' }]}>
+              <Text style={[styles.actionCardBadgeText, { color: '#FF671F' }]}>Hero AI</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* 3. Coach Crowd Intelligence */}
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => navigation.navigate('CoachCrowd', { trainNumber: '12301' })}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
+              <Text style={{ fontSize: 24 }}>👥</Text>
+            </View>
+            <Text style={styles.actionCardTitle}>Coach Crowd</Text>
+            <Text style={styles.actionCardSub}>Least Density Finder</Text>
+            <View style={styles.actionCardBadge}>
+              <Text style={[styles.actionCardBadgeText, { color: '#A855F7' }]}>CV Heatmap</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* 4. Weather Intelligence */}
+          <TouchableOpacity
+            style={styles.actionCard}
+            onPress={() => navigation.navigate('WeatherIntelligence', { stationCode: 'HWH' })}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
+              <Text style={{ fontSize: 24 }}>🌦️</Text>
+            </View>
+            <Text style={styles.actionCardTitle}>Weather</Text>
+            <Text style={styles.actionCardSub}>Rain & Delay Impact</Text>
+            <View style={styles.actionCardBadge}>
+              <Text style={[styles.actionCardBadgeText, { color: '#10B981' }]}>Live Radar</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Advanced Safety & Omnichannel Features Bar */}
+        <View style={styles.extraFeaturesRow}>
+          <TouchableOpacity
+            style={styles.extraFeatureChip}
+            onPress={() => navigation.navigate('ObstacleDetection')}
+          >
+            <Text style={{ fontSize: 16 }}>📹</Text>
+            <Text style={styles.extraFeatureText}>Track Obstacle CV</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.headerIconBtn}
-            onPress={() => navigation.navigate('Profile')}
+            style={styles.extraFeatureChip}
+            onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
           >
-            <Text style={{ fontSize: 16 }}>👤</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Hero Visual Headline */}
-      <View style={styles.heroTextContainer}>
-        <Text style={styles.heroHeadline}>
-          India Moves{'\n'}
-          <Text style={{ color: '#FF671F' }}>With Progress</Text>
-        </Text>
-        <Text style={styles.heroSubheadline}>
-          Smart Journey. Stronger Connections. Real-time train updates, seamless booking, and a better travel experience for every Indian.
-        </Text>
-      </View>
-
-      {/* Hero Visual Area with Vande Bharat Train */}
-      <View style={styles.heroSection}>
-        <View style={styles.heroGlow} />
-        <VandeBharatHero height={160} />
-      </View>
-
-      {/* Main Train Search Card */}
-      <View style={styles.searchCard}>
-        <View style={styles.searchCardHeader}>
-          <Text style={styles.searchCardTitle}>🔍 Search Train & AI Predictions</Text>
-          <View style={styles.demoBadge}>
-            <Text style={styles.demoBadgeText}>LIVE GPS</Text>
-          </View>
-        </View>
-
-        {/* From & To Station Row with Swap Button */}
-        <View style={styles.stationsRow}>
-          <View style={styles.stationInputBox}>
-            <Text style={styles.stationInputLabel}>FROM</Text>
-            <TextInput
-              style={styles.stationInput}
-              value={fromStation}
-              onChangeText={setFromStation}
-              placeholder="HWH"
-              placeholderTextColor="#64748B"
-              autoCapitalize="characters"
-            />
-            <Text style={styles.stationCityText}>
-              {fromStation === 'HWH' ? 'Howrah Jn' : fromStation === 'NDLS' ? 'New Delhi' : 'Station Code'}
-            </Text>
-          </View>
-
-          <TouchableOpacity style={styles.swapButton} onPress={swapStations}>
-            <Text style={styles.swapIcon}>⇄</Text>
+            <Text style={{ fontSize: 16 }}>📋</Text>
+            <Text style={styles.extraFeatureText}>Station Board</Text>
           </TouchableOpacity>
 
-          <View style={styles.stationInputBox}>
-            <Text style={styles.stationInputLabel}>TO</Text>
-            <TextInput
-              style={styles.stationInput}
-              value={toStation}
-              onChangeText={setToStation}
-              placeholder="NDLS"
-              placeholderTextColor="#64748B"
-              autoCapitalize="characters"
-            />
-            <Text style={styles.stationCityText}>
-              {toStation === 'NDLS' ? 'New Delhi' : toStation === 'HWH' ? 'Howrah Jn' : 'Station Code'}
+        </View>
+
+        {/* Live Railway Network Status Bar (Prompt Requirement) */}
+        <View style={styles.statusPillCard}>
+          <View style={styles.statusPillHeader}>
+            <Text style={styles.statusPillTitle}>LIVE RAILWAY STATUS</Text>
+            <View style={styles.liveTick}>
+              <View style={styles.greenPulse} />
+              <Text style={styles.liveTickText}>LIVE</Text>
+            </View>
+          </View>
+
+          <View style={styles.statusPillRow}>
+            <View style={styles.statusItem}>
+              <Text style={styles.statusNumber}>142</Text>
+              <Text style={styles.statusLabel}>Active Trains</Text>
+            </View>
+            <View style={styles.statusDivider} />
+            <View style={styles.statusItem}>
+              <Text style={[styles.statusNumber, { color: '#F59E0B' }]}>27</Text>
+              <Text style={styles.statusLabel}>Delayed</Text>
+            </View>
+            <View style={styles.statusDivider} />
+            <View style={styles.statusItem}>
+              <Text style={[styles.statusNumber, { color: '#EF4444' }]}>3</Text>
+              <Text style={styles.statusLabel}>Critical Risks</Text>
+            </View>
+            <View style={styles.statusDivider} />
+            <View style={styles.statusItem}>
+              <Text style={[styles.statusNumber, { color: '#10B981' }]}>88%</Text>
+              <Text style={styles.statusLabel}>Punctual</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Quick PNR / AI Assistant Floating Banner */}
+        <TouchableOpacity
+          style={styles.aiBanner}
+          onPress={() => navigation.navigate('AIAssistant', { initialQuery: 'Where is train 12301?' })}
+        >
+          <View style={styles.aiBannerIcon}>
+            <Text style={{ fontSize: 22 }}>🤖</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.aiBannerTitle}>Ask RailIo AI Agent</Text>
+            <Text style={styles.aiBannerSub}>
+              "Where is my train?" • "Can I catch it?" • "Why is it delayed?"
             </Text>
           </View>
-        </View>
-
-        {/* Date Selector */}
-        <View style={styles.dateSelector}>
-          <Text style={styles.dateLabel}>JOURNEY DATE</Text>
-          <TextInput
-            style={styles.dateInput}
-            value={journeyDate}
-            onChangeText={setJourneyDate}
-          />
-        </View>
-
-        {/* Search CTA */}
-        <TouchableOpacity style={styles.searchCta} onPress={handleSearch}>
-          <Text style={styles.searchCtaText}>SEARCH TRAINS WITH AI</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* 5-Card Quick Service Row */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickServicesScroll} contentContainerStyle={styles.quickServicesContent}>
-        {/* 1. Live Train Status */}
-        <TouchableOpacity
-          style={styles.quickServiceCard}
-          onPress={() => navigation.navigate('LiveTrain', { trainNumber: '12301' })}
-        >
-          <View style={[styles.quickServiceIcon, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}>
-            <Text style={{ fontSize: 18 }}>🚆</Text>
-          </View>
-          <Text style={styles.quickServiceTitle}>Live Train Status</Text>
-          <Text style={styles.quickServiceSub}>Get real-time updates</Text>
-        </TouchableOpacity>
-
-        {/* 2. PNR Enquiry */}
-        <TouchableOpacity
-          style={styles.quickServiceCard}
-          onPress={() => navigation.navigate('SearchResults', { from: fromStation, to: toStation, date: journeyDate })}
-        >
-          <View style={[styles.quickServiceIcon, { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' }]}>
-            <Text style={{ fontSize: 18 }}>🎫</Text>
-          </View>
-          <Text style={styles.quickServiceTitle}>PNR Enquiry</Text>
-          <Text style={styles.quickServiceSub}>Check your status</Text>
-        </TouchableOpacity>
-
-        {/* 3. Seat Availability */}
-        <TouchableOpacity
-          style={styles.quickServiceCard}
-          onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
-        >
-          <View style={[styles.quickServiceIcon, { backgroundColor: '#CCFBF1', borderColor: '#99F6E4' }]}>
-            <Text style={{ fontSize: 18 }}>⏱️</Text>
-          </View>
-          <Text style={styles.quickServiceTitle}>Seat Availability</Text>
-          <Text style={styles.quickServiceSub}>Find seats with ease</Text>
-        </TouchableOpacity>
-
-        {/* 4. Station Info */}
-        <TouchableOpacity
-          style={styles.quickServiceCard}
-          onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
-        >
-          <View style={[styles.quickServiceIcon, { backgroundColor: '#FFEDD5', borderColor: '#FED7AA' }]}>
-            <Text style={{ fontSize: 18 }}>🚉</Text>
-          </View>
-          <Text style={styles.quickServiceTitle}>Station Info</Text>
-          <Text style={styles.quickServiceSub}>Explore stations</Text>
-        </TouchableOpacity>
-
-        {/* 5. 24/7 Support */}
-        <TouchableOpacity
-          style={styles.quickServiceCard}
-          onPress={() => navigation.navigate('Alerts')}
-        >
-          <View style={[styles.quickServiceIcon, { backgroundColor: '#E0F2FE', borderColor: '#BAE6FD' }]}>
-            <Text style={{ fontSize: 18 }}>🎧</Text>
-          </View>
-          <Text style={styles.quickServiceTitle}>24/7 Support</Text>
-          <Text style={styles.quickServiceSub}>Safety & help</Text>
+          <Text style={styles.aiBannerArrow}>→</Text>
         </TouchableOpacity>
       </ScrollView>
-
-      {/* 🌟 Suburban Local & Google Maps Cellular Signal Crowd Pulse Segment */}
-      <TouchableOpacity
-        style={styles.suburbanHeroSegment}
-        onPress={() => navigation.navigate('SuburbanLocal', { from: 'DAKE', to: 'SDAH' })}
-      >
-        <View style={styles.suburbanHeroTop}>
-          <View style={styles.suburbanHeroBadgeRow}>
-            <View style={styles.suburbanLivePill}>
-              <View style={styles.suburbanPulseDot} />
-              <Text style={styles.suburbanLivePillText}>LIVE PULSE</Text>
-            </View>
-            <View style={styles.googleTechBadge}>
-              <Text style={styles.googleTechBadgeText}>GOOGLE MAPS SIGNAL TECH</Text>
-            </View>
-          </View>
-          <Text style={styles.suburbanHeroArrow}>Search Locals →</Text>
-        </View>
-
-        <Text style={styles.suburbanHeroTitle}>
-          🚉 Dakshineswar ⇄ Sealdah Local
-        </Text>
-        <Text style={styles.suburbanHeroSub}>
-          Next Train in 4 min • Live 12-Coach Cellular Crowd Heatmap & Smart Boarding Advice
-        </Text>
-
-        <View style={styles.suburbanMiniHeatmap}>
-          <View style={styles.suburbanMiniCoachItem}>
-            <Text style={styles.miniCoachId}>C1</Text>
-            <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
-            <Text style={styles.miniCoachLoad}>28%</Text>
-          </View>
-          <View style={styles.suburbanMiniCoachItem}>
-            <Text style={styles.miniCoachId}>C2</Text>
-            <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
-            <Text style={styles.miniCoachLoad}>35%</Text>
-          </View>
-          <View style={[styles.suburbanMiniCoachItem, styles.miniCoachBest]}>
-            <Text style={styles.miniCoachId}>C3 ⭐</Text>
-            <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
-            <Text style={[styles.miniCoachLoad, { color: '#10B981' }]}>22%</Text>
-          </View>
-          <View style={styles.suburbanMiniCoachItem}>
-            <Text style={styles.miniCoachId}>C4</Text>
-            <View style={[styles.miniCoachDot, { backgroundColor: '#EAB308' }]} />
-            <Text style={styles.miniCoachLoad}>48%</Text>
-          </View>
-          <View style={styles.suburbanMiniCoachItem}>
-            <Text style={styles.miniCoachId}>C5</Text>
-            <View style={[styles.miniCoachDot, { backgroundColor: '#F97316' }]} />
-            <Text style={styles.miniCoachLoad}>68%</Text>
-          </View>
-          <View style={styles.suburbanMiniCoachItem}>
-            <Text style={styles.miniCoachId}>C6</Text>
-            <View style={[styles.miniCoachDot, { backgroundColor: '#EF4444' }]} />
-            <Text style={styles.miniCoachLoad}>74%</Text>
-          </View>
-          <View style={styles.suburbanMiniCoachItem}>
-            <Text style={styles.miniCoachId}>C7</Text>
-            <View style={[styles.miniCoachDot, { backgroundColor: '#EAB308' }]} />
-            <Text style={styles.miniCoachLoad}>44%</Text>
-          </View>
-          <View style={styles.suburbanMiniCoachItem}>
-            <Text style={styles.miniCoachId}>C8</Text>
-            <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
-            <Text style={styles.miniCoachLoad}>30%</Text>
-          </View>
-          <View style={[styles.suburbanMiniCoachItem, styles.miniCoachBest]}>
-            <Text style={styles.miniCoachId}>C9 ⭐</Text>
-            <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
-            <Text style={[styles.miniCoachLoad, { color: '#10B981' }]}>25%</Text>
-          </View>
-        </View>
-
-        <View style={styles.suburbanHeroFooter}>
-          <Text style={styles.suburbanHeroFooterText}>
-            💡 <Text style={{ color: '#10B981', fontWeight: 'bold' }}>Coach C3 & C9</Text> have lowest device density (~16 phone signals).
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      {/* 4 Core Action Cards (Prompt Requirement) */}
-      <View style={styles.sectionTitleRow}>
-        <Text style={styles.sectionTitle}>Intelligence Services</Text>
-        <Text style={styles.sectionSubtitle}>AI & IoT Powered</Text>
-      </View>
-
-      <View style={styles.actionGrid}>
-        {/* 1. Live Train Tracking */}
-        <TouchableOpacity
-          style={styles.actionCard}
-          onPress={() => navigation.navigate('LiveTrain', { trainNumber: '12301' })}
-        >
-          <View style={[styles.actionIconBox, { backgroundColor: 'rgba(56, 189, 248, 0.15)' }]}>
-            <Text style={{ fontSize: 24 }}>🚆</Text>
-          </View>
-          <Text style={styles.actionCardTitle}>Live Train</Text>
-          <Text style={styles.actionCardSub}>Real-time GPS Tracking</Text>
-          <View style={styles.actionCardBadge}>
-            <Text style={[styles.actionCardBadgeText, { color: '#38BDF8' }]}>3s Updates</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* 2. Can I Catch My Train? (HERO FEATURE) */}
-        <TouchableOpacity
-          style={[styles.actionCard, styles.actionCardHighlight]}
-          onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
-        >
-          <View style={[styles.actionIconBox, { backgroundColor: 'rgba(255, 103, 31, 0.2)' }]}>
-            <Text style={{ fontSize: 24 }}>🎯</Text>
-          </View>
-          <Text style={[styles.actionCardTitle, { color: '#FF671F' }]}>Can I Catch?</Text>
-          <Text style={styles.actionCardSub}>Traffic + Station Buffer</Text>
-          <View style={[styles.actionCardBadge, { backgroundColor: 'rgba(255, 103, 31, 0.2)' }]}>
-            <Text style={[styles.actionCardBadgeText, { color: '#FF671F' }]}>Hero AI</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* 3. Coach Crowd Intelligence */}
-        <TouchableOpacity
-          style={styles.actionCard}
-          onPress={() => navigation.navigate('CoachCrowd', { trainNumber: '12301' })}
-        >
-          <View style={[styles.actionIconBox, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
-            <Text style={{ fontSize: 24 }}>👥</Text>
-          </View>
-          <Text style={styles.actionCardTitle}>Coach Crowd</Text>
-          <Text style={styles.actionCardSub}>Least Density Finder</Text>
-          <View style={styles.actionCardBadge}>
-            <Text style={[styles.actionCardBadgeText, { color: '#A855F7' }]}>CV Heatmap</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* 4. Weather Intelligence */}
-        <TouchableOpacity
-          style={styles.actionCard}
-          onPress={() => navigation.navigate('WeatherIntelligence', { stationCode: 'HWH' })}
-        >
-          <View style={[styles.actionIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
-            <Text style={{ fontSize: 24 }}>🌦️</Text>
-          </View>
-          <Text style={styles.actionCardTitle}>Weather</Text>
-          <Text style={styles.actionCardSub}>Rain & Delay Impact</Text>
-          <View style={styles.actionCardBadge}>
-            <Text style={[styles.actionCardBadgeText, { color: '#10B981' }]}>Live Radar</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      {/* Advanced Safety & Omnichannel Features Bar */}
-      <View style={styles.extraFeaturesRow}>
-        <TouchableOpacity
-          style={styles.extraFeatureChip}
-          onPress={() => navigation.navigate('ObstacleDetection')}
-        >
-          <Text style={{ fontSize: 16 }}>📹</Text>
-          <Text style={styles.extraFeatureText}>Track Obstacle CV</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.extraFeatureChip}
-          onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
-        >
-          <Text style={{ fontSize: 16 }}>📋</Text>
-          <Text style={styles.extraFeatureText}>Station Board</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.extraFeatureChip}
-          onPress={() => navigation.navigate('WhatsAppSimulator')}
-        >
-          <Text style={{ fontSize: 16 }}>💬</Text>
-          <Text style={styles.extraFeatureText}>WhatsApp Sathi</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Live Railway Network Status Bar (Prompt Requirement) */}
-      <View style={styles.statusPillCard}>
-        <View style={styles.statusPillHeader}>
-          <Text style={styles.statusPillTitle}>LIVE RAILWAY STATUS</Text>
-          <View style={styles.liveTick}>
-            <View style={styles.greenPulse} />
-            <Text style={styles.liveTickText}>LIVE</Text>
-          </View>
-        </View>
-
-        <View style={styles.statusPillRow}>
-          <View style={styles.statusItem}>
-            <Text style={styles.statusNumber}>142</Text>
-            <Text style={styles.statusLabel}>Active Trains</Text>
-          </View>
-          <View style={styles.statusDivider} />
-          <View style={styles.statusItem}>
-            <Text style={[styles.statusNumber, { color: '#F59E0B' }]}>27</Text>
-            <Text style={styles.statusLabel}>Delayed</Text>
-          </View>
-          <View style={styles.statusDivider} />
-          <View style={styles.statusItem}>
-            <Text style={[styles.statusNumber, { color: '#EF4444' }]}>3</Text>
-            <Text style={styles.statusLabel}>Critical Risks</Text>
-          </View>
-          <View style={styles.statusDivider} />
-          <View style={styles.statusItem}>
-            <Text style={[styles.statusNumber, { color: '#10B981' }]}>88%</Text>
-            <Text style={styles.statusLabel}>Punctual</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Quick PNR / AI Assistant Floating Banner */}
-      <TouchableOpacity
-        style={styles.aiBanner}
-        onPress={() => navigation.navigate('AIAssistant', { initialQuery: 'Where is train 12301?' })}
-      >
-        <View style={styles.aiBannerIcon}>
-          <Text style={{ fontSize: 22 }}>🤖</Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.aiBannerTitle}>Ask RailSathi AI Agent</Text>
-          <Text style={styles.aiBannerSub}>
-            "Where is my train?" • "Can I catch it?" • "Why is it delayed?"
-          </Text>
-        </View>
-        <Text style={styles.aiBannerArrow}>→</Text>
-      </TouchableOpacity>
-    </ScrollView>
     </AppBackground>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -484,21 +495,20 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   logoBadge: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: '#FFF7ED',
-    borderWidth: 1.5,
-    borderColor: '#FF671F',
-    alignItems: 'center',
+    width: 60,
+    height: 60,
     justifyContent: 'center',
-    marginRight: 10,
+    alignItems: 'center',
+    marginRight: 4,
   },
   brandTitle: {
-    fontSize: 18,
-    fontWeight: '900',
+    fontSize: 22,
+    fontFamily: 'Sora_800ExtraBold',
     color: '#0F172A',
     letterSpacing: 0.5,
+  },
+  brandTitleIo: {
+    fontFamily: 'PlaypenSans_800ExtraBold',
   },
   brandSubtitle: {
     fontSize: 9,
@@ -533,6 +543,8 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: '#EF4444',
+    marginTop: 6,
+    zIndex: 1,
   },
   heroTextContainer: {
     marginBottom: 4,
@@ -1052,5 +1064,101 @@ const styles = StyleSheet.create({
   suburbanHeroFooterText: {
     fontSize: 10,
     color: '#166534',
+  },
+  cameraNavHeroSegment: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#FF671F',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    elevation: 3,
+    shadowColor: '#FF671F',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+  },
+  cameraNavHeroTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  cameraNavBadgeRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  cameraNavLivePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 103, 31, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    gap: 4,
+  },
+  cameraNavPulseDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#FF671F',
+  },
+  cameraNavLivePillText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#FF671F',
+  },
+  zeroInfraBadge: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  zeroInfraBadgeText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#475569',
+  },
+  cameraNavHeroArrow: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#FF671F',
+  },
+  cameraNavHeroTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 4,
+  },
+  cameraNavHeroSub: {
+    fontSize: 11,
+    color: '#64748B',
+    lineHeight: 16,
+    marginBottom: 12,
+  },
+  cameraNavFeaturePills: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  cameraNavPillItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 4,
+  },
+  cameraNavPillIcon: {
+    fontSize: 12,
+  },
+  cameraNavPillText: {
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: '#334155',
   },
 });

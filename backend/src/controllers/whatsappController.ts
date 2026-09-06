@@ -10,7 +10,7 @@ export const verifyWebhook = (req: Request, res: Response): void => {
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
 
-    const expectedVerifyToken = process.env.WHATSAPP_VERIFY_TOKEN || 'railsathi_whatsapp_verify_token_2026';
+    const expectedVerifyToken = process.env.WHATSAPP_VERIFY_TOKEN || 'railio_whatsapp_verify_token_2026';
 
     console.log('[WhatsApp Webhook Verification] Received request:', { mode, token, challenge });
 

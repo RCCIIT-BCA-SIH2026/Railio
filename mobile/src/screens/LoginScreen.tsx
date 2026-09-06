@@ -10,7 +10,7 @@ export const LoginScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { signIn, signInWithGoogle } = useAuth();
 
-  const [email, setEmail] = useState('passenger@railsathi.ai');
+  const [email, setEmail] = useState('passenger@railio.ai');
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<'user' | 'admin'>('user');
@@ -42,7 +42,7 @@ export const LoginScreen: React.FC = () => {
 
   const handleQuickDemo = async (selectedRole: 'user' | 'admin') => {
     setRole(selectedRole);
-    const demoEmail = selectedRole === 'user' ? 'passenger@railsathi.ai' : 'admin@railsathi.ai';
+    const demoEmail = selectedRole === 'user' ? 'passenger@railio.ai' : 'admin@railio.ai';
     const demoPass = 'password123';
     setEmail(demoEmail);
     setPassword(demoPass);
@@ -71,7 +71,7 @@ export const LoginScreen: React.FC = () => {
           <View style={styles.logoIcon}>
             <Text style={{ fontSize: 32 }}>🚆</Text>
           </View>
-          <Text style={styles.title}>Welcome to RailSathi</Text>
+          <Text style={styles.title}>Welcome to RailIo</Text>
           <Text style={styles.subtitle}>Sign in with Supabase Auth to access live railway AI</Text>
         </View>
 
@@ -103,7 +103,7 @@ export const LoginScreen: React.FC = () => {
               style={styles.input}
               value={email}
               onChangeText={setEmail}
-              placeholder="name@railsathi.ai"
+              placeholder="name@railio.ai"
               placeholderTextColor="#64748B"
               autoCapitalize="none"
               keyboardType="email-address"

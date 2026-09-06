@@ -9,14 +9,14 @@ const DEMO_ADMIN_USER: User = {
   user_metadata: { full_name: 'System Chief Controller', role: 'super_admin' },
   aud: 'authenticated',
   created_at: new Date().toISOString(),
-  email: 'admin@railsathi.ai',
+  email: 'admin@railio.ai',
 } as any;
 
 const DEMO_ADMIN_PROFILE: AdminProfile = {
   id: '00000000-0000-0000-0000-000000000001',
   auth_user_id: '00000000-0000-0000-0000-000000000001',
   full_name: 'System Chief Controller',
-  email: 'admin@railsathi.ai',
+  email: 'admin@railio.ai',
   role: 'super_admin',
   phone_verified: true,
   is_active: true,
@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    const storedDemo = localStorage.getItem('railsathi_demo_admin');
+    const storedDemo = localStorage.getItem('railio_demo_admin');
     if (storedDemo === 'true') {
       setUser(DEMO_ADMIN_USER);
       setProfile(DEMO_ADMIN_PROFILE);
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
-      if (localStorage.getItem('railsathi_demo_admin') === 'true') return;
+      if (localStorage.getItem('railio_demo_admin') === 'true') return;
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       if (currentSession?.user) {
@@ -99,7 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const data = await AdminAuthService.signIn(email, pass);
-      localStorage.removeItem('railsathi_demo_admin');
+      localStorage.removeItem('railio_demo_admin');
       setSession(data.session);
       setUser(data.user);
       if (data.user) {
@@ -107,8 +107,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (err: any) {
       // Fallback for demo controller access if Supabase credentials check fails on fresh database or rate limit
-      if (email === 'admin@railsathi.ai' || email.includes('admin') || pass === 'password123') {
-        localStorage.setItem('railsathi_demo_admin', 'true');
+      if (email === 'admin@railio.ai' || email.includes('admin') || pass === 'password123') {
+        localStorage.setItem('railio_demo_admin', 'true');
         setUser(DEMO_ADMIN_USER);
         setProfile(DEMO_ADMIN_PROFILE);
         return;
@@ -126,7 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     setIsLoading(true);
     try {
-      localStorage.removeItem('railsathi_demo_admin');
+      localStorage.removeItem('railio_demo_admin');
       await AdminAuthService.signOut().catch(() => {});
       setSession(null);
       setUser(null);
@@ -136,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const role = profile?.role || (user?.email?.includes('admin') || user?.email === 'admin@railsathi.ai' ? 'super_admin' : 'user');
+  const role = profile?.role || (user?.email?.includes('admin') || user?.email === 'admin@railio.ai' ? 'super_admin' : 'user');
   const isAdmin = true; // Guaranteed true for authenticated admin session
   const isSuperAdmin = true;
 

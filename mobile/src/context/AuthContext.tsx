@@ -27,39 +27,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const fetchUserProfile = async (authUser: User) => {
+  const fetchUserProfile = React.useCallback(async (authUser: User) => {
     try {
       const prof = await AuthService.getProfile(authUser.id);
       setProfile(prof);
     } catch (err) {
-      console.warn('[AuthContext] Failed to load profile:', err);
+      // Non-fatal, profile can load gracefully
     }
-  };
+  }, []);
 
-  const refreshProfile = async () => {
+  const refreshProfile = React.useCallback(async () => {
     if (user) {
       await fetchUserProfile(user);
     }
-  };
+  }, [user, fetchUserProfile]);
 
   useEffect(() => {
-    // 1. Initial Session Restoration
+    let isMounted = true;
+
+    // 1. Initial Session Restoration — non-blocking
     supabase.auth.getSession().then(({ data: { session: initSession } }) => {
+      if (!isMounted) return;
       setSession(initSession);
       setUser(initSession?.user ?? null);
+      setIsLoading(false);
+
       if (initSession?.user) {
-        fetchUserProfile(initSession.user).finally(() => setIsLoading(false));
-      } else {
-        setIsLoading(false);
+        fetchUserProfile(initSession.user);
       }
+    }).catch(() => {
+      if (isMounted) setIsLoading(false);
     });
 
     // 2. Realtime Auth State Changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
+      if (!isMounted) return;
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       if (currentSession?.user) {
-        await fetchUserProfile(currentSession.user);
+        fetchUserProfile(currentSession.user);
       } else {
         setProfile(null);
       }
@@ -67,11 +73,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchUserProfile]);
 
-  const signIn = async (email: string, pass: string) => {
+  const signIn = React.useCallback(async (email: string, pass: string) => {
     setIsLoading(true);
     try {
       const data = await AuthService.signIn(email, pass);
@@ -83,9 +90,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fetchUserProfile]);
 
-  const signUp = async (email: string, pass: string, fullName: string, phone?: string) => {
+  const signUp = React.useCallback(async (email: string, pass: string, fullName: string, phone?: string) => {
     setIsLoading(true);
     try {
       const data = await AuthService.signUp(email, pass, fullName, phone);
@@ -97,13 +104,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fetchUserProfile]);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = React.useCallback(async () => {
     await AuthService.signInWithGoogle();
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = React.useCallback(async () => {
     setIsLoading(true);
     try {
       await AuthService.signOut();
@@ -113,36 +120,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const verifyPhone = async (phone: string, truecallerPayload?: any) => {
+  const verifyPhone = React.useCallback(async (phone: string, truecallerPayload?: any) => {
     const res = await AuthService.verifyPhone(phone, truecallerPayload);
-    if (res.success) {
-      await refreshProfile();
+    if (res.success && user) {
+      await fetchUserProfile(user);
     }
     return res;
-  };
+  }, [user, fetchUserProfile]);
 
   const role = profile?.role || 'user';
   const phoneVerified = profile?.phone_verified || false;
 
+  const contextValue = React.useMemo(() => ({
+    session,
+    user,
+    profile,
+    isLoading,
+    role,
+    phoneVerified,
+    signIn,
+    signUp,
+    signInWithGoogle,
+    signOut,
+    verifyPhone,
+    refreshProfile,
+  }), [
+    session,
+    user,
+    profile,
+    isLoading,
+    role,
+    phoneVerified,
+    signIn,
+    signUp,
+    signInWithGoogle,
+    signOut,
+    verifyPhone,
+    refreshProfile,
+  ]);
+
   return (
-    <AuthContext.Provider
-      value={{
-        session,
-        user,
-        profile,
-        isLoading,
-        role,
-        phoneVerified,
-        signIn,
-        signUp,
-        signInWithGoogle,
-        signOut,
-        verifyPhone,
-        refreshProfile,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

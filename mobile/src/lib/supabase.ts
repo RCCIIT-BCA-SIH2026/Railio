@@ -12,40 +12,43 @@ const supabaseAnonKey =
   Constants.expoConfig?.extra?.supabaseAnonKey ||
   'sb_publishable_BvFvNU3DQBXawK-Wgok3XA_DFZjuB_-';
 
-// Custom cross-platform storage adapter
-const memoryStorage: Record<string, string> = {};
-const customStorageAdapter = {
-  getItem: (key: string) => {
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// High-performance asynchronous storage adapter with local memory cache for zero-latency lookups
+const memoryCache: Record<string, string> = {};
+
+const asyncStorageAdapter = {
+  getItem: async (key: string): Promise<string | null> => {
+    if (memoryCache[key] !== undefined) {
+      return memoryCache[key];
+    }
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        return window.localStorage.getItem(key);
+      const val = await AsyncStorage.getItem(key);
+      if (val !== null) {
+        memoryCache[key] = val;
       }
-    } catch {}
-    return memoryStorage[key] || null;
+      return val;
+    } catch {
+      return memoryCache[key] || null;
+    }
   },
-  setItem: (key: string, value: string) => {
+  setItem: async (key: string, value: string): Promise<void> => {
+    memoryCache[key] = value;
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.setItem(key, value);
-        return;
-      }
+      await AsyncStorage.setItem(key, value);
     } catch {}
-    memoryStorage[key] = value;
   },
-  removeItem: (key: string) => {
+  removeItem: async (key: string): Promise<void> => {
+    delete memoryCache[key];
     try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.removeItem(key);
-        return;
-      }
+      await AsyncStorage.removeItem(key);
     } catch {}
-    delete memoryStorage[key];
   },
 };
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: customStorageAdapter,
+    storage: asyncStorageAdapter,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

@@ -1,4 +1,4 @@
-# 🚆 RailSathi (Smart Rail AI)
+# 🚆 RailIo (Smart Rail AI)
 
 ### *Predict • Protect • Connect*
 
@@ -9,7 +9,7 @@
 
 ## 🌟 Executive Summary
 
-**RailSathi** is an enterprise-grade, end-to-end intelligent railway operations and passenger assistance platform built specifically for Indian Railways. It bridges the gap between high-frequency telemetry (train GPS, ESP32 track accelerometers, CCTV crowd streams) and actionable decision-making for both **Rail Passengers** and **Divisional Railway Controllers**.
+**RailIo** is an enterprise-grade, end-to-end intelligent railway operations and passenger assistance platform built specifically for Indian Railways. It bridges the gap between high-frequency telemetry (train GPS, ESP32 track accelerometers, CCTV crowd streams) and actionable decision-making for both **Rail Passengers** and **Divisional Railway Controllers**.
 
 ```mermaid
 flowchart TD
@@ -67,12 +67,12 @@ Simulates cascading railway delay propagation and interactive dispatcher decisio
 - Real-time RMS vibration thresholding ($>3.3\text{g} \rightarrow \text{CRITICAL}$).
 - 4-Day deterioration trend scoring (0–100) identifying developing rail joint gaps and ballast voids before structural failures occur.
 
-### 5. 🤖 10-Tool Agentic AI Travel Assistant (RailSathi Sathi)
+### 5. 🤖 10-Tool Agentic AI Travel Assistant (RailIo Sathi)
 Conversational assistant equipped with multi-tool routing:
 - `TrainStatusTool`, `CatchProbabilityTool`, `CrowdTool`, `DigitalTwinTool`, `DelayTool`, `WeatherTool`, `PlatformTool`, `TrafficTool`, `AlertTool`, and `RAGKnowledgeBaseTool`.
 
 ### 6. 💬 WhatsApp Omnichannel Simulator
-Interactive WhatsApp-style conversational view mirroring the official RailSathi chatbot experience.
+Interactive WhatsApp-style conversational view mirroring the official RailIo chatbot experience.
 
 ---
 
@@ -92,7 +92,7 @@ Interactive WhatsApp-style conversational view mirroring the official RailSathi 
 ## 📂 Monorepo Structure
 
 ```
-railsathi/
+railio/
 ├── ai-service/                 # FastAPI AI/ML Microservice (Port 8000)
 │   ├── app/
 │   │   ├── agent/             # 10-Tool Agentic AI Router
@@ -219,7 +219,7 @@ npx ts-node src/__tests__/api.test.ts
 5. **Inspect Explainable AI (XAI)**:
    - Open Train Details for **Train 12301**.
    - Review the delay breakdown attributing +8m to junction congestion, +5m to rain, and +3m to dwell time.
-6. **Chat with RailSathi AI Agent**:
+6. **Chat with RailIo AI Agent**:
    - Ask: *"Can I catch train 12301?"* or *"Which coach is less crowded?"*.
    - Inspect the agent's tool execution badges (`CatchProbabilityTool`, `TrafficTool`, `ETAPredictionTool`).
 
@@ -227,7 +227,7 @@ npx ts-node src/__tests__/api.test.ts
 
 ## 🔒 Safety & Regulatory Disclaimer
 
-> **Prototype Notice**: RailSathi is an engineering demonstration prototype developed for hackathons and technical showcases. Machine learning predictions, computer vision detections, and IoT vibration metrics are designed for operational decision-support and do not replace certified Indian Railways safety equipment (e.g., KAVACH, solid-state interlocking, RDSO-certified track inspection vehicles).
+> **Prototype Notice**: RailIo is an engineering demonstration prototype developed for hackathons and technical showcases. Machine learning predictions, computer vision detections, and IoT vibration metrics are designed for operational decision-support and do not replace certified Indian Railways safety equipment (e.g., KAVACH, solid-state interlocking, RDSO-certified track inspection vehicles).
 
 ---
 

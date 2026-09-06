@@ -1,53 +1,64 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { VandeBharatHero } from '../components/VandeBharatHero';
 import { AppBackground } from '../components/AppBackground';
 
-export const SplashScreen: React.FC = () => {
+export const SplashScreen: React.FC = React.memo(() => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  const handleEnter = useCallback(() => {
+    if (typeof (navigation as any).replace === 'function') {
       navigation.replace('MainTabs');
-    }, 2400);
-    return () => clearTimeout(timer);
+    } else {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'MainTabs' }],
+        })
+      );
+    }
   }, [navigation]);
+
+  useEffect(() => {
+    const timer = setTimeout(handleEnter, 2400);
+    return () => clearTimeout(timer);
+  }, [handleEnter]);
 
   return (
     <AppBackground variant="orange">
       <View style={styles.container}>
-      {/* Background Gradient Effect */}
-      <View style={styles.glowCircle} />
+        {/* Background Gradient Effect */}
+        <View style={styles.glowCircle} />
 
-      <View style={styles.content}>
-        <View style={styles.logoBadge}>
-          <Text style={styles.trainEmoji}>🚆</Text>
+        <View style={styles.content}>
+          <View style={styles.logoBadge}>
+            <Image source={require('../../assets/logo.png')} style={{ width: 180, height: 180 }} resizeMode="contain" />
+          </View>
+
+          <Text style={styles.title}>Rail<Text style={styles.titleIo}>Io</Text></Text>
+          <Text style={styles.tagline}>Predict • Protect • Connect</Text>
+          <Text style={styles.subtext}>AI-Powered Railway Intelligence Ecosystem</Text>
+
+          <View style={styles.trainWrapper}>
+            <VandeBharatHero height={160} />
+          </View>
+
+          <View style={styles.loaderContainer}>
+            <View style={styles.pulseDot} />
+            <Text style={styles.loadingText}>Synchronizing Indian Railways Digital Twin...</Text>
+          </View>
+
+          <TouchableOpacity style={styles.skipButton} onPress={handleEnter}>
+            <Text style={styles.skipText}>Enter Platform →</Text>
+          </TouchableOpacity>
         </View>
-
-        <Text style={styles.title}>RailSathi</Text>
-        <Text style={styles.tagline}>Predict • Protect • Connect</Text>
-        <Text style={styles.subtext}>AI-Powered Railway Intelligence Ecosystem</Text>
-
-        <View style={styles.trainWrapper}>
-          <VandeBharatHero height={160} />
-        </View>
-
-        <View style={styles.loaderContainer}>
-          <View style={styles.pulseDot} />
-          <Text style={styles.loadingText}>Synchronizing Indian Railways Digital Twin...</Text>
-        </View>
-
-        <TouchableOpacity style={styles.skipButton} onPress={() => navigation.replace('MainTabs')}>
-          <Text style={styles.skipText}>Enter Platform →</Text>
-        </TouchableOpacity>
       </View>
-    </View>
     </AppBackground>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -72,10 +83,6 @@ const styles = StyleSheet.create({
   logoBadge: {
     width: 80,
     height: 80,
-    borderRadius: 24,
-    backgroundColor: '#FFF7ED',
-    borderWidth: 2,
-    borderColor: '#FF671F',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -88,9 +95,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 34,
-    fontWeight: '900',
+    fontFamily: 'Sora_800ExtraBold',
     color: '#0F172A',
     letterSpacing: 1.5,
+  },
+  titleIo: {
+    fontFamily: 'PlaypenSans_800ExtraBold',
   },
   tagline: {
     fontSize: 14,

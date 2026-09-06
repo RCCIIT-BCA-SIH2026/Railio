@@ -1,6 +1,6 @@
-# RailSathi — Supabase Master Backend, Authentication & Database Architecture Guide
+# RailIo — Supabase Master Backend, Authentication & Database Architecture Guide
 
-This document outlines the centralized **Supabase** backend architecture for **RailSathi**, powering both the **React Native Expo Mobile Application** and the **Vite + React Admin Web Dashboard**.
+This document outlines the centralized **Supabase** backend architecture for **RailIo**, powering both the **React Native Expo Mobile Application** and the **Vite + React Admin Web Dashboard**.
 
 ---
 
@@ -38,7 +38,7 @@ This document outlines the centralized **Supabase** backend architecture for **R
 
 ## 2. Database Schema & Relationships
 
-All schema definitions are stored in SQL migrations under [`database/migrations/`](file:///Users/ankitkarmakar/Documents/MY%20PROJECTS%20ALL%20IN%20/Rail%20Sathi/RailSathi/database/migrations/).
+All schema definitions are stored in SQL migrations under [`database/migrations/`](file:///Users/ankitkarmakar/Documents/MY%20PROJECTS%20ALL%20IN%20/Rail%20Sathi/RailIo/database/migrations/).
 
 ### Core Tables Summary:
 
@@ -113,7 +113,7 @@ Returns success result to Mobile
 
 ## 5. Environment Variables Guide
 
-Copy [`.env.example`](file:///Users/ankitkarmakar/Documents/MY%20PROJECTS%20ALL%20IN%20/Rail%20Sathi/RailSathi/.env.example) to `.env` in respective project root directories:
+Copy [`.env.example`](file:///Users/ankitkarmakar/Documents/MY%20PROJECTS%20ALL%20IN%20/Rail%20Sathi/RailIo/.env.example) to `.env` in respective project root directories:
 
 ### Root / Global:
 ```env
@@ -142,14 +142,14 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ### Step 1: Create Supabase Project
 1. Log into [Supabase Dashboard](https://database.new).
-2. Create project named **RailSathi Central**.
+2. Create project named **RailIo Central**.
 3. Note project URL, Anon Key, and Service Role Key.
 
 ### Step 2: Apply Database Migrations
 Run the SQL migration scripts in order in the Supabase SQL Editor:
-1. Exec [`database/migrations/01_railsathi_master_schema.sql`](file:///Users/ankitkarmakar/Documents/MY%20PROJECTS%20ALL%20IN%20/Rail%20Sathi/RailSathi/database/migrations/01_railsathi_master_schema.sql)
-2. Exec [`database/migrations/02_railsathi_rls_policies.sql`](file:///Users/ankitkarmakar/Documents/MY%20PROJECTS%20ALL%20IN%20/Rail%20Sathi/RailSathi/database/migrations/02_railsathi_rls_policies.sql)
-3. Exec [`database/migrations/03_railsathi_storage_and_realtime.sql`](file:///Users/ankitkarmakar/Documents/MY%20PROJECTS%20ALL%20IN%20/Rail%20Sathi/RailSathi/database/migrations/03_railsathi_storage_and_realtime.sql)
+1. Exec [`database/migrations/01_railio_master_schema.sql`](file:///Users/ankitkarmakar/Documents/MY%20PROJECTS%20ALL%20IN%20/Rail%20Sathi/RailIo/database/migrations/01_railio_master_schema.sql)
+2. Exec [`database/migrations/02_railio_rls_policies.sql`](file:///Users/ankitkarmakar/Documents/MY%20PROJECTS%20ALL%20IN%20/Rail%20Sathi/RailIo/database/migrations/02_railio_rls_policies.sql)
+3. Exec [`database/migrations/03_railio_storage_and_realtime.sql`](file:///Users/ankitkarmakar/Documents/MY%20PROJECTS%20ALL%20IN%20/Rail%20Sathi/RailIo/database/migrations/03_railio_storage_and_realtime.sql)
 
 ### Step 3: Configure Google OAuth Provider
 1. Go to Google Cloud Console -> APIs & Services -> Credentials.

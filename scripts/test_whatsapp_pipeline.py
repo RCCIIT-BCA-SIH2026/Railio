@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-RailSathi WhatsApp Cloud API Diagnostic & Test Runner
+RailIo WhatsApp Cloud API Diagnostic & Test Runner
 Validates end-to-end webhook event parsing, AI response generation, and Meta Graph API dispatch format.
 """
 
@@ -20,7 +20,7 @@ def mask_phone_number(phone: str) -> str:
 
 async def run_pipeline_test():
     print("=" * 60)
-    print("🚆 RailSathi WhatsApp Pipeline Diagnostic Test")
+    print("🚆 RailIo WhatsApp Pipeline Diagnostic Test")
     print("=" * 60)
 
     # 1. Simulated Meta Webhook Payload
@@ -86,15 +86,15 @@ async def run_pipeline_test():
     text_lower = text_body.lower().strip()
     if text_lower in ["hi", "hello", "hey", "menu", "start"]:
         reply = (
-            "🚆 *RailSathi AI Railway Assistant*\n\n"
-            "Welcome to *RailSathi* - Predict • Protect • Connect!\n\n"
+            "🚆 *RailIo AI Railway Assistant*\n\n"
+            "Welcome to *RailIo* - Predict • Protect • Connect!\n\n"
             "Reply with:\n"
             "1️⃣ *Catch 12301* - Check if you can catch train\n"
             "2️⃣ *Status 12301* - Live train status\n"
             "3️⃣ *Suburban* - Suburban local timetable"
         )
     else:
-        reply = f"🚆 *RailSathi AI Response*\n\nMock response for '{text_body}'"
+        reply = f"🚆 *RailIo AI Response*\n\nMock response for '{text_body}'"
 
     print("✓ PASS: AI Response generated:")
     print("----------------------------------------")

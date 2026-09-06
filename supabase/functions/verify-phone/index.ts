@@ -1,5 +1,5 @@
 /// <reference path="../deno.d.ts" />
-// RailSathi Edge Function: verify-phone
+// RailIo Edge Function: verify-phone
 // Truecaller & Phone Number Verification Layer State Machine
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";

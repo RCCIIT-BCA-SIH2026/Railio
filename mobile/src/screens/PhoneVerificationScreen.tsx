@@ -59,7 +59,7 @@ export const PhoneVerificationScreen: React.FC<{ navigation: any }> = ({ navigat
           </View>
           <Text style={styles.title}>Phone Identity Verification</Text>
           <Text style={styles.subtitle}>
-            RailSathi requires verified phone numbers for real-time SOS & travel safety alerts.
+            RailIo requires verified phone numbers for real-time SOS & travel safety alerts.
           </Text>
         </View>
 

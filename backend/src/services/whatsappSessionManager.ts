@@ -100,8 +100,8 @@ export class WhatsAppSessionManager {
    */
   private async sendMainMenu(phoneNumber: string, session: UserSession): Promise<void> {
     session.state = 'IDLE';
-    const header = '🚆 RailSathi AI Railway Assistant';
-    const body = 'Welcome to *RailSathi* - Predict • Protect • Connect!\n\nHow can I assist your journey today? Select an option below or type your train number.';
+    const header = '🚆 RailIo AI Railway Assistant';
+    const body = 'Welcome to *RailIo* - Predict • Protect • Connect!\n\nHow can I assist your journey today? Select an option below or type your train number.';
     const buttons = [
       { id: 'btn_catch_train', title: '🎯 Can I Catch Train?' },
       { id: 'btn_live_status', title: '🚆 Live Train Status' },
@@ -117,7 +117,7 @@ export class WhatsAppSessionManager {
   private async promptCatchTrainInput(phoneNumber: string, session: UserSession): Promise<void> {
     session.state = 'AWAITING_CATCH_DETAILS';
     const text =
-      `🎯 *RailSathi "Can I Catch My Train?" AI Calculator*\n\n` +
+      `🎯 *RailIo "Can I Catch My Train?" AI Calculator*\n\n` +
       `To check whether you can catch your train in live traffic:\n\n` +
       `1️⃣ *Share your Live GPS Location* 📍 using WhatsApp Location pin.\n` +
       `2️⃣ *OR Reply with your 5-digit Train Number* (e.g. *12301* or *12301, Howrah*).`;
@@ -131,7 +131,7 @@ export class WhatsAppSessionManager {
   private async promptTrainStatusInput(phoneNumber: string, session: UserSession): Promise<void> {
     session.state = 'AWAITING_TRAIN_STATUS';
     const text =
-      `🚆 *RailSathi Live Train Status*\n\n` +
+      `🚆 *RailIo Live Train Status*\n\n` +
       `Please reply with the *5-digit Train Number* (e.g. *12301* or *22436*) to track live GPS position, delay, speed, and ETA.`;
 
     await whatsappService.sendMessage(phoneNumber, text);
@@ -187,7 +187,7 @@ export class WhatsAppSessionManager {
     else if (probPct < 75) badge = '🟡 MODERATE CONNECTION RISK';
 
     let resultMsg =
-      `🎯 *RailSathi AI "Can I Catch My Train?" Result*\n` +
+      `🎯 *RailIo AI "Can I Catch My Train?" Result*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━\n` +
       `Status: *${badge}* (${probPct}% Catch Rate)\n\n` +
       `🚆 *Train*: ${catchResult.trainNumber} - ${catchResult.trainName}\n` +
@@ -242,7 +242,7 @@ export class WhatsAppSessionManager {
     const statusEmoji = state.status === 'ON_TIME' ? '🟢' : '🔴';
 
     const statusMsg =
-      `🚆 *RailSathi Live Train Status*\n` +
+      `🚆 *RailIo Live Train Status*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━\n` +
       `*Train ${train.trainNumber}* - ${train.name}\n` +
       `Route: ${train.source} ➔ ${train.destination}\n\n` +
@@ -264,7 +264,7 @@ export class WhatsAppSessionManager {
     const upcoming = db.getUpcomingSuburbanTrains('DAKE', 'SDAH');
 
     let msg =
-      `🕒 *RailSathi Suburban Local Timetable*\n` +
+      `🕒 *RailIo Suburban Local Timetable*\n` +
       `Corridor: *Dakshineswar (DAKE) ➔ Sealdah (SDAH)*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━\n\n`;
 
@@ -295,7 +295,7 @@ export class WhatsAppSessionManager {
     locationPayload?: UserLocation
   ): Promise<void> {
     const aiRes = await aiGateway.askAgent(messageText, locationPayload?.latitude, locationPayload?.longitude);
-    const reply = `🚆 *RailSathi AI Response*\n\n${aiRes.answer}\n\n_Type 'Menu' anytime for options._`;
+    const reply = `🚆 *RailIo AI Response*\n\n${aiRes.answer}\n\n_Type 'Menu' anytime for options._`;
 
     session.state = 'IDLE';
     await whatsappService.sendMessage(phoneNumber, reply);

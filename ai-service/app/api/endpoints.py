@@ -10,6 +10,7 @@ from app.cv.obstacle_detector import obstacle_cv, ObstacleDetectionResponse
 from app.iot.anomaly_detector import anomaly_detector, SensorReading, AnomalyResult
 from app.digital_twin.network_twin import digital_twin, WhatIfSimulationRequest, WhatIfSimulationResponse
 from app.agent.rail_agent import rail_agent, AgentMessageRequest, AgentResponse
+from app.cv.camera_navigator import camera_navigator, SceneAnalysisRequest, SceneAnalysisResult
 
 router = APIRouter()
 
@@ -41,6 +42,10 @@ def analyze_platform_crowd(station_code: str, platform_number: int):
 @router.post("/cv/obstacle/detect", response_model=ObstacleDetectionResponse)
 def detect_obstacle(scenario: str = "PERSON_ON_TRACK"):
     return obstacle_cv.detect(scenario)
+
+@router.post("/cv/navigation/analyze-scene", response_model=SceneAnalysisResult)
+def analyze_navigation_scene(req: SceneAnalysisRequest):
+    return camera_navigator.analyze_scene(req)
 
 # 3. IoT & Track Anomaly
 @router.post("/iot/anomaly", response_model=AnomalyResult)
@@ -114,7 +119,7 @@ async def process_and_reply_whatsapp(from_number: str, text_body: str, location_
     if text_lower in ["hi", "hello", "hey", "menu", "start", "restart", "help"] or not current_state:
         USER_SESSIONS[clean_number] = {"state": "MAIN_MENU"}
         reply = (
-            "🚆 *Welcome to RailSathi AI Railway Assistant*\n"
+            "🚆 *Welcome to RailIo AI Railway Assistant*\n"
             "_Predict • Protect • Connect_\n\n"
             "Please choose an option to continue:\n"
             "1️⃣ *Catch Train* — Check if you can catch your train in time\n"
@@ -193,7 +198,7 @@ async def process_and_reply_whatsapp(from_number: str, text_body: str, location_
             train_name = train_query.title()
             
         reply = (
-            f"🎯 *RailSathi AI \"Can I Catch My Train?\" Result*\n"
+            f"🎯 *RailIo AI \"Can I Catch My Train?\" Result*\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
             f"📍 *Your Location*: {user_loc}\n"
             f"🚆 *Target Train*: {train_name} (#{train_num})\n"
@@ -251,11 +256,11 @@ async def process_and_reply_whatsapp(from_number: str, text_body: str, location_
     # Fallback to General AI / RAG Agent
     try:
         agent_res = rail_agent.process_query(AgentMessageRequest(message=user_text))
-        reply = f"🚆 *RailSathi AI Assistant*\n\n{agent_res.answer}\n\n_Reply *Hi* to return to main menu._"
+        reply = f"🚆 *RailIo AI Assistant*\n\n{agent_res.answer}\n\n_Reply *Hi* to return to main menu._"
     except Exception as ai_err:
         print(f"[AI Error] Exception during RAG processing: {ai_err}")
         reply = (
-            "🚆 *RailSathi AI Assistant*\n\n"
+            "🚆 *RailIo AI Assistant*\n\n"
             "Please reply with:\n"
             "1️⃣ *1* — Check if you can catch your train\n"
             "2️⃣ *2* — Live train status\n"
@@ -277,7 +282,7 @@ async def handle_whatsapp_webhook(request: Request, background_tasks: Background
         token = params.get("hub.verify_token") or params.get("hub_verify_token")
         challenge = params.get("hub.challenge") or params.get("hub_challenge")
         
-        expected_token = os.getenv("WHATSAPP_VERIFY_TOKEN", "railsathi_whatsapp_verify_token_2026")
+        expected_token = os.getenv("WHATSAPP_VERIFY_TOKEN", "railio_whatsapp_verify_token_2026")
         
         if token == expected_token or mode == "subscribe":
             print(f"[WHATSAPP] Webhook verification successful")

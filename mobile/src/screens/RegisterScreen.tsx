@@ -41,7 +41,7 @@ export const RegisterScreen: React.FC = () => {
       await signUp(email, password, fullName, phoneNumber);
       Alert.alert(
         'Account Created',
-        'Your RailSathi profile was created. Please verify your phone identity.',
+        'Your RailIo profile was created. Please verify your phone identity.',
         [{ text: 'Verify Phone Now', onPress: () => navigation.replace('PhoneVerification') }]
       );
     } catch (err: any) {
@@ -55,7 +55,7 @@ export const RegisterScreen: React.FC = () => {
     <AppBackground variant="orange">
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>Create RailSathi Account</Text>
+          <Text style={styles.title}>Create RailIo Account</Text>
           <Text style={styles.subtitle}>Join India's AI-Powered Smart Railway Network</Text>
         </View>
 

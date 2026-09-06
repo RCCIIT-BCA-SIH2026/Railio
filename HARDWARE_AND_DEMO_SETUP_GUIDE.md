@@ -1,7 +1,7 @@
-# 🚆 RailSathi: Hardware Assembly & Full Demo Setup Guide
+# 🚆 RailIo: Hardware Assembly & Full Demo Setup Guide
 
 > **Predict • Protect • Connect**  
-> Complete manual for assembling **ESP32 + MPU6050** on a breadboard, connecting to the RailSathi IoT Gateway, running the **Mobile App with Edge Computer Vision**, and executing a live demonstration.
+> Complete manual for assembling **ESP32 + MPU6050** on a breadboard, connecting to the RailIo IoT Gateway, running the **Mobile App with Edge Computer Vision**, and executing a live demonstration.
 
 ---
 
@@ -9,7 +9,7 @@
 1. [🧰 Hardware Requirements](#1--hardware-requirements)
 2. [🔌 Breadboard Pin-to-Pin Wiring Diagram](#2--breadboard-pin-to-pin-wiring-diagram)
 3. [🧪 Step 1: I2C Hardware Sanity Check](#3--step-1-i2c-hardware-sanity-check)
-4. [⚡ Step 2: Flash the RailSathi IoT Telemetry Firmware](#4--step-2-flash-the-railsathi-iot-telemetry-firmware)
+4. [⚡ Step 2: Flash the RailIo IoT Telemetry Firmware](#4--step-2-flash-the-railio-iot-telemetry-firmware)
 5. [🚀 Step 3: Launch the Full Project Ecosystem](#5--step-3-launch-the-full-project-ecosystem)
 6. [📱 Step 4: Connect Your Mobile Phone (Mobile GPU & Vision Demo)](#6--step-4-connect-your-mobile-phone-mobile-gpu--vision-demo)
 7. [🎬 Step 5: Interactive Live Demo Presentation Script](#7--step-5-interactive-live-demo-presentation-script)
@@ -83,19 +83,19 @@ Before running the full telemetry firmware, run the lightweight diagnostic scann
 8. **Expected Output:**
    ```text
    =======================================================
-   🚆 RailSathi - ESP32 I2C Hardware Bus Diagnostic
+   🚆 RailIo - ESP32 I2C Hardware Bus Diagnostic
    =======================================================
    Configuring I2C Pins: SDA = GPIO 21 | SCL = GPIO 22
 
    [Scanning I2C Bus for MPU6050...]
    ✅ SUCCESS: I2C device found at 7-bit hex address: 0x68
       -> Target Recognized: MPU6050 6-Axis IMU (Standard 0x68 Address)
-      -> Status: READY for RailSathi Firmware!
+      -> Status: READY for RailIo Firmware!
    ```
 
 ---
 
-## 4. ⚡ Step 2: Flash the RailSathi IoT Telemetry Firmware
+## 4. ⚡ Step 2: Flash the RailIo IoT Telemetry Firmware
 
 ### 4.1 Install Required Arduino Libraries
 1. In Arduino IDE, open **Tools $\rightarrow$ Manage Libraries...**
@@ -119,7 +119,7 @@ Your ESP32 and PC must be on the same local Wi-Fi or Mobile Hotspot.
    const char* WIFI_SSID = "YOUR_WIFI_OR_HOTSPOT_NAME";
    const char* WIFI_PASS = "YOUR_WIFI_PASSWORD";
 
-   // 2. Your PC's Local IP running RailSathi Backend
+   // 2. Your PC's Local IP running RailIo Backend
    const char* SERVER_URL = "http://192.168.1.15:5000/api/track/sensor";
    ```
 3. Click **Upload** ($\rightarrow$).
@@ -133,17 +133,17 @@ Your ESP32 and PC must be on the same local Wi-Fi or Mobile Hotspot.
 
 ## 5. 🚀 Step 3: Launch the Full Project Ecosystem
 
-Launch all 4 RailSathi microservices concurrently with a single command.
+Launch all 4 RailIo microservices concurrently with a single command.
 
 ### In PowerShell:
 ```powershell
-cd c:\Users\dassh\Project\railsathi
+cd c:\Users\dassh\Project\railio
 .\scripts\start-dev.ps1
 ```
 
 ### Or in Command Prompt:
 ```cmd
-cd c:\Users\dassh\Project\railsathi
+cd c:\Users\dassh\Project\railio
 scripts\start-dev.bat
 ```
 
@@ -187,7 +187,7 @@ graph LR
    - Computes boardability probability based on live train ETA, road traffic congestion multipliers, and platform walking/security dwell times.
 3. **Suburban Local Cellular Heatmap (`SuburbanLocalScreen.tsx`)**:
    - Google Maps-style cellular device pulse across 12 EMU coaches (Dakshineswar $\rightarrow$ Sealdah / Howrah).
-4. **AI Travel Assistant ("RailSathi Sathi") (`AIAssistantScreen.tsx`)**:
+4. **AI Travel Assistant ("RailIo Sathi") (`AIAssistantScreen.tsx`)**:
    - Conversational assistant with multi-tool routing and Indian Railways rules.
 
 ---
@@ -255,5 +255,5 @@ sequenceDiagram
 
 ### Q: The ESP32 connects to Wi-Fi but returns `HTTP POST Failed: connection refused`.
 - Verify your PC's IP address by running `ipconfig` in PowerShell.
-- Ensure the RailSathi backend is running on port 5000 (`http://localhost:5000`).
+- Ensure the RailIo backend is running on port 5000 (`http://localhost:5000`).
 - If Windows Firewall blocks incoming connections, allow Node.js through private networks.
