@@ -23,7 +23,7 @@ export const SplashScreen: React.FC = React.memo(() => {
   }, [navigation]);
 
   useEffect(() => {
-    const timer = setTimeout(handleEnter, 2400);
+    const timer = setTimeout(handleEnter, 1500);
     return () => clearTimeout(timer);
   }, [handleEnter]);
 
@@ -51,9 +51,7 @@ export const SplashScreen: React.FC = React.memo(() => {
             <Text style={styles.loadingText}>Synchronizing Indian Railways Digital Twin...</Text>
           </View>
 
-          <TouchableOpacity style={styles.skipButton} onPress={handleEnter}>
-            <Text style={styles.skipText}>Enter Platform →</Text>
-          </TouchableOpacity>
+
         </View>
       </View>
     </AppBackground>
@@ -95,12 +93,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 34,
-    fontFamily: 'Sora_800ExtraBold',
-    color: '#0F172A',
-    letterSpacing: 1.5,
+    fontFamily: 'RussoOne_400Regular',
+    color: '#000000',
+    letterSpacing: 1,
   },
   titleIo: {
-    fontFamily: 'PlaypenSans_800ExtraBold',
+    fontFamily: 'RussoOne_400Regular',
+    color: '#FF671F',
   },
   tagline: {
     fontSize: 14,

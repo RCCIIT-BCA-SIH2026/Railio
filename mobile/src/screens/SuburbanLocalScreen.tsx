@@ -422,12 +422,7 @@ export const SuburbanLocalScreen: React.FC = () => {
 
               {/* Quick Actions Row */}
               <View style={styles.actionRow}>
-                <TouchableOpacity
-                  style={[styles.actionBtn, styles.actionBtnCatch]}
-                  onPress={() => navigation.navigate('CanICatch', { trainNumber: train.trainNumber })}
-                >
-                  <Text style={styles.actionBtnText}>🎯 Can I Catch This Local?</Text>
-                </TouchableOpacity>
+
 
                 <TouchableOpacity
                   style={[styles.actionBtn, styles.actionBtnLive]}

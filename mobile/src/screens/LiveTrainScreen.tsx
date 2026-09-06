@@ -1,36 +1,61 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { useRoute, useNavigation, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { getLiveTrainApi } from '../services/api';
 import { AppBackground } from '../components/AppBackground';
+import { TrainFront, Search } from 'lucide-react-native';
 
 export const LiveTrainScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'LiveTrain'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { trainNumber = '12301' } = route.params || {};
+  const { trainNumber = '' } = route.params || {};
 
   const [liveData, setLiveData] = useState<any>(null);
   const [ticker, setTicker] = useState<number>(0);
+  const [activeTrain, setActiveTrain] = useState(trainNumber);
+  const [searchQuery, setSearchQuery] = useState(trainNumber);
+  const [isInsideTrain, setIsInsideTrain] = useState(false);
 
-  useEffect(() => {
-    loadLiveState();
-    const timer = setInterval(() => {
-      setTicker((prev) => prev + 1);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, [trainNumber]);
+  const handleSearch = () => {
+    if (searchQuery.trim().length > 0) {
+      setActiveTrain(searchQuery);
+    }
+  };
+
+  const toggleInsideTrain = () => {
+    const newState = !isInsideTrain;
+    setIsInsideTrain(newState);
+    if (newState) {
+      setActiveTrain('12301');
+      setSearchQuery('12301');
+    } else {
+      setActiveTrain('');
+      setSearchQuery('');
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      loadLiveState();
+      const timer = setInterval(() => {
+        setTicker((prev) => prev + 1);
+      }, 3000);
+      return () => clearInterval(timer);
+    }, [trainNumber, activeTrain])
+  );
 
   const loadLiveState = async () => {
+    if (!activeTrain) return;
     try {
-      const data = await getLiveTrainApi(trainNumber);
+      const data = await getLiveTrainApi(activeTrain);
       setLiveData(data);
     } catch (err) {}
   };
 
   const train = liveData || {
-    trainNumber,
+    trainNumber: activeTrain,
     name: 'Howrah Rajdhani Express',
     liveState: {
       lat: 25.2818,
@@ -52,47 +77,81 @@ export const LiveTrainScreen: React.FC = () => {
 
   return (
     <AppBackground variant="orange">
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
+        style={{ flex: 1 }}
+        enabled={Platform.OS !== 'web'} 
+      >
+        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         {/* Top Header Card */}
         <View style={styles.headerCard}>
           <View style={styles.headerTop}>
-            <View>
-              <Text style={styles.trainNumText}>Train #{train.trainNumber}</Text>
-              <Text style={styles.trainNameText}>{train.name}</Text>
+            <View style={styles.searchRow}>
+              <TextInput
+                style={styles.searchInput}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Train Number or Train Name"
+                placeholderTextColor="#94A3B8"
+                onSubmitEditing={handleSearch}
+              />
+              <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+                <Search size={20} color="#64748B" />
+              </TouchableOpacity>
             </View>
-            <View style={styles.liveGpsBadge}>
-              <View style={styles.livePulseDot} />
-              <Text style={styles.liveGpsText}>LIVE GPS (3s)</Text>
+
+            <View style={styles.insideTrainRow}>
+              <TouchableOpacity 
+                style={styles.checkboxRow} 
+                onPress={toggleInsideTrain}
+              >
+                <View style={[styles.checkbox, isInsideTrain && styles.checkboxActive]}>
+                  {isInsideTrain && <Text style={{ color: '#FFF', fontSize: 10, fontWeight: 'bold' }}>✓</Text>}
+                </View>
+                <Text style={styles.insideTrainText}>I am inside this train</Text>
+              </TouchableOpacity>
+              
+              {activeTrain ? (
+              <View style={styles.liveGpsBadge}>
+                <View style={styles.livePulseDot} />
+                <Text style={styles.liveGpsText}>LIVE GPS (3s)</Text>
+              </View>
+              ) : null}
             </View>
           </View>
+          {activeTrain ? (
+            <View style={styles.telemetryGrid}>
+              <View style={styles.telemetryBox}>
+                <Text style={styles.telemetryVal}>{currentSpeed}</Text>
+                <Text style={styles.telemetryUnit}>KM/H</Text>
+                <Text style={styles.telemetryLabel}>Instant Speed</Text>
+              </View>
 
-          {/* Speedometer and Telemetry Row */}
-          <View style={styles.telemetryGrid}>
-            <View style={styles.telemetryBox}>
-              <Text style={styles.telemetryVal}>{currentSpeed}</Text>
-              <Text style={styles.telemetryUnit}>KM/H</Text>
-              <Text style={styles.telemetryLabel}>Instant Speed</Text>
-            </View>
+              <View style={styles.telemetryBox}>
+                <Text style={[styles.telemetryVal, { color: '#F59E0B' }]}>
+                  +{train.liveState?.delayMinutes || 0}
+                </Text>
+                <Text style={styles.telemetryUnit}>MINUTES</Text>
+                <Text style={styles.telemetryLabel}>Current Delay</Text>
+              </View>
 
-            <View style={styles.telemetryBox}>
-              <Text style={[styles.telemetryVal, { color: '#F59E0B' }]}>
-                +{train.liveState?.delayMinutes || 0}
-              </Text>
-              <Text style={styles.telemetryUnit}>MINUTES</Text>
-              <Text style={styles.telemetryLabel}>Current Delay</Text>
+              <View style={styles.telemetryBox}>
+                <Text style={[styles.telemetryVal, { color: '#10B981' }]}>
+                  {Math.round((train.liveState?.confidence || 0.9) * 100)}%
+                </Text>
+                <Text style={styles.telemetryUnit}>SCORE</Text>
+                <Text style={styles.telemetryLabel}>AI Confidence</Text>
+              </View>
             </View>
-
-            <View style={styles.telemetryBox}>
-              <Text style={[styles.telemetryVal, { color: '#10B981' }]}>
-                {Math.round((train.liveState?.confidence || 0.9) * 100)}%
-              </Text>
-              <Text style={styles.telemetryUnit}>SCORE</Text>
-              <Text style={styles.telemetryLabel}>AI Confidence</Text>
+          ) : (
+            <View style={{ alignItems: 'center', paddingVertical: 10 }}>
+              <Text style={{ color: '#64748B', fontSize: 12 }}>Search for a train to see live tracking</Text>
             </View>
-          </View>
+          )}
         </View>
 
       {/* Interactive Corridor Visualizer (Fallback Native Vector Map) */}
+      {activeTrain ? (
       <View style={styles.mapCard}>
         <View style={styles.mapCardHeader}>
           <Text style={styles.mapCardTitle}>Active Corridor Visualizer</Text>
@@ -103,8 +162,17 @@ export const LiveTrainScreen: React.FC = () => {
         <View style={styles.trackCanvas}>
           {/* Background Grid */}
           <View style={styles.trackLineContainer}>
-            <View style={styles.railTrack} />
-            <View style={styles.railTrackInner} />
+            {/* Realistic Train Track */}
+            <View style={styles.realisticTrack}>
+              <View style={styles.sleeperContainer}>
+                {Array.from({ length: 35 }).map((_, i) => (
+                  <View key={i} style={styles.sleeper} />
+                ))}
+              </View>
+              <View style={styles.railTop} />
+              <View style={styles.railBottom} />
+              <View style={styles.railActiveHighlight} />
+            </View>
 
             {/* Station 1: Last Stoppage */}
             <View style={[styles.stationNode, { left: '15%' }]}>
@@ -117,8 +185,9 @@ export const LiveTrainScreen: React.FC = () => {
             <View style={[styles.liveTrainMarker, { left: `${48 + (ticker % 3) * 3}%` }]}>
               <View style={styles.trainPulseRing} />
               <View style={styles.trainMarkerCircle}>
-                <Text style={{ fontSize: 16 }}>🚆</Text>
+                <TrainFront size={20} color="#FF671F" strokeWidth={2.5} />
               </View>
+              <View style={styles.pinPointer} />
               <View style={styles.trainTooltip}>
                 <Text style={styles.trainTooltipText}>{currentSpeed} km/h</Text>
               </View>
@@ -139,28 +208,9 @@ export const LiveTrainScreen: React.FC = () => {
           </Text>
         </View>
       </View>
-
-      {/* Hero "Can I Catch?" Shortcut Button */}
-      <TouchableOpacity
-        style={styles.catchCtaButton}
-        onPress={() => navigation.navigate('CanICatch', { trainNumber: train.trainNumber })}
-      >
-        <Text style={styles.catchCtaIcon}>🎯</Text>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.catchCtaTitle}>Check if you can catch this train</Text>
-          <Text style={styles.catchCtaSub}>Calculates road traffic, buffer, and departure</Text>
-        </View>
-        <Text style={styles.catchCtaArrow}>→</Text>
-      </TouchableOpacity>
-
-        {/* Station Dwell & Delay Predictor Card */}
-        <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>Next Interlocking Clearance</Text>
-          <Text style={styles.infoDesc}>
-            Train is approaching <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>{train.liveState?.nextStation || 'Prayagraj Junction'}</Text>. AI predicts 4 min outer signal clearance delay before platform docking.
-          </Text>
-        </View>
-      </ScrollView>
+      ) : null}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </AppBackground>
   );
 };
@@ -186,21 +236,56 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
   },
   headerTop: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
     marginBottom: 16,
   },
-  trainNumText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#FF671F',
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    marginBottom: 12,
+    paddingHorizontal: 12,
+    height: 48,
   },
-  trainNameText: {
-    fontSize: 18,
-    fontWeight: '800',
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '700',
     color: '#0F172A',
-    marginTop: 2,
+  },
+  searchButton: {
+    padding: 8,
+  },
+  insideTrainRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+    backgroundColor: '#FFFFFF',
+  },
+  checkboxActive: {
+    backgroundColor: '#FF671F',
+    borderColor: '#FF671F',
+  },
+  insideTrainText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#475569',
   },
   liveGpsBadge: {
     flexDirection: 'row',
@@ -293,32 +378,71 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     position: 'relative',
   },
-  railTrack: {
+  realisticTrack: {
     position: 'absolute',
     left: 20,
     right: 20,
-    height: 4,
-    backgroundColor: '#CBD5E1',
+    height: 16,
+    justifyContent: 'center',
+    top: 22,
   },
-  railTrackInner: {
+  sleeperContainer: {
     position: 'absolute',
-    left: 20,
-    right: 20,
-    height: 2,
-    backgroundColor: '#0284C7',
-    opacity: 0.8,
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 2,
+  },
+  sleeper: {
+    width: 4,
+    height: 16,
+    backgroundColor: '#94A3B8',
+    borderRadius: 2,
+  },
+  railTop: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 2,
+    height: 3,
+    backgroundColor: '#64748B',
+  },
+  railBottom: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 2,
+    height: 3,
+    backgroundColor: '#64748B',
+  },
+  railActiveHighlight: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 6,
+    height: 4,
+    backgroundColor: 'rgba(2, 132, 199, 0.4)',
   },
   stationNode: {
     position: 'absolute',
     alignItems: 'center',
-    top: 6,
+    top: 14,
   },
   stationDot: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    borderWidth: 2,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 3,
     borderColor: '#FFFFFF',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
   },
   stationDotPassed: {
     backgroundColor: '#10B981',
@@ -327,52 +451,75 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF671F',
   },
   stationNodeName: {
-    fontSize: 11,
-    fontWeight: '800',
+    fontSize: 12,
+    fontWeight: '900',
     color: '#0F172A',
-    marginTop: 4,
+    marginTop: 6,
   },
   stationNodeStatus: {
-    fontSize: 9,
+    fontSize: 10,
+    fontWeight: 'bold',
     color: '#64748B',
   },
   liveTrainMarker: {
     position: 'absolute',
     alignItems: 'center',
-    top: 2,
+    top: -4,
     zIndex: 10,
   },
   trainPulseRing: {
     position: 'absolute',
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: 'rgba(255, 103, 31, 0.2)',
-    top: -5,
+    top: -4,
   },
   trainMarkerCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#FF671F',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
+    borderWidth: 2.5,
+    borderColor: '#FF671F',
+    overflow: 'hidden',
+  },
+  trainMarkerImage: {
+    width: '100%',
+    height: '100%',
+  },
+  pinPointer: {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#FF671F',
+    marginTop: -1,
   },
   trainTooltip: {
     backgroundColor: '#FFFFFF',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1.5,
     borderColor: '#FF671F',
     marginTop: 4,
-    elevation: 2,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 1 },
   },
   trainTooltipText: {
-    fontSize: 8,
-    fontWeight: 'bold',
+    fontSize: 10,
+    fontWeight: '900',
     color: '#0F172A',
   },
   coordinatesRow: {
@@ -383,55 +530,5 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: 'monospace',
     color: '#64748B',
-  },
-  catchCtaButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF7ED',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#FED7AA',
-    marginBottom: 14,
-  },
-  catchCtaIcon: {
-    fontSize: 26,
-    marginRight: 12,
-  },
-  catchCtaTitle: {
-    fontSize: 13,
-    fontWeight: 'bold',
-    color: '#0F172A',
-  },
-  catchCtaSub: {
-    fontSize: 10,
-    color: '#64748B',
-    marginTop: 2,
-  },
-  catchCtaArrow: {
-    fontSize: 20,
-    color: '#FF671F',
-    fontWeight: 'bold',
-  },
-  infoCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.03,
-  },
-  infoTitle: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#0F172A',
-    marginBottom: 4,
-  },
-  infoDesc: {
-    fontSize: 11,
-    color: '#64748B',
-    lineHeight: 16,
   },
 });

@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity,
-  KeyboardAvoidingView, Platform, ActivityIndicator, Image, Pressable
+  Platform, ActivityIndicator, Image, Pressable, InteractionManager
 } from 'react-native';
+import { KeyboardWrapper } from '../components/KeyboardWrapper';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RootStackParamList } from '../types';
@@ -38,7 +39,10 @@ export const AIAssistantScreen: React.FC = () => {
   // Send initial query if provided
   useEffect(() => {
     if (initialQuery) {
-      handleSend(initialQuery);
+      const task = InteractionManager.runAfterInteractions(() => {
+        handleSend(initialQuery);
+      });
+      return () => task.cancel();
     }
   }, [initialQuery]);
 
@@ -209,10 +213,7 @@ export const AIAssistantScreen: React.FC = () => {
         </View>
       </View>
 
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      <KeyboardWrapper keyboardVerticalOffset={0}>
         <ScrollView 
           ref={scrollViewRef}
           style={styles.chatScroll} 
@@ -291,7 +292,7 @@ export const AIAssistantScreen: React.FC = () => {
             )}
           </View>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardWrapper>
     </View>
   );
 };

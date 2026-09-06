@@ -112,12 +112,7 @@ export const SearchResultsScreen: React.FC = () => {
 
         {/* Hero Quick CTA */}
         <View style={styles.cardActionsRow}>
-          <TouchableOpacity
-            style={styles.cardActionBtn}
-            onPress={() => navigation.navigate('CanICatch', { trainNumber: item.trainNumber })}
-          >
-            <Text style={styles.cardActionBtnText}>🎯 Can I Catch?</Text>
-          </TouchableOpacity>
+
           <TouchableOpacity
             style={[styles.cardActionBtn, styles.cardActionBtnPrimary]}
             onPress={() => navigation.navigate('LiveTrain', { trainNumber: item.trainNumber })}
