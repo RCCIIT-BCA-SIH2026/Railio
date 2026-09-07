@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
 import { AppBackground } from '../components/AppBackground';
+import { useTranslation } from '../context/LanguageContext';
 
 export const SettingsScreen: React.FC = () => {
+  const { openLanguageModal, activeLanguageOption, t } = useTranslation();
   const [demoMode, setDemoMode] = useState(true);
   const [gpsSim, setGpsSim] = useState(true);
   const [pushNotifs, setPushNotifs] = useState(true);
@@ -12,8 +14,31 @@ export const SettingsScreen: React.FC = () => {
     <AppBackground variant="orange">
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={styles.title}>System Settings & Demo Engine</Text>
-        <Text style={styles.subtext}>Configure real-time telemetry simulation and data streams</Text>
+        <Text style={styles.title}>{t('settings.title', 'System Settings & Demo Engine')}</Text>
+        <Text style={styles.subtext}>{t('settings.sub', 'Configure real-time telemetry simulation and data streams')}</Text>
+      </View>
+
+      {/* Language Selection Card */}
+      <View style={[styles.card, { marginBottom: 16 }]}>
+        <TouchableOpacity
+          style={[styles.settingRow, { borderBottomWidth: 0 }]}
+          onPress={openLanguageModal}
+          activeOpacity={0.7}
+        >
+          <View style={{ flex: 1 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 16, marginRight: 6 }}>🌐</Text>
+              <Text style={styles.settingTitle}>{t('lang.modal_title', 'App Language')}</Text>
+            </View>
+            <Text style={styles.settingSub}>
+              {t('lang.modal_sub', 'Powered by Google Translate • 12 Indian Languages')}
+            </Text>
+          </View>
+          <View style={styles.langPill}>
+            <Text style={styles.langPillText}>{activeLanguageOption.nativeName} ({activeLanguageOption.code.toUpperCase()})</Text>
+            <Text style={{ fontSize: 12, color: '#FF671F', marginLeft: 4 }}>→</Text>
+          </View>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.card}>
@@ -103,5 +128,20 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#64748B',
     marginTop: 2,
+  },
+  langPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 14,
+  },
+  langPillText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#C2410C',
   },
 });

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
@@ -55,7 +55,13 @@ export const RegisterScreen: React.FC = () => {
     <AppBackground variant="orange">
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>Create RailIo Account</Text>
+          <View style={styles.logoBadge}>
+            <Image source={require('../../assets/logo.png')} style={{ width: '100%', height: '100%', transform: [{ scale: 1.4 }] }} resizeMode="contain" />
+          </View>
+          <Text style={styles.brandTitle}>
+            Rail<Text style={styles.brandTitleIo}>io</Text>
+          </Text>
+          <Text style={styles.brandSubtitle}>AI RAILWAY INTELLIGENCE</Text>
           <Text style={styles.subtitle}>Join India's AI-Powered Smart Railway Network</Text>
         </View>
 
@@ -165,9 +171,41 @@ export const RegisterScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'transparent' },
   content: { padding: 24, paddingTop: 40 },
-  header: { alignItems: 'center', marginBottom: 24 },
-  title: { fontSize: 22, fontWeight: '800', color: '#0F172A' },
-  subtitle: { fontSize: 12, color: '#64748B', marginTop: 4 },
+  header: { alignItems: 'center', marginBottom: 20 },
+  logoBadge: {
+    width: 68,
+    height: 68,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#FED7AA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    elevation: 3,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    overflow: 'hidden',
+  },
+  brandTitle: {
+    fontSize: 28,
+    fontFamily: 'RussoOne_400Regular',
+    color: '#000000',
+    letterSpacing: 1,
+  },
+  brandTitleIo: {
+    fontFamily: 'RussoOne_400Regular',
+    color: '#FF671F',
+  },
+  brandSubtitle: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#FF671F',
+    letterSpacing: 1.5,
+    marginTop: 2,
+  },
+  subtitle: { fontSize: 11, color: '#64748B', marginTop: 4, textAlign: 'center' },
   card: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,

@@ -83,6 +83,7 @@ export interface SuburbanCorridor {
 
 export type BottomTabParamList = {
   HomeTab: undefined;
+  PlatformTab: undefined;
   TrainsTab: undefined;
   WhatsAppTab: undefined;
   MapTab: { trainNumber?: string } | undefined;

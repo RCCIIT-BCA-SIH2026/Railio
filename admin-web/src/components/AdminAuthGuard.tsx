@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAdminAuth } from '../context/AuthContext';
 import { LogIn, Eye, EyeOff, Lock, Mail, Train, Sparkles, AlertCircle } from 'lucide-react';
 import bgVandeOrange from '../assets/bg_vande_orange.jpg';
+import logoImg from '../assets/logo.png';
 
 export const AdminAuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, profile, isLoading, isAdmin, signIn } = useAdminAuth();
@@ -16,8 +17,8 @@ export const AdminAuthGuard: React.FC<{ children: React.ReactNode }> = ({ childr
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-900 p-4">
         <div className="w-14 h-14 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mb-4 shadow-md shadow-orange-500/20" />
-        <p className="text-slate-600 font-medium text-sm tracking-wide">
-          Loading RailIo Control Portal...
+        <p className="text-slate-600 font-medium text-sm tracking-wide notranslate" translate="no">
+          Loading Rail<span className="text-[#FF671F]">io</span> Control Portal...
         </p>
       </div>
     );
@@ -72,14 +73,22 @@ export const AdminAuthGuard: React.FC<{ children: React.ReactNode }> = ({ childr
         <div className="h-2 w-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600" />
 
         {/* Card Header */}
-        <div className="p-8 pb-4 text-center">
-          <div className="w-14 h-14 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
-            <Train className="w-7 h-7" />
+        <div className="p-8 pb-3 text-center">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-md shadow-orange-500/15 overflow-hidden bg-white p-1 border border-orange-100">
+            <img src={logoImg} alt="Railio Logo" className="w-full h-full object-contain scale-110" />
           </div>
 
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            RailIo Admin Control
-          </h1>
+          <div className="flex items-center justify-center space-x-2">
+            <h1 className="font-russo text-3xl tracking-wider text-black notranslate whitespace-nowrap" translate="no">
+              Rail<span className="text-[#FF671F]">io</span>
+            </h1>
+            <span className="px-2.5 py-0.5 text-[10px] font-bold tracking-widest uppercase bg-orange-50 text-rail-orange border border-orange-200 rounded-full whitespace-nowrap">
+              HQ Controller
+            </span>
+          </div>
+          <p className="text-[10px] font-bold tracking-wider text-[#FF671F] uppercase mt-1">
+            AI RAILWAY INTELLIGENCE
+          </p>
           <p className="text-xs text-slate-500 font-medium mt-1">
             Sign in to access your railway operations portal
           </p>
@@ -183,8 +192,8 @@ export const AdminAuthGuard: React.FC<{ children: React.ReactNode }> = ({ childr
 
         {/* Footer */}
         <div className="bg-slate-50 px-8 py-3.5 border-t border-slate-100 text-center">
-          <p className="text-[11px] text-slate-500 font-medium">
-            RailIo AI Railway Operating System
+          <p className="text-[11px] text-slate-500 font-medium notranslate" translate="no">
+            <span className="font-russo font-normal text-slate-800">Rail<span className="text-[#FF671F]">io</span></span> AI Railway Operating System
           </p>
         </div>
       </div>

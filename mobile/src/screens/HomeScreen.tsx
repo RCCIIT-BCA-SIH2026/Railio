@@ -17,10 +17,13 @@ import { RootStackParamList } from '../types';
 import { VandeBharatHero } from '../components/VandeBharatHero';
 import { AppBackground } from '../components/AppBackground';
 import { getAlertsApi } from '../services/api';
+import { useTranslation } from '../context/LanguageContext';
+import { LanguageTopButton } from '../components/LanguageTopButton';
 import { Scan, Ticket, Armchair, Building2, Headset, Users, CloudRain, Bell } from 'lucide-react-native';
 
 export const HomeScreen: React.FC = React.memo(() => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { t } = useTranslation();
   const [fromStation, setFromStation] = useState('HWH');
   const [toStation, setToStation] = useState('NDLS');
   const [journeyDate, setJourneyDate] = useState('Today, 28 Aug');
@@ -83,6 +86,7 @@ export const HomeScreen: React.FC = React.memo(() => {
           </View>
 
           <View style={styles.headerRight}>
+            <LanguageTopButton variant="glass" />
             <TouchableOpacity
               style={styles.headerIconBtn}
               onPress={() => navigation.navigate('Alerts')}
@@ -90,18 +94,17 @@ export const HomeScreen: React.FC = React.memo(() => {
               <Bell size={20} color="#0F172A" strokeWidth={2.5} />
               {activeAlertCount > 0 && <View style={styles.alertDot} />}
             </TouchableOpacity>
-
           </View>
         </View>
 
         {/* Hero Visual Headline */}
         <View style={styles.heroTextContainer}>
           <Text style={styles.heroHeadline}>
-            India Moves{'\n'}
-            <Text style={{ color: '#FF671F' }}>With Progress</Text>
+            {t('India Moves', 'India Moves')}{'\n'}
+            <Text style={{ color: '#FF671F' }}>{t('With Progress', 'With Progress')}</Text>
           </Text>
           <Text style={styles.heroSubheadline}>
-            Smart Journey. Stronger Connections. Real-time train updates, seamless booking, and a better travel experience for every Indian.
+            {t('hero.subheadline', 'Smart Journey. Stronger Connections. Real-time train updates, seamless booking, and a better travel experience for every Indian.')}
           </Text>
         </View>
 
@@ -114,7 +117,7 @@ export const HomeScreen: React.FC = React.memo(() => {
         {/* Main Train Search Card */}
         <View style={styles.searchCard}>
           <View style={styles.searchCardHeader}>
-            <Text style={styles.searchCardTitle}>🔍 Search Train & AI Predictions</Text>
+            <Text style={styles.searchCardTitle}>🔍 {t('search.find_trains', 'Search Train & AI Predictions')}</Text>
             <View style={styles.demoBadge}>
               <Text style={styles.demoBadgeText}>LIVE GPS</Text>
             </View>
@@ -123,7 +126,7 @@ export const HomeScreen: React.FC = React.memo(() => {
           {/* From & To Station Row with Swap Button */}
           <View style={styles.stationsRow}>
             <View style={styles.stationInputBox}>
-              <Text style={styles.stationInputLabel}>FROM</Text>
+              <Text style={styles.stationInputLabel}>{t('FROM', 'FROM')}</Text>
               <TextInput
                 style={styles.stationInput}
                 value={fromStation}
@@ -142,7 +145,7 @@ export const HomeScreen: React.FC = React.memo(() => {
             </TouchableOpacity>
 
             <View style={styles.stationInputBox}>
-              <Text style={styles.stationInputLabel}>TO</Text>
+              <Text style={styles.stationInputLabel}>{t('TO', 'TO')}</Text>
               <TextInput
                 style={styles.stationInput}
                 value={toStation}
@@ -159,7 +162,7 @@ export const HomeScreen: React.FC = React.memo(() => {
 
           {/* Date Selector */}
           <View style={styles.dateSelector}>
-            <Text style={styles.dateLabel}>JOURNEY DATE</Text>
+            <Text style={styles.dateLabel}>{t('JOURNEY DATE', 'JOURNEY DATE')}</Text>
             <TextInput
               style={styles.dateInput}
               value={journeyDate}
@@ -169,7 +172,7 @@ export const HomeScreen: React.FC = React.memo(() => {
 
           {/* Search CTA */}
           <TouchableOpacity style={styles.searchCta} onPress={handleSearch}>
-            <Text style={styles.searchCtaText}>SEARCH TRAINS WITH AI</Text>
+            <Text style={styles.searchCtaText}>{t('SEARCH TRAINS WITH AI', 'SEARCH TRAINS WITH AI')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -184,8 +187,8 @@ export const HomeScreen: React.FC = React.memo(() => {
             <View style={[styles.quickServiceIcon, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
               <Image source={require('../../assets/footer_svg_transparent.png')} style={{ width: 40, height: 40, tintColor: '#0284C7' }} resizeMode="contain" />
             </View>
-            <Text style={styles.quickServiceTitle}>Live Train Status</Text>
-            <Text style={styles.quickServiceSub}>Get real-time updates</Text>
+            <Text style={styles.quickServiceTitle}>{t('Live Train Status', 'Live Train Status')}</Text>
+            <Text style={styles.quickServiceSub}>{t('Get real-time updates', 'Get real-time updates')}</Text>
           </TouchableOpacity>
 
           {/* 2. PNR Enquiry */}
@@ -196,13 +199,11 @@ export const HomeScreen: React.FC = React.memo(() => {
             <View style={[styles.quickServiceIcon, { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' }]}>
               <Ticket size={20} color="#D97706" strokeWidth={2.5} />
             </View>
-            <Text style={styles.quickServiceTitle}>PNR Enquiry</Text>
-            <Text style={styles.quickServiceSub}>Check your status</Text>
+            <Text style={styles.quickServiceTitle}>{t('PNR Enquiry', 'PNR Enquiry')}</Text>
+            <Text style={styles.quickServiceSub}>{t('Check your status', 'Check your status')}</Text>
           </TouchableOpacity>
 
-
-
-          {/* 4. Station Info */}
+          {/* 3. Station Info */}
           <TouchableOpacity
             style={styles.quickServiceCard}
             onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
@@ -210,11 +211,11 @@ export const HomeScreen: React.FC = React.memo(() => {
             <View style={[styles.quickServiceIcon, { backgroundColor: '#FFEDD5', borderColor: '#FED7AA' }]}>
               <Building2 size={20} color="#EA580C" strokeWidth={2.5} />
             </View>
-            <Text style={styles.quickServiceTitle}>Station Info</Text>
-            <Text style={styles.quickServiceSub}>Explore stations</Text>
+            <Text style={styles.quickServiceTitle}>{t('Station Info', 'Station Info')}</Text>
+            <Text style={styles.quickServiceSub}>{t('Explore stations', 'Explore stations')}</Text>
           </TouchableOpacity>
 
-          {/* 5. 24/7 Support */}
+          {/* 4. 24/7 Support */}
           <TouchableOpacity
             style={styles.quickServiceCard}
             onPress={() => navigation.navigate('Alerts')}
@@ -222,12 +223,51 @@ export const HomeScreen: React.FC = React.memo(() => {
             <View style={[styles.quickServiceIcon, { backgroundColor: '#E0F2FE', borderColor: '#BAE6FD' }]}>
               <Headset size={20} color="#0284C7" strokeWidth={2.5} />
             </View>
-            <Text style={styles.quickServiceTitle}>24/7 Support</Text>
-            <Text style={styles.quickServiceSub}>Safety & help</Text>
+            <Text style={styles.quickServiceTitle}>{t('24/7 Support', '24/7 Support')}</Text>
+            <Text style={styles.quickServiceSub}>{t('Safety & help', 'Safety & help')}</Text>
           </TouchableOpacity>
         </ScrollView>
 
+        {/* 🌟 AR Camera Platform Navigation Feature Card */}
+        <TouchableOpacity
+          style={styles.cameraNavHeroSegment}
+          onPress={() => navigation.navigate('CameraNavigation' as any)}
+        >
+          <View style={styles.cameraNavHeroTop}>
+            <View style={styles.cameraNavBadgeRow}>
+              <View style={styles.cameraNavLivePill}>
+                <View style={styles.cameraNavPulseDot} />
+                <Text style={styles.cameraNavLivePillText}>AR LIVE VISION</Text>
+              </View>
+              <View style={styles.zeroInfraBadge}>
+                <Text style={styles.zeroInfraBadgeText}>ZERO-BEACON AI</Text>
+              </View>
+            </View>
+            <Text style={styles.cameraNavHeroArrow}>{t('Open AR Nav →', 'Open AR Nav →')}</Text>
+          </View>
 
+          <Text style={styles.cameraNavHeroTitle}>
+            {t('AR Camera Platform Navigation', 'AR Camera Platform Navigation')}
+          </Text>
+          <Text style={styles.cameraNavHeroSub}>
+            {t('camera.nav.desc', 'Point your camera at platform boards and overhead signs for live 3D AR arrows guiding you directly to your platform, coach & escalator.')}
+          </Text>
+
+          <View style={styles.cameraNavFeaturePills}>
+            <View style={styles.cameraNavPillItem}>
+              <Text style={styles.cameraNavPillIcon}>🎯</Text>
+              <Text style={styles.cameraNavPillText}>{t('OCR Signboards', 'OCR Signboards')}</Text>
+            </View>
+            <View style={styles.cameraNavPillItem}>
+              <Text style={styles.cameraNavPillIcon}>🧭</Text>
+              <Text style={styles.cameraNavPillText}>{t('3D Direction Arrows', '3D Direction Arrows')}</Text>
+            </View>
+            <View style={styles.cameraNavPillItem}>
+              <Text style={styles.cameraNavPillIcon}>🔊</Text>
+              <Text style={styles.cameraNavPillText}>{t('Voice Guidance', 'Voice Guidance')}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
 
         {/* 🌟 Suburban Local & Google Maps Cellular Signal Crowd Pulse Segment */}
         <TouchableOpacity
@@ -244,17 +284,17 @@ export const HomeScreen: React.FC = React.memo(() => {
                 <Text style={styles.googleTechBadgeText}>GOOGLE MAPS SIGNAL TECH</Text>
               </View>
             </View>
-            <Text style={styles.suburbanHeroArrow}>Search Locals →</Text>
+            <Text style={styles.suburbanHeroArrow}>{t('Search Locals →', 'Search Locals →')}</Text>
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
             <Image source={require('../../assets/logo.png')} style={{ width: 22, height: 22, marginRight: 8 }} resizeMode="contain" />
             <Text style={[styles.suburbanHeroTitle, { marginBottom: 0 }]}>
-              Dakshineswar ⇄ Sealdah Local
+              {t('Dakshineswar ⇄ Sealdah Local', 'Dakshineswar ⇄ Sealdah Local')}
             </Text>
           </View>
           <Text style={styles.suburbanHeroSub}>
-            Next Train in 4 min • Live 12-Coach Cellular Crowd Heatmap & Smart Boarding Advice
+            {t('suburban.desc', 'Next Train in 4 min • Live 12-Coach Cellular Crowd Heatmap & Smart Boarding Advice')}
           </Text>
 
           <View style={styles.suburbanMiniHeatmap}>
@@ -307,19 +347,19 @@ export const HomeScreen: React.FC = React.memo(() => {
 
           <View style={styles.suburbanHeroFooter}>
             <Text style={styles.suburbanHeroFooterText}>
-              💡 <Text style={{ color: '#10B981', fontWeight: 'bold' }}>Coach C3 & C9</Text> have lowest device density (~16 phone signals).
+              💡 <Text style={{ color: '#10B981', fontWeight: 'bold' }}>Coach C3 & C9</Text> {t('have lowest device density (~16 phone signals).', 'have lowest device density (~16 phone signals).')}
             </Text>
           </View>
         </TouchableOpacity>
 
         {/* 4 Core Action Cards (Prompt Requirement) */}
         <View style={styles.sectionTitleRow}>
-          <Text style={styles.sectionTitle}>Intelligence Services</Text>
-          <Text style={styles.sectionSubtitle}>AI & IoT Powered</Text>
+          <Text style={styles.sectionTitle}>{t('Intelligence Services', 'Intelligence Services')}</Text>
+          <Text style={styles.sectionSubtitle}>{t('AI & IoT Powered', 'AI & IoT Powered')}</Text>
         </View>
 
         <View style={styles.actionGrid}>
-          {/* 3. Coach Crowd Intelligence */}
+          {/* Coach Crowd Intelligence */}
           <TouchableOpacity
             style={styles.actionCard}
             onPress={() => navigation.navigate('CoachCrowd', { trainNumber: '12301' })}
@@ -327,14 +367,14 @@ export const HomeScreen: React.FC = React.memo(() => {
             <View style={[styles.actionIconBox, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
               <Users size={24} color="#A855F7" strokeWidth={2.5} />
             </View>
-            <Text style={styles.actionCardTitle}>Coach Crowd</Text>
-            <Text style={styles.actionCardSub}>Least Density Finder</Text>
+            <Text style={styles.actionCardTitle}>{t('Coach Crowd', 'Coach Crowd')}</Text>
+            <Text style={styles.actionCardSub}>{t('Least Density Finder', 'Least Density Finder')}</Text>
             <View style={styles.actionCardBadge}>
               <Text style={[styles.actionCardBadgeText, { color: '#A855F7' }]}>CV Heatmap</Text>
             </View>
           </TouchableOpacity>
 
-          {/* 4. Weather Intelligence */}
+          {/* Weather Intelligence */}
           <TouchableOpacity
             style={styles.actionCard}
             onPress={() => navigation.navigate('WeatherIntelligence', { stationCode: 'HWH' })}
@@ -342,8 +382,8 @@ export const HomeScreen: React.FC = React.memo(() => {
             <View style={[styles.actionIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
               <CloudRain size={24} color="#10B981" strokeWidth={2.5} />
             </View>
-            <Text style={styles.actionCardTitle}>Weather</Text>
-            <Text style={styles.actionCardSub}>Rain & Delay Impact</Text>
+            <Text style={styles.actionCardTitle}>{t('Weather', 'Weather')}</Text>
+            <Text style={styles.actionCardSub}>{t('Rain & Delay Impact', 'Rain & Delay Impact')}</Text>
             <View style={styles.actionCardBadge}>
               <Text style={[styles.actionCardBadgeText, { color: '#10B981' }]}>Live Radar</Text>
             </View>
@@ -357,7 +397,7 @@ export const HomeScreen: React.FC = React.memo(() => {
             onPress={() => navigation.navigate('ObstacleDetection')}
           >
             <Text style={{ fontSize: 16 }}>📹</Text>
-            <Text style={styles.extraFeatureText}>Track Obstacle CV</Text>
+            <Text style={styles.extraFeatureText}>{t('Track Obstacle CV', 'Track Obstacle CV')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -365,15 +405,14 @@ export const HomeScreen: React.FC = React.memo(() => {
             onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
           >
             <Text style={{ fontSize: 16 }}>📋</Text>
-            <Text style={styles.extraFeatureText}>Station Board</Text>
+            <Text style={styles.extraFeatureText}>{t('Station Board', 'Station Board')}</Text>
           </TouchableOpacity>
-
         </View>
 
-        {/* Live Railway Network Status Bar (Prompt Requirement) */}
+        {/* Live Railway Network Status Bar */}
         <View style={styles.statusPillCard}>
           <View style={styles.statusPillHeader}>
-            <Text style={styles.statusPillTitle}>LIVE RAILWAY STATUS</Text>
+            <Text style={styles.statusPillTitle}>{t('LIVE RAILWAY STATUS', 'LIVE RAILWAY STATUS')}</Text>
             <View style={styles.liveTick}>
               <View style={styles.greenPulse} />
               <Text style={styles.liveTickText}>LIVE</Text>
@@ -383,27 +422,42 @@ export const HomeScreen: React.FC = React.memo(() => {
           <View style={styles.statusPillRow}>
             <View style={styles.statusItem}>
               <Text style={styles.statusNumber}>142</Text>
-              <Text style={styles.statusLabel}>Active Trains</Text>
+              <Text style={styles.statusLabel}>{t('Active Trains', 'Active Trains')}</Text>
             </View>
             <View style={styles.statusDivider} />
             <View style={styles.statusItem}>
               <Text style={[styles.statusNumber, { color: '#F59E0B' }]}>27</Text>
-              <Text style={styles.statusLabel}>Delayed</Text>
+              <Text style={styles.statusLabel}>{t('Delayed', 'Delayed')}</Text>
             </View>
             <View style={styles.statusDivider} />
             <View style={styles.statusItem}>
               <Text style={[styles.statusNumber, { color: '#EF4444' }]}>3</Text>
-              <Text style={styles.statusLabel}>Critical Risks</Text>
+              <Text style={styles.statusLabel}>{t('Critical Risks', 'Critical Risks')}</Text>
             </View>
             <View style={styles.statusDivider} />
             <View style={styles.statusItem}>
               <Text style={[styles.statusNumber, { color: '#10B981' }]}>88%</Text>
-              <Text style={styles.statusLabel}>Punctual</Text>
+              <Text style={styles.statusLabel}>{t('Punctual', 'Punctual')}</Text>
             </View>
           </View>
         </View>
 
-
+        {/* Quick AI Assistant Floating Banner */}
+        <TouchableOpacity
+          style={styles.aiBanner}
+          onPress={() => navigation.navigate('AIAssistant', { initialQuery: 'Where is train 12301?' })}
+        >
+          <View style={styles.aiBannerIcon}>
+            <Text style={{ fontSize: 22 }}>🤖</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.aiBannerTitle}>{t('Ask RailSathi AI Agent', 'Ask RailSathi AI Agent')}</Text>
+            <Text style={styles.aiBannerSub}>
+              {t('"Where is my train?" • "Can I catch it?" • "Why is it delayed?"', '"Where is my train?" • "Can I catch it?" • "Why is it delayed?"')}
+            </Text>
+          </View>
+          <Text style={styles.aiBannerArrow}>→</Text>
+        </TouchableOpacity>
       </ScrollView>
     </AppBackground>
   );
@@ -479,7 +533,6 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: '#EF4444',
-    marginTop: 6,
     zIndex: 1,
   },
   heroTextContainer: {
@@ -498,67 +551,50 @@ const styles = StyleSheet.create({
     color: '#64748B',
     marginTop: 6,
     lineHeight: 16,
-    fontWeight: '500',
   },
   heroSection: {
-    alignItems: 'center',
-    marginVertical: 4,
     position: 'relative',
+    height: 160,
+    marginVertical: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   heroGlow: {
     position: 'absolute',
-    width: 240,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: 'rgba(255, 103, 31, 0.08)',
-    top: 20,
-  },
-  taglineBadge: {
-    backgroundColor: '#FFF7ED',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#FFEDD5',
-    marginTop: -8,
-  },
-  taglineText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#FF671F',
-    letterSpacing: 1.5,
+    width: 260,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 103, 31, 0.15)',
+    top: 40,
   },
   searchCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 16,
-    marginTop: 12,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    marginBottom: 16,
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.06,
     shadowRadius: 6,
   },
   searchCardHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 14,
+    alignItems: 'center',
+    marginBottom: 12,
   },
   searchCardTitle: {
-    fontSize: 13,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '800',
     color: '#0F172A',
   },
   demoBadge: {
     backgroundColor: '#ECFDF5',
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 3,
     borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
   },
   demoBadgeText: {
     fontSize: 9,
@@ -577,38 +613,39 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: '#E2E8F0',
   },
   stationInputLabel: {
     fontSize: 9,
     fontWeight: 'bold',
     color: '#64748B',
-    letterSpacing: 1,
+    marginBottom: 2,
   },
   stationInput: {
     fontSize: 16,
     fontWeight: '800',
     color: '#0F172A',
-    paddingVertical: 2,
+    padding: 0,
   },
   stationCityText: {
     fontSize: 10,
-    color: '#64748B',
+    color: '#94A3B8',
+    marginTop: 2,
   },
   swapButton: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: '#FF671F',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 2,
-    shadowColor: '#FF671F',
-    shadowOpacity: 0.3,
+    elevation: 1,
   },
   swapIcon: {
-    fontSize: 16,
-    color: '#FFFFFF',
+    fontSize: 18,
+    color: '#FF671F',
     fontWeight: 'bold',
   },
   dateSelector: {
@@ -616,76 +653,297 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
-    marginBottom: 14,
+    borderColor: '#E2E8F0',
+    marginBottom: 12,
   },
   dateLabel: {
     fontSize: 9,
     fontWeight: 'bold',
     color: '#64748B',
+    marginBottom: 2,
   },
   dateInput: {
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#0F172A',
-    paddingVertical: 2,
+    padding: 0,
   },
   searchCta: {
     backgroundColor: '#FF671F',
     borderRadius: 14,
-    paddingVertical: 14,
+    paddingVertical: 13,
     alignItems: 'center',
+    justifyContent: 'center',
     elevation: 2,
     shadowColor: '#FF671F',
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   searchCtaText: {
     color: '#FFFFFF',
-    fontSize: 13,
-    fontWeight: 'bold',
-    letterSpacing: 0.5,
+    fontSize: 12,
+    fontWeight: '900',
+    letterSpacing: 0.8,
   },
   quickServicesScroll: {
-    marginTop: 14,
-    marginBottom: 4,
+    marginHorizontal: -16,
+    marginBottom: 16,
   },
   quickServicesContent: {
+    paddingHorizontal: 16,
     gap: 10,
-    paddingRight: 10,
   },
   quickServiceCard: {
-    width: 110,
+    width: 105,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 10,
-    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    alignItems: 'center',
     elevation: 1,
     shadowColor: '#000',
-    shadowOpacity: 0.03,
-    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
   },
   quickServiceIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
     borderWidth: 1,
   },
   quickServiceTitle: {
-    fontSize: 10,
-    fontWeight: 'bold',
+    fontSize: 11,
+    fontWeight: '800',
     color: '#0F172A',
     textAlign: 'center',
-    marginBottom: 2,
   },
   quickServiceSub: {
-    fontSize: 8,
+    fontSize: 8.5,
     color: '#64748B',
+    marginTop: 2,
     textAlign: 'center',
+  },
+  cameraNavHeroSegment: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#FF671F',
+    marginBottom: 16,
+    elevation: 3,
+    shadowColor: '#FF671F',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+  },
+  cameraNavHeroTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  cameraNavBadgeRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  cameraNavLivePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 103, 31, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    gap: 4,
+  },
+  cameraNavPulseDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#FF671F',
+  },
+  cameraNavLivePillText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#FF671F',
+  },
+  zeroInfraBadge: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  zeroInfraBadgeText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#475569',
+  },
+  cameraNavHeroArrow: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#FF671F',
+  },
+  cameraNavHeroTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 4,
+  },
+  cameraNavHeroSub: {
+    fontSize: 11,
+    color: '#64748B',
+    lineHeight: 16,
+    marginBottom: 12,
+  },
+  cameraNavFeaturePills: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  cameraNavPillItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 4,
+  },
+  cameraNavPillIcon: {
+    fontSize: 12,
+  },
+  cameraNavPillText: {
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  suburbanHeroSegment: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#BAE6FD',
+    marginBottom: 20,
+    shadowColor: '#0284C7',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  suburbanHeroTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  suburbanHeroBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  suburbanLivePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  suburbanPulseDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#10B981',
+  },
+  suburbanLivePillText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#059669',
+  },
+  googleTechBadge: {
+    backgroundColor: '#F0F9FF',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#BAE6FD',
+  },
+  googleTechBadgeText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#0284C7',
+  },
+  suburbanHeroArrow: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#FF671F',
+  },
+  suburbanHeroTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0F172A',
+    marginBottom: 2,
+  },
+  suburbanHeroSub: {
+    fontSize: 11,
+    color: '#64748B',
+    marginBottom: 12,
+  },
+  suburbanMiniHeatmap: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#F8FAFC',
+    borderRadius: 12,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 10,
+  },
+  suburbanMiniCoachItem: {
+    alignItems: 'center',
+    paddingHorizontal: 2,
+  },
+  miniCoachBest: {
+    backgroundColor: '#ECFDF5',
+    borderRadius: 6,
+    paddingHorizontal: 4,
+  },
+  miniCoachId: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#334155',
+    marginBottom: 2,
+  },
+  miniCoachDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginBottom: 2,
+  },
+  miniCoachLoad: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#64748B',
+  },
+  suburbanHeroFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  suburbanHeroFooterText: {
+    fontSize: 10,
+    color: '#166534',
   },
   sectionTitleRow: {
     flexDirection: 'row',
@@ -720,10 +978,6 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.04,
     shadowRadius: 4,
-  },
-  actionCardHighlight: {
-    borderColor: '#FED7AA',
-    backgroundColor: '#FFFBF5',
   },
   actionIconBox: {
     width: 42,
@@ -877,224 +1131,5 @@ const styles = StyleSheet.create({
     color: '#FF671F',
     fontWeight: 'bold',
     marginLeft: 6,
-  },
-  suburbanHeroSegment: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    borderWidth: 1.5,
-    borderColor: '#BAE6FD',
-    marginBottom: 20,
-    shadowColor: '#0284C7',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  suburbanHeroTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  suburbanHeroBadgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  suburbanLivePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
-  },
-  suburbanPulseDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#10B981',
-  },
-  suburbanLivePillText: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#059669',
-  },
-  googleTechBadge: {
-    backgroundColor: '#F0F9FF',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#BAE6FD',
-  },
-  googleTechBadgeText: {
-    fontSize: 8,
-    fontWeight: 'bold',
-    color: '#0284C7',
-  },
-  suburbanHeroArrow: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#FF671F',
-  },
-  suburbanHeroTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 2,
-  },
-  suburbanHeroSub: {
-    fontSize: 11,
-    color: '#64748B',
-    marginBottom: 12,
-  },
-  suburbanMiniHeatmap: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    padding: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 10,
-  },
-  suburbanMiniCoachItem: {
-    alignItems: 'center',
-    paddingHorizontal: 2,
-  },
-  miniCoachBest: {
-    backgroundColor: '#ECFDF5',
-    borderRadius: 6,
-    paddingHorizontal: 4,
-  },
-  miniCoachId: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#334155',
-    marginBottom: 2,
-  },
-  miniCoachDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginBottom: 2,
-  },
-  miniCoachLoad: {
-    fontSize: 8,
-    fontWeight: 'bold',
-    color: '#64748B',
-  },
-  suburbanHeroFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F0FDF4',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  suburbanHeroFooterText: {
-    fontSize: 10,
-    color: '#166534',
-  },
-  cameraNavHeroSegment: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    borderWidth: 1.5,
-    borderColor: '#FF671F',
-    marginHorizontal: 16,
-    marginBottom: 16,
-    elevation: 3,
-    shadowColor: '#FF671F',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-  },
-  cameraNavHeroTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-  },
-  cameraNavBadgeRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  cameraNavLivePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 103, 31, 0.15)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    gap: 4,
-  },
-  cameraNavPulseDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#FF671F',
-  },
-  cameraNavLivePillText: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#FF671F',
-  },
-  zeroInfraBadge: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  zeroInfraBadgeText: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#475569',
-  },
-  cameraNavHeroArrow: {
-    fontSize: 11,
-    fontWeight: 'bold',
-    color: '#FF671F',
-  },
-  cameraNavHeroTitle: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
-    marginBottom: 4,
-  },
-  cameraNavHeroSub: {
-    fontSize: 11,
-    color: '#64748B',
-    lineHeight: 16,
-    marginBottom: 12,
-  },
-  cameraNavFeaturePills: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  cameraNavPillItem: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    gap: 4,
-  },
-  cameraNavPillIcon: {
-    fontSize: 12,
-  },
-  cameraNavPillText: {
-    fontSize: 9.5,
-    fontWeight: '700',
-    color: '#334155',
   },
 });

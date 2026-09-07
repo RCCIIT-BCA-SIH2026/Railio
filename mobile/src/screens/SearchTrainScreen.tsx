@@ -4,19 +4,21 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { AppBackground } from '../components/AppBackground';
+import { useTranslation } from '../context/LanguageContext';
 
 export const SearchTrainScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { t } = useTranslation();
   const [from, setFrom] = useState('HWH');
   const [to, setTo] = useState('NDLS');
   const [date, setDate] = useState('Today, 28 Aug');
 
   const popularRoutes = [
-    { from: 'HWH', to: 'NDLS', name: 'Howrah ↔ New Delhi' },
-    { from: 'NDLS', to: 'BSB', name: 'New Delhi ↔ Varanasi (Vande Bharat)' },
-    { from: 'MMCT', to: 'NDLS', name: 'Mumbai ↔ New Delhi' },
-    { from: 'HWH', to: 'MAS', name: 'Howrah ↔ Chennai Central' },
-    { from: 'HWH', to: 'RNC', name: 'Howrah ↔ Ranchi (Vande Bharat)' },
+    { from: 'HWH', to: 'NDLS', name: t('Howrah ↔ New Delhi') },
+    { from: 'NDLS', to: 'BSB', name: t('New Delhi ↔ Varanasi (Vande Bharat)') },
+    { from: 'MMCT', to: 'NDLS', name: t('Mumbai ↔ New Delhi') },
+    { from: 'HWH', to: 'MAS', name: t('Howrah ↔ Chennai Central') },
+    { from: 'HWH', to: 'RNC', name: t('Howrah ↔ Ranchi (Vande Bharat)') },
   ];
 
   const handleSearch = () => {
@@ -27,13 +29,13 @@ export const SearchTrainScreen: React.FC = () => {
     <AppBackground variant="blue">
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <Text style={styles.title}>Plan Your Train Journey</Text>
-        <Text style={styles.subtext}>Search over 20+ express, Rajdhani, and Vande Bharat trains</Text>
+        <Text style={styles.title}>{t('Plan Your Train Journey')}</Text>
+        <Text style={styles.subtext}>{t('Search over 20+ express, Rajdhani, and Vande Bharat trains')}</Text>
       </View>
 
       <View style={styles.card}>
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Origin Station Code</Text>
+          <Text style={styles.label}>{t('Origin Station Code')}</Text>
           <TextInput
             style={styles.input}
             value={from}
@@ -45,7 +47,7 @@ export const SearchTrainScreen: React.FC = () => {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Destination Station Code</Text>
+          <Text style={styles.label}>{t('Destination Station Code')}</Text>
           <TextInput
             style={styles.input}
             value={to}
@@ -57,7 +59,7 @@ export const SearchTrainScreen: React.FC = () => {
         </View>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Journey Date</Text>
+          <Text style={styles.label}>{t('Journey Date')}</Text>
           <TextInput
             style={styles.input}
             value={date}
@@ -68,16 +70,16 @@ export const SearchTrainScreen: React.FC = () => {
         </View>
 
         <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
-          <Text style={styles.searchBtnText}>Search Trains with AI Delay Predictor</Text>
+          <Text style={styles.searchBtnText}>{t('Search Trains with AI Delay Predictor')}</Text>
         </TouchableOpacity>
       </View>
 
       {/* 🌟 Suburban Local Trains Special Segment */}
       <View style={styles.suburbanSection}>
         <View style={styles.suburbanHeaderRow}>
-          <Text style={styles.suburbanTitle}>🚉 Kolkata Suburban Local Network</Text>
+          <Text style={styles.suburbanTitle}>🚉 {t('Kolkata Suburban Local Network')}</Text>
           <View style={styles.livePulseTag}>
-            <Text style={styles.livePulseTagText}>CELLULAR TRACKING</Text>
+            <Text style={styles.livePulseTagText}>{t('CELLULAR TRACKING')}</Text>
           </View>
         </View>
 
@@ -86,9 +88,9 @@ export const SearchTrainScreen: React.FC = () => {
           onPress={() => navigation.navigate('SuburbanLocal', { from: 'DAKE', to: 'SDAH' })}
         >
           <View style={{ flex: 1 }}>
-            <Text style={styles.suburbanCardTitle}>Dakshineswar ⇄ Sealdah Local</Text>
+            <Text style={styles.suburbanCardTitle}>{t('Dakshineswar ⇄ Sealdah Local')}</Text>
             <Text style={styles.suburbanCardSub}>
-              Live upcoming locals based on current time + 12-coach cellular crowd heatmap
+              {t('Live upcoming locals based on current time + 12-coach cellular crowd heatmap')}
             </Text>
           </View>
           <Text style={styles.suburbanCardArrow}>→</Text>
@@ -97,7 +99,7 @@ export const SearchTrainScreen: React.FC = () => {
 
       {/* Popular Routes */}
       <View style={styles.popularSection}>
-        <Text style={styles.popularTitle}>Popular High-Speed Corridors</Text>
+        <Text style={styles.popularTitle}>{t('Popular High-Speed Corridors')}</Text>
         <View style={styles.routesList}>
           {popularRoutes.map((r, i) => (
             <TouchableOpacity

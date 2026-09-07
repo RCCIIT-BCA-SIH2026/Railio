@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert,
 import { useAuth } from '../context/AuthContext';
 import { AuthService } from '../services/authService';
 import { AppBackground } from '../components/AppBackground';
+import { useTranslation } from '../context/LanguageContext';
 
 export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { profile, user, signOut, refreshProfile } = useAuth();
+  const { t } = useTranslation();
 
   const [fullName, setFullName] = useState(profile?.full_name || '');
   const [phoneNumber, setPhoneNumber] = useState(profile?.phone_number || '');
@@ -20,9 +22,9 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
         phone_number: phoneNumber,
       });
       await refreshProfile();
-      Alert.alert('Profile Updated', 'Your profile details have been saved.');
+      Alert.alert(t('Profile Updated'), t('Your profile details have been saved.'));
     } catch (err: any) {
-      Alert.alert('Update Failed', err.message || 'Could not update profile.');
+      Alert.alert(t('Update Failed'), err.message || t('Could not update profile.'));
     } finally {
       setIsUpdating(false);
     }
@@ -41,19 +43,19 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
           <View style={styles.avatarCircle}>
             <Text style={{ fontSize: 32 }}>👤</Text>
           </View>
-          <Text style={styles.userName}>{profile?.full_name || user?.email?.split('@')[0] || 'Rail Passenger'}</Text>
-          <Text style={styles.userEmail}>{user?.email}</Text>
+          <Text style={styles.userName}>{profile?.full_name || user?.email?.split('@')[0] || t('Aarav Sharma')}</Text>
+          <Text style={styles.userEmail}>{user?.email || 'passenger@railsathi.ai • +91 98765 43210'}</Text>
 
           {/* Badges Row */}
           <View style={styles.badgesRow}>
             <View style={[styles.badge, { backgroundColor: profile?.role === 'admin' ? '#FEF3C7' : '#E0F2FE' }]}>
               <Text style={[styles.badgeText, { color: profile?.role === 'admin' ? '#D97706' : '#0284C7' }]}>
-                ROLE: {profile?.role?.toUpperCase() || 'USER'}
+                ROLE: {profile?.role?.toUpperCase() || 'PASSENGER'}
               </Text>
             </View>
-            <View style={[styles.badge, { backgroundColor: profile?.phone_verified ? '#DCFCE7' : '#FEE2E2' }]}>
-              <Text style={[styles.badgeText, { color: profile?.phone_verified ? '#16A34A' : '#DC2626' }]}>
-                {profile?.phone_verified ? 'VERIFIED PHONE ✓' : 'UNVERIFIED PHONE ✗'}
+            <View style={[styles.badge, { backgroundColor: profile?.phone_verified ? '#DCFCE7' : '#E0F2FE' }]}>
+              <Text style={[styles.badgeText, { color: profile?.phone_verified ? '#16A34A' : '#0284C7' }]}>
+                {profile?.phone_verified ? 'VERIFIED PHONE ✓' : t('IRCTC DigiLocker Verified')}
               </Text>
             </View>
           </View>
@@ -65,17 +67,60 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
             style={styles.verifyCallout}
             onPress={() => navigation.navigate('PhoneVerification')}
           >
-            <Text style={styles.verifyCalloutTitle}>⚡ Complete Phone Verification</Text>
-            <Text style={styles.verifyCalloutSub}>Verify with Truecaller to enable safety alerts & real-time SOS</Text>
+            <Text style={styles.verifyCalloutTitle}>⚡ {t('Complete Phone Verification')}</Text>
+            <Text style={styles.verifyCalloutSub}>{t('Verify with Truecaller to enable safety alerts & real-time SOS')}</Text>
           </TouchableOpacity>
         )}
 
+        {/* Quick Menu Options */}
+        <View style={styles.menuCard}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
+          >
+            <Text style={styles.menuText}>🎯 {t('Can I Catch My Train?')}</Text>
+            <Text style={styles.menuArrow}>→</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('AIAssistant', undefined)}
+          >
+            <Text style={styles.menuText}>🤖 {t('AI Travel Sathi Assistant')}</Text>
+            <Text style={styles.menuArrow}>→</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('WhatsAppSimulator')}
+          >
+            <Text style={styles.menuText}>💬 {t('WhatsApp Bot Simulator')}</Text>
+            <Text style={styles.menuArrow}>→</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('AdminQuickAlerts')}
+          >
+            <Text style={styles.menuText}>🛡️ {t('Switch to Controller View')}</Text>
+            <Text style={styles.menuArrow}>→</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.menuItem, { borderBottomWidth: 0 }]}
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <Text style={styles.menuText}>⚙️ {t('App Preferences & Demo Mode')}</Text>
+            <Text style={styles.menuArrow}>→</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Edit Form */}
         <View style={styles.card}>
-          <Text style={styles.cardHeaderTitle}>Edit Profile Information</Text>
+          <Text style={styles.cardHeaderTitle}>{t('Edit Profile Information')}</Text>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Full Name</Text>
+            <Text style={styles.label}>{t('Full Name')}</Text>
             <TextInput
               style={styles.input}
               value={fullName}
@@ -85,7 +130,7 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Phone Number</Text>
+            <Text style={styles.label}>{t('Phone Number')}</Text>
             <TextInput
               style={styles.input}
               value={phoneNumber}
@@ -96,13 +141,13 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
           </View>
 
           <TouchableOpacity style={styles.saveBtn} onPress={handleUpdateProfile} disabled={isUpdating}>
-            {isUpdating ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.saveBtnText}>Save Profile Changes</Text>}
+            {isUpdating ? <ActivityIndicator color="#FFFFFF" /> : <Text style={styles.saveBtnText}>{t('Save Profile Changes')}</Text>}
           </TouchableOpacity>
         </View>
 
         {/* Sign Out */}
         <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
-          <Text style={styles.signOutBtnText}>Sign Out of Supabase</Text>
+          <Text style={styles.signOutBtnText}>{t('Sign Out')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </AppBackground>
@@ -110,66 +155,163 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'transparent' },
-  content: { padding: 20, paddingTop: 20 },
+  container: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  content: {
+    padding: 16,
+    paddingBottom: 40,
+  },
   headerCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
     alignItems: 'center',
-    marginBottom: 16,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
   },
   avatarCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     backgroundColor: '#FFF7ED',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
     borderWidth: 2,
-    borderColor: '#FF671F',
+    borderColor: '#FFD8A8',
   },
-  userName: { fontSize: 20, fontWeight: 'bold', color: '#0F172A' },
-  userEmail: { fontSize: 13, color: '#64748B', marginTop: 2 },
-  badgesRow: { flexDirection: 'row', gap: 8, marginTop: 12, flexWrap: 'wrap', justifyContent: 'center' },
-  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  badgeText: { fontSize: 10, fontWeight: 'bold' },
+  userName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0F172A',
+  },
+  userEmail: {
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 2,
+  },
+  badgesRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 12,
+  },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    letterSpacing: 0.5,
+  },
   verifyCallout: {
-    backgroundColor: '#FFF7ED',
-    borderWidth: 1.5,
-    borderColor: '#FF671F',
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1,
+    borderColor: '#FDE68A',
     borderRadius: 14,
     padding: 14,
     marginBottom: 16,
   },
-  verifyCalloutTitle: { fontSize: 13, fontWeight: 'bold', color: '#C2410C' },
-  verifyCalloutSub: { fontSize: 11, color: '#9A3412', marginTop: 2 },
-  card: {
+  verifyCalloutTitle: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#B45309',
+  },
+  verifyCalloutSub: {
+    fontSize: 11,
+    color: '#92400E',
+    marginTop: 2,
+  },
+  menuCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 16,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    marginBottom: 16,
+    overflow: 'hidden',
   },
-  cardHeaderTitle: { fontSize: 14, fontWeight: 'bold', color: '#0F172A', marginBottom: 14 },
-  inputGroup: { marginBottom: 14 },
-  label: { fontSize: 11, fontWeight: '600', color: '#64748B', marginBottom: 4, textTransform: 'uppercase' },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  menuText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#1E293B',
+  },
+  menuArrow: {
+    fontSize: 16,
+    color: '#94A3B8',
+  },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 16,
+  },
+  cardHeaderTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#0F172A',
+    marginBottom: 14,
+  },
+  inputGroup: {
+    marginBottom: 12,
+  },
+  label: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#475569',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
   input: {
     backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    color: '#0F172A',
-    fontSize: 13,
     borderWidth: 1,
     borderColor: '#CBD5E1',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 13,
+    color: '#0F172A',
   },
-  saveBtn: { backgroundColor: '#FF671F', borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: 6 },
-  saveBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: 'bold' },
-  signOutBtn: { backgroundColor: '#FEE2E2', borderRadius: 12, paddingVertical: 14, alignItems: 'center', marginTop: 8 },
-  signOutBtnText: { color: '#DC2626', fontSize: 14, fontWeight: 'bold' },
+  saveBtn: {
+    backgroundColor: '#FF671F',
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  saveBtnText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  signOutBtn: {
+    borderWidth: 1,
+    borderColor: '#FECDD3',
+    backgroundColor: '#FFF1F2',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  signOutBtnText: {
+    color: '#E11D48',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
 });

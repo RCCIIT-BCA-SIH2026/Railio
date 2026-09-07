@@ -3,7 +3,8 @@ import { Activity, Bell, Shield, Train, Radio, Cpu, User, Users, FileText, LogOu
 import { useAdminAuth } from '../context/AuthContext';
 import { UserManagementModal } from './UserManagementModal';
 import { AuditLogViewer } from './AuditLogViewer';
-import trainLogo from '../assets/train-logo.svg';
+import { LanguageSelector } from './LanguageSelector';
+import logoImg from '../assets/logo.png';
 
 interface NavbarProps {
   activeTab: string;
@@ -42,21 +43,21 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo Branding */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center">
-                <img src={trainLogo} alt="Logo" className="w-10 h-10 object-contain" />
+            <div className="flex items-center space-x-3 shrink-0">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden shrink-0 shadow-sm border border-orange-100 bg-white p-0.5">
+                <img src={logoImg} alt="Railio Logo" className="w-full h-full object-contain scale-110" />
               </div>
-              <div>
+              <div className="shrink-0">
                 <div className="flex items-center space-x-2">
-                  <span className="font-russo text-2xl tracking-wider text-black">
+                  <span className="font-russo text-2xl tracking-wider text-black notranslate whitespace-nowrap" translate="no">
                     Rail<span className="text-[#FF671F]">io</span>
                   </span>
-                  <span className="px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase bg-orange-50 text-rail-orange border border-orange-200 rounded-full">
+                  <span className="px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase bg-orange-50 text-rail-orange border border-orange-200 rounded-full whitespace-nowrap">
                     HQ Controller
                   </span>
                 </div>
-                <p className="text-[10px] tracking-wide text-slate-500 font-medium hidden sm:block">
-                  Predict • Protect • Connect • Digital Twin
+                <p className="text-[9.5px] font-bold tracking-wider text-[#FF671F] uppercase hidden sm:block whitespace-nowrap">
+                  AI RAILWAY INTELLIGENCE
                 </p>
               </div>
             </div>
@@ -85,6 +86,9 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
 
             {/* Right Control Bar */}
             <div className="flex items-center space-x-3">
+              {/* Google Translate Multilingual Switcher */}
+              <LanguageSelector />
+
               {/* User Management Trigger */}
               <button
                 onClick={() => setIsUserModalOpen(true)}
