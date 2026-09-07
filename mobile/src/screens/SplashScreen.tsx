@@ -38,7 +38,7 @@ export const SplashScreen: React.FC = React.memo(() => {
             <Image source={require('../../assets/logo.png')} style={{ width: 180, height: 180 }} resizeMode="contain" />
           </View>
 
-          <Text style={styles.title}>Rail<Text style={styles.titleIo}>Io</Text></Text>
+          <Text style={styles.title}>Rail<Text style={styles.titleIo}>io</Text></Text>
           <Text style={styles.tagline}>Predict • Protect • Connect</Text>
           <Text style={styles.subtext}>AI-Powered Railway Intelligence Ecosystem</Text>
 

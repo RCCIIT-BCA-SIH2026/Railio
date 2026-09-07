@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
@@ -68,10 +68,13 @@ export const LoginScreen: React.FC = () => {
     <AppBackground variant="orange">
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <View style={styles.logoIcon}>
-            <Text style={{ fontSize: 32 }}>🚆</Text>
+          <View style={styles.logoBadge}>
+            <Image source={require('../../assets/logo.png')} style={{ width: '100%', height: '100%', transform: [{ scale: 1.4 }] }} resizeMode="contain" />
           </View>
-          <Text style={styles.title}>Welcome to RailIo</Text>
+          <Text style={styles.brandTitle}>
+            Rail<Text style={styles.brandTitleIo}>io</Text>
+          </Text>
+          <Text style={styles.brandSubtitle}>AI RAILWAY INTELLIGENCE</Text>
           <Text style={styles.subtitle}>Sign in with Supabase Auth to access live railway AI</Text>
         </View>
 
@@ -179,21 +182,42 @@ export const LoginScreen: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'transparent' },
-  content: { padding: 24, paddingTop: 60 },
-  header: { alignItems: 'center', marginBottom: 24 },
-  logoIcon: {
-    width: 64,
-    height: 64,
+  content: { padding: 24, paddingTop: 50 },
+  header: { alignItems: 'center', marginBottom: 20 },
+  logoBadge: {
+    width: 68,
+    height: 68,
     borderRadius: 20,
-    backgroundColor: '#FFF7ED',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: '#FF671F',
+    borderColor: '#FED7AA',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
+    elevation: 3,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    overflow: 'hidden',
   },
-  title: { fontSize: 24, fontWeight: '800', color: '#0F172A' },
-  subtitle: { fontSize: 12, color: '#64748B', marginTop: 4 },
+  brandTitle: {
+    fontSize: 28,
+    fontFamily: 'RussoOne_400Regular',
+    color: '#000000',
+    letterSpacing: 1,
+  },
+  brandTitleIo: {
+    fontFamily: 'RussoOne_400Regular',
+    color: '#FF671F',
+  },
+  brandSubtitle: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#FF671F',
+    letterSpacing: 1.5,
+    marginTop: 2,
+  },
+  subtitle: { fontSize: 11, color: '#64748B', marginTop: 4, textAlign: 'center' },
   roleContainer: {
     flexDirection: 'row',
     backgroundColor: '#F1F5F9',
