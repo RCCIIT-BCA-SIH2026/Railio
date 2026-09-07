@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Activity, Bell, Shield, Train, Radio, Cpu, User } from 'lucide-react';
+import { LanguageSelector } from './LanguageSelector';
 
 interface NavbarProps {
   activeTab: string;
@@ -77,7 +78,10 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, metrics
 
           {/* Right Status Pill & Controller Badge */}
           <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-mono font-medium">
+            {/* Google Translate Multilingual Switcher */}
+            <LanguageSelector />
+
+            <div className="hidden md:flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-mono font-medium">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-glow" />
               <span>LIVE TELEMETRY 3s</span>
             </div>

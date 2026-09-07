@@ -1,8 +1,10 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { RootStackParamList, BottomTabParamList } from '../types';
+import { useTranslation } from '../context/LanguageContext';
+import { LanguageTopButton } from '../components/LanguageTopButton';
 
 // Screens
 import { SplashScreen } from '../screens/SplashScreen';
@@ -32,6 +34,8 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
 const MainTabNavigator: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -61,7 +65,7 @@ const MainTabNavigator: React.FC = () => {
         name="HomeTab"
         component={HomeScreen}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: t('nav.home', 'Home'),
           tabBarIcon: () => <Text style={{ fontSize: 18 }}>🏠</Text>,
         }}
       />
@@ -69,7 +73,7 @@ const MainTabNavigator: React.FC = () => {
         name="TrainsTab"
         component={SearchTrainScreen}
         options={{
-          tabBarLabel: 'Trains',
+          tabBarLabel: t('nav.trains', 'Trains'),
           tabBarIcon: () => <Text style={{ fontSize: 18 }}>🚆</Text>,
         }}
       />
@@ -78,7 +82,7 @@ const MainTabNavigator: React.FC = () => {
         component={LiveTrainScreen}
         initialParams={{ trainNumber: '12301' }}
         options={{
-          tabBarLabel: 'Live Map',
+          tabBarLabel: t('nav.live_map', 'Live Map'),
           tabBarIcon: () => <Text style={{ fontSize: 18 }}>🗺️</Text>,
         }}
       />
@@ -86,7 +90,7 @@ const MainTabNavigator: React.FC = () => {
         name="AISathiTab"
         component={AIAssistantScreen}
         options={{
-          tabBarLabel: 'AI Sathi',
+          tabBarLabel: t('nav.ai_sathi', 'AI Sathi'),
           tabBarIcon: () => <Text style={{ fontSize: 18 }}>🤖</Text>,
         }}
       />
@@ -94,7 +98,7 @@ const MainTabNavigator: React.FC = () => {
         name="ProfileTab"
         component={ProfileScreen}
         options={{
-          tabBarLabel: 'Profile',
+          tabBarLabel: t('nav.profile', 'Profile'),
           tabBarIcon: () => <Text style={{ fontSize: 18 }}>👤</Text>,
         }}
       />
@@ -117,6 +121,11 @@ export const RootNavigator: React.FC = () => {
           fontSize: 16,
           color: '#0F172A',
         },
+        headerRight: () => (
+          <View style={{ marginRight: 8 }}>
+            <LanguageTopButton variant="light" />
+          </View>
+        ),
         contentStyle: {
           backgroundColor: '#F8FAFC',
         },
@@ -146,3 +155,4 @@ export const RootNavigator: React.FC = () => {
     </Stack.Navigator>
   );
 };
+

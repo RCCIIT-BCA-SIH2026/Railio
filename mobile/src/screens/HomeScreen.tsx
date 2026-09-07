@@ -15,9 +15,12 @@ import { RootStackParamList } from '../types';
 import { VandeBharatHero } from '../components/VandeBharatHero';
 import { AppBackground } from '../components/AppBackground';
 import { getAlertsApi } from '../services/api';
+import { useTranslation } from '../context/LanguageContext';
+import { LanguageTopButton } from '../components/LanguageTopButton';
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { t } = useTranslation();
   const [fromStation, setFromStation] = useState('HWH');
   const [toStation, setToStation] = useState('NDLS');
   const [journeyDate, setJourneyDate] = useState('Today, 28 Aug');
@@ -75,6 +78,9 @@ export const HomeScreen: React.FC = () => {
         </View>
 
         <View style={styles.headerRight}>
+          {/* Top Multilingual Switcher Button */}
+          <LanguageTopButton variant="glass" />
+
           <TouchableOpacity
             style={styles.headerIconBtn}
             onPress={() => navigation.navigate('Alerts')}
@@ -95,11 +101,10 @@ export const HomeScreen: React.FC = () => {
       {/* Hero Visual Headline */}
       <View style={styles.heroTextContainer}>
         <Text style={styles.heroHeadline}>
-          India Moves{'\n'}
-          <Text style={{ color: '#FF671F' }}>With Progress</Text>
+          {t('hero.title', 'India Moves With Progress')}
         </Text>
         <Text style={styles.heroSubheadline}>
-          Smart Journey. Stronger Connections. Real-time train updates, seamless booking, and a better travel experience for every Indian.
+          {t('hero.subtitle', 'Smart Journey. Stronger Connections. Real-time train updates & predictive intelligence.')}
         </Text>
       </View>
 
@@ -112,7 +117,7 @@ export const HomeScreen: React.FC = () => {
       {/* Main Train Search Card */}
       <View style={styles.searchCard}>
         <View style={styles.searchCardHeader}>
-          <Text style={styles.searchCardTitle}>🔍 Search Train & AI Predictions</Text>
+          <Text style={styles.searchCardTitle}>🔍 {t('search.find_trains', 'Search Train & AI Predictions')}</Text>
           <View style={styles.demoBadge}>
             <Text style={styles.demoBadgeText}>LIVE GPS</Text>
           </View>
@@ -121,7 +126,7 @@ export const HomeScreen: React.FC = () => {
         {/* From & To Station Row with Swap Button */}
         <View style={styles.stationsRow}>
           <View style={styles.stationInputBox}>
-            <Text style={styles.stationInputLabel}>FROM</Text>
+            <Text style={styles.stationInputLabel}>{t('search.from_station', 'FROM')}</Text>
             <TextInput
               style={styles.stationInput}
               value={fromStation}
@@ -140,7 +145,7 @@ export const HomeScreen: React.FC = () => {
           </TouchableOpacity>
 
           <View style={styles.stationInputBox}>
-            <Text style={styles.stationInputLabel}>TO</Text>
+            <Text style={styles.stationInputLabel}>{t('search.to_station', 'TO')}</Text>
             <TextInput
               style={styles.stationInput}
               value={toStation}
@@ -157,7 +162,7 @@ export const HomeScreen: React.FC = () => {
 
         {/* Date Selector */}
         <View style={styles.dateSelector}>
-          <Text style={styles.dateLabel}>JOURNEY DATE</Text>
+          <Text style={styles.dateLabel}>{t('search.date', 'JOURNEY DATE')}</Text>
           <TextInput
             style={styles.dateInput}
             value={journeyDate}
@@ -167,7 +172,7 @@ export const HomeScreen: React.FC = () => {
 
         {/* Search CTA */}
         <TouchableOpacity style={styles.searchCta} onPress={handleSearch}>
-          <Text style={styles.searchCtaText}>SEARCH TRAINS WITH AI</Text>
+          <Text style={styles.searchCtaText}>{t('search.find_trains', 'SEARCH TRAINS WITH AI')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -181,7 +186,7 @@ export const HomeScreen: React.FC = () => {
           <View style={[styles.quickServiceIcon, { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}>
             <Text style={{ fontSize: 18 }}>🚆</Text>
           </View>
-          <Text style={styles.quickServiceTitle}>Live Train Status</Text>
+          <Text style={styles.quickServiceTitle}>{t('service.live_tracking', 'Live Train Status')}</Text>
           <Text style={styles.quickServiceSub}>Get real-time updates</Text>
         </TouchableOpacity>
 
@@ -205,7 +210,7 @@ export const HomeScreen: React.FC = () => {
           <View style={[styles.quickServiceIcon, { backgroundColor: '#CCFBF1', borderColor: '#99F6E4' }]}>
             <Text style={{ fontSize: 18 }}>⏱️</Text>
           </View>
-          <Text style={styles.quickServiceTitle}>Seat Availability</Text>
+          <Text style={styles.quickServiceTitle}>{t('service.can_i_catch', 'Seat Availability')}</Text>
           <Text style={styles.quickServiceSub}>Find seats with ease</Text>
         </TouchableOpacity>
 
@@ -243,20 +248,20 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.suburbanHeroBadgeRow}>
             <View style={styles.suburbanLivePill}>
               <View style={styles.suburbanPulseDot} />
-              <Text style={styles.suburbanLivePillText}>LIVE PULSE</Text>
+              <Text style={styles.suburbanLivePillText}>{t('LIVE PULSE')}</Text>
             </View>
             <View style={styles.googleTechBadge}>
-              <Text style={styles.googleTechBadgeText}>GOOGLE MAPS SIGNAL TECH</Text>
+              <Text style={styles.googleTechBadgeText}>{t('GOOGLE MAPS SIGNAL TECH')}</Text>
             </View>
           </View>
-          <Text style={styles.suburbanHeroArrow}>Search Locals →</Text>
+          <Text style={styles.suburbanHeroArrow}>{t('Search Locals →')}</Text>
         </View>
 
         <Text style={styles.suburbanHeroTitle}>
-          🚉 Dakshineswar ⇄ Sealdah Local
+          {t('Dakshineswar ⇄ Sealdah Local')}
         </Text>
         <Text style={styles.suburbanHeroSub}>
-          Next Train in 4 min • Live 12-Coach Cellular Crowd Heatmap & Smart Boarding Advice
+          {t('Next Train in 4 min • Live 12-Coach Cellular Crowd Heatmap & Smart Boarding Advice')}
         </Text>
 
         <View style={styles.suburbanMiniHeatmap}>
@@ -316,8 +321,8 @@ export const HomeScreen: React.FC = () => {
 
       {/* 4 Core Action Cards (Prompt Requirement) */}
       <View style={styles.sectionTitleRow}>
-        <Text style={styles.sectionTitle}>Intelligence Services</Text>
-        <Text style={styles.sectionSubtitle}>AI & IoT Powered</Text>
+        <Text style={styles.sectionTitle}>{t('Intelligence Services')}</Text>
+        <Text style={styles.sectionSubtitle}>{t('AI & IoT Powered')}</Text>
       </View>
 
       <View style={styles.actionGrid}>
@@ -329,10 +334,10 @@ export const HomeScreen: React.FC = () => {
           <View style={[styles.actionIconBox, { backgroundColor: 'rgba(56, 189, 248, 0.15)' }]}>
             <Text style={{ fontSize: 24 }}>🚆</Text>
           </View>
-          <Text style={styles.actionCardTitle}>Live Train</Text>
-          <Text style={styles.actionCardSub}>Real-time GPS Tracking</Text>
+          <Text style={styles.actionCardTitle}>{t('Live Train')}</Text>
+          <Text style={styles.actionCardSub}>{t('Real-time GPS Tracking')}</Text>
           <View style={styles.actionCardBadge}>
-            <Text style={[styles.actionCardBadgeText, { color: '#38BDF8' }]}>3s Updates</Text>
+            <Text style={[styles.actionCardBadgeText, { color: '#38BDF8' }]}>{t('3s Updates')}</Text>
           </View>
         </TouchableOpacity>
 
@@ -344,10 +349,10 @@ export const HomeScreen: React.FC = () => {
           <View style={[styles.actionIconBox, { backgroundColor: 'rgba(255, 103, 31, 0.2)' }]}>
             <Text style={{ fontSize: 24 }}>🎯</Text>
           </View>
-          <Text style={[styles.actionCardTitle, { color: '#FF671F' }]}>Can I Catch?</Text>
-          <Text style={styles.actionCardSub}>Traffic + Station Buffer</Text>
+          <Text style={[styles.actionCardTitle, { color: '#FF671F' }]}>{t('Can I Catch?')}</Text>
+          <Text style={styles.actionCardSub}>{t('Traffic + Station Buffer')}</Text>
           <View style={[styles.actionCardBadge, { backgroundColor: 'rgba(255, 103, 31, 0.2)' }]}>
-            <Text style={[styles.actionCardBadgeText, { color: '#FF671F' }]}>Hero AI</Text>
+            <Text style={[styles.actionCardBadgeText, { color: '#FF671F' }]}>{t('Hero AI')}</Text>
           </View>
         </TouchableOpacity>
 
@@ -359,10 +364,10 @@ export const HomeScreen: React.FC = () => {
           <View style={[styles.actionIconBox, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
             <Text style={{ fontSize: 24 }}>👥</Text>
           </View>
-          <Text style={styles.actionCardTitle}>Coach Crowd</Text>
-          <Text style={styles.actionCardSub}>Least Density Finder</Text>
+          <Text style={styles.actionCardTitle}>{t('Coach Crowd')}</Text>
+          <Text style={styles.actionCardSub}>{t('Least Density Finder')}</Text>
           <View style={styles.actionCardBadge}>
-            <Text style={[styles.actionCardBadgeText, { color: '#A855F7' }]}>CV Heatmap</Text>
+            <Text style={[styles.actionCardBadgeText, { color: '#A855F7' }]}>{t('CV Heatmap')}</Text>
           </View>
         </TouchableOpacity>
 
@@ -374,10 +379,10 @@ export const HomeScreen: React.FC = () => {
           <View style={[styles.actionIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
             <Text style={{ fontSize: 24 }}>🌦️</Text>
           </View>
-          <Text style={styles.actionCardTitle}>Weather</Text>
-          <Text style={styles.actionCardSub}>Rain & Delay Impact</Text>
+          <Text style={styles.actionCardTitle}>{t('Weather')}</Text>
+          <Text style={styles.actionCardSub}>{t('Rain & Delay Impact')}</Text>
           <View style={styles.actionCardBadge}>
-            <Text style={[styles.actionCardBadgeText, { color: '#10B981' }]}>Live Radar</Text>
+            <Text style={[styles.actionCardBadgeText, { color: '#10B981' }]}>{t('Live Radar')}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -389,7 +394,7 @@ export const HomeScreen: React.FC = () => {
           onPress={() => navigation.navigate('ObstacleDetection')}
         >
           <Text style={{ fontSize: 16 }}>📹</Text>
-          <Text style={styles.extraFeatureText}>Track Obstacle CV</Text>
+          <Text style={styles.extraFeatureText}>{t('Track Obstacle CV')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -397,7 +402,7 @@ export const HomeScreen: React.FC = () => {
           onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
         >
           <Text style={{ fontSize: 16 }}>📋</Text>
-          <Text style={styles.extraFeatureText}>Station Board</Text>
+          <Text style={styles.extraFeatureText}>{t('Station Board')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -405,14 +410,14 @@ export const HomeScreen: React.FC = () => {
           onPress={() => navigation.navigate('WhatsAppSimulator')}
         >
           <Text style={{ fontSize: 16 }}>💬</Text>
-          <Text style={styles.extraFeatureText}>WhatsApp Sathi</Text>
+          <Text style={styles.extraFeatureText}>{t('WhatsApp Sathi')}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Live Railway Network Status Bar (Prompt Requirement) */}
       <View style={styles.statusPillCard}>
         <View style={styles.statusPillHeader}>
-          <Text style={styles.statusPillTitle}>LIVE RAILWAY STATUS</Text>
+          <Text style={styles.statusPillTitle}>{t('LIVE RAILWAY STATUS')}</Text>
           <View style={styles.liveTick}>
             <View style={styles.greenPulse} />
             <Text style={styles.liveTickText}>LIVE</Text>
@@ -422,22 +427,22 @@ export const HomeScreen: React.FC = () => {
         <View style={styles.statusPillRow}>
           <View style={styles.statusItem}>
             <Text style={styles.statusNumber}>142</Text>
-            <Text style={styles.statusLabel}>Active Trains</Text>
+            <Text style={styles.statusLabel}>{t('Active Trains')}</Text>
           </View>
           <View style={styles.statusDivider} />
           <View style={styles.statusItem}>
             <Text style={[styles.statusNumber, { color: '#F59E0B' }]}>27</Text>
-            <Text style={styles.statusLabel}>Delayed</Text>
+            <Text style={styles.statusLabel}>{t('Delayed')}</Text>
           </View>
           <View style={styles.statusDivider} />
           <View style={styles.statusItem}>
             <Text style={[styles.statusNumber, { color: '#EF4444' }]}>3</Text>
-            <Text style={styles.statusLabel}>Critical Risks</Text>
+            <Text style={styles.statusLabel}>{t('Critical Risks')}</Text>
           </View>
           <View style={styles.statusDivider} />
           <View style={styles.statusItem}>
             <Text style={[styles.statusNumber, { color: '#10B981' }]}>88%</Text>
-            <Text style={styles.statusLabel}>Punctual</Text>
+            <Text style={styles.statusLabel}>{t('Punctual')}</Text>
           </View>
         </View>
       </View>

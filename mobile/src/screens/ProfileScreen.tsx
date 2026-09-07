@@ -4,9 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { AppBackground } from '../components/AppBackground';
+import { useTranslation } from '../context/LanguageContext';
 
 export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { t } = useTranslation();
 
   return (
     <AppBackground variant="orange">
@@ -16,10 +18,10 @@ export const ProfileScreen: React.FC = () => {
         <View style={styles.avatar}>
           <Text style={{ fontSize: 32 }}>👤</Text>
         </View>
-        <Text style={styles.userName}>Aarav Sharma</Text>
+        <Text style={styles.userName}>{t('Aarav Sharma')}</Text>
         <Text style={styles.userEmail}>passenger@railsathi.ai • +91 98765 43210</Text>
         <View style={styles.verifiedBadge}>
-          <Text style={styles.verifiedText}>✓ IRCTC DigiLocker Verified</Text>
+          <Text style={styles.verifiedText}>✓ {t('IRCTC DigiLocker Verified')}</Text>
         </View>
       </View>
 
@@ -29,7 +31,7 @@ export const ProfileScreen: React.FC = () => {
           style={styles.menuItem}
           onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
         >
-          <Text style={styles.menuText}>🎯 Can I Catch My Train?</Text>
+          <Text style={styles.menuText}>🎯 {t('Can I Catch My Train?')}</Text>
           <Text style={styles.menuArrow}>→</Text>
         </TouchableOpacity>
 
@@ -37,7 +39,7 @@ export const ProfileScreen: React.FC = () => {
           style={styles.menuItem}
           onPress={() => navigation.navigate('AIAssistant', undefined)}
         >
-          <Text style={styles.menuText}>🤖 AI Travel Sathi Assistant</Text>
+          <Text style={styles.menuText}>🤖 {t('AI Travel Sathi Assistant')}</Text>
           <Text style={styles.menuArrow}>→</Text>
         </TouchableOpacity>
 
@@ -45,7 +47,7 @@ export const ProfileScreen: React.FC = () => {
           style={styles.menuItem}
           onPress={() => navigation.navigate('WhatsAppSimulator')}
         >
-          <Text style={styles.menuText}>💬 WhatsApp Bot Simulator</Text>
+          <Text style={styles.menuText}>💬 {t('WhatsApp Bot Simulator')}</Text>
           <Text style={styles.menuArrow}>→</Text>
         </TouchableOpacity>
 
@@ -53,7 +55,7 @@ export const ProfileScreen: React.FC = () => {
           style={styles.menuItem}
           onPress={() => navigation.navigate('AdminQuickAlerts')}
         >
-          <Text style={styles.menuText}>🛡️ Switch to Controller View</Text>
+          <Text style={styles.menuText}>🛡️ {t('Switch to Controller View')}</Text>
           <Text style={styles.menuArrow}>→</Text>
         </TouchableOpacity>
 
@@ -61,7 +63,7 @@ export const ProfileScreen: React.FC = () => {
           style={[styles.menuItem, { borderBottomWidth: 0 }]}
           onPress={() => navigation.navigate('Settings')}
         >
-          <Text style={styles.menuText}>⚙️ App Preferences & Demo Mode</Text>
+          <Text style={styles.menuText}>⚙️ {t('App Preferences & Demo Mode')}</Text>
           <Text style={styles.menuArrow}>→</Text>
         </TouchableOpacity>
       </View>
