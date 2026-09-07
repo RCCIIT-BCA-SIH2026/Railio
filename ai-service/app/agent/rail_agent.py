@@ -23,7 +23,7 @@ class AgentResponse(BaseModel):
     confidenceScore: float
     retrievedKnowledgeDocs: List[str]
 
-class RailSathiAgent:
+class RailIoAgent:
     def process_query(self, req: AgentMessageRequest) -> AgentResponse:
         query = req.message.lower()
         tools_executed: List[ToolExecutionLog] = []
@@ -175,7 +175,7 @@ class RailSathiAgent:
                 output=f"Retrieved {len(docs)} matching Indian Railways policy documents."
             ))
             combined_info = "\n\n".join([f"**{d['title']}**:\n{d['content']}" for d in docs])
-            ans = f"🚆 **RailSathi Intelligence Assistant**:\n\n{combined_info}\n\n_Is there a specific train or journey detail you'd like me to check with live sensors?_"
+            ans = f"🚆 **RailIo Intelligence Assistant**:\n\n{combined_info}\n\n_Is there a specific train or journey detail you'd like me to check with live sensors?_"
             return AgentResponse(answer=ans, toolsExecuted=tools_executed, confidenceScore=0.90, retrievedKnowledgeDocs=retrieved_titles)
 
-rail_agent = RailSathiAgent()
+rail_agent = RailIoAgent()

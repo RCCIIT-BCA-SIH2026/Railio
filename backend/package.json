@@ -1,7 +1,7 @@
 {
-  "name": "railsathi-backend",
+  "name": "railio-backend",
   "version": "1.0.0",
-  "description": "RailSathi AI-Powered Railway Intelligence Gateway API & Simulation Engine",
+  "description": "RailIo AI-Powered Railway Intelligence Gateway API & Simulation Engine",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
@@ -9,6 +9,7 @@
     "dev": "ts-node src/server.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.48.1",
     "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

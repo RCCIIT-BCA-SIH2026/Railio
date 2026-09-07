@@ -129,12 +129,7 @@ export const TrainDetailsScreen: React.FC = () => {
 
       {/* Action Buttons Row */}
       <View style={styles.actionsRow}>
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.actionBtnCatch]}
-          onPress={() => navigation.navigate('CanICatch', { trainNumber: train.trainNumber })}
-        >
-          <Text style={styles.actionBtnText}>🎯 Can I Catch My Train?</Text>
-        </TouchableOpacity>
+
 
         <TouchableOpacity
           style={[styles.actionBtn, styles.actionBtnLive]}

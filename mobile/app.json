@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "RailSathi",
-    "slug": "railsathi",
+    "name": "RailIo",
+    "slug": "railio",
+    "scheme": "railio",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,18 +11,40 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0B2545"
+      "backgroundColor": "#FFFFFF"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "RailIo uses the camera for AI-powered indoor station navigation and visual AR guidance.",
+        "NSMotionUsageDescription": "RailIo uses device motion sensors for step tracking, dead reckoning, and directional heading during indoor navigation."
+      },
+      "bundleIdentifier": "ai.railio.passenger"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0B2545"
+        "backgroundColor": "#FFFFFF"
       },
-      "package": "ai.railsathi.passenger"
+      "package": "ai.railio.passenger",
+      "permissions": [
+        "CAMERA",
+        "HIGH_SAMPLING_RATE_SENSORS",
+        "VIBRATE",
+        "RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
+    "plugins": [
+      "expo-dev-client",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "RailIo uses the camera for AI-powered indoor station navigation and visual AR guidance."
+        }
+      ]
+    ],
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"

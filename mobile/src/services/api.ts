@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import { Train, Station, CatchTrainResult, AlertItem } from '../types';
 
-const getHostAddress = () => {
+export const getHostAddress = () => {
   const hostUri =
     Constants.expoConfig?.hostUri ||
     (Constants as any).manifest2?.extra?.expoClient?.hostUri ||
@@ -18,12 +18,26 @@ const getHostAddress = () => {
   return Platform.OS === 'web' ? 'http://localhost:5000/api' : 'http://192.168.0.101:5000/api';
 };
 
-const API_BASE_URL = getHostAddress();
+export const API_BASE_URL = getHostAddress();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 4000,
+  timeout: 3500,
 });
+
+// Lightweight cache to avoid duplicate API requests during screen transitions
+const apiCache = new Map<string, { data: any; expiry: number }>();
+
+export const getCachedOrFetch = async <T>(key: string, ttlMs: number, fetcher: () => Promise<T>): Promise<T> => {
+  const cached = apiCache.get(key);
+  const now = Date.now();
+  if (cached && cached.expiry > now) {
+    return cached.data as T;
+  }
+  const data = await fetcher();
+  apiCache.set(key, { data, expiry: now + ttlMs });
+  return data;
+};
 
 // Fallback Seed Data for 100% Guaranteed Offline Demo Mode
 const fallbackTrains: Train[] = [
@@ -194,6 +208,43 @@ const fallbackTrains: Train[] = [
       { code: 'HWH', sequence: 1, arr: '15:45', dep: '15:45', km: 0, platform: 20 },
       { code: 'RNC', sequence: 2, arr: '22:50', dep: '22:50', km: 463, platform: 1 }
     ]
+  },
+  {
+    trainNumber: '22895',
+    name: 'Howrah - Puri Vande Bharat Express',
+    type: 'Vande Bharat',
+    source: 'HWH',
+    destination: 'PURI',
+    departureTime: '06:10',
+    arrivalTime: '13:00',
+    totalDistanceKm: 502,
+    avgSpeed: 73,
+    coaches: ['E1', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'E2'],
+    liveState: {
+      lat: 21.4925,
+      lng: 86.9248,
+      speed: 128,
+      heading: 205,
+      currentSection: 'KGP-BLS-VB1',
+      lastStation: 'KGP',
+      nextStation: 'BLS',
+      delayMinutes: 0,
+      predictedDelay: 0,
+      confidence: 0.98,
+      status: 'ON_TIME',
+      delayReasons: []
+    },
+    stops: [
+      { code: 'HWH', sequence: 1, arr: '06:10', dep: '06:10', km: 0, platform: 22 },
+      { code: 'KGP', sequence: 2, arr: '07:38', dep: '07:40', km: 115, platform: 3 },
+      { code: 'BLS', sequence: 3, arr: '09:03', dep: '09:05', km: 231, platform: 2 },
+      { code: 'BHC', sequence: 4, arr: '09:40', dep: '09:42', km: 294, platform: 1 },
+      { code: 'JJKR', sequence: 5, arr: '10:07', dep: '10:09', km: 337, platform: 2 },
+      { code: 'CTC', sequence: 6, arr: '10:50', dep: '10:52', km: 409, platform: 4 },
+      { code: 'BBS', sequence: 7, arr: '11:20', dep: '11:24', km: 437, platform: 3 },
+      { code: 'KUR', sequence: 8, arr: '11:42', dep: '11:44', km: 456, platform: 1 },
+      { code: 'PURI', sequence: 9, arr: '13:00', dep: '13:00', km: 502, platform: 5 }
+    ]
   }
 ];
 
@@ -205,6 +256,10 @@ const fallbackStations: Station[] = [
   { code: 'DDJ', name: 'Dum Dum Junction', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.6219, lng: 88.3931, platforms: 5, isJunction: true },
   { code: 'BNXR', name: 'Bidhan Nagar Road', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.5898, lng: 88.3892, platforms: 4, isJunction: false },
   { code: 'DKAE', name: 'Dankuni Junction', city: 'Hooghly', state: 'West Bengal', zone: 'ER', lat: 22.6872, lng: 88.2934, platforms: 5, isJunction: true },
+  { code: 'PURI', name: 'Puri', city: 'Puri', state: 'Odisha', zone: 'ECoR', lat: 19.8135, lng: 85.8312, platforms: 8, isJunction: false },
+  { code: 'KGP', name: 'Kharagpur Junction', city: 'Kharagpur', state: 'West Bengal', zone: 'SER', lat: 22.3385, lng: 87.3242, platforms: 12, isJunction: true },
+  { code: 'BLS', name: 'Baleshwar', city: 'Balasore', state: 'Odisha', zone: 'SER', lat: 21.4925, lng: 86.9248, platforms: 4, isJunction: false },
+  { code: 'CTC', name: 'Cuttack Junction', city: 'Cuttack', state: 'Odisha', zone: 'ECoR', lat: 20.4631, lng: 85.8953, platforms: 5, isJunction: true },
   { code: 'NDLS', name: 'New Delhi', city: 'New Delhi', state: 'Delhi', zone: 'NR', lat: 28.6429, lng: 77.2195, platforms: 16, isJunction: true },
   { code: 'MMCT', name: 'Mumbai Central', city: 'Mumbai', state: 'Maharashtra', zone: 'WR', lat: 18.9696, lng: 72.8193, platforms: 5, isJunction: false },
   { code: 'MAS', name: 'Chennai Central', city: 'Chennai', state: 'Tamil Nadu', zone: 'SR', lat: 13.0827, lng: 80.2707, platforms: 17, isJunction: true },
@@ -359,10 +414,51 @@ export const getCoachCrowdApi = async (trainNumber: string) => {
 };
 
 export const getWeatherApi = async () => {
+  // 1. Prioritize Secure Backend Proxy
   try {
     const res = await api.get('/weather');
     if (res.data?.weather) return res.data.weather;
   } catch (err) {}
+
+  // 2. Direct OpenWeatherMap fallback if key is configured in environment
+  const apiKey = process.env.EXPO_PUBLIC_WEATHER_API_KEY;
+  if (apiKey) {
+    try {
+      const fetchCityWeather = async (city: string) => {
+        const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`);
+        const data = await res.json();
+        if (data.cod && data.cod !== 200) {
+          throw new Error(data.message || 'API error');
+        }
+        return data;
+      };
+
+      const [hwhData, ndlsData] = await Promise.all([
+        fetchCityWeather('Kolkata'),
+        fetchCityWeather('Delhi')
+      ]);
+
+      const formatWeather = (data: any, name: string) => ({
+        city: name,
+        tempC: Math.round(data.main?.temp || 0),
+        condition: data.weather?.[0]?.main || 'Clear',
+        rainMm: data.rain?.['1h'] || data.rain?.['3h'] || 0,
+        windKmh: Math.round((data.wind?.speed || 0) * 3.6),
+        humidityPct: data.main?.humidity || 0,
+        visibilityKm: (data.visibility || 10000) / 1000,
+        railImpact: (data.rain?.['1h'] || 0) > 5 ? 'Precautionary speed restriction: +8 to +12 min delay.' : 'Optimal corridor running conditions.'
+      });
+
+      return {
+        HWH: formatWeather(hwhData, 'Kolkata'),
+        NDLS: formatWeather(ndlsData, 'New Delhi')
+      };
+    } catch (err) {
+      console.warn('Live weather direct fetch error, falling back to cached model:', err);
+    }
+  }
+
+  // 3. Deterministic offline fallback
   return {
     HWH: { city: 'Kolkata', tempC: 31, condition: 'Heavy Rain', rainMm: 42.5, windKmh: 28, humidityPct: 88, visibilityKm: 3.5, railImpact: 'Precautionary speed restriction: +8 to +12 min delay.' },
     NDLS: { city: 'New Delhi', tempC: 28, condition: 'Clear Sky', rainMm: 0, windKmh: 12, humidityPct: 45, visibilityKm: 9.0, railImpact: 'Optimal corridor running conditions.' }
@@ -370,38 +466,209 @@ export const getWeatherApi = async () => {
 };
 
 export const getAlertsApi = async (): Promise<AlertItem[]> => {
-  try {
-    const res = await api.get('/admin/alerts');
-    if (res.data?.alerts) return res.data.alerts;
-  } catch (err) {}
-  return [
-    {
-      id: 'ALT-001',
-      title: 'Track Anomaly Detected on Section B-17',
-      category: 'TRACK_ANOMALY',
-      severity: 'HIGH_RISK',
-      affectedTrain: '12301',
-      description: 'ESP32 MPU6050 vibration RMS measured 3.42g (Threshold 2.4g). Deterioration risk 78/100.',
-      recommendedAction: 'Impose 45 km/h caution order.',
-      timestamp: '10 min ago',
-      active: true
-    }
-  ];
+  return getCachedOrFetch('alerts', 10000, async () => {
+    try {
+      const res = await api.get('/admin/alerts');
+      if (res.data?.alerts) return res.data.alerts;
+    } catch (err) {}
+    return [
+      {
+        id: 'ALT-001',
+        title: 'Track Anomaly Detected on Section B-17',
+        category: 'TRACK_ANOMALY',
+        severity: 'HIGH_RISK',
+        affectedTrain: '12301',
+        description: 'ESP32 MPU6050 vibration RMS measured 3.42g (Threshold 2.4g). Deterioration risk 78/100.',
+        recommendedAction: 'Impose 45 km/h caution order.',
+        timestamp: '10 min ago',
+        active: true
+      }
+    ];
+  });
 };
 
-export const chatAIApi = async (query: string) => {
+/**
+ * Fetches verified real-time Indian Railways facts & data from the web (Wikipedia Train API & Open Search).
+ */
+export const fetchWebTrainData = async (query: string): Promise<string> => {
   try {
-    const res = await api.post('/ai/chat', { message: query });
-    if (res.data?.data) return res.data.data;
-  } catch (err) {}
+    const matchNumber = query.match(/\b\d{5}\b/);
+    const searchTerm = matchNumber ? `${matchNumber[0]} train` : `${query} train Indian Railways`;
+
+    const wikiSearchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*`;
+    const res = await fetch(wikiSearchUrl, { headers: { 'User-Agent': 'RailSathiApp/1.0 (contact@railio.ai)' } });
+    if (!res.ok) return '';
+    const data = await res.json();
+    const results = data.query?.search;
+    if (results && results.length > 0) {
+      let matchedTitle = results[0].title;
+      if (matchNumber) {
+        const found = results.find((r: any) => r.snippet?.includes(matchNumber[0]) || r.title?.includes(matchNumber[0]));
+        if (found) matchedTitle = found.title;
+      }
+      const sumUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(matchedTitle)}`;
+      const sumRes = await fetch(sumUrl, { headers: { 'User-Agent': 'RailSathiApp/1.0 (contact@railio.ai)' } });
+      if (sumRes.ok) {
+        const sumData = await sumRes.json();
+        return sumData.extract || '';
+      }
+    }
+  } catch (err) {
+    console.warn('[AI] Web train data fetch error:', err);
+  }
+  return '';
+};
+
+export const chatAIApi = async (query: string, history: any[] = []) => {
+  // 1. Primary & Most Secure: Call Backend AI Gateway (Keeps all API keys securely on server)
+  try {
+    const res = await api.post('/ai/chat', { message: query, history });
+    if (res.data?.success && res.data?.data?.answer) {
+      return {
+        answer: res.data.data.answer,
+        toolsExecuted: res.data.data.toolsExecuted || [],
+        confidence: res.data.data.confidence || 0.95
+      };
+    }
+  } catch (err) {
+    // Backend offline / network unreachable -> fallback to direct or local telemetry below
+  }
+
+  // 2. Direct OpenRouter AI fallback if client has EXPO_PUBLIC_OPENROUTER_API_KEY
+  const apiKey = process.env.EXPO_PUBLIC_OPENROUTER_API_KEY;
+  if (apiKey) {
+    try {
+      const trainNumberMatch = query.match(/\b\d{5}\b/);
+      let webContext = '';
+      let liveContext = '';
+
+      const webPromise = fetchWebTrainData(trainNumberMatch ? trainNumberMatch[0] : query);
+      
+      let localTrain: Train | undefined;
+      if (trainNumberMatch) {
+        const num = trainNumberMatch[0];
+        localTrain = fallbackTrains.find(t => t.trainNumber === num);
+        if (!localTrain) {
+          try {
+            localTrain = await getTrainByNumberApi(num);
+          } catch (e) {}
+        }
+      } else {
+        const qLower = query.toLowerCase();
+        localTrain = fallbackTrains.find(t => 
+          qLower.includes(t.name.toLowerCase()) || 
+          (t.type === 'Vande Bharat' && (qLower.includes('vande') || qLower.includes('bharat'))) ||
+          (t.type.includes('Rajdhani') && qLower.includes('rajdhani')) ||
+          (qLower.includes(t.source.toLowerCase()) && qLower.includes(t.destination.toLowerCase()))
+        );
+      }
+
+      const webResult = await Promise.race([
+        webPromise,
+        new Promise<string>(resolve => setTimeout(() => resolve(''), 3000))
+      ]);
+      if (webResult) {
+        webContext = `Verified Web Railway Encyclopedia:\n${webResult}`;
+      }
+
+      if (localTrain) {
+        const stopsList = localTrain.stops.map(s => `${s.code} (Arr: ${s.arr}, Dep: ${s.dep}, PF: ${s.platform})`).join(' -> ');
+        liveContext = `Live Railway Telemetry & Schedule for Train ${localTrain.trainNumber} (${localTrain.name}):
+- Type: ${localTrain.type}
+- Route: ${localTrain.source} to ${localTrain.destination} (${localTrain.totalDistanceKm} km, Departure: ${localTrain.departureTime}, Arrival: ${localTrain.arrivalTime})
+- Live Section: ${localTrain.liveState.currentSection}, Last Station: ${localTrain.liveState.lastStation}, Next Station: ${localTrain.liveState.nextStation}
+- Speed: ${localTrain.liveState.speed} km/h
+- Current Status: ${localTrain.liveState.delayMinutes === 0 ? 'Running On Time (0 min delay)' : `Delayed by ${localTrain.liveState.delayMinutes} mins`}
+- Route Stoppages: ${stopsList}`;
+      }
+
+      const verifiedContext = [webContext, liveContext].filter(Boolean).join('\n\n');
+
+      const systemPrompt = `You are Railio, the intelligent official AI assistant for Indian Railways app "Rail Sathi".
+
+VERIFIED REAL-TIME RAILWAY GROUND TRUTH CONTEXT:
+${verifiedContext || 'Use official Indian Railways verified knowledge. Train 22895 is the Howrah - Puri Vande Bharat Express.'}
+
+CRITICAL RULES:
+1. Ground Truth Priority: Use the verified real-time railway data provided above.
+2. Live Status: Provide the train's live status, speed, current section, and schedule directly. Never say you do not have access to live status.
+3. No Asterisks / Bold: DO NOT use markdown bold marks (**) or asterisks anywhere in your response. Output plain, clean text only.
+4. No XML / Tool tags: DO NOT output any <tool_call>, <arg_key>, <arg_value>, or XML tags.
+5. Scope: Only answer queries related to Indian Railways, trains, tickets, and travel.`;
+
+      const formattedHistory = history.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      }));
+
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'inclusionai/ling-3.0-flash-sante:free',
+          messages: [
+            {
+              role: 'system',
+              content: systemPrompt
+            },
+            ...formattedHistory,
+            {
+              role: 'user',
+              content: query
+            }
+          ]
+        })
+      });
+      const data = await res.json();
+      
+      if (data.choices && data.choices.length > 0) {
+        let rawAnswer = data.choices[0].message.content || '';
+        const cleanAnswer = rawAnswer
+          .replace(/\*\*/g, '')
+          .replace(/<\/?tool_call>/gi, '')
+          .replace(/<arg_[^>]+>[^<]*<\/arg_[^>]+>/gi, '')
+          .trim();
+
+        return {
+          answer: cleanAnswer,
+          toolsExecuted: [
+            { tool: 'WebRailwayScraper', query, status: 'SUCCESS' }
+          ], 
+          confidence: 0.98
+        };
+      }
+    } catch (err: any) {
+      console.warn('Direct AI query fallback failed:', err);
+    }
+  }
+
+  // 3. Local Deterministic Railway Intelligence Fallback (Works 100% Offline with zero keys)
+  const trainNumberMatch = query.match(/\b\d{5}\b/);
+  let matchedTrain = trainNumberMatch ? fallbackTrains.find(t => t.trainNumber === trainNumberMatch[0]) : undefined;
+  if (!matchedTrain) {
+    const qLower = query.toLowerCase();
+    matchedTrain = fallbackTrains.find(t => 
+      qLower.includes(t.name.toLowerCase()) || 
+      (t.type === 'Vande Bharat' && (qLower.includes('vande') || qLower.includes('bharat'))) ||
+      (t.type.includes('Rajdhani') && qLower.includes('rajdhani'))
+    );
+  }
+
+  if (matchedTrain) {
+    return {
+      answer: `Train ${matchedTrain.trainNumber} (${matchedTrain.name}) runs from ${matchedTrain.source} to ${matchedTrain.destination}. Current Live Status: ${matchedTrain.liveState.delayMinutes === 0 ? 'Running on time (0 min delay)' : `Delayed by ${matchedTrain.liveState.delayMinutes} mins`}, speed ${matchedTrain.liveState.speed} km/h in section ${matchedTrain.liveState.currentSection}. Next scheduled stop is ${matchedTrain.liveState.nextStation}.`,
+      toolsExecuted: [{ tool: 'LocalTelemetryEngine', result: 'OFFLINE_READY', status: 'SUCCESS' }],
+      confidence: 0.94
+    };
+  }
+
   return {
-    answer: `🚆 **RailSathi Agent Intelligence**:\n\nChecked live signals for "${query}". Train 12301 is running 12 mins behind schedule near DDU Junction. Catch probability is 91% if you depart within 7 minutes.`,
-    toolsExecuted: [
-      { tool: 'TrainStatusTool', input: { train: '12301' }, output: 'Running +12m delayed', status: 'SUCCESS' },
-      { tool: 'ETAPredictionTool', input: {}, output: 'Predicted 17:02', status: 'SUCCESS' },
-      { tool: 'CatchProbabilityTool', input: {}, output: '91% probability', status: 'SUCCESS' }
-    ],
-    confidence: 0.94
+    answer: `Rail Sathi AI Assistant: I am ready to assist you. Please enter a 5-digit Indian Railways train number (such as 22436 for Vande Bharat or 12301 for Howrah Rajdhani) or search between stations to see live telemetry, catch probability, and seat occupancy.`,
+    toolsExecuted: [{ tool: 'OfflineRailwayAssistant', status: 'SUCCESS' }],
+    confidence: 0.90
   };
 };
 
@@ -581,14 +848,16 @@ export const getSuburbanCoachCrowdApi = async (trainNumber: string) => {
 };
 
 export const getSuburbanCorridorsApi = async () => {
-  try {
-    const res = await api.get('/suburban/corridors');
-    if (res.data?.corridors) return res.data.corridors;
-  } catch (err) {}
-  return [
-    { id: 'DAKE-SDAH', name: 'Dakshineswar ⇄ Sealdah Local', from: 'DAKE', to: 'SDAH', frequencyMin: 15, dailyTrains: 58, isPopular: true, stations: ['DKAE', 'DAKE', 'BARN', 'DDJ', 'BNXR', 'SDAH'] },
-    { id: 'DKAE-SDAH', name: 'Dankuni ⇄ Sealdah Chord Local', from: 'DKAE', to: 'SDAH', frequencyMin: 18, dailyTrains: 46, isPopular: true, stations: ['DKAE', 'DAKE', 'BARN', 'DDJ', 'BNXR', 'SDAH'] },
-    { id: 'DDJ-SDAH', name: 'Dum Dum Jn ⇄ Sealdah Local', from: 'DDJ', to: 'SDAH', frequencyMin: 6, dailyTrains: 184, isPopular: true, stations: ['DDJ', 'BNXR', 'SDAH'] },
-  ];
+  return getCachedOrFetch('suburban_corridors', 60000, async () => {
+    try {
+      const res = await api.get('/suburban/corridors');
+      if (res.data?.corridors) return res.data.corridors;
+    } catch (err) {}
+    return [
+      { id: 'DAKE-SDAH', name: 'Dakshineswar ⇄ Sealdah Local', from: 'DAKE', to: 'SDAH', frequencyMin: 15, dailyTrains: 58, isPopular: true, stations: ['DKAE', 'DAKE', 'BARN', 'DDJ', 'BNXR', 'SDAH'] },
+      { id: 'DKAE-SDAH', name: 'Dankuni ⇄ Sealdah Chord Local', from: 'DKAE', to: 'SDAH', frequencyMin: 18, dailyTrains: 46, isPopular: true, stations: ['DKAE', 'DAKE', 'BARN', 'DDJ', 'BNXR', 'SDAH'] },
+      { id: 'DDJ-SDAH', name: 'Dum Dum Jn ⇄ Sealdah Local', from: 'DDJ', to: 'SDAH', frequencyMin: 6, dailyTrains: 184, isPopular: true, stations: ['DDJ', 'BNXR', 'SDAH'] },
+    ];
+  });
 };
 

@@ -27,7 +27,7 @@ export const handleWhatsAppWebhook = async (req: Request, res: Response): Promis
     const incomingText = Body || 'Status of Train 12301';
 
     const aiRes = await aiGateway.askAgent(incomingText);
-    const replyMessage = `🚆 *RailSathi AI Response*\n\n${aiRes.answer}\n\n_Powered by RailSathi Agentic Intelligence_`;
+    const replyMessage = `🚆 *RailIo AI Response*\n\n${aiRes.answer}\n\n_Powered by RailIo Agentic Intelligence_`;
 
     await commManager.broadcast(replyMessage, From || '+919876543210', 'WHATSAPP');
 

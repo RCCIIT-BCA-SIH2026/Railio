@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "allowJs": true
+  },
+  "include": [
+    "./**/*.ts",
+    "./deno.d.ts"
+  ]
+}

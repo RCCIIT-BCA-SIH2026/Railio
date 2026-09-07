@@ -11,7 +11,7 @@ from app.ml.eta_delay_predictor import ETADelayPredictor, DelayPredictionRequest
 from app.ml.catch_probability import CatchProbabilityEngine, CatchProbabilityInput
 from app.iot.anomaly_detector import TrackAnomalyDetector, SensorReading
 from app.digital_twin.network_twin import RailwayDigitalTwin, WhatIfSimulationRequest
-from app.agent.rail_agent import RailSathiAgent, AgentMessageRequest
+from app.agent.rail_agent import RailIoAgent, AgentMessageRequest
 
 def test_eta_delay_predictor():
     predictor = ETADelayPredictor()
@@ -63,7 +63,7 @@ def test_digital_twin_precedence():
     print("[PASS] NetworkX Digital Twin & What-If Precedence Simulator PASSED")
 
 def test_agent_tool_routing():
-    agent = RailSathiAgent()
+    agent = RailIoAgent()
     req = AgentMessageRequest(message="Can I catch my train 12301?")
     res = agent.process_query(req)
     assert len(res.answer) > 0
@@ -72,7 +72,7 @@ def test_agent_tool_routing():
 
 if __name__ == "__main__":
     print("====================================================")
-    print("Running RailSathi AI/ML Unit & Integration Tests")
+    print("Running RailIo AI/ML Unit & Integration Tests")
     print("====================================================")
     test_eta_delay_predictor()
     test_catch_probability_engine()

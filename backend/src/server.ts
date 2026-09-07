@@ -2,11 +2,14 @@ import express from 'express';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import cors from 'cors';
+import path from 'path';
 import dotenv from 'dotenv';
 import apiRouter from './routes/api';
 import { simulationEngine } from './services/simulationEngine';
 
-dotenv.config();
+// Load master root .env file
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const app = express();
 const server = http.createServer(app);
@@ -54,7 +57,7 @@ app.use('/api', apiRouter);
 app.get('/health', (req, res) => {
   res.json({
     status: 'healthy',
-    platform: 'RailSathi AI Railway Intelligence Platform',
+    platform: 'RailIo AI Railway Intelligence Platform',
     timestamp: new Date().toISOString(),
     version: '1.0.0',
   });
@@ -63,7 +66,7 @@ app.get('/health', (req, res) => {
 // Root welcome
 app.get('/', (req, res) => {
   res.json({
-    message: 'Welcome to RailSathi API Gateway - Predict • Protect • Connect',
+    message: 'Welcome to RailIo API Gateway - Predict • Protect • Connect',
     docs: '/api/admin/dashboard',
     health: '/health',
   });
@@ -72,7 +75,7 @@ app.get('/', (req, res) => {
 // Start Simulation Engine and Server
 server.listen(PORT, () => {
   console.log(`=======================================================`);
-  console.log(`🚆 RailSathi Backend running on http://localhost:${PORT}`);
+  console.log(`🚆 RailIo Backend running on http://localhost:${PORT}`);
   console.log(`⚡ Socket.IO real-time channel active`);
   console.log(`=======================================================`);
   simulationEngine.init(io);
