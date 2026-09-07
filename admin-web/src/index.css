@@ -2,7 +2,7 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Russo+One&display=swap');
 
 body {
   margin: 0;
@@ -14,6 +14,10 @@ body {
 
 h1, h2, h3, h4, .font-heading {
   font-family: 'Outfit', sans-serif;
+}
+
+.font-russo {
+  font-family: 'Russo One', sans-serif;
 }
 
 .glass-panel {

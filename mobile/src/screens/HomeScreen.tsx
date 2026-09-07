@@ -17,6 +17,7 @@ import { RootStackParamList } from '../types';
 import { VandeBharatHero } from '../components/VandeBharatHero';
 import { AppBackground } from '../components/AppBackground';
 import { getAlertsApi } from '../services/api';
+import { Scan, Ticket, Armchair, Building2, Headset, Users, CloudRain, Bell } from 'lucide-react-native';
 
 export const HomeScreen: React.FC = React.memo(() => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -76,7 +77,7 @@ export const HomeScreen: React.FC = React.memo(() => {
               <Image source={require('../../assets/logo.png')} style={{ width: '100%', height: '100%', transform: [{ scale: 1.6 }] }} resizeMode="contain" />
             </View>
             <View>
-              <Text style={styles.brandTitle}>Rail<Text style={styles.brandTitleIo}>Io</Text></Text>
+              <Text style={styles.brandTitle}>Rail<Text style={styles.brandTitleIo}>io</Text></Text>
               <Text style={styles.brandSubtitle}>AI RAILWAY INTELLIGENCE</Text>
             </View>
           </View>
@@ -86,7 +87,7 @@ export const HomeScreen: React.FC = React.memo(() => {
               style={styles.headerIconBtn}
               onPress={() => navigation.navigate('Alerts')}
             >
-              <Text style={{ fontSize: 16 }}>🔔</Text>
+              <Bell size={20} color="#0F172A" strokeWidth={2.5} />
               {activeAlertCount > 0 && <View style={styles.alertDot} />}
             </TouchableOpacity>
 
@@ -172,19 +173,8 @@ export const HomeScreen: React.FC = React.memo(() => {
           </TouchableOpacity>
         </View>
 
-        {/* 5-Card Quick Service Row */}
+        {/* 4-Card Quick Service Row */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickServicesScroll} contentContainerStyle={styles.quickServicesContent}>
-          {/* 0. AI Camera Navigation (NEW HERO) */}
-          <TouchableOpacity
-            style={[styles.quickServiceCard, { borderColor: '#FF671F', backgroundColor: '#FFF7ED' }]}
-            onPress={() => navigation.navigate('CameraNavigation')}
-          >
-            <View style={[styles.quickServiceIcon, { backgroundColor: '#FFEDD5', borderColor: '#FF671F' }]}>
-              <Text style={{ fontSize: 18 }}>📹</Text>
-            </View>
-            <Text style={[styles.quickServiceTitle, { color: '#FF671F' }]}>Camera Nav</Text>
-            <Text style={styles.quickServiceSub}>AI AR Indoor Wayfinding</Text>
-          </TouchableOpacity>
 
           {/* 1. Live Train Status */}
           <TouchableOpacity
@@ -192,7 +182,7 @@ export const HomeScreen: React.FC = React.memo(() => {
             onPress={() => navigation.navigate('LiveTrain', { trainNumber: '12301' })}
           >
             <View style={[styles.quickServiceIcon, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
-              <Image source={require('../../assets/logo.png')} style={{ width: 22, height: 22 }} resizeMode="contain" />
+              <Image source={require('../../assets/footer_svg_transparent.png')} style={{ width: 40, height: 40, tintColor: '#0284C7' }} resizeMode="contain" />
             </View>
             <Text style={styles.quickServiceTitle}>Live Train Status</Text>
             <Text style={styles.quickServiceSub}>Get real-time updates</Text>
@@ -204,23 +194,13 @@ export const HomeScreen: React.FC = React.memo(() => {
             onPress={() => navigation.navigate('SearchResults', { from: fromStation, to: toStation, date: journeyDate })}
           >
             <View style={[styles.quickServiceIcon, { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' }]}>
-              <Text style={{ fontSize: 18 }}>🎫</Text>
+              <Ticket size={20} color="#D97706" strokeWidth={2.5} />
             </View>
             <Text style={styles.quickServiceTitle}>PNR Enquiry</Text>
             <Text style={styles.quickServiceSub}>Check your status</Text>
           </TouchableOpacity>
 
-          {/* 3. Seat Availability */}
-          <TouchableOpacity
-            style={styles.quickServiceCard}
-            onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
-          >
-            <View style={[styles.quickServiceIcon, { backgroundColor: '#CCFBF1', borderColor: '#99F6E4' }]}>
-              <Text style={{ fontSize: 18 }}>⏱️</Text>
-            </View>
-            <Text style={styles.quickServiceTitle}>Seat Availability</Text>
-            <Text style={styles.quickServiceSub}>Find seats with ease</Text>
-          </TouchableOpacity>
+
 
           {/* 4. Station Info */}
           <TouchableOpacity
@@ -228,7 +208,7 @@ export const HomeScreen: React.FC = React.memo(() => {
             onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
           >
             <View style={[styles.quickServiceIcon, { backgroundColor: '#FFEDD5', borderColor: '#FED7AA' }]}>
-              <Text style={{ fontSize: 18 }}>🚉</Text>
+              <Building2 size={20} color="#EA580C" strokeWidth={2.5} />
             </View>
             <Text style={styles.quickServiceTitle}>Station Info</Text>
             <Text style={styles.quickServiceSub}>Explore stations</Text>
@@ -240,7 +220,7 @@ export const HomeScreen: React.FC = React.memo(() => {
             onPress={() => navigation.navigate('Alerts')}
           >
             <View style={[styles.quickServiceIcon, { backgroundColor: '#E0F2FE', borderColor: '#BAE6FD' }]}>
-              <Text style={{ fontSize: 18 }}>🎧</Text>
+              <Headset size={20} color="#0284C7" strokeWidth={2.5} />
             </View>
             <Text style={styles.quickServiceTitle}>24/7 Support</Text>
             <Text style={styles.quickServiceSub}>Safety & help</Text>
@@ -339,43 +319,13 @@ export const HomeScreen: React.FC = React.memo(() => {
         </View>
 
         <View style={styles.actionGrid}>
-          {/* 1. Live Train Tracking */}
-          <TouchableOpacity
-            style={styles.actionCard}
-            onPress={() => navigation.navigate('LiveTrain', { trainNumber: '12301' })}
-          >
-            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(56, 189, 248, 0.15)' }]}>
-              <Text style={{ fontSize: 24 }}>🚆</Text>
-            </View>
-            <Text style={styles.actionCardTitle}>Live Train</Text>
-            <Text style={styles.actionCardSub}>Real-time GPS Tracking</Text>
-            <View style={styles.actionCardBadge}>
-              <Text style={[styles.actionCardBadgeText, { color: '#38BDF8' }]}>3s Updates</Text>
-            </View>
-          </TouchableOpacity>
-
-          {/* 2. Can I Catch My Train? (HERO FEATURE) */}
-          <TouchableOpacity
-            style={[styles.actionCard, styles.actionCardHighlight]}
-            onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
-          >
-            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(255, 103, 31, 0.2)' }]}>
-              <Text style={{ fontSize: 24 }}>🎯</Text>
-            </View>
-            <Text style={[styles.actionCardTitle, { color: '#FF671F' }]}>Can I Catch?</Text>
-            <Text style={styles.actionCardSub}>Traffic + Station Buffer</Text>
-            <View style={[styles.actionCardBadge, { backgroundColor: 'rgba(255, 103, 31, 0.2)' }]}>
-              <Text style={[styles.actionCardBadgeText, { color: '#FF671F' }]}>Hero AI</Text>
-            </View>
-          </TouchableOpacity>
-
           {/* 3. Coach Crowd Intelligence */}
           <TouchableOpacity
             style={styles.actionCard}
             onPress={() => navigation.navigate('CoachCrowd', { trainNumber: '12301' })}
           >
             <View style={[styles.actionIconBox, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
-              <Text style={{ fontSize: 24 }}>👥</Text>
+              <Users size={24} color="#A855F7" strokeWidth={2.5} />
             </View>
             <Text style={styles.actionCardTitle}>Coach Crowd</Text>
             <Text style={styles.actionCardSub}>Least Density Finder</Text>
@@ -390,7 +340,7 @@ export const HomeScreen: React.FC = React.memo(() => {
             onPress={() => navigation.navigate('WeatherIntelligence', { stationCode: 'HWH' })}
           >
             <View style={[styles.actionIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
-              <Text style={{ fontSize: 24 }}>🌦️</Text>
+              <CloudRain size={24} color="#10B981" strokeWidth={2.5} />
             </View>
             <Text style={styles.actionCardTitle}>Weather</Text>
             <Text style={styles.actionCardSub}>Rain & Delay Impact</Text>
@@ -453,22 +403,7 @@ export const HomeScreen: React.FC = React.memo(() => {
           </View>
         </View>
 
-        {/* Quick PNR / AI Assistant Floating Banner */}
-        <TouchableOpacity
-          style={styles.aiBanner}
-          onPress={() => navigation.navigate('AIAssistant', { initialQuery: 'Where is train 12301?' })}
-        >
-          <View style={styles.aiBannerIcon}>
-            <Text style={{ fontSize: 22 }}>🤖</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.aiBannerTitle}>Ask RailIo AI Agent</Text>
-            <Text style={styles.aiBannerSub}>
-              "Where is my train?" • "Can I catch it?" • "Why is it delayed?"
-            </Text>
-          </View>
-          <Text style={styles.aiBannerArrow}>→</Text>
-        </TouchableOpacity>
+
       </ScrollView>
     </AppBackground>
   );
@@ -502,13 +437,14 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   brandTitle: {
-    fontSize: 22,
-    fontFamily: 'Sora_800ExtraBold',
-    color: '#0F172A',
-    letterSpacing: 0.5,
+    fontSize: 24,
+    fontFamily: 'RussoOne_400Regular',
+    color: '#000000',
+    letterSpacing: 1,
   },
   brandTitleIo: {
-    fontFamily: 'PlaypenSans_800ExtraBold',
+    fontFamily: 'RussoOne_400Regular',
+    color: '#FF671F',
   },
   brandSubtitle: {
     fontSize: 9,

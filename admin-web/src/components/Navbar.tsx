@@ -3,6 +3,7 @@ import { Activity, Bell, Shield, Train, Radio, Cpu, User, Users, FileText, LogOu
 import { useAdminAuth } from '../context/AuthContext';
 import { UserManagementModal } from './UserManagementModal';
 import { AuditLogViewer } from './AuditLogViewer';
+import trainLogo from '../assets/train-logo.svg';
 
 interface NavbarProps {
   activeTab: string;
@@ -42,13 +43,13 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
           <div className="flex items-center justify-between h-16">
             {/* Logo Branding */}
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-rail-orange to-rail-saffron flex items-center justify-center shadow-md shadow-rail-orange/20">
-                <Train className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center">
+                <img src={trainLogo} alt="Logo" className="w-10 h-10 object-contain" />
               </div>
               <div>
                 <div className="flex items-center space-x-2">
-                  <span className="font-heading text-xl font-extrabold tracking-wider text-slate-900">
-                    RailIo
+                  <span className="font-russo text-2xl tracking-wider text-black">
+                    Rail<span className="text-[#FF671F]">io</span>
                   </span>
                   <span className="px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase bg-orange-50 text-rail-orange border border-orange-200 rounded-full">
                     HQ Controller
