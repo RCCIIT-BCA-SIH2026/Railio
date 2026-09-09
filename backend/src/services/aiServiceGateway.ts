@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { db } from '../models/dataStore';
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
 
 export interface CatchTrainRequest {
   trainNumber: string;
@@ -250,12 +250,13 @@ export class AIServiceGateway {
     }
   }
 
-  async askAgent(query: string, sessionId: string = 'default', userLat?: number, userLng?: number) {
+  async askAgent(query: string, sessionId: string = 'default', userLat?: number, userLng?: number, clientTimestamp?: string) {
     try {
       const pyRes = await axios.post(`${AI_SERVICE_URL}/agent/chat`, {
         message: query,
         session_id: sessionId,
         location: userLat && userLng ? { latitude: userLat, longitude: userLng } : undefined,
+        client_timestamp: clientTimestamp || new Date().toISOString(),
       }, { timeout: 15000 });
       if (pyRes.data && pyRes.data.answer) {
         return {
@@ -269,11 +270,11 @@ export class AIServiceGateway {
     }
 
     // Strict Dataset Fallback
+    const qLower = query.toLowerCase();
     const matchNumber = query.match(/\b\d{5}\b/);
     const trainNum = matchNumber ? matchNumber[0] : null;
     let localTrain = trainNum ? db.getTrain(trainNum) : undefined;
     if (!localTrain) {
-      const qLower = query.toLowerCase();
       localTrain = db.trains.find(t => qLower.includes(t.name.toLowerCase()));
     }
     if (localTrain) {
@@ -283,6 +284,64 @@ export class AIServiceGateway {
         confidence: 0.95,
       };
     }
+
+    // Station-to-station route search fallback (real-time time aware)
+    const STATION_CODES: Record<string, string> = {
+      'sealdah': 'SDAH', 'sdah': 'SDAH',
+      'dankuni': 'DKAE', 'dkae': 'DKAE',
+      'bidhan nagar': 'BNXR', 'bnxr': 'BNXR',
+      'dum dum': 'DDJ', 'ddj': 'DDJ',
+      'baranagar': 'BARN', 'barn': 'BARN',
+      'dakshineswar': 'DAKE', 'dake': 'DAKE'
+    };
+    let fromCode = '';
+    let toCode = '';
+    for (const [name, code] of Object.entries(STATION_CODES)) {
+      if (qLower.includes(name)) {
+        if (!fromCode) fromCode = code;
+        else if (!toCode && code !== fromCode) toCode = code;
+      }
+    }
+    if (fromCode && toCode) {
+      const istTimeStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata', hour12: false, hour: '2-digit', minute: '2-digit' });
+      const [nowH, nowM] = istTimeStr.split(':').map(Number);
+      const currentMins = (nowH || 0) * 60 + (nowM || 0);
+      const matched = db.trains.filter(t => {
+        const sFrom = t.stops.find(s => s.code === fromCode);
+        const sTo = t.stops.find(s => s.code === toCode);
+        return sFrom && sTo && sFrom.sequence < sTo.sequence;
+      });
+
+      if (matched.length > 0) {
+        // Sort by time remaining until departure
+        const sorted = [...matched].sort((a, b) => {
+          const [ah, am] = a.departureTime.split(':').map(Number);
+          const [bh, bm] = b.departureTime.split(':').map(Number);
+          let aDiff = (ah * 60 + am) - currentMins;
+          if (aDiff < 0) aDiff += 1440;
+          let bDiff = (bh * 60 + bm) - currentMins;
+          if (bDiff < 0) bDiff += 1440;
+          return aDiff - bDiff;
+        });
+
+        const list = sorted.slice(0, 4).map((t, idx) => {
+          const [th, tm] = t.departureTime.split(':').map(Number);
+          let diff = (th * 60 + tm) - currentMins;
+          if (diff < 0) diff += 1440;
+          const untilStr = diff < 60 ? `in ${diff}m` : `in ${Math.floor(diff/60)}h ${diff%60}m`;
+          const prefix = idx === 0 ? `⭐ **NEXT UPCOMING SERVICE (${untilStr})**\n` : `${idx + 1}. `;
+          return `${prefix}**${t.trainNumber}** — ${t.name}\n   • Dep: **${t.departureTime}** (${untilStr}) | Arr: ${t.arrivalTime} | ${t.liveState.delayMinutes === 0 ? '🟢 On Time' : `🔴 +${t.liveState.delayMinutes}m`}`;
+        }).join('\n\n');
+
+        const timeStr = new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+        return {
+          answer: `🕒 **Current Time**: **${timeStr} (IST)**\n🚆 **Found ${matched.length} local trains for ${fromCode} ➔ ${toCode}:**\n\n${list}\n\n_Real-time timetable from local dataset._`,
+          toolsExecuted: [{ tool: 'DatasetLocalDB', query: `${fromCode} to ${toCode}`, status: 'SUCCESS' }],
+          confidence: 0.95,
+        };
+      }
+    }
+
     return {
       answer: `Dataset Query: Where would you like to travel? (e.g. Sealdah to Dankuni)`,
       toolsExecuted: [{ tool: 'DatasetLocalDB', query, status: 'SUCCESS' }],

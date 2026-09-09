@@ -1,5 +1,13 @@
 import os
+import sys
 from dotenv import load_dotenv
+
+if sys.stdout.encoding != 'utf-8':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
 
 # Load .env for local development (no-op if not present on Render — Render injects env vars directly)
 load_dotenv()

@@ -9,8 +9,34 @@ STRICT DATASET-ONLY MODE:
 """
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Optional, Dict, Any, List, Tuple
+
+# Indian Standard Time (IST, UTC+05:30)
+IST_TZ = timezone(timedelta(hours=5, minutes=30))
+
+def get_ist_now(ref_time: Any = None) -> datetime:
+    """
+    Guarantees the returned datetime is strictly in Indian Standard Time (IST, UTC+05:30).
+    Properly converts UTC ISO strings (e.g. from JS new Date().toISOString()) to IST.
+    """
+    if isinstance(ref_time, datetime):
+        if ref_time.tzinfo is None:
+            return ref_time.replace(tzinfo=IST_TZ)
+        return ref_time.astimezone(IST_TZ)
+
+    if isinstance(ref_time, str) and ref_time.strip():
+        try:
+            clean_ts = ref_time.strip().replace("Z", "+00:00")
+            dt = datetime.fromisoformat(clean_ts)
+            if dt.tzinfo is None:
+                return dt.replace(tzinfo=IST_TZ)
+            return dt.astimezone(IST_TZ)
+        except Exception as e:
+            pass
+
+    # Default to current real-time UTC converted to IST
+    return datetime.now(timezone.utc).astimezone(IST_TZ)
 
 # Resolve path: ai-service/app/ml/ → up 3 dirs → project root → data/trains/suburban_trains.json
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))          # ai-service/app/ml/
@@ -178,7 +204,7 @@ class TrainScheduleDB:
 
         Returns None if a fatal validation failure occurs.
         """
-        now = now or datetime.now()
+        now = get_ist_now(now)
         train = self.get(train_number)
 
         if not train:
@@ -290,7 +316,7 @@ class TrainScheduleDB:
         orig_codes = [orig_code]
         dest_codes = [dest_code]
 
-        print(f"[TrainScheduleDB] Searching: {origin}({orig_code}) → {destination}({dest_code})")
+        print(f"[TrainScheduleDB] Searching: {origin}({orig_code}) -> {destination}({dest_code})")
 
         matches = []
         # Iterate _all_trains (the full list) — not just the deduped dict —
@@ -314,7 +340,7 @@ class TrainScheduleDB:
                 if orig_idx < dest_idx:
                     matches.append(train)
 
-        print(f"[TrainScheduleDB] Found {len(matches)} candidate trains for {orig_code}→{dest_code}")
+        print(f"[TrainScheduleDB] Found {len(matches)} candidate trains for {orig_code}->{dest_code}")
         return matches
 
     def search_trains_with_segment_info(
@@ -340,7 +366,7 @@ class TrainScheduleDB:
           departing from the origin stop within [from, to] are returned.
           Format: 'HH:MM' (24-hour). Time window wraps across midnight correctly.
         """
-        now = now or datetime.now()
+        now = get_ist_now(now)
 
         # Resolve to dataset codes
         orig_code = resolve_station_code(origin)

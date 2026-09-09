@@ -10,6 +10,8 @@ import re
 import httpx
 import asyncio
 from datetime import datetime
+from typing import List, Dict, Any, Optional, Union
+from pydantic import BaseModel, Field
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response
 from fastapi.responses import JSONResponse, PlainTextResponse
 
@@ -17,7 +19,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from app.ml.eta_delay_predictor import (
     eta_predictor, DelayPredictionRequest, DelayPredictionResponse, DelayPrediction
 )
-from app.ml.train_schedule_db import train_schedule_db
+from app.ml.train_schedule_db import train_schedule_db, get_ist_now
 from app.ml.catch_probability import catch_engine, CatchProbabilityInput, CatchProbabilityOutput
 from app.ml.catch_up_optimizer import catch_up_optimizer, CatchUpRequest, CatchUpResponse
 
@@ -149,11 +151,90 @@ def simulate_digital_twin(req: WhatIfSimulationRequest):
     return digital_twin.simulate_what_if(req)
 
 
-# ─── 6. Agentic AI & RAG ─────────────────────────────────────────────────────
+# ─── 6. Agentic AI & Senior RAG Engine ───────────────────────────────────────
+from app.rag.knowledge_base import knowledge_base
+from app.rag.train_knowledge_indexer import knowledge_indexer
+
+class RAGQueryRequest(BaseModel):
+    query: str
+    language_style: str = "en"
+    top_k: int = 4
+
+class RAGQueryResponse(BaseModel):
+    answer: str
+    confidenceScore: float
+    retrievedKnowledgeDocs: List[str]
+    modelUsed: str
 
 @router.post("/agent/chat", response_model=AgentResponse)
+@router.post("/ai/chat", response_model=AgentResponse)
+@router.post("/ai/agent", response_model=AgentResponse)
 def chat_agent(req: AgentMessageRequest):
     return rail_agent.process_query(req)
+
+@router.post("/rag/query", response_model=RAGQueryResponse)
+def query_rag_engine(req: RAGQueryRequest):
+    """
+    Direct Senior ML + RAG query endpoint.
+    Retrieves multi-dimensional railway knowledge & executes dynamic ML delay predictions.
+    """
+    res = knowledge_base.answer_query(req.query, language_style=req.language_style, top_k=req.top_k)
+    return RAGQueryResponse(
+        answer=res["answer"],
+        confidenceScore=res.get("confidenceScore", 0.95),
+        retrievedKnowledgeDocs=res.get("retrievedKnowledgeDocs", []),
+        modelUsed=res.get("modelUsed", "Gemini 2.5 Flash + RAG")
+    )
+
+@router.get("/rag/train-deepdive/{train_number}")
+def get_train_deepdive(train_number: str):
+    """
+    Returns complete structured intelligence report for a single train:
+    Profile, stops/platforms, live ML prediction, 5-yr historical delay stats, crowd density, and track health.
+    """
+    train = train_schedule_db.get(train_number)
+    if not train:
+        raise HTTPException(status_code=404, detail=f"Train {train_number} not found in dataset.")
+
+    now = get_ist_now()
+    ctx = train_schedule_db.build_predictor_context(train_number, now)
+    
+    ml_pred = None
+    if ctx:
+        try:
+            ml_req = DelayPredictionRequest(
+                trainNumber=train_number,
+                currentSpeed=ctx["currentSpeed"],
+                distanceRemaining=ctx["distanceKm"],
+                weatherCondition="Clear",
+                junctionCongestionLevel=0.4,
+                day=ctx["day"], month=ctx["month"], dayOfWeek=ctx["dayOfWeek"],
+                departureHour=ctx["departureHour"], departureMinute=ctx["departureMinute"],
+                arrivalHour=ctx["arrivalHour"], arrivalMinute=ctx["arrivalMinute"],
+                travelDurationMins=ctx["travelDurationMins"],
+                distanceKm=ctx["distanceKm"], direction=ctx["direction"],
+                departureDelay=ctx["departureDelay"]
+            )
+            ml_pred = eta_predictor.predict(ml_req)
+        except Exception as e:
+            print(f"ML error in deepdive: {e}")
+
+    hist_stats = knowledge_indexer.train_5yr_stats.get(train_number, {})
+
+    return {
+        "trainNumber": train_number,
+        "name": train.get("name"),
+        "type": train.get("type", "Suburban EMU Local"),
+        "source": train.get("source"),
+        "destination": train.get("destination"),
+        "departureTime": train.get("departureTime"),
+        "arrivalTime": train.get("arrivalTime"),
+        "totalDistanceKm": train.get("totalDistanceKm"),
+        "stops": train.get("stops", []),
+        "liveState": train.get("liveState", {}),
+        "liveMLForecast": ml_pred.model_dump() if ml_pred else None,
+        "fiveYearHistoricalStats": hist_stats,
+    }
 
 
 # ─── 7. RTIS Telemetry Ingestion ─────────────────────────────────────────────

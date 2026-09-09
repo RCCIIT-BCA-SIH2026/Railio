@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -11,7 +11,15 @@ export const SearchTrainScreen: React.FC = () => {
   const { t } = useTranslation();
   const [from, setFrom] = useState('SDAH');
   const [to, setTo] = useState('DKAE');
-  const [date, setDate] = useState('Today, 28 Aug');
+  const formatDate = (d: Date) => `Today, ${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}`;
+  const [date, setDate] = useState(() => formatDate(new Date()));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDate(formatDate(new Date()));
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   const popularRoutes = [
     { from: 'SDAH', to: 'DKAE', name: t('Sealdah ↔ Dankuni Local') },

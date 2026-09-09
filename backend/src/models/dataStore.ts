@@ -552,14 +552,15 @@ class DataStore {
       return fromStop && toStop && fromStop.sequence < toStop.sequence;
     });
 
-    // Parse current time in minutes from midnight (HH:MM)
+    // Parse current time in minutes from midnight (HH:MM) in IST (Asia/Kolkata)
     let currentTotalMinutes = 0;
     if (currentTime && currentTime.includes(':')) {
       const [ch, cm] = currentTime.split(':').map(Number);
       currentTotalMinutes = (ch || 0) * 60 + (cm || 0);
     } else {
-      const now = new Date();
-      currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+      const istTimeStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata', hour12: false, hour: '2-digit', minute: '2-digit' });
+      const [ch, cm] = istTimeStr.split(':').map(Number);
+      currentTotalMinutes = (ch || 0) * 60 + (cm || 0);
     }
 
     const upcomingList: SuburbanDeparture[] = matchingTrains.map((train, idx) => {
@@ -572,9 +573,9 @@ class DataStore {
       const [dh, dm] = scheduledDep.split(':').map(Number);
       const depTotalMin = (dh || 0) * 60 + (dm || 0);
 
-      // Calculate minutes until departure relative to current time
+      // Calculate minutes until departure relative to current IST time
       let diff = depTotalMin - currentTotalMinutes;
-      if (diff < -120) diff += 1440; // wrap around for next day
+      if (diff < 0) diff += 1440; // wrap around for next day / upcoming cycle
 
       const delayMin = train.liveState.delayMinutes || 0;
       

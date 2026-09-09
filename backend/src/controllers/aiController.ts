@@ -4,14 +4,16 @@ import { commManager } from '../services/communicationChannel';
 
 export const handleAIChat = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { message, location, session_id } = req.body;
+    const { message, location, session_id, client_timestamp } = req.body;
     const sessionId = session_id || (req.headers['x-session-id'] as string) || req.ip || 'default_session';
+    const timestamp = client_timestamp || (req.headers['x-client-timestamp'] as string) || new Date().toISOString();
 
     const result = await aiGateway.askAgent(
       message || 'Find a train',
       sessionId,
       location?.latitude,
-      location?.longitude
+      location?.longitude,
+      timestamp
     );
 
     res.json({

@@ -27,7 +27,7 @@ export const getUpcomingSuburbanTrains = async (req: Request, res: Response): Pr
         sectionName: 'Sealdah - Dankuni Chord Suburban Section (ER)',
       },
       queriedAt: new Date().toISOString(),
-      currentTimeBasis: time || new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+      currentTimeBasis: time || new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata', hour12: false, hour: '2-digit', minute: '2-digit' }),
       telemetryProvider: 'Google Maps Anonymized Cellular Signal Density & BLE Mesh Aggregation',
       count: upcomingTrains.length,
       trains: upcomingTrains,

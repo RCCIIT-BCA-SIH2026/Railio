@@ -340,7 +340,12 @@ export const chatAIApi = async (query: string, history: any[] = []) => {
   // If it's a Train Query, try the primary ML Backend first
   if (hasRailwayIntent) {
     try {
-      const res = await api.post('/ai/chat', { message: cleanQuery, session_id: 'mobile_client_session', history });
+      const res = await api.post('/ai/chat', {
+        message: cleanQuery,
+        session_id: 'mobile_client_session',
+        client_timestamp: new Date().toISOString(),
+        history
+      }, { timeout: 15000 });
       if (res.data?.success && res.data?.data?.answer) {
         let cleanAnswer = res.data.data.answer;
         cleanAnswer = cleanAnswer.replace(/User Safety:.*?\n?/gi, '');

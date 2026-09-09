@@ -29,8 +29,13 @@ export const HomeScreen: React.FC = React.memo(() => {
   const { t } = useTranslation();
   const [fromStation, setFromStation] = useState('SDAH');
   const [toStation, setToStation] = useState('DKAE');
-  const [journeyDate, setJourneyDate] = useState('Today, 28 Aug');
+  const formatCurrentJourneyDate = (date: Date) => {
+    const shortFormatted = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    return `Today, ${shortFormatted}`;
+  };
+
   const [dateObj, setDateObj] = useState(new Date());
+  const [journeyDate, setJourneyDate] = useState(() => formatCurrentJourneyDate(new Date()));
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeAlertCount, setActiveAlertCount] = useState(3);
@@ -47,8 +52,21 @@ export const HomeScreen: React.FC = React.memo(() => {
     const task = InteractionManager.runAfterInteractions(() => {
       loadAlerts();
     });
-    return () => task.cancel();
-  }, [loadAlerts]);
+
+    // Auto-update date at midnight / background tick
+    const timer = setInterval(() => {
+      const now = new Date();
+      if (now.toDateString() !== dateObj.toDateString()) {
+        setDateObj(now);
+        setJourneyDate(formatCurrentJourneyDate(now));
+      }
+    }, 30000);
+
+    return () => {
+      task.cancel();
+      clearInterval(timer);
+    };
+  }, [loadAlerts, dateObj]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

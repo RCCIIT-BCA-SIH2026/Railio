@@ -56,11 +56,11 @@ export const AIAssistantScreen: React.FC = () => {
   ];
 
   const suggestedPrompts = [
-    'Find trains to Delhi',
-    'Check my PNR',
-    'Kolkata to Mumbai',
-    'Train running status',
-    'Best route to Delhi',
+    'Sealdah to Dankuni upcoming train',
+    'Train 32211 ML delay forecast & profile',
+    'Which coach in 32216 is least crowded?',
+    'Dankuni to Sealdah local timetable',
+    'What is the luggage allowance in suburban local?',
   ];
 
   const handleSend = async (queryText?: string) => {

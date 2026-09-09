@@ -293,6 +293,11 @@ class RailwayDigitalTwin:
             affectedJunctions=["Sealdah (SDAH)"]
         )
 
+    simulate_what_if = run_what_if
+
 
 # Singleton instance
 network_twin = RailwayDigitalTwin()
+digital_twin = network_twin
+
+

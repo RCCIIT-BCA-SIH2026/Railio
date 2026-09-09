@@ -1,59 +1,42 @@
-from typing import List, Dict
+"""
+knowledge_base.py — Enterprise RAG Knowledge Base Bridge
+=========================================================
+Wraps HybridRetriever & RAGGenerator for seamless multi-dimensional search & generation.
+Maintains full backward compatibility for legacy callers.
+"""
+
+from typing import List, Dict, Any, Optional
+from app.rag.hybrid_retriever import hybrid_retriever, RetrievedDocument
+from app.rag.rag_generator import rag_generator
+
 
 class RailwayKnowledgeBase:
-    def __init__(self):
-        self.documents = [
-            {
-                "id": "KB-001",
-                "title": "Indian Railways Tatkal and Ticket Rules",
-                "content": "Tatkal booking opens at 10:00 AM for AC classes and 11:00 AM for Non-AC classes one day in advance. Confirmed Tatkal tickets are non-refundable upon cancellation except in cases of train delayed by more than 3 hours or train cancellation.",
-                "tags": ["ticket", "tatkal", "refund", "booking"]
-            },
-            {
-                "id": "KB-002",
-                "title": "Luggage Allowance Policy",
-                "content": "AC First Class passengers can carry up to 70 kg free luggage. AC 2-Tier permits 50 kg, AC 3-Tier and AC Chair Car permit 40 kg, and Sleeper Class permits 40 kg. Excess luggage must be booked at the luggage office.",
-                "tags": ["luggage", "baggage", "weight", "allowance"]
-            },
-            {
-                "id": "KB-003",
-                "title": "Medical & Emergency Assistance on Train",
-                "content": "Passengers needing emergency medical attention can alert the Train Ticket Examiner (TTE) or tweet/message @RailMinIndia or dial 139. Emergency first aid boxes are available with the Guard/TTE, and station doctors attend at upcoming major stoppages.",
-                "tags": ["medical", "emergency", "doctor", "helpline", "139"]
-            },
+    """Enterprise RAG Bridge integrating dense embeddings, ML models, and Gemini generation."""
 
+    def __init__(self):
+        self.retriever = hybrid_retriever
+        self.generator = rag_generator
+
+    def search(self, query: str, top_k: int = 4) -> List[Dict[str, Any]]:
+        """Perform hybrid retrieval and return list of document dicts."""
+        docs = self.retriever.retrieve(query, top_k=top_k)
+        return [
             {
-                "id": "KB-005",
-                "title": "Monsoon & Heavy Rain Operating Procedures",
-                "content": "During waterlogging exceeding 100mm above rail level, train speed is capped at 10 km/h or suspended. Overhead electric traction is monitored for wind speeds exceeding 70 km/h. Coastal divisions implement caution orders with safety buffer headway.",
-                "tags": ["weather", "rain", "monsoon", "safety", "waterlogging"]
-            },
-            {
-                "id": "KB-006",
-                "title": "Connecting Train Transfer Protocol",
-                "content": "Minimum suggested connection buffer at major junction stations is 45 minutes for same-station transfers and 120 minutes for city cross-transfers (e.g. Howrah to Sealdah). If the first train is delayed, passengers holding linked PNRs can claim full refund on missed connections at the transfer station TDR counter.",
-                "tags": ["connecting", "transfer", "missed train", "connection", "pnr"]
+                "id": d.chunk.chunk_id,
+                "title": d.chunk.title,
+                "content": d.chunk.content,
+                "category": d.chunk.category,
+                "score": d.score,
+                "match_type": d.match_type,
             }
+            for d in docs
         ]
 
-    def search(self, query: str, top_k: int = 2) -> List[Dict[str, str]]:
-        q = query.lower()
-        scored_docs = []
-        for doc in self.documents:
-            score = 0
-            for tag in doc["tags"]:
-                if tag in q:
-                    score += 3
-            # Check content matches
-            words = q.split()
-            for word in words:
-                if len(word) > 3 and word in doc["content"].lower():
-                    score += 1
-            if score > 0:
-                scored_docs.append((score, doc))
+    def answer_query(self, query: str, language_style: str = "en", top_k: int = 4) -> Dict[str, Any]:
+        """End-to-end RAG answer generation with dynamic ML context."""
+        retrieved_docs = self.retriever.retrieve(query, top_k=top_k)
+        return self.generator.generate_response(query, retrieved_docs, language_style)
 
-        scored_docs.sort(key=lambda x: x[0], reverse=True)
-        results = [doc for _, doc in scored_docs[:top_k]]
-        return results if results else [self.documents[0]]
 
+# Singleton instance
 knowledge_base = RailwayKnowledgeBase()
