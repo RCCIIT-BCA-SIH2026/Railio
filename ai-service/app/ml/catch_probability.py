@@ -89,16 +89,10 @@ class CatchProbabilityEngine:
             risk = "CRITICAL"
             rec = "🔴 High risk of missing train. Recommend alternate connection."
 
-        train_name = req.trainData.get("name", "Express") if req.trainData else "Express"
+        train_name = req.trainData.get("name", "Local") if req.trainData else "Local"
         dep_time = req.trainData.get("departureTime", req.scheduledDepartureTime) if req.trainData else "16:50"
 
         alt_train = None
-        if prob_pct < 50:
-            alt_train = {
-                "trainNumber": "12841",
-                "name": "Coromandel Express",
-                "departureTime": "18:15"
-            }
 
         return CatchProbabilityOutput(
             trainNumber=req.trainNumber,

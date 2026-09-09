@@ -4,10 +4,12 @@ import { commManager } from '../services/communicationChannel';
 
 export const handleAIChat = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { message, location } = req.body;
+    const { message, location, session_id } = req.body;
+    const sessionId = session_id || (req.headers['x-session-id'] as string) || req.ip || 'default_session';
 
     const result = await aiGateway.askAgent(
-      message || 'Where is my train?',
+      message || 'Find a train',
+      sessionId,
       location?.latitude,
       location?.longitude
     );
@@ -25,8 +27,9 @@ export const handleWhatsAppWebhook = async (req: Request, res: Response): Promis
   try {
     const { From, Body, location } = req.body;
     const incomingText = Body || 'Status of Train 12301';
+    const sessionId = From ? `wa_${From.replace(/\D/g, '')}` : 'default_wa';
 
-    const aiRes = await aiGateway.askAgent(incomingText);
+    const aiRes = await aiGateway.askAgent(incomingText, sessionId);
     const replyMessage = `🚆 *RailIo AI Response*\n\n${aiRes.answer}\n\n_Powered by RailIo Agentic Intelligence_`;
 
     await commManager.broadcast(replyMessage, From || '+919876543210', 'WHATSAPP');

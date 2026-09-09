@@ -120,7 +120,7 @@ export class WhatsAppSessionManager {
       `🎯 *RailIo "Can I Catch My Train?" AI Calculator*\n\n` +
       `To check whether you can catch your train in live traffic:\n\n` +
       `1️⃣ *Share your Live GPS Location* 📍 using WhatsApp Location pin.\n` +
-      `2️⃣ *OR Reply with your 5-digit Train Number* (e.g. *12301* or *12301, Howrah*).`;
+      `2️⃣ *OR Reply with your Train Name or Number* (e.g. *Vande Bharat*, *12301*, or *Howrah to Delhi*).`;
 
     await whatsappService.sendMessage(phoneNumber, text);
   }
@@ -132,7 +132,7 @@ export class WhatsAppSessionManager {
     session.state = 'AWAITING_TRAIN_STATUS';
     const text =
       `🚆 *RailIo Live Train Status*\n\n` +
-      `Please reply with the *5-digit Train Number* (e.g. *12301* or *22436*) to track live GPS position, delay, speed, and ETA.`;
+      `Please reply with the *Train Number or Name* (e.g. *12301*, *22436*, or *Vande Bharat*) to track live GPS position, delay, speed, and ETA.`;
 
     await whatsappService.sendMessage(phoneNumber, text);
   }
@@ -234,7 +234,7 @@ export class WhatsAppSessionManager {
 
     const train = db.getTrain(trainNumber);
     if (!train) {
-      await whatsappService.sendMessage(phoneNumber, `❌ Train number *${trainNumber}* not found in active database. Please reply with a valid 5-digit train number (e.g. *12301*, *12841*, *22436*).`);
+      await whatsappService.sendMessage(phoneNumber, `❌ Train *${trainNumber}* not found in database. Please enter a valid train number or train name (e.g. *12301*, *22436*, or *Vande Bharat*).`);
       return;
     }
 

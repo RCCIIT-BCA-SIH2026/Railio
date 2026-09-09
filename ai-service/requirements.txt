@@ -1,4 +1,11 @@
 annotated-types==0.8.0
+# Digital Twin graph simulation
+networkx>=3.0
+# ML model dependencies
+joblib>=1.2.0
+scikit-learn>=1.6.1
+numpy>=1.24.0
+pandas>=2.0.0
 anyio==4.15.0
 certifi==2026.7.22
 cffi==2.1.1
