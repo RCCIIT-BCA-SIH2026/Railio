@@ -7,3 +7,6 @@ scikit-learn==1.6.0
 networkx==3.4.2
 python-dotenv==1.0.1
 httpx==0.28.1
+pandas>=2.0.0
+joblib>=1.2.0
+websockets==16.1.1
