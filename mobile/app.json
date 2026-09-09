@@ -43,7 +43,8 @@
         {
           "cameraPermission": "RailIo uses the camera for AI-powered indoor station navigation and visual AR guidance."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "web": {
       "favicon": "./assets/favicon.png",
