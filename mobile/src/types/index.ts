@@ -23,6 +23,7 @@ export type RootStackParamList = {
   AdminQuickAlerts: undefined;
   Profile: undefined;
   Settings: undefined;
+  SmartServices: { trainNumber: string };
 };
 
 export interface CoachSignalCrowd {

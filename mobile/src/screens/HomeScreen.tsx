@@ -22,7 +22,7 @@ import { AppBackground } from '../components/AppBackground';
 import { getAlertsApi } from '../services/api';
 import { useTranslation } from '../context/LanguageContext';
 import { LanguageTopButton } from '../components/LanguageTopButton';
-import { Scan, Ticket, Armchair, Building2, Headset, Users, CloudRain, Bell } from 'lucide-react-native';
+import { Scan, Ticket, Armchair, Building2, Headset, Users, CloudRain, Bell, AlarmClock } from 'lucide-react-native';
 
 export const HomeScreen: React.FC = React.memo(() => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -266,16 +266,16 @@ export const HomeScreen: React.FC = React.memo(() => {
             <Text style={styles.quickServiceSub}>{t('Check your status', 'Check your status')}</Text>
           </TouchableOpacity>
 
-          {/* 3. Station Info */}
+          {/* 3. VIP Smart Services */}
           <TouchableOpacity
             style={[styles.quickServiceCard, { flex: 1, width: undefined }]}
-            onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
+            onPress={() => navigation.navigate('SmartServices', { trainNumber: '32216' })}
           >
-            <View style={[styles.quickServiceIcon, { backgroundColor: '#FFEDD5', borderColor: '#FED7AA' }]}>
-              <Building2 size={20} color="#EA580C" strokeWidth={2.5} />
+            <View style={[styles.quickServiceIcon, { backgroundColor: '#F3E8FF', borderColor: '#D8B4FE' }]}>
+              <AlarmClock size={20} color="#9333EA" strokeWidth={2.5} />
             </View>
-            <Text style={styles.quickServiceTitle}>{t('Station Info', 'Station Info')}</Text>
-            <Text style={styles.quickServiceSub}>{t('Explore stations', 'Explore stations')}</Text>
+            <Text style={styles.quickServiceTitle}>{t('Smart Alarms', 'Smart Alarms')}</Text>
+            <Text style={styles.quickServiceSub}>{t('ETA-Synced Alerts', 'ETA-Synced Alerts')}</Text>
           </TouchableOpacity>
         </View>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Bell, Shield, Train, Radio, Cpu, User, Users, FileText, LogOut } from 'lucide-react';
+import { Activity, Bell, Shield, Train, Radio, Cpu, User, Users, FileText, LogOut, GitBranch, Network, Settings } from 'lucide-react';
 import { useAdminAuth } from '../context/AuthContext';
 import { UserManagementModal } from './UserManagementModal';
 import { AuditLogViewer } from './AuditLogViewer';
@@ -35,6 +35,9 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     { id: 'track-health', label: 'Track Health & IoT', icon: Shield },
     { id: 'crowd', label: 'Station Crowd Heatmaps', icon: Radio },
     { id: 'alerts', label: 'Incident Control', icon: Bell },
+    { id: 'gnn', label: 'Network GNN', icon: GitBranch },
+    { id: 'federated', label: 'Federated AI', icon: Network },
+    { id: 'logistics', label: 'Logistics Sync', icon: Settings },
   ];
 
   return (

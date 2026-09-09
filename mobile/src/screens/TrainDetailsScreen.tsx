@@ -139,6 +139,15 @@ export const TrainDetailsScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
+      <View style={{ marginBottom: 16 }}>
+         <TouchableOpacity
+           style={[styles.actionBtn, { backgroundColor: '#8B5CF6', paddingVertical: 14 }]}
+           onPress={() => navigation.navigate('SmartServices', { trainNumber: train.trainNumber })}
+         >
+           <Text style={[styles.actionBtnText, { color: 'white', fontSize: 14 }]}>⏰ Smart Alarms</Text>
+         </TouchableOpacity>
+      </View>
+
       {/* Station Stoppages Timeline */}
       <View style={styles.timelineSection}>
         <Text style={styles.timelineSectionTitle}>Route & Stoppage Schedule</Text>

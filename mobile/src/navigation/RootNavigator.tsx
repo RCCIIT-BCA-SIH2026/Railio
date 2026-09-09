@@ -35,6 +35,7 @@ import { ConnectingTrainScreen } from '../screens/ConnectingTrainScreen';
 import { AdminQuickAlertsScreen } from '../screens/AdminQuickAlertsScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { SmartServicesScreen } from '../screens/SmartServicesScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -250,6 +251,7 @@ export const RootNavigator: React.FC = () => {
       <Stack.Screen name="AdminQuickAlerts" component={AdminQuickAlertsScreen} options={{ title: 'Controller Quick Dispatch' }} />
       <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'App Settings' }} />
       <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'My Profile' }} />
+      <Stack.Screen name="SmartServices" component={SmartServicesScreen} options={{ title: 'Smart In-Train Services' }} />
     </Stack.Navigator>
   );
 };
