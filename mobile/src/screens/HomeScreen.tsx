@@ -10,7 +10,10 @@ import {
   Platform,
   InteractionManager,
   Image,
+  Linking,
+  Modal,
 } from 'react-native';
+import { Calendar } from 'react-native-calendars';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
@@ -27,6 +30,8 @@ export const HomeScreen: React.FC = React.memo(() => {
   const [fromStation, setFromStation] = useState('SDAH');
   const [toStation, setToStation] = useState('DKAE');
   const [journeyDate, setJourneyDate] = useState('Today, 28 Aug');
+  const [dateObj, setDateObj] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeAlertCount, setActiveAlertCount] = useState(3);
 
@@ -161,14 +166,55 @@ export const HomeScreen: React.FC = React.memo(() => {
           </View>
 
           {/* Date Selector */}
-          <View style={styles.dateSelector}>
+          <TouchableOpacity style={styles.dateSelector} onPress={() => setShowDatePicker(true)}>
             <Text style={styles.dateLabel}>{t('JOURNEY DATE', 'JOURNEY DATE')}</Text>
-            <TextInput
-              style={styles.dateInput}
-              value={journeyDate}
-              onChangeText={setJourneyDate}
-            />
-          </View>
+            <Text style={[styles.dateInput, { color: '#0F172A', paddingTop: 4 }]}>
+              {journeyDate}
+            </Text>
+          </TouchableOpacity>
+          
+          <Modal visible={showDatePicker} transparent animationType="slide">
+            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 }}>
+              <View style={{ backgroundColor: '#fff', borderRadius: 20, padding: 20, overflow: 'hidden' }}>
+                <Text style={{ fontSize: 18, fontWeight: '800', marginBottom: 16, color: '#0F172A', textAlign: 'center' }}>Select Journey Date</Text>
+                
+                <Calendar
+                  current={dateObj.toISOString()}
+                  minDate={new Date().toISOString()}
+                  onDayPress={(day: any) => {
+                    const selectedDate = new Date(day.timestamp);
+                    setDateObj(selectedDate);
+                    
+                    const today = new Date();
+                    const tomorrow = new Date();
+                    tomorrow.setDate(today.getDate() + 1);
+                    
+                    const isToday = today.toDateString() === selectedDate.toDateString();
+                    const isTomorrow = tomorrow.toDateString() === selectedDate.toDateString();
+                    
+                    const shortFormatted = selectedDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                    setJourneyDate(isToday ? `Today, ${shortFormatted}` : isTomorrow ? `Tomorrow, ${shortFormatted}` : shortFormatted);
+                    setShowDatePicker(false);
+                  }}
+                  markedDates={{
+                    [dateObj.toISOString().split('T')[0]]: { selected: true, selectedColor: '#0284C7' }
+                  }}
+                  theme={{
+                    todayTextColor: '#E11D48',
+                    selectedDayBackgroundColor: '#0284C7',
+                    arrowColor: '#0284C7',
+                    textDayFontWeight: '500',
+                    textMonthFontWeight: 'bold',
+                    textDayHeaderFontWeight: 'bold',
+                  }}
+                />
+
+                <TouchableOpacity onPress={() => setShowDatePicker(false)} style={{ marginTop: 16, alignItems: 'center', padding: 14, backgroundColor: '#F1F5F9', borderRadius: 12 }}>
+                  <Text style={{ fontWeight: '700', color: '#475569', fontSize: 16 }}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
           {/* Search CTA */}
           <TouchableOpacity style={styles.searchCta} onPress={handleSearch}>
@@ -176,12 +222,11 @@ export const HomeScreen: React.FC = React.memo(() => {
           </TouchableOpacity>
         </View>
 
-        {/* 4-Card Quick Service Row */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickServicesScroll} contentContainerStyle={styles.quickServicesContent}>
-
+        {/* 3-Card Quick Service Row */}
+        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16, paddingHorizontal: 16 }}>
           {/* 1. Live Train Status */}
           <TouchableOpacity
-            style={styles.quickServiceCard}
+            style={[styles.quickServiceCard, { flex: 1, width: undefined }]}
             onPress={() => navigation.navigate('LiveTrain', { trainNumber: '32216' })}
           >
             <View style={[styles.quickServiceIcon, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
@@ -193,7 +238,7 @@ export const HomeScreen: React.FC = React.memo(() => {
 
           {/* 2. PNR Enquiry */}
           <TouchableOpacity
-            style={styles.quickServiceCard}
+            style={[styles.quickServiceCard, { flex: 1, width: undefined }]}
             onPress={() => navigation.navigate('SearchResults', { from: fromStation, to: toStation, date: journeyDate })}
           >
             <View style={[styles.quickServiceIcon, { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' }]}>
@@ -205,7 +250,7 @@ export const HomeScreen: React.FC = React.memo(() => {
 
           {/* 3. Station Info */}
           <TouchableOpacity
-            style={styles.quickServiceCard}
+            style={[styles.quickServiceCard, { flex: 1, width: undefined }]}
             onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
           >
             <View style={[styles.quickServiceIcon, { backgroundColor: '#FFEDD5', borderColor: '#FED7AA' }]}>
@@ -214,60 +259,62 @@ export const HomeScreen: React.FC = React.memo(() => {
             <Text style={styles.quickServiceTitle}>{t('Station Info', 'Station Info')}</Text>
             <Text style={styles.quickServiceSub}>{t('Explore stations', 'Explore stations')}</Text>
           </TouchableOpacity>
+        </View>
 
-          {/* 4. 24/7 Support */}
-          <TouchableOpacity
-            style={styles.quickServiceCard}
-            onPress={() => navigation.navigate('Alerts')}
-          >
-            <View style={[styles.quickServiceIcon, { backgroundColor: '#E0F2FE', borderColor: '#BAE6FD' }]}>
-              <Headset size={20} color="#0284C7" strokeWidth={2.5} />
+        {/* Beautiful 24/7 Helpline Area */}
+        <View style={{ marginTop: 24, marginBottom: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 12 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#FFE4E6', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
+              <Headset size={18} color="#E11D48" strokeWidth={2.5} />
             </View>
-            <Text style={styles.quickServiceTitle}>{t('24/7 Support', '24/7 Support')}</Text>
-            <Text style={styles.quickServiceSub}>{t('Safety & help', 'Safety & help')}</Text>
-          </TouchableOpacity>
-        </ScrollView>
-
-        {/* 🌟 AR Camera Platform Navigation Feature Card */}
-        <TouchableOpacity
-          style={styles.cameraNavHeroSegment}
-          onPress={() => navigation.navigate('CameraNavigation' as any)}
-        >
-          <View style={styles.cameraNavHeroTop}>
-            <View style={styles.cameraNavBadgeRow}>
-              <View style={styles.cameraNavLivePill}>
-                <View style={styles.cameraNavPulseDot} />
-                <Text style={styles.cameraNavLivePillText}>AR LIVE VISION</Text>
-              </View>
-              <View style={styles.zeroInfraBadge}>
-                <Text style={styles.zeroInfraBadgeText}>ZERO-BEACON AI</Text>
-              </View>
-            </View>
-            <Text style={styles.cameraNavHeroArrow}>{t('Open AR Nav →', 'Open AR Nav →')}</Text>
+            <Text style={{ fontSize: 18, fontWeight: '800', color: '#881337' }}>
+              {t('24/7 Helplines & Emergency', '24/7 Helplines & Emergency')}
+            </Text>
           </View>
+          
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 12, paddingBottom: 10 }}>
+            {[
+              { num: '139', title: 'Rail Madad', desc: 'Enquiry, Complaints, PNR & Security', icon: '📞', action: 'tel:139' },
+              { num: '14646', title: 'IRCTC Care', desc: 'Tickets, Refund, Booking', icon: '🎫', action: 'tel:14646' },
+              { num: '1323', title: 'eCatering', desc: 'Food orders & complaints', icon: '🍲', action: 'tel:1323' },
+              { num: '+91 8750001323', title: 'WhatsApp', desc: 'Food ordering support', icon: '💬', action: 'whatsapp://send?phone=918750001323' },
+              { num: '112', title: 'Emergency', desc: 'Police, Medical, Fire', icon: '🚨', action: 'tel:112' },
+              { num: '1098', title: 'Child Help', desc: 'Help involving children', icon: '👶', action: 'tel:1098' },
+              { num: '+91 8044647999', title: 'Intl Support', desc: 'Outside India support', icon: '🌐', action: 'tel:+918044647999' },
+            ].map((item, idx) => (
+              <TouchableOpacity 
+                key={idx} 
+                onPress={() => Linking.openURL(item.action).catch(() => {})} 
+                style={{
+                  backgroundColor: '#FFF1F2',
+                  borderRadius: 16,
+                  padding: 16,
+                  width: 175,
+                  borderWidth: 1,
+                  borderColor: '#FECDD3',
+                  shadowColor: '#E11D48',
+                  shadowOpacity: 0.05,
+                  shadowRadius: 5,
+                  elevation: 1,
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
+                  <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFE4E6', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
+                    <Text style={{ fontSize: 16 }}>{item.icon}</Text>
+                  </View>
+                  <Text style={{ fontSize: 15, fontWeight: '800', color: '#9F1239', flex: 1 }} numberOfLines={1}>{item.title}</Text>
+                </View>
+                <Text style={{ color: '#BE123C', fontSize: 12, fontWeight: '500', marginBottom: 12, height: 32 }} numberOfLines={2}>
+                  {item.desc}
+                </Text>
+                <View style={{ backgroundColor: '#FFFFFF', paddingVertical: 8, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#FFE4E6' }}>
+                  <Text style={{ color: '#E11D48', fontWeight: 'bold', fontSize: 14 }}>{item.num}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
 
-          <Text style={styles.cameraNavHeroTitle}>
-            {t('AR Camera Platform Navigation', 'AR Camera Platform Navigation')}
-          </Text>
-          <Text style={styles.cameraNavHeroSub}>
-            {t('camera.nav.desc', 'Point your camera at platform boards and overhead signs for live 3D AR arrows guiding you directly to your platform, coach & escalator.')}
-          </Text>
-
-          <View style={styles.cameraNavFeaturePills}>
-            <View style={styles.cameraNavPillItem}>
-              <Text style={styles.cameraNavPillIcon}>🎯</Text>
-              <Text style={styles.cameraNavPillText}>{t('OCR Signboards', 'OCR Signboards')}</Text>
-            </View>
-            <View style={styles.cameraNavPillItem}>
-              <Text style={styles.cameraNavPillIcon}>🧭</Text>
-              <Text style={styles.cameraNavPillText}>{t('3D Direction Arrows', '3D Direction Arrows')}</Text>
-            </View>
-            <View style={styles.cameraNavPillItem}>
-              <Text style={styles.cameraNavPillIcon}>🔊</Text>
-              <Text style={styles.cameraNavPillText}>{t('Voice Guidance', 'Voice Guidance')}</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
 
         {/* 🌟 Suburban Local & Google Maps Cellular Signal Crowd Pulse Segment */}
         <TouchableOpacity
@@ -390,24 +437,54 @@ export const HomeScreen: React.FC = React.memo(() => {
           </TouchableOpacity>
         </View>
 
-        {/* Advanced Safety & Omnichannel Features Bar */}
-        <View style={styles.extraFeaturesRow}>
-          <TouchableOpacity
-            style={styles.extraFeatureChip}
-            onPress={() => navigation.navigate('ObstacleDetection')}
-          >
-            <Text style={{ fontSize: 16 }}>📹</Text>
-            <Text style={styles.extraFeatureText}>{t('Track Obstacle CV', 'Track Obstacle CV')}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.extraFeatureChip}
-            onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'SDAH' })}
-          >
-            <Text style={{ fontSize: 16 }}>📋</Text>
-            <Text style={styles.extraFeatureText}>{t('Station Board', 'Station Board')}</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Beautiful Station Board Card */}
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#FFFFFF',
+            borderRadius: 16,
+            padding: 16,
+            marginTop: 14,
+            flexDirection: 'row',
+            alignItems: 'center',
+            borderWidth: 1,
+            borderColor: '#E2E8F0',
+            shadowColor: '#000',
+            shadowOpacity: 0.05,
+            shadowRadius: 5,
+            elevation: 2,
+          }}
+          onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
+        >
+          <View style={{
+            width: 48,
+            height: 48,
+            borderRadius: 14,
+            backgroundColor: '#F0F9FF',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 14,
+          }}>
+            <Building2 size={24} color="#0284C7" strokeWidth={2.5} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1E293B', marginBottom: 4 }}>
+              {t('Live Station Board', 'Live Station Board')}
+            </Text>
+            <Text style={{ fontSize: 13, color: '#64748B', fontWeight: '500' }}>
+              {t('Real-time arrivals & departures', 'Real-time arrivals & departures')}
+            </Text>
+          </View>
+          <View style={{
+            backgroundColor: '#F8FAFC',
+            paddingHorizontal: 12,
+            paddingVertical: 6,
+            borderRadius: 20,
+            borderWidth: 1,
+            borderColor: '#E2E8F0',
+          }}>
+            <Text style={{ color: '#0284C7', fontSize: 12, fontWeight: '700' }}>{t('View', 'View')}</Text>
+          </View>
+        </TouchableOpacity>
 
         {/* Live Railway Network Status Bar */}
         <View style={styles.statusPillCard}>
@@ -441,23 +518,6 @@ export const HomeScreen: React.FC = React.memo(() => {
             </View>
           </View>
         </View>
-
-        {/* Quick AI Assistant Floating Banner */}
-        <TouchableOpacity
-          style={styles.aiBanner}
-          onPress={() => navigation.navigate('AIAssistant', { initialQuery: 'Where is train 32216?' })}
-        >
-          <View style={styles.aiBannerIcon}>
-            <Text style={{ fontSize: 22 }}>🤖</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.aiBannerTitle}>{t('Ask RailSathi AI Agent', 'Ask RailSathi AI Agent')}</Text>
-            <Text style={styles.aiBannerSub}>
-              {t('"Where is my train?" • "Can I catch it?" • "Why is it delayed?"', '"Where is my train?" • "Can I catch it?" • "Why is it delayed?"')}
-            </Text>
-          </View>
-          <Text style={styles.aiBannerArrow}>→</Text>
-        </TouchableOpacity>
       </ScrollView>
     </AppBackground>
   );
