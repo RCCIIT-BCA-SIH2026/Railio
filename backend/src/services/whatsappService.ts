@@ -7,7 +7,7 @@ export interface WhatsAppButtonOption {
 
 export class WhatsAppService {
   private get phoneNumberId(): string {
-    return process.env.WHATSAPP_PHONE_NUMBER_ID || '1362878316903671';
+    return process.env.WHATSAPP_PHONE_NUMBER_ID || '';
   }
 
   private get accessToken(): string {

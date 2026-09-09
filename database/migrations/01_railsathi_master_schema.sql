@@ -70,14 +70,14 @@ CREATE INDEX IF NOT EXISTS idx_stations_code ON public.stations(code);
 CREATE TABLE IF NOT EXISTS public.trains (
     train_number VARCHAR(10) PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
-    type VARCHAR(50) NOT NULL,
+    type VARCHAR(50) NOT NULL, -- Suburban EMU Local
     source_code VARCHAR(10) REFERENCES public.stations(code),
     destination_code VARCHAR(10) REFERENCES public.stations(code),
     total_distance_km DOUBLE PRECISION NOT NULL,
     average_speed_kmh DOUBLE PRECISION NOT NULL,
     runs_on VARCHAR(50) DEFAULT 'DAILY',
-    rakes_count INT DEFAULT 16,
-    coach_composition JSONB DEFAULT '[]'::jsonb,
+    rakes_count INT DEFAULT 12,
+    coach_composition JSONB DEFAULT '["C1","C2","C3","C4","C5","C6","C7","C8","C9","C10","C11","C12"]'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS public.train_schedules (
     distance_from_source_km DOUBLE PRECISION NOT NULL,
     day_count INT DEFAULT 1,
     platform_number INT DEFAULT 1,
-    dwell_time_minutes INT DEFAULT 2,
+    dwell_time_minutes INT DEFAULT 1,
     UNIQUE(train_number, stop_sequence)
 );
 

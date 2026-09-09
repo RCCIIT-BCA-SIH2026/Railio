@@ -14,7 +14,7 @@ export const AlertsManager: React.FC<AlertsManagerProps> = ({ alerts, onNewAlert
   const [category, setCategory] = useState<string>('CONGESTION');
   const [severity, setSeverity] = useState<string>('WARNING');
   const [description, setDescription] = useState<string>('');
-  const [affectedTrain, setAffectedTrain] = useState<string>('12301');
+  const [affectedTrain, setAffectedTrain] = useState<string>('32216');
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,7 +51,7 @@ export const AlertsManager: React.FC<AlertsManagerProps> = ({ alerts, onNewAlert
           </div>
           <div>
             <h2 className="font-heading text-xl font-bold text-slate-900 flex items-center space-x-2">
-              <span>National Railway Incident & Broadcast Center</span>
+              <span>Sealdah – Dankuni Corridor Incident & Broadcast Center</span>
               <span className="px-2.5 py-0.5 text-xs font-bold bg-red-50 text-red-700 border border-red-200 rounded-full">
                 Omnichannel Gateway Active
               </span>
@@ -131,7 +131,7 @@ export const AlertsManager: React.FC<AlertsManagerProps> = ({ alerts, onNewAlert
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Heavy Rain Speed Restriction at Howrah"
+                  placeholder="e.g. Heavy Rain Speed Restriction between Dakshineswar & Dankuni"
                   className="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-rail-orange"
                   required
                 />

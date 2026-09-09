@@ -9,6 +9,9 @@ import os
 import asyncio
 import json
 
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 # Add ai-service to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'ai-service')))
 
@@ -28,25 +31,25 @@ async def run_pipeline_test():
         "object": "whatsapp_business_account",
         "entry": [
             {
-                "id": "1329940182305076",
+                "id": "1000000000000000",
                 "changes": [
                     {
                         "value": {
                             "messaging_product": "whatsapp",
                             "metadata": {
-                                "display_phone_number": "15556783260",
-                                "phone_number_id": "1362878316903671"
+                                "display_phone_number": "15551234567",
+                                "phone_number_id": "123456789012345"
                             },
                             "contacts": [
                                 {
                                     "profile": {"name": "Test Passenger"},
-                                    "wa_id": "917439003504"
+                                    "wa_id": "919876543210"
                                 }
                             ],
                             "messages": [
                                 {
-                                    "from": "917439003504",
-                                    "id": "wamid.HBgMOTE3NDM5MDAzNTA0FQIAERgSQjE4RjE2M0U0MzM3QjREQ0FBAA==",
+                                    "from": "919876543210",
+                                    "id": "wamid.TESTMOCKMESSAGEID1234567890==",
                                     "timestamp": "1725041400",
                                     "text": {"body": "Hi"},
                                     "type": "text"
@@ -89,9 +92,9 @@ async def run_pipeline_test():
             "🚆 *RailIo AI Railway Assistant*\n\n"
             "Welcome to *RailIo* - Predict • Protect • Connect!\n\n"
             "Reply with:\n"
-            "1️⃣ *Catch 12301* - Check if you can catch train\n"
-            "2️⃣ *Status 12301* - Live train status\n"
-            "3️⃣ *Suburban* - Suburban local timetable"
+            "1️⃣ *Catch 32216* - Check if you can catch train\n"
+            "2️⃣ *Status 32216* - Live train status\n"
+            "3️⃣ *Suburban* - Dankuni-Sealdah timetable"
         )
     else:
         reply = f"🚆 *RailIo AI Response*\n\nMock response for '{text_body}'"
@@ -103,7 +106,7 @@ async def run_pipeline_test():
 
     # 4. Meta Graph API Payload Validation
     print("\n[TEST STEP 4] Validating WhatsApp Cloud API Outbound Payload...")
-    phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "1362878316903671")
+    phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "123456789012345")
     access_token = os.getenv("WHATSAPP_ACCESS_TOKEN", os.getenv("META_WHATSAPP_TOKEN", ""))
 
     url = f"https://graph.facebook.com/v18.0/{phone_number_id}/messages"

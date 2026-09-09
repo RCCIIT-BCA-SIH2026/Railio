@@ -17,8 +17,8 @@ export const ConnectingTrainScreen: React.FC = () => {
       <View style={styles.connectionCard}>
         <View style={styles.legCard}>
           <Text style={styles.legBadge}>LEG 1 (INBOUND)</Text>
-          <Text style={styles.trainTitle}>Train 12301 (Howrah Rajdhani)</Text>
-          <Text style={styles.timing}>Scheduled Arrival at CNB: 04:50 | Predicted: 05:04 (+14m)</Text>
+          <Text style={styles.trainTitle}>Train 32211 (Sealdah - Dankuni Local)</Text>
+          <Text style={styles.timing}>Scheduled Arrival at DKAE: 04:50 | Predicted: 04:50 (On Time)</Text>
         </View>
 
         {/* Transfer Buffer Meter */}
@@ -27,23 +27,23 @@ export const ConnectingTrainScreen: React.FC = () => {
             <Text style={{ fontSize: 18 }}>🔄</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.bufferTitle}>Transfer Window at Kanpur Central (CNB)</Text>
-            <Text style={styles.bufferMinutes}>Available Buffer: 38 min (Min Required: 25 min)</Text>
-            <Text style={styles.probText}>🟡 Connection Probability: 64% (Tight Window)</Text>
+            <Text style={styles.bufferTitle}>Transfer Window at Dankuni Jn (DKAE)</Text>
+            <Text style={styles.bufferMinutes}>Available Buffer: 63 min (Min Required: 15 min)</Text>
+            <Text style={styles.probText}>🟢 Connection Probability: 96% (Safe Window)</Text>
           </View>
         </View>
 
         <View style={styles.legCard}>
           <Text style={styles.legBadge}>LEG 2 (CONNECTING)</Text>
-          <Text style={styles.trainTitle}>Train 12004 (Lucknow Shatabdi)</Text>
-          <Text style={styles.timing}>Scheduled Departure from CNB: 05:42 (Platform 1)</Text>
+          <Text style={styles.trainTitle}>Train 32214 (Dankuni - Sealdah Local)</Text>
+          <Text style={styles.timing}>Scheduled Departure from DKAE: 05:53 (Platform 3)</Text>
         </View>
       </View>
 
       <View style={styles.recCard}>
         <Text style={styles.recTitle}>💡 AI Recommendation:</Text>
         <Text style={styles.recDesc}>
-          Consider alternate connecting rake Train 12566 at 06:15 AM to ensure 100% missed-connection safety.
+          Consider alternate connecting rake Train 32216 (Dankuni - Sealdah Local) at 06:45 AM to ensure 100% missed-connection safety.
         </Text>
       </View>
     </ScrollView>

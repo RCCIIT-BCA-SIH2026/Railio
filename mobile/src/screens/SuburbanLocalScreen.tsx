@@ -121,7 +121,7 @@ export const SuburbanLocalScreen: React.FC = () => {
     }
   };
 
-  const nextTrain = filteredTrains[0];
+  const nextTrain = filteredTrains[0] || trains[0];
 
   return (
     <AppBackground variant="blue">

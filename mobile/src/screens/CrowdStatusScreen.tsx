@@ -3,14 +3,14 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { AppBackground } from '../components/AppBackground';
 
 export const CrowdStatusScreen: React.FC = () => {
-  const [selectedStation, setSelectedStation] = useState('HWH');
+  const [selectedStation, setSelectedStation] = useState('SDAH');
 
   const platforms = [
-    { num: 1, density: 91, status: 'RED', count: 480, label: 'Suburban Entry Surge' },
-    { num: 2, density: 54, status: 'YELLOW', count: 210, label: 'Normal Boarding Flow' },
-    { num: 3, density: 21, status: 'GREEN', count: 85, label: 'Lowest Crowd (Optimal)' },
-    { num: 9, density: 84, status: 'RED', count: 410, label: 'Rajdhani Express Boarding' },
-    { num: 21, density: 73, status: 'YELLOW', count: 320, label: 'Coromandel Express Loading' },
+    { num: 1, density: 91, status: 'RED', count: 480, label: 'Suburban Peak Inflow (Train 32211)' },
+    { num: 2, density: 54, status: 'YELLOW', count: 210, label: 'Normal EMU Boarding Flow' },
+    { num: 3, density: 21, status: 'GREEN', count: 85, label: 'Optimal Low Density (Safe)' },
+    { num: 4, density: 84, status: 'RED', count: 410, label: 'Dankuni Local Boarding (Train 32216)' },
+    { num: 5, density: 42, status: 'GREEN', count: 160, label: 'Dum Dum Jn Interchange Flow' },
   ];
 
   return (

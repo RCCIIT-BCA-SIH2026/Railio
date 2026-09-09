@@ -9,8 +9,34 @@ STRICT DATASET-ONLY MODE:
 """
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Optional, Dict, Any, List, Tuple
+
+# Indian Standard Time (IST, UTC+05:30)
+IST_TZ = timezone(timedelta(hours=5, minutes=30))
+
+def get_ist_now(ref_time: Any = None) -> datetime:
+    """
+    Guarantees the returned datetime is strictly in Indian Standard Time (IST, UTC+05:30).
+    Properly converts UTC ISO strings (e.g. from JS new Date().toISOString()) to IST.
+    """
+    if isinstance(ref_time, datetime):
+        if ref_time.tzinfo is None:
+            return ref_time.replace(tzinfo=IST_TZ)
+        return ref_time.astimezone(IST_TZ)
+
+    if isinstance(ref_time, str) and ref_time.strip():
+        try:
+            clean_ts = ref_time.strip().replace("Z", "+00:00")
+            dt = datetime.fromisoformat(clean_ts)
+            if dt.tzinfo is None:
+                return dt.replace(tzinfo=IST_TZ)
+            return dt.astimezone(IST_TZ)
+        except Exception as e:
+            pass
+
+    # Default to current real-time UTC converted to IST
+    return datetime.now(timezone.utc).astimezone(IST_TZ)
 
 # Resolve path: ai-service/app/ml/ → up 3 dirs → project root → data/trains/suburban_trains.json
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))          # ai-service/app/ml/
@@ -38,174 +64,45 @@ DATASET_STATION_ALIASES: Dict[str, str] = {
     "শিয়ালদহ":             "SDAH",
     "শিয়ালদা স্টেশন":    "SDAH",
 
-    # ── Howrah (HWH) ────────────────────────────────────────────────────────
-    "howrah":               "HWH",
-    "howra":                "HWH",
-    "hwh":                  "HWH",
-    "হাওড়া":               "HWH",
-    "হাওড়া স্টেশন":       "HWH",
+    # ── Bidhan Nagar Road (BNXR) ─────────────────────────────────────────────
+    "bidhan nagar road":    "BNXR",
+    "bidhannagar road":     "BNXR",
+    "bidhan nagar":         "BNXR",
+    "bidhannagar":          "BNXR",
+    "bnxr":                 "BNXR",
+    "বিধাননগর রোড":         "BNXR",
+    "বিধাননগর":             "BNXR",
+
+    # ── Dum Dum Junction (DDJ) ──────────────────────────────────────────────
+    "dum dum junction":     "DDJ",
+    "dum dum jn":           "DDJ",
+    "dum dum":              "DDJ",
+    "dumdum":               "DDJ",
+    "ddj":                  "DDJ",
+    "দমদম জংশন":            "DDJ",
+    "দমদম":                 "DDJ",
+
+    # ── Baranagar Road (BARN) ───────────────────────────────────────────────
+    "baranagar road":       "BARN",
+    "baranagar":            "BARN",
+    "barn":                 "BARN",
+    "বরাহনগর রোড":          "BARN",
+    "বরানগর রোড":           "BARN",
+    "বরানগর":               "BARN",
+
+    # ── Dakshineswar (DAKE) ─────────────────────────────────────────────────
+    "dakshineswar":         "DAKE",
+    "dakshineshwar":        "DAKE",
+    "dake":                 "DAKE",
+    "দক্ষিণেশ্বর":          "DAKE",
 
     # ── Dankuni (DKAE) ──────────────────────────────────────────────────────
     "dankuni":              "DKAE",
+    "dankuni junction":     "DKAE",
+    "dankuni jn":           "DKAE",
     "dkae":                 "DKAE",
     "ডানকুনি":              "DKAE",
     "dankuani":             "DKAE",
-
-    # ── Bandel (BDC) ────────────────────────────────────────────────────────
-    "bandel":               "BDC",
-    "bdc":                  "BDC",
-    "বান্ডেল":              "BDC",
-
-    # ── Barddhaman / Burdwan (BWN) ───────────────────────────────────────────
-    "barddhaman":           "BWN",
-    "burdwan":              "BWN",
-    "bardhaman":            "BWN",
-    "bwn":                  "BWN",
-    "বর্ধমান":              "BWN",
-    "বার্ধমান":             "BWN",
-
-    # ── Bangaon (BNJ) ────────────────────────────────────────────────────────
-    "bangaon":              "BNJ",
-    "bongaon":              "BNJ",
-    "bnj":                  "BNJ",
-    "বনগাঁ":                "BNJ",
-    "বনগাঁও":               "BNJ",
-
-    # ── Krishnanagar (KNJ) ──────────────────────────────────────────────────
-    "krishnanagar":         "KNJ",
-    "krishnagar":           "KNJ",
-    "knj":                  "KNJ",
-    "কৃষ্ণনগর":             "KNJ",
-
-    # ── Ranaghat (RHA) ──────────────────────────────────────────────────────
-    "ranaghat":             "RHA",
-    "rha":                  "RHA",
-    "রানাঘাট":              "RHA",
-
-    # ── Barrackpore (BP) ────────────────────────────────────────────────────
-    "barrackpore":          "BP",
-    "barakpur":             "BP",
-    "bp":                   "BP",
-    "ব্যারাকপুর":           "BP",
-
-    # ── Baruipur (BRP) ──────────────────────────────────────────────────────
-    "baruipur":             "BRP",
-    "brp":                  "BRP",
-    "বারুইপুর":             "BRP",
-
-    # ── Canning (CG) ────────────────────────────────────────────────────────
-    "canning":              "CG",
-    "cg":                   "CG",
-    "ক্যানিং":              "CG",
-
-    # ── Diamond Harbour (DH) ────────────────────────────────────────────────
-    "diamond harbour":      "DH",
-    "diamond harbor":       "DH",
-    "dh":                   "DH",
-    "diamondharbour":       "DH",
-    "ডায়মন্ড হারবার":      "DH",
-
-    # ── Arambagh (AMBG) ─────────────────────────────────────────────────────
-    "arambagh":             "AMBG",
-    "ambg":                 "AMBG",
-    "আরামবাগ":              "AMBG",
-
-    # ── Katwa (KWAE) ────────────────────────────────────────────────────────
-    "katwa":                "KWAE",
-    "kwae":                 "KWAE",
-    "কাটোয়া":              "KWAE",
-
-    # ── Kamarkundu (KQU) ────────────────────────────────────────────────────
-    "kamarkundu":           "KQU",
-    "kqu":                  "KQU",
-    "কামারকুণ্ডু":          "KQU",
-
-    # ── Tarakeswar (TAK) ────────────────────────────────────────────────────
-    "tarakeswar":           "TAK",
-    "tarakeshwar":          "TAK",
-    "tak":                  "TAK",
-    "তারকেশ্বর":            "TAK",
-
-    # ── Masagram (MSAE) ─────────────────────────────────────────────────────
-    "masagram":             "MSAE",
-    "msae":                 "MSAE",
-    "মাসাগ্রাম":            "MSAE",
-
-    # ── Goghat (GOGT) ───────────────────────────────────────────────────────
-    "goghat":               "GOGT",
-    "gogt":                 "GOGT",
-    "গোঘাট":                "GOGT",
-
-    # ── Hasnabad (HNB) ──────────────────────────────────────────────────────
-    "hasnabad":             "HNB",
-    "hnb":                  "HNB",
-    "হাসনাবাদ":             "HNB",
-
-    # ── Shantipur (STB) ─────────────────────────────────────────────────────
-    "shantipur":            "STB",
-    "stb":                  "STB",
-    "শান্তিপুর":            "STB",
-
-    # ── Gede (GEDE) ─────────────────────────────────────────────────────────
-    "gede":                 "GEDE",
-    "গেদে":                 "GEDE",
-
-    # ── Kalyani Simanta (KLYS) ──────────────────────────────────────────────
-    "kalyani":              "KLYS",
-    "kalyani simanta":      "KLYS",
-    "klys":                 "KLYS",
-    "কল্যাণী":              "KLYS",
-
-    # ── Namkhana (NMH) ──────────────────────────────────────────────────────
-    "namkhana":             "NMH",
-    "nmh":                  "NMH",
-    "নামখানা":              "NMH",
-
-    # ── Lakshmikantapur (LKPR) ──────────────────────────────────────────────
-    "lakshmikantapur":      "LKPR",
-    "lkpr":                 "LKPR",
-    "লক্ষ্মীকান্তপুর":      "LKPR",
-
-    # ── Kakdwip (KWDP) ──────────────────────────────────────────────────────
-    "kakdwip":              "KWDP",
-    "kwdp":                 "KWDP",
-    "কাকদ্বীপ":             "KWDP",
-
-    # ── Budge Budge (BGB) ───────────────────────────────────────────────────
-    "budge budge":          "BGB",
-    "budgebudge":           "BGB",
-    "bgb":                  "BGB",
-    "বজবজ":                 "BGB",
-
-    # ── Majerhat (MJT) ──────────────────────────────────────────────────────
-    "majerhat":             "MJT",
-    "mjt":                  "MJT",
-    "মাঝেরহাট":             "MJT",
-
-    # ── Naihati (NH) ────────────────────────────────────────────────────────
-    "naihati":              "NH",
-    "nh":                   "NH",
-    "নৈহাটি":               "NH",
-
-    # ── Sonarpur (SPR) ──────────────────────────────────────────────────────
-    "sonarpur":             "SPR",
-    "spr":                  "SPR",
-    "সোনারপুর":             "SPR",
-
-    # ── Chandanpur (CDAE) ───────────────────────────────────────────────────
-    "chandanpur":           "CDAE",
-    "cdae":                 "CDAE",
-    "চন্দনপুর":             "CDAE",
-
-    # ── Belmuri (BMAE) ──────────────────────────────────────────────────────
-    "belmuri":              "BMAE",
-    "bmae":                 "BMAE",
-    "বেলমুড়ি":             "BMAE",
-
-    # ── Shrirampur (SRP) ────────────────────────────────────────────────────
-    "shrirampur":           "SRP",
-    "srp":                  "SRP",
-    "শ্রীরামপুর":           "SRP",
 }
 
 # All valid dataset codes (for fast lookup)
@@ -307,7 +204,7 @@ class TrainScheduleDB:
 
         Returns None if a fatal validation failure occurs.
         """
-        now = now or datetime.now()
+        now = get_ist_now(now)
         train = self.get(train_number)
 
         if not train:
@@ -419,7 +316,7 @@ class TrainScheduleDB:
         orig_codes = [orig_code]
         dest_codes = [dest_code]
 
-        print(f"[TrainScheduleDB] Searching: {origin}({orig_code}) → {destination}({dest_code})")
+        print(f"[TrainScheduleDB] Searching: {origin}({orig_code}) -> {destination}({dest_code})")
 
         matches = []
         # Iterate _all_trains (the full list) — not just the deduped dict —
@@ -443,7 +340,7 @@ class TrainScheduleDB:
                 if orig_idx < dest_idx:
                     matches.append(train)
 
-        print(f"[TrainScheduleDB] Found {len(matches)} candidate trains for {orig_code}→{dest_code}")
+        print(f"[TrainScheduleDB] Found {len(matches)} candidate trains for {orig_code}->{dest_code}")
         return matches
 
     def search_trains_with_segment_info(
@@ -469,7 +366,7 @@ class TrainScheduleDB:
           departing from the origin stop within [from, to] are returned.
           Format: 'HH:MM' (24-hour). Time window wraps across midnight correctly.
         """
-        now = now or datetime.now()
+        now = get_ist_now(now)
 
         # Resolve to dataset codes
         orig_code = resolve_station_code(origin)

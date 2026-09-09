@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -9,16 +9,24 @@ import { useTranslation } from '../context/LanguageContext';
 export const SearchTrainScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useTranslation();
-  const [from, setFrom] = useState('HWH');
-  const [to, setTo] = useState('NDLS');
-  const [date, setDate] = useState('Today, 28 Aug');
+  const [from, setFrom] = useState('SDAH');
+  const [to, setTo] = useState('DKAE');
+  const formatDate = (d: Date) => `Today, ${d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}`;
+  const [date, setDate] = useState(() => formatDate(new Date()));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDate(formatDate(new Date()));
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   const popularRoutes = [
-    { from: 'HWH', to: 'NDLS', name: t('Howrah ↔ New Delhi') },
-    { from: 'NDLS', to: 'BSB', name: t('New Delhi ↔ Varanasi (Vande Bharat)') },
-    { from: 'MMCT', to: 'NDLS', name: t('Mumbai ↔ New Delhi') },
-    { from: 'HWH', to: 'MAS', name: t('Howrah ↔ Chennai Central') },
-    { from: 'HWH', to: 'RNC', name: t('Howrah ↔ Ranchi (Vande Bharat)') },
+    { from: 'SDAH', to: 'DKAE', name: t('Sealdah ↔ Dankuni Local') },
+    { from: 'DKAE', to: 'SDAH', name: t('Dankuni ↔ Sealdah Local') },
+    { from: 'DAKE', to: 'SDAH', name: t('Dakshineswar ↔ Sealdah') },
+    { from: 'DDJ', to: 'DKAE', name: t('Dum Dum Jn ↔ Dankuni') },
+    { from: 'BARN', to: 'SDAH', name: t('Baranagar Road ↔ Sealdah') },
   ];
 
   const handleSearch = () => {
@@ -30,7 +38,7 @@ export const SearchTrainScreen: React.FC = () => {
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.title}>{t('Plan Your Train Journey')}</Text>
-        <Text style={styles.subtext}>{t('Search over 20+ express, Rajdhani, and Vande Bharat trains')}</Text>
+        <Text style={styles.subtext}>{t('Search across all 40 scheduled Dankuni - Sealdah Local EMU trains')}</Text>
       </View>
 
       <View style={styles.card}>
@@ -40,7 +48,7 @@ export const SearchTrainScreen: React.FC = () => {
             style={styles.input}
             value={from}
             onChangeText={setFrom}
-            placeholder="e.g. HWH"
+            placeholder="e.g. SDAH"
             placeholderTextColor="#64748B"
             autoCapitalize="characters"
           />
@@ -52,7 +60,7 @@ export const SearchTrainScreen: React.FC = () => {
             style={styles.input}
             value={to}
             onChangeText={setTo}
-            placeholder="e.g. NDLS"
+            placeholder="e.g. DKAE"
             placeholderTextColor="#64748B"
             autoCapitalize="characters"
           />
@@ -99,7 +107,7 @@ export const SearchTrainScreen: React.FC = () => {
 
       {/* Popular Routes */}
       <View style={styles.popularSection}>
-        <Text style={styles.popularTitle}>{t('Popular High-Speed Corridors')}</Text>
+        <Text style={styles.popularTitle}>{t('Corridor Segments')}</Text>
         <View style={styles.routesList}>
           {popularRoutes.map((r, i) => (
             <TouchableOpacity

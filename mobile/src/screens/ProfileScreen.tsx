@@ -76,7 +76,7 @@ export const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
         <View style={styles.menuCard}>
           <TouchableOpacity
             style={styles.menuItem}
-            onPress={() => navigation.navigate('CanICatch', { trainNumber: '12301' })}
+            onPress={() => navigation.navigate('CanICatch', { trainNumber: '32216' })}
           >
             <Text style={styles.menuText}>🎯 {t('Can I Catch My Train?')}</Text>
             <Text style={styles.menuArrow}>→</Text>

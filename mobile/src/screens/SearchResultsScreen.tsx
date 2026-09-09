@@ -9,7 +9,7 @@ import { AppBackground } from '../components/AppBackground';
 export const SearchResultsScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'SearchResults'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { from = 'HWH', to = 'NDLS', date = 'Today' } = route.params || {};
+  const { from = 'SDAH', to = 'DKAE', date = 'Today' } = route.params || {};
 
   const [trains, setTrains] = useState<Train[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

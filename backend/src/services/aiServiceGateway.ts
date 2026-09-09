@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { db } from '../models/dataStore';
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:8000';
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000';
 
 export interface CatchTrainRequest {
   trainNumber: string;
@@ -250,12 +250,13 @@ export class AIServiceGateway {
     }
   }
 
-  async askAgent(query: string, sessionId: string = 'default', userLat?: number, userLng?: number) {
+  async askAgent(query: string, sessionId: string = 'default', userLat?: number, userLng?: number, clientTimestamp?: string) {
     try {
       const pyRes = await axios.post(`${AI_SERVICE_URL}/agent/chat`, {
         message: query,
         session_id: sessionId,
         location: userLat && userLng ? { latitude: userLat, longitude: userLng } : undefined,
+        client_timestamp: clientTimestamp || new Date().toISOString(),
       }, { timeout: 15000 });
       if (pyRes.data && pyRes.data.answer) {
         return {
@@ -269,11 +270,11 @@ export class AIServiceGateway {
     }
 
     // Strict Dataset Fallback
+    const qLower = query.toLowerCase();
     const matchNumber = query.match(/\b\d{5}\b/);
     const trainNum = matchNumber ? matchNumber[0] : null;
     let localTrain = trainNum ? db.getTrain(trainNum) : undefined;
     if (!localTrain) {
-      const qLower = query.toLowerCase();
       localTrain = db.trains.find(t => qLower.includes(t.name.toLowerCase()));
     }
     if (localTrain) {
@@ -283,6 +284,64 @@ export class AIServiceGateway {
         confidence: 0.95,
       };
     }
+
+    // Station-to-station route search fallback (real-time time aware)
+    const STATION_CODES: Record<string, string> = {
+      'sealdah': 'SDAH', 'sdah': 'SDAH',
+      'dankuni': 'DKAE', 'dkae': 'DKAE',
+      'bidhan nagar': 'BNXR', 'bnxr': 'BNXR',
+      'dum dum': 'DDJ', 'ddj': 'DDJ',
+      'baranagar': 'BARN', 'barn': 'BARN',
+      'dakshineswar': 'DAKE', 'dake': 'DAKE'
+    };
+    let fromCode = '';
+    let toCode = '';
+    for (const [name, code] of Object.entries(STATION_CODES)) {
+      if (qLower.includes(name)) {
+        if (!fromCode) fromCode = code;
+        else if (!toCode && code !== fromCode) toCode = code;
+      }
+    }
+    if (fromCode && toCode) {
+      const istTimeStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Kolkata', hour12: false, hour: '2-digit', minute: '2-digit' });
+      const [nowH, nowM] = istTimeStr.split(':').map(Number);
+      const currentMins = (nowH || 0) * 60 + (nowM || 0);
+      const matched = db.trains.filter(t => {
+        const sFrom = t.stops.find(s => s.code === fromCode);
+        const sTo = t.stops.find(s => s.code === toCode);
+        return sFrom && sTo && sFrom.sequence < sTo.sequence;
+      });
+
+      if (matched.length > 0) {
+        // Sort by time remaining until departure
+        const sorted = [...matched].sort((a, b) => {
+          const [ah, am] = a.departureTime.split(':').map(Number);
+          const [bh, bm] = b.departureTime.split(':').map(Number);
+          let aDiff = (ah * 60 + am) - currentMins;
+          if (aDiff < 0) aDiff += 1440;
+          let bDiff = (bh * 60 + bm) - currentMins;
+          if (bDiff < 0) bDiff += 1440;
+          return aDiff - bDiff;
+        });
+
+        const list = sorted.slice(0, 4).map((t, idx) => {
+          const [th, tm] = t.departureTime.split(':').map(Number);
+          let diff = (th * 60 + tm) - currentMins;
+          if (diff < 0) diff += 1440;
+          const untilStr = diff < 60 ? `in ${diff}m` : `in ${Math.floor(diff/60)}h ${diff%60}m`;
+          const prefix = idx === 0 ? `⭐ **NEXT UPCOMING SERVICE (${untilStr})**\n` : `${idx + 1}. `;
+          return `${prefix}**${t.trainNumber}** — ${t.name}\n   • Dep: **${t.departureTime}** (${untilStr}) | Arr: ${t.arrivalTime} | ${t.liveState.delayMinutes === 0 ? '🟢 On Time' : `🔴 +${t.liveState.delayMinutes}m`}`;
+        }).join('\n\n');
+
+        const timeStr = new Date().toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+        return {
+          answer: `🕒 **Current Time**: **${timeStr} (IST)**\n🚆 **Found ${matched.length} local trains for ${fromCode} ➔ ${toCode}:**\n\n${list}\n\n_Real-time timetable from local dataset._`,
+          toolsExecuted: [{ tool: 'DatasetLocalDB', query: `${fromCode} to ${toCode}`, status: 'SUCCESS' }],
+          confidence: 0.95,
+        };
+      }
+    }
+
     return {
       answer: `Dataset Query: Where would you like to travel? (e.g. Sealdah to Dankuni)`,
       toolsExecuted: [{ tool: 'DatasetLocalDB', query, status: 'SUCCESS' }],
@@ -293,152 +352,3 @@ export class AIServiceGateway {
 
 export const aiGateway = new AIServiceGateway();
 
-    try {
-      const res = await axios.post(`${AI_SERVICE_URL}/api/ml/predict-delay`, features, { timeout: 3000 });
-      return res.data;
-    } catch (err) {
-      // Robust deterministic fallback
-      const baseDelay = Math.max(0, Math.round(features.junctionCongestionLevel * 8 + (features.weatherCondition.includes('Rain') ? 6 : 0) + (features.distanceRemaining > 500 ? 5 : 2)));
-      return {
-        predictedDelayMinutes: baseDelay,
-        delayProbability: Math.min(0.95, baseDelay / 25),
-        confidenceScore: 0.91,
-        arrivalWindow: `+${baseDelay} to +${baseDelay + 5} min`,
-        explainability: [
-          { factor: 'Junction congestion', impactMin: Math.round(features.junctionCongestionLevel * 6) },
-          { factor: 'Weather impact', impactMin: features.weatherCondition.includes('Rain') ? 5 : 0 },
-          { factor: 'Station dwell overrun', impactMin: Math.max(1, Math.round(features.dwellTime / 2)) }
-        ]
-      };
-    }
-  }
-
-  async calculateCatchProbability(req: CatchTrainRequest, trainData: any): Promise<CatchTrainResponse> {
-    try {
-      const res = await axios.post(`${AI_SERVICE_URL}/api/ml/catch-probability`, { ...req, trainData }, { timeout: 3000 });
-      return res.data;
-    } catch (err) {
-      // Deterministic fallback calculation
-      const distance = req.roadDistanceKm || 12;
-      const traffic = req.trafficCondition || 'MODERATE';
-      const trafficMultiplier = traffic === 'LOW' ? 1.0 : traffic === 'MODERATE' ? 1.4 : traffic === 'HEAVY' ? 1.9 : 2.5;
-      const roadTime = Math.round((distance / 35) * 60 * trafficMultiplier);
-      const stationBuffer = req.stationEntryBufferMin || 7;
-      const safetyMargin = 5;
-      const requiredTime = roadTime + stationBuffer + safetyMargin;
-      
-      const availableTime = Math.max(5, (req.roadDistanceKm ? req.roadDistanceKm * 3 : 38));
-      const margin = availableTime - requiredTime;
-
-      let prob = 0.5;
-      if (margin >= 15) prob = 0.95;
-      else if (margin >= 8) prob = 0.88;
-      else if (margin >= 2) prob = 0.68;
-      else if (margin >= -4) prob = 0.35;
-      else prob = 0.12;
-
-      const probPct = Math.round(prob * 100);
-      let risk: 'LOW_RISK' | 'MODERATE_RISK' | 'HIGH_RISK' | 'CRITICAL' = 'LOW_RISK';
-      let rec = 'High probability you can catch your train. Leave now.';
-
-      if (probPct >= 80) {
-        risk = 'LOW_RISK';
-        rec = 'High probability you can catch your train. Leave now at a steady pace.';
-      } else if (probPct >= 50) {
-        risk = 'MODERATE_RISK';
-        rec = 'Tight connection window. Start immediately.';
-      } else {
-        risk = 'CRITICAL';
-        rec = 'High risk of missing this train. Please check the next available service.';
-      }
-
-      return {
-        trainNumber: req.trainNumber,
-        trainName: trainData?.name || 'Local Train',
-        predictedDeparture: trainData?.departureTime || 'N/A',
-        roadTravelMinutes: roadTime,
-        stationEntryBufferMinutes: stationBuffer,
-        requiredMinutes: requiredTime,
-        availableMinutes: availableTime,
-        catchProbabilityPct: probPct,
-        statusRisk: risk,
-        recommendation: rec,
-        alternativeTrain: undefined,
-        breakdown: {
-          roadTime,
-          stationBuffer,
-          safetyMargin,
-          trafficDelay: Math.round(roadTime * (trafficMultiplier - 1.0)),
-          delayProbability: 0.18
-        }
-      };
-    }
-  }
-
-  async runWhatIfSimulation(scenario: string, trainNumber: string) {
-    try {
-      const res = await axios.post(`${AI_SERVICE_URL}/api/digital-twin/simulate`, { scenario, trainNumber }, { timeout: 3000 });
-      return res.data;
-    } catch (err) {
-      return {
-        scenario,
-        results: {},
-        netNetworkDelayMinutes: 0,
-        networkDelay: 0,
-        recommendation: 'Digital twin simulation unavailable. Live AI service is offline.',
-        graphImpact: []
-      };
-    }
-  }
-
-  async askAgent(query: string, sessionId: string = 'default', userLat?: number, userLng?: number) {
-    // 1. Primary: Pass message to Python RailIoAgent with dataset & ML logic
-    try {
-      const pyRes = await axios.post(`${AI_SERVICE_URL}/agent/chat`, {
-        message: query,
-        session_id: sessionId,
-        location: userLat && userLng ? { latitude: userLat, longitude: userLng } : undefined
-      }, { timeout: 15000 });
-      if (pyRes.data && pyRes.data.answer) {
-        return {
-          answer: pyRes.data.answer,
-          toolsExecuted: pyRes.data.toolsExecuted || [],
-          confidence: pyRes.data.confidenceScore || 0.96
-        };
-      }
-    } catch (pyErr: any) {
-      console.warn('[AIServiceGateway] Python RailIoAgent endpoint offline, using local DB fallback:', pyErr?.message || pyErr);
-    }
-
-    // 2. Strict Dataset Fallback (NO LLM / NO OpenRouter / NO Gemini)
-    const matchNumber = query.match(/\b\d{5}\b/);
-    const trainNum = matchNumber ? matchNumber[0] : null;
-    let localTrain = trainNum ? db.getTrain(trainNum) : undefined;
-    if (!localTrain) {
-      const qLower = query.toLowerCase();
-      localTrain = db.trains.find(t =>
-        qLower.includes(t.name.toLowerCase())
-      );
-    }
-
-    if (localTrain) {
-      return {
-        answer: `Train **${localTrain.trainNumber} (${localTrain.name})**\nRoute: ${localTrain.source} → ${localTrain.destination}\nDeparture: ${localTrain.departureTime}\nArrival: ${localTrain.arrivalTime}\nStatus: ${localTrain.liveState.delayMinutes === 0 ? 'On Time' : `Delayed by ${localTrain.liveState.delayMinutes} mins`}`,
-        toolsExecuted: [
-          { tool: 'DatasetLocalDB', query: localTrain.trainNumber, status: 'SUCCESS' }
-        ],
-        confidence: 0.95
-      };
-    }
-
-    return {
-      answer: `<ctrl42> Dataset Query: Kothay theke kothay jete chao? (e.g. Sealdah to Dankuni)`,
-      toolsExecuted: [
-        { tool: 'DatasetLocalDB', query, status: 'SUCCESS' }
-      ],
-      confidence: 0.90
-    };
-  }
-}
-
-export const aiGateway = new AIServiceGateway();

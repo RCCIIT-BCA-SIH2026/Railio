@@ -39,236 +39,18 @@ export const getCachedOrFetch = async <T>(key: string, ttlMs: number, fetcher: (
   return data;
 };
 
-// Fallback Seed Data for 100% Guaranteed Offline Demo Mode
-const fallbackTrains: Train[] = [
-  {
-    trainNumber: '22436',
-    name: 'Vande Bharat Express',
-    type: 'Vande Bharat',
-    source: 'NDLS',
-    destination: 'BSB',
-    departureTime: '06:00',
-    arrivalTime: '14:00',
-    totalDistanceKm: 759,
-    avgSpeed: 95,
-    coaches: ['E1', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'E2'],
-    liveState: {
-      lat: 26.4547,
-      lng: 80.3507,
-      speed: 118,
-      heading: 125,
-      currentSection: 'CNB-PRYJ-S1',
-      lastStation: 'CNB',
-      nextStation: 'PRYJ',
-      delayMinutes: 4,
-      predictedDelay: 6,
-      confidence: 0.94,
-      status: 'ON_TIME',
-      delayReasons: [
-        { factor: 'Junction switch clearance', impactMin: 3 },
-        { factor: 'Minor speed restriction', impactMin: 1 }
-      ]
-    },
-    stops: [
-      { code: 'NDLS', sequence: 1, arr: '06:00', dep: '06:00', km: 0, platform: 1 },
-      { code: 'CNB', sequence: 2, arr: '10:08', dep: '10:10', km: 440, platform: 5 },
-      { code: 'PRYJ', sequence: 3, arr: '12:08', dep: '12:10', km: 634, platform: 6 },
-      { code: 'BSB', sequence: 4, arr: '14:00', dep: '14:00', km: 759, platform: 1 }
-    ]
-  },
-  {
-    trainNumber: '12301',
-    name: 'Howrah Rajdhani Express',
-    type: 'Rajdhani Express',
-    source: 'HWH',
-    destination: 'NDLS',
-    departureTime: '16:50',
-    arrivalTime: '10:05',
-    totalDistanceKm: 1451,
-    avgSpeed: 85,
-    coaches: ['H1', 'A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'PC'],
-    liveState: {
-      lat: 25.2818,
-      lng: 83.1189,
-      speed: 92,
-      heading: 305,
-      currentSection: 'DDU-PRYJ-B17',
-      lastStation: 'DDU',
-      nextStation: 'PRYJ',
-      delayMinutes: 12,
-      predictedDelay: 14,
-      confidence: 0.91,
-      status: 'DELAYED',
-      delayReasons: [
-        { factor: 'Junction congestion at DDU', impactMin: 7 },
-        { factor: 'Preceding freight train clearance', impactMin: 4 },
-        { factor: 'Weather & visibility buffer', impactMin: 1 }
-      ]
-    },
-    stops: [
-      { code: 'HWH', sequence: 1, arr: '16:50', dep: '16:50', km: 0, platform: 9 },
-      { code: 'DDU', sequence: 2, arr: '00:45', dep: '00:55', km: 673, platform: 4 },
-      { code: 'PRYJ', sequence: 3, arr: '02:43', dep: '02:45', km: 826, platform: 1 },
-      { code: 'CNB', sequence: 4, arr: '04:50', dep: '04:55', km: 1020, platform: 1 },
-      { code: 'NDLS', sequence: 5, arr: '10:05', dep: '10:05', km: 1451, platform: 12 }
-    ]
-  },
-  {
-    trainNumber: '12841',
-    name: 'Coromandel Express',
-    type: 'Superfast',
-    source: 'HWH',
-    destination: 'MAS',
-    departureTime: '15:30',
-    arrivalTime: '17:00',
-    totalDistanceKm: 1662,
-    avgSpeed: 68,
-    coaches: ['A1', 'A2', 'B1', 'B2', 'B3', 'B4', 'S1', 'S2', 'S3', 'S4', 'S5', 'GEN'],
-    liveState: {
-      lat: 20.2668,
-      lng: 85.8436,
-      speed: 84,
-      heading: 195,
-      currentSection: 'BBS-PSA-SEC4',
-      lastStation: 'BBS',
-      nextStation: 'MAS',
-      delayMinutes: 7,
-      predictedDelay: 8,
-      confidence: 0.89,
-      status: 'ON_TIME',
-      delayReasons: [
-        { factor: 'Station dwell overshoot at BBS', impactMin: 5 },
-        { factor: 'Heavy coastal rainfall', impactMin: 2 }
-      ]
-    },
-    stops: [
-      { code: 'HWH', sequence: 1, arr: '15:30', dep: '15:30', km: 0, platform: 21 },
-      { code: 'BBS', sequence: 2, arr: '21:50', dep: '21:55', km: 437, platform: 4 },
-      { code: 'MAS', sequence: 3, arr: '17:00', dep: '17:00', km: 1662, platform: 3 }
-    ]
-  },
-  {
-    trainNumber: '12951',
-    name: 'Mumbai Rajdhani Express',
-    type: 'Rajdhani Express',
-    source: 'MMCT',
-    destination: 'NDLS',
-    departureTime: '17:00',
-    arrivalTime: '08:32',
-    totalDistanceKm: 1386,
-    avgSpeed: 89,
-    coaches: ['H1', 'A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'B4', 'B5'],
-    liveState: {
-      lat: 22.3107,
-      lng: 73.1812,
-      speed: 112,
-      heading: 25,
-      currentSection: 'BRC-RTM-N3',
-      lastStation: 'BRC',
-      nextStation: 'NDLS',
-      delayMinutes: 2,
-      predictedDelay: 0,
-      confidence: 0.96,
-      status: 'ON_TIME',
-      delayReasons: []
-    },
-    stops: [
-      { code: 'MMCT', sequence: 1, arr: '17:00', dep: '17:00', km: 0, platform: 1 },
-      { code: 'ST', sequence: 2, arr: '19:32', dep: '19:35', km: 263, platform: 1 },
-      { code: 'BRC', sequence: 3, arr: '21:05', dep: '21:10', km: 392, platform: 2 },
-      { code: 'NDLS', sequence: 4, arr: '08:32', dep: '08:32', km: 1386, platform: 3 }
-    ]
-  },
-  {
-    trainNumber: '20898',
-    name: 'Ranchi Vande Bharat Express',
-    type: 'Vande Bharat',
-    source: 'HWH',
-    destination: 'RNC',
-    departureTime: '15:45',
-    arrivalTime: '22:50',
-    totalDistanceKm: 463,
-    avgSpeed: 66,
-    coaches: ['E1', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'E2'],
-    liveState: {
-      lat: 22.95,
-      lng: 86.80,
-      speed: 98,
-      heading: 290,
-      currentSection: 'KGP-TATA-V1',
-      lastStation: 'HWH',
-      nextStation: 'RNC',
-      delayMinutes: 0,
-      predictedDelay: 2,
-      confidence: 0.95,
-      status: 'ON_TIME',
-      delayReasons: []
-    },
-    stops: [
-      { code: 'HWH', sequence: 1, arr: '15:45', dep: '15:45', km: 0, platform: 20 },
-      { code: 'RNC', sequence: 2, arr: '22:50', dep: '22:50', km: 463, platform: 1 }
-    ]
-  },
-  {
-    trainNumber: '22895',
-    name: 'Howrah - Puri Vande Bharat Express',
-    type: 'Vande Bharat',
-    source: 'HWH',
-    destination: 'PURI',
-    departureTime: '06:10',
-    arrivalTime: '13:00',
-    totalDistanceKm: 502,
-    avgSpeed: 73,
-    coaches: ['E1', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'E2'],
-    liveState: {
-      lat: 21.4925,
-      lng: 86.9248,
-      speed: 128,
-      heading: 205,
-      currentSection: 'KGP-BLS-VB1',
-      lastStation: 'KGP',
-      nextStation: 'BLS',
-      delayMinutes: 0,
-      predictedDelay: 0,
-      confidence: 0.98,
-      status: 'ON_TIME',
-      delayReasons: []
-    },
-    stops: [
-      { code: 'HWH', sequence: 1, arr: '06:10', dep: '06:10', km: 0, platform: 22 },
-      { code: 'KGP', sequence: 2, arr: '07:38', dep: '07:40', km: 115, platform: 3 },
-      { code: 'BLS', sequence: 3, arr: '09:03', dep: '09:05', km: 231, platform: 2 },
-      { code: 'BHC', sequence: 4, arr: '09:40', dep: '09:42', km: 294, platform: 1 },
-      { code: 'JJKR', sequence: 5, arr: '10:07', dep: '10:09', km: 337, platform: 2 },
-      { code: 'CTC', sequence: 6, arr: '10:50', dep: '10:52', km: 409, platform: 4 },
-      { code: 'BBS', sequence: 7, arr: '11:20', dep: '11:24', km: 437, platform: 3 },
-      { code: 'KUR', sequence: 8, arr: '11:42', dep: '11:44', km: 456, platform: 1 },
-      { code: 'PURI', sequence: 9, arr: '13:00', dep: '13:00', km: 502, platform: 5 }
-    ]
-  }
-];
+import rawSuburbanTrains from '../data/suburban_trains.json';
+
+// Fallback Seed Data for 100% Guaranteed Offline Demo Mode — Powered by real Dankuni-Sealdah dataset
+const fallbackTrains: Train[] = rawSuburbanTrains as unknown as Train[];
 
 const fallbackStations: Station[] = [
-  { code: 'HWH', name: 'Howrah Junction', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.5857, lng: 88.3432, platforms: 23, isJunction: true },
   { code: 'SDAH', name: 'Sealdah', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.5675, lng: 88.3712, platforms: 21, isJunction: true },
-  { code: 'DAKE', name: 'Dakshineswar', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.6534, lng: 88.3601, platforms: 4, isJunction: false },
-  { code: 'BARN', name: 'Baranagar Road', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.6392, lng: 88.3732, platforms: 2, isJunction: false },
-  { code: 'DDJ', name: 'Dum Dum Junction', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.6219, lng: 88.3931, platforms: 5, isJunction: true },
   { code: 'BNXR', name: 'Bidhan Nagar Road', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.5898, lng: 88.3892, platforms: 4, isJunction: false },
+  { code: 'DDJ', name: 'Dum Dum Junction', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.6219, lng: 88.3931, platforms: 5, isJunction: true },
+  { code: 'BARN', name: 'Baranagar Road', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.6392, lng: 88.3732, platforms: 2, isJunction: false },
+  { code: 'DAKE', name: 'Dakshineswar', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.6534, lng: 88.3601, platforms: 4, isJunction: false },
   { code: 'DKAE', name: 'Dankuni Junction', city: 'Hooghly', state: 'West Bengal', zone: 'ER', lat: 22.6872, lng: 88.2934, platforms: 5, isJunction: true },
-  { code: 'PURI', name: 'Puri', city: 'Puri', state: 'Odisha', zone: 'ECoR', lat: 19.8135, lng: 85.8312, platforms: 8, isJunction: false },
-  { code: 'KGP', name: 'Kharagpur Junction', city: 'Kharagpur', state: 'West Bengal', zone: 'SER', lat: 22.3385, lng: 87.3242, platforms: 12, isJunction: true },
-  { code: 'BLS', name: 'Baleshwar', city: 'Balasore', state: 'Odisha', zone: 'SER', lat: 21.4925, lng: 86.9248, platforms: 4, isJunction: false },
-  { code: 'CTC', name: 'Cuttack Junction', city: 'Cuttack', state: 'Odisha', zone: 'ECoR', lat: 20.4631, lng: 85.8953, platforms: 5, isJunction: true },
-  { code: 'NDLS', name: 'New Delhi', city: 'New Delhi', state: 'Delhi', zone: 'NR', lat: 28.6429, lng: 77.2195, platforms: 16, isJunction: true },
-  { code: 'MMCT', name: 'Mumbai Central', city: 'Mumbai', state: 'Maharashtra', zone: 'WR', lat: 18.9696, lng: 72.8193, platforms: 5, isJunction: false },
-  { code: 'MAS', name: 'Chennai Central', city: 'Chennai', state: 'Tamil Nadu', zone: 'SR', lat: 13.0827, lng: 80.2707, platforms: 17, isJunction: true },
-  { code: 'SBC', name: 'KSR Bengaluru', city: 'Bengaluru', state: 'Karnataka', zone: 'SWR', lat: 12.9781, lng: 77.5696, platforms: 10, isJunction: true },
-  { code: 'CNB', name: 'Kanpur Central', city: 'Kanpur', state: 'Uttar Pradesh', zone: 'NCR', lat: 26.4547, lng: 80.3507, platforms: 10, isJunction: true },
-  { code: 'PRYJ', name: 'Prayagraj Junction', city: 'Prayagraj', state: 'Uttar Pradesh', zone: 'NCR', lat: 25.4526, lng: 81.8349, platforms: 10, isJunction: true },
-  { code: 'PNBE', name: 'Patna Junction', city: 'Patna', state: 'Bihar', zone: 'ECR', lat: 25.6022, lng: 85.1376, platforms: 10, isJunction: true },
-  { code: 'BBS', name: 'Bhubaneswar', city: 'Bhubaneswar', state: 'Odisha', zone: 'ECoR', lat: 20.2668, lng: 85.8436, platforms: 6, isJunction: true },
-  { code: 'BSB', name: 'Varanasi Junction', city: 'Varanasi', state: 'Uttar Pradesh', zone: 'NR', lat: 25.3267, lng: 82.9863, platforms: 9, isJunction: true },
 ];
 
 export const searchTrainsApi = async (from: string, to: string): Promise<Train[]> => {
@@ -283,7 +65,7 @@ export const searchTrainsApi = async (from: string, to: string): Promise<Train[]
   const matched = fallbackTrains.filter(train => {
     const sFrom = train.stops.find(s => s.code === f || train.source === f);
     const sTo = train.stops.find(s => s.code === t || train.destination === t);
-    return sFrom && sTo;
+    return sFrom && sTo && sFrom.sequence < sTo.sequence;
   });
   return matched.length > 0 ? matched : fallbackTrains;
 };
@@ -327,36 +109,39 @@ export const calculateCatchProbabilityApi = async (params: {
     console.warn('[API] Using offline catch probability calculation');
   }
   
-  const dist = params.roadDistanceKm || 12;
-  const trafficMult = params.trafficCondition === 'LOW' ? 1.0 : params.trafficCondition === 'MODERATE' ? 1.4 : params.trafficCondition === 'HEAVY' ? 1.9 : 2.4;
-  const roadTime = Math.round((dist / 32) * 60 * trafficMult);
-  const stationBuffer = params.stationEntryBufferMin || 7;
-  const reqTime = roadTime + stationBuffer + 5;
-  const availTime = Math.round(dist * 2.8 + 8);
+  const dist = params.roadDistanceKm || 5;
+  const trafficMult = params.trafficCondition === 'LOW' ? 1.0 : params.trafficCondition === 'MODERATE' ? 1.3 : params.trafficCondition === 'HEAVY' ? 1.8 : 2.2;
+  const roadTime = Math.round((dist / 30) * 60 * trafficMult);
+  const stationBuffer = params.stationEntryBufferMin || 5;
+  const reqTime = roadTime + stationBuffer + 3;
+  const availTime = Math.round(dist * 3.0 + 6);
   const margin = availTime - reqTime;
 
-  let pct = 91;
+  let pct = 92;
   let statusRisk: 'LOW_RISK' | 'MODERATE_RISK' | 'HIGH_RISK' | 'CRITICAL' = 'LOW_RISK';
   let rec = '🟢 High probability you can catch your train. Leave now.';
 
-  if (margin >= 10) {
-    pct = 91;
+  if (margin >= 8) {
+    pct = 92;
     statusRisk = 'LOW_RISK';
     rec = '🟢 High probability you can catch your train. Leave now.';
   } else if (margin >= 0) {
-    pct = 64;
+    pct = 68;
     statusRisk = 'MODERATE_RISK';
-    rec = '🟡 Tight schedule. Start immediately and use highway route.';
+    rec = '🟡 Tight schedule. Start immediately towards station.';
   } else {
-    pct = 18;
+    pct = 22;
     statusRisk = 'CRITICAL';
-    rec = '🔴 You may miss this train. Recommended: Take Train 12841 at 18:15.';
+    rec = '🔴 You may miss this train. Recommended: Take next Dankuni Local (#32218).';
   }
 
+  const tNum = params.trainNumber || '32216';
+  const foundTrain = fallbackTrains.find(t => t.trainNumber === tNum) || fallbackTrains[0];
+
   return {
-    trainNumber: params.trainNumber || '12301',
-    trainName: 'Howrah Rajdhani Express',
-    predictedDeparture: '17:02',
+    trainNumber: foundTrain.trainNumber,
+    trainName: foundTrain.name,
+    predictedDeparture: foundTrain.departureTime,
     roadTravelMinutes: roadTime,
     stationEntryBufferMinutes: stationBuffer,
     requiredMinutes: reqTime,
@@ -365,16 +150,16 @@ export const calculateCatchProbabilityApi = async (params: {
     statusRisk,
     recommendation: rec,
     alternativeTrain: pct < 50 ? {
-      trainNumber: '12841',
-      name: 'Coromandel Express',
-      departureTime: '18:15'
+      trainNumber: '32218',
+      name: 'Dankuni - Sealdah Local',
+      departureTime: '07:00'
     } : undefined,
     breakdown: {
       roadTime,
       stationBuffer,
-      safetyMargin: 5,
-      trafficDelay: Math.round(roadTime * 0.3),
-      delayProbability: 0.18
+      safetyMargin: 3,
+      trafficDelay: Math.round(roadTime * 0.25),
+      delayProbability: 0.12
     }
   };
 };
@@ -400,13 +185,21 @@ export const getCoachCrowdApi = async (trainNumber: string) => {
   } catch (err) {}
   return {
     coaches: [
-      { coach: 'A1', density: 82, status: 'RED' },
-      { coach: 'A2', density: 46, status: 'YELLOW' },
-      { coach: 'A3', density: 29, status: 'GREEN' },
-      { coach: 'A4', density: 91, status: 'RED' }
+      { coach: 'C1', density: 32, status: 'GREEN' },
+      { coach: 'C2', density: 45, status: 'GREEN' },
+      { coach: 'C3', density: 22, status: 'GREEN' },
+      { coach: 'C4', density: 68, status: 'YELLOW' },
+      { coach: 'C5', density: 78, status: 'YELLOW' },
+      { coach: 'C6', density: 88, status: 'RED' },
+      { coach: 'C7', density: 55, status: 'YELLOW' },
+      { coach: 'C8', density: 30, status: 'GREEN' },
+      { coach: 'C9', density: 25, status: 'GREEN' },
+      { coach: 'C10', density: 42, status: 'GREEN' },
+      { coach: 'C11', density: 28, status: 'GREEN' },
+      { coach: 'C12', density: 36, status: 'GREEN' },
     ],
-    recommendedCoach: 'A3',
-    reason: 'Lowest estimated crowd density (29% occupancy).'
+    recommendedCoach: 'C3',
+    reason: 'Lowest estimated crowd density (22% load) via mobile signal density.'
   };
 };
 
@@ -430,9 +223,9 @@ export const getWeatherApi = async () => {
         return data;
       };
 
-      const [hwhData, ndlsData] = await Promise.all([
+      const [sdahData, dkaeData] = await Promise.all([
         fetchCityWeather('Kolkata'),
-        fetchCityWeather('Delhi')
+        fetchCityWeather('Dankuni')
       ]);
 
       const formatWeather = (data: any, name: string) => ({
@@ -443,22 +236,22 @@ export const getWeatherApi = async () => {
         windKmh: Math.round((data.wind?.speed || 0) * 3.6),
         humidityPct: data.main?.humidity || 0,
         visibilityKm: (data.visibility || 10000) / 1000,
-        railImpact: (data.rain?.['1h'] || 0) > 5 ? 'Precautionary speed restriction: +8 to +12 min delay.' : 'Optimal corridor running conditions.'
+        railImpact: (data.rain?.['1h'] || 0) > 5 ? 'Precautionary speed restriction: +2 to +4 min delay.' : 'Optimal corridor running conditions.'
       });
 
       return {
-        HWH: formatWeather(hwhData, 'Kolkata'),
-        NDLS: formatWeather(ndlsData, 'New Delhi')
+        SDAH: formatWeather(sdahData, 'Sealdah (Kolkata)'),
+        DKAE: formatWeather(dkaeData, 'Dankuni')
       };
     } catch (err) {
       console.warn('Live weather direct fetch error, falling back to cached model:', err);
     }
   }
 
-  // 3. Deterministic offline fallback
+  // 3. Deterministic corridor fallback
   return {
-    HWH: { city: 'Kolkata', tempC: 31, condition: 'Heavy Rain', rainMm: 42.5, windKmh: 28, humidityPct: 88, visibilityKm: 3.5, railImpact: 'Precautionary speed restriction: +8 to +12 min delay.' },
-    NDLS: { city: 'New Delhi', tempC: 28, condition: 'Clear Sky', rainMm: 0, windKmh: 12, humidityPct: 45, visibilityKm: 9.0, railImpact: 'Optimal corridor running conditions.' }
+    SDAH: { city: 'Sealdah (Kolkata)', tempC: 31, condition: 'Heavy Rain', rainMm: 42.5, windKmh: 28, humidityPct: 88, visibilityKm: 3.5, railImpact: 'Precautionary speed restriction: +2 to +4 min delay.' },
+    DKAE: { city: 'Dankuni', tempC: 30, condition: 'Moderate Rain', rainMm: 18.0, windKmh: 20, humidityPct: 82, visibilityKm: 5.0, railImpact: 'Optimal corridor running conditions.' }
   };
 };
 
@@ -474,9 +267,9 @@ export const getAlertsApi = async (): Promise<AlertItem[]> => {
         title: 'Track Anomaly Detected on Section B-17',
         category: 'TRACK_ANOMALY',
         severity: 'HIGH_RISK',
-        affectedTrain: '12301',
-        description: 'ESP32 MPU6050 vibration RMS measured 3.42g (Threshold 2.4g). Deterioration risk 78/100.',
-        recommendedAction: 'Impose 45 km/h caution order.',
+        affectedTrain: '32216',
+        description: 'ESP32 MPU6050 vibration RMS measured 3.42g on Dankuni chord (Threshold 2.4g). Deterioration risk 78/100.',
+        recommendedAction: 'Impose 30 km/h caution order.',
         timestamp: '10 min ago',
         active: true
       }
@@ -547,7 +340,12 @@ export const chatAIApi = async (query: string, history: any[] = []) => {
   // If it's a Train Query, try the primary ML Backend first
   if (hasRailwayIntent) {
     try {
-      const res = await api.post('/ai/chat', { message: cleanQuery, session_id: 'mobile_client_session', history });
+      const res = await api.post('/ai/chat', {
+        message: cleanQuery,
+        session_id: 'mobile_client_session',
+        client_timestamp: new Date().toISOString(),
+        history
+      }, { timeout: 15000 });
       if (res.data?.success && res.data?.data?.answer) {
         let cleanAnswer = res.data.data.answer;
         cleanAnswer = cleanAnswer.replace(/User Safety:.*?\n?/gi, '');

@@ -8,25 +8,25 @@ export const WhatsAppSimulatorScreen: React.FC = () => {
     {
       id: '1',
       sender: 'user',
-      text: 'Can I catch my train 12301 from Howrah?',
-      time: '16:15',
+      text: 'Can I catch my train 32216 from Dakshineswar to Sealdah?',
+      time: '06:30',
     },
     {
       id: '2',
       sender: 'bot',
-      text: '🚆 *RailIo WhatsApp Intelligence*\n\n*Train 12301 (Howrah Rajdhani Express)*\n\n• Predicted Departure: *17:02*\n• Road Travel Time: *18 min*\n• Traffic: *Moderate (Kona Exp)*\n• Station Entry Buffer: *7 min*\n• Total Required: *25 min*\n• Available Time: *34 min*\n\n🟢 *91% Probability*: High chance of catching your train.\n_Recommendation: Leave now via NH16 approach._',
-      time: '16:15',
+      text: '🚆 *RailIo WhatsApp Intelligence*\n\n*Train 32216 (Dankuni - Sealdah Local)*\n\n• Scheduled Departure: *06:34*\n• Predicted Arrival at Sealdah: *07:21 (+3 min)*\n• Road Travel Time: *5 min*\n• Traffic: *Moderate (BT Road)*\n• Station Entry Buffer: *4 min*\n• Total Required: *9 min*\n• Available Time: *14 min*\n\n🟢 *92% Probability*: High chance of catching your train.\n_Recommendation: Board at Platform 2, Coach C3 (Lowest crowd density)._',
+      time: '06:30',
     },
   ]);
 
   const handleSend = () => {
     if (!input.trim()) return;
-    const userMsg = { id: Date.now().toString(), sender: 'user', text: input, time: '16:16' };
+    const userMsg = { id: Date.now().toString(), sender: 'user', text: input, time: '06:31' };
     const botMsg = {
       id: (Date.now() + 1).toString(),
       sender: 'bot',
-      text: `🚆 *RailIo Assistant*\n\nChecked live signals for "${input}".\n\n• Train 12301 is running +12m delayed near DDU Junction.\n• Coach A3 has the lowest crowd (29% occupancy).\n• 91% catch probability if you depart in 5 mins.`,
-      time: '16:16',
+      text: `🚆 *RailIo Assistant*\n\nChecked live signals for "${input}".\n\n• Train 32216 Dankuni - Sealdah Local is on schedule (delay +3m).\n• Coach C3/C9 has the lowest device density (~16 phone signals).\n• ML Model (train_delay_model.pkl) estimates ETA at Sealdah at 07:21.`,
+      time: '06:31',
     };
     setMessages((prev) => [...prev, userMsg, botMsg]);
     setInput('');

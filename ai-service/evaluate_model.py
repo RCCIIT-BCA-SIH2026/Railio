@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import joblib
 import numpy as np
@@ -8,8 +9,14 @@ from sklearn.metrics import (
     r2_score
 )
 
-MODEL_FILE = "app/ml/models/train_delay_model.pkl"
-DATA_FILE = "app/ml/data/train_dataset.csv"
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_FILE = os.path.join(_THIS_DIR, "app", "ml", "models", "train_delay_model.pkl")
+if not os.path.exists(MODEL_FILE):
+    MODEL_FILE = os.path.join(os.path.dirname(_THIS_DIR), "train_delay_model.pkl")
+
+DATA_FILE = os.path.join(_THIS_DIR, "app", "ml", "data", "train_dataset.csv")
+if not os.path.exists(DATA_FILE):
+    DATA_FILE = os.path.join(os.path.dirname(_THIS_DIR), "data", "trains", "suburban_trains_schedule_dataset.csv")
 
 # =========================
 # LOAD MODEL + DATASET
@@ -17,51 +24,36 @@ DATA_FILE = "app/ml/data/train_dataset.csv"
 
 model = joblib.load(MODEL_FILE)
 
-df = pd.read_csv(DATA_FILE, sep="\t")
+sep = '\t' if DATA_FILE.endswith('train_dataset.csv') else ','
+df = pd.read_csv(DATA_FILE, sep=sep)
 
 print("\n========== DATASET ==========")
+print("File:", DATA_FILE)
 print("Rows:", len(df))
 
 # =========================
 # DATE FEATURES
 # =========================
 
-df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+df["Date_dt"] = pd.to_datetime(df["Date"], format="%d-%m-%Y", errors="coerce")
 
-df["day"] = df["Date"].dt.day
-df["month"] = df["Date"].dt.month
-df["day_of_week"] = df["Date"].dt.dayofweek
+df["day"] = df["Date_dt"].dt.day
+df["month"] = df["Date_dt"].dt.month
+df["day_of_week"] = df["Date_dt"].dt.dayofweek
 
 
 # =========================
 # TIME FEATURES
 # =========================
 
-def extract_time(series):
-    parsed = pd.to_datetime(
-        series.astype(str),
-        format="%H:%M:%S",
-        errors="coerce"
-    )
+dep_parsed = pd.to_datetime(df["Departure Time"].astype(str), format="%H:%M", errors="coerce")
+arr_parsed = pd.to_datetime(df["Arrival Time"].astype(str), format="%H:%M", errors="coerce")
 
-    # Try HH:MM if HH:MM:SS failed
-    if parsed.isna().all():
-        parsed = pd.to_datetime(
-            series.astype(str),
-            format="%H:%M",
-            errors="coerce"
-        )
+df["departure_hour"] = dep_parsed.dt.hour
+df["departure_minute"] = dep_parsed.dt.minute
 
-    return parsed.dt.hour, parsed.dt.minute
-
-
-df["departure_hour"], df["departure_minute"] = extract_time(
-    df["Departure Time"]
-)
-
-df["arrival_hour"], df["arrival_minute"] = extract_time(
-    df["Arrival Time"]
-)
+df["arrival_hour"] = arr_parsed.dt.hour
+df["arrival_minute"] = arr_parsed.dt.minute
 
 
 # =========================
@@ -78,18 +70,10 @@ df["Train No."] = pd.to_numeric(
 # DEPARTURE DELAY
 # =========================
 
-scheduled_departure = pd.to_datetime(
-    df["Departure Time"].astype(str),
-    errors="coerce"
-)
-
-actual_departure = pd.to_datetime(
-    df["Actual Departure Time"].astype(str),
-    errors="coerce"
-)
+actual_dep_parsed = pd.to_datetime(df["Actual Departure Time"].astype(str), format="%H:%M", errors="coerce")
 
 df["departure_delay"] = (
-    (actual_departure - scheduled_departure)
+    (actual_dep_parsed - dep_parsed)
     .dt.total_seconds()
     / 60
 )
@@ -105,10 +89,7 @@ df.loc[
 # DIRECTION
 # =========================
 
-# IMPORTANT:
-# This must match the logic used while training.
-# Temporary numeric encoding.
-df["direction"] = 0
+df["direction"] = df["Train Name"].apply(lambda x: 0 if "Sealdah - Dankuni" in str(x) else 1)
 
 
 # =========================

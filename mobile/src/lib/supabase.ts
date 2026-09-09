@@ -5,12 +5,12 @@ import Constants from 'expo-constants';
 const supabaseUrl =
   process.env.EXPO_PUBLIC_SUPABASE_URL ||
   Constants.expoConfig?.extra?.supabaseUrl ||
-  'https://wsxqiiatlhfkydrgptua.supabase.co';
+  '';
 
 const supabaseAnonKey =
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
   Constants.expoConfig?.extra?.supabaseAnonKey ||
-  'sb_publishable_BvFvNU3DQBXawK-Wgok3XA_DFZjuB_-';
+  '';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -46,11 +46,15 @@ const asyncStorageAdapter = {
   },
 };
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    storage: asyncStorageAdapter,
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: false,
-  },
-});
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-anon-key',
+  {
+    auth: {
+      storage: asyncStorageAdapter,
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: false,
+    },
+  }
+);

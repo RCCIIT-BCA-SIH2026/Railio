@@ -9,18 +9,19 @@ import { AppBackground } from '../components/AppBackground';
 export const StationArrivalBoardScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'StationArrivalBoard'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { stationCode: initialCode = 'HWH' } = route.params || {};
+  const { stationCode: initialCode = 'SDAH' } = route.params || {};
 
   const [selectedStation, setSelectedStation] = useState<string>(initialCode);
   const [stationData, setStationData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   const stations = [
-    { code: 'HWH', name: 'Howrah' },
-    { code: 'NDLS', name: 'New Delhi' },
-    { code: 'MMCT', name: 'Mumbai Central' },
-    { code: 'MAS', name: 'Chennai' },
-    { code: 'BBS', name: 'Bhubaneswar' },
+    { code: 'SDAH', name: 'Sealdah' },
+    { code: 'DKAE', name: 'Dankuni Jn' },
+    { code: 'DAKE', name: 'Dakshineswar' },
+    { code: 'DDJ', name: 'Dum Dum Jn' },
+    { code: 'BNXR', name: 'Bidhan Nagar' },
+    { code: 'BARN', name: 'Baranagar Road' },
   ];
 
   useEffect(() => {

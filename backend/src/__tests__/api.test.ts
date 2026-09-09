@@ -43,11 +43,11 @@ async function runTests() {
       failed++;
     }
 
-    // 2. Test Train Search
+    // 2. Test Train Search (Sealdah -> Dankuni)
     try {
-      const res = await axios.get(`${BASE_URL}/trains?from=HWH&to=NDLS`);
+      const res = await axios.get(`${BASE_URL}/trains?from=SDAH&to=DKAE`);
       if (res.data.success && res.data.trains.length > 0) {
-        console.log(`✅ TEST 2 PASSED: Train Search returned ${res.data.trains.length} trains (HWH -> NDLS)`);
+        console.log(`✅ TEST 2 PASSED: Train Search returned ${res.data.trains.length} trains (SDAH -> DKAE)`);
         passed++;
       } else {
         throw new Error('No trains returned');
@@ -57,11 +57,11 @@ async function runTests() {
       failed++;
     }
 
-    // 3. Test Live Train Telemetry
+    // 3. Test Live Train Telemetry (Train 32211)
     try {
-      const res = await axios.get(`${BASE_URL}/trains/12301/live`);
+      const res = await axios.get(`${BASE_URL}/trains/32211/live`);
       if (res.data.success && res.data.liveState && res.data.liveState.speed !== undefined) {
-        console.log(`✅ TEST 3 PASSED: Live Train Telemetry (Speed: ${res.data.liveState.speed} km/h, Delay: +${res.data.liveState.delayMinutes}m)`);
+        console.log(`✅ TEST 3 PASSED: Live Train Telemetry for 32211 (Speed: ${res.data.liveState.speed} km/h, Delay: +${res.data.liveState.delayMinutes}m)`);
         passed++;
       } else {
         throw new Error('Invalid live state payload');
@@ -74,8 +74,8 @@ async function runTests() {
     // 4. Test "Can I Catch My Train?"
     try {
       const res = await axios.post(`${BASE_URL}/catch-probability`, {
-        trainNumber: '12301',
-        roadDistanceKm: 12,
+        trainNumber: '32216',
+        roadDistanceKm: 5,
         trafficCondition: 'MODERATE',
         stationEntryBufferMin: 7,
       });
@@ -90,14 +90,14 @@ async function runTests() {
       failed++;
     }
 
-    // 5. Test Digital Twin Precedence Simulator
+    // 5. Test Digital Twin Precedence Simulator (Suburban EMU scenario)
     try {
       const res = await axios.post(`${BASE_URL}/digital-twin/simulate`, {
-        scenario: 'VANDE_BHARAT_PRIORITY',
-        trainNumber: '22436',
+        scenario: 'PEAK_EMU_PRECEDENCE',
+        trainNumber: '32216',
       });
       if (res.data.success && res.data.simulation) {
-        console.log(`✅ TEST 5 PASSED: Digital Twin What-If Precedence Simulation (Net Delay: ${res.data.simulation.netNetworkDelayMinutes || res.data.simulation.networkDelay}m)`);
+        console.log(`✅ TEST 5 PASSED: Digital Twin What-If Precedence Simulation (Net Delay: ${res.data.simulation.netNetworkDelayMinutes || res.data.simulation.netNetworkDelayChangeMin}m)`);
         passed++;
       } else {
         throw new Error('Invalid simulation response');
@@ -123,7 +123,7 @@ async function runTests() {
 
     // 7. Test Dakshineswar-Sealdah Suburban Local Upcoming Trains
     try {
-      const res = await axios.get(`${BASE_URL}/suburban/upcoming?from=DAKE&to=SDAH&time=23:31`);
+      const res = await axios.get(`${BASE_URL}/suburban/upcoming?from=DAKE&to=SDAH&time=06:00`);
       if (res.data.success && res.data.trains && res.data.trains.length > 0) {
         const first = res.data.trains[0];
         console.log(`✅ TEST 7 PASSED: Suburban Local Search DAKE -> SDAH (Found ${res.data.trains.length} upcoming locals, Next: Train #${first.trainNumber} in ${first.minutesUntilDeparture}m, Best Coach: ${first.recommendedCoach})`);
@@ -136,7 +136,7 @@ async function runTests() {
       failed++;
     }
 
-    // 8. Test Google Maps-Style Cellular Coach Crowd Telemetry
+    // 8. Test Google Maps-Style Cellular Coach Crowd Telemetry (12 Coaches)
     try {
       const res = await axios.get(`${BASE_URL}/suburban/crowd-telemetry/32216`);
       if (res.data.success && res.data.telemetry?.coaches?.length === 12) {
@@ -158,4 +158,8 @@ async function runTests() {
   }
 }
 
-runTests();
+if (require.main === module) {
+  runTests();
+}
+
+export { runTests };

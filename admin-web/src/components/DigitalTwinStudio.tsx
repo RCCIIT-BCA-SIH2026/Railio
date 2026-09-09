@@ -3,38 +3,38 @@ import { Cpu, Play, CheckCircle2, AlertCircle, ArrowRight, TrendingDown, Trendin
 import { runWhatIfSimulation } from '../services/api';
 
 export const DigitalTwinStudio: React.FC = () => {
-  const [selectedScenario, setSelectedScenario] = useState<string>('VANDE_BHARAT_PRIORITY');
+  const [selectedScenario, setSelectedScenario] = useState<string>('PEAK_EMU_PRECEDENCE');
   const [loading, setLoading] = useState<boolean>(false);
   const [simulationResult, setSimulationResult] = useState<any>({
-    scenario: 'VANDE_BHARAT_PRIORITY',
-    recommendedStrategy: 'Give Vande Bharat 22436 Precedence',
-    netNetworkDelayMinutes: -2,
-    totalNetworkDelayMin: 24,
-    decisionRationale: 'Calculated lowest overall network delay (-2 min total passenger delay saved). Vande Bharat maintains 130 km/h schedule and clears Kanpur bottleneck rapidly.',
+    scenario: 'PEAK_EMU_PRECEDENCE',
+    recommendedStrategy: 'Give Suburban Commuter Local #32216 Immediate Green Aspect',
+    netNetworkDelayMinutes: -6.5,
+    totalNetworkDelayMin: 14.0,
+    decisionRationale: 'Calculated lowest overall network delay (-6.5 min cumulative passenger delay saved). Clears Dum Dum Junction (DDJ) bottleneck before morning peak traffic surge.',
     trainImpacts: [
       {
-        trainNumber: '22436',
-        trainName: 'Vande Bharat Express (NDLS -> BSB)',
-        delayChangeMin: -8,
-        newDelayMin: 0,
-        statusMessage: 'Green corridor cleared through Kanpur Junction without stop.',
+        trainNumber: '32216',
+        trainName: 'Dankuni - Sealdah Local (#32216)',
+        delayChangeMin: -5.0,
+        newDelayMin: 1.0,
+        statusMessage: 'Green corridor cleared through Dakshineswar and Dum Dum Jn.',
       },
       {
-        trainNumber: '12301',
-        trainName: 'Howrah Rajdhani Express',
-        delayChangeMin: 4,
-        newDelayMin: 16,
-        statusMessage: 'Held at outer loop for 4 min to allow Vande Bharat overtake.',
+        trainNumber: '32211',
+        trainName: 'Sealdah - Dankuni Local (#32211)',
+        delayChangeMin: -1.5,
+        newDelayMin: 2.0,
+        statusMessage: 'Platform approach line at Dankuni Jn received on schedule.',
       },
       {
-        trainNumber: '12004',
-        trainName: 'Lucknow Shatabdi',
-        delayChangeMin: 2,
-        newDelayMin: 10,
-        statusMessage: 'Platform 1 arrival sequence maintained smoothly.',
+        trainNumber: '32218',
+        trainName: 'Dankuni - Sealdah Local (#32218)',
+        delayChangeMin: 0.0,
+        newDelayMin: 3.0,
+        statusMessage: 'Standard headway spacing maintained on Sealdah Chord line.',
       },
     ],
-    affectedJunctions: ['Kanpur Central (CNB)', 'Prayagraj Jn (PRYJ)'],
+    affectedJunctions: ['Sealdah (SDAH)', 'Dum Dum Jn (DDJ)', 'Dankuni Jn (DKAE)'],
   });
   const [executed, setExecuted] = useState<boolean>(false);
 
@@ -43,7 +43,7 @@ export const DigitalTwinStudio: React.FC = () => {
     setLoading(true);
     setExecuted(false);
     try {
-      const res = await runWhatIfSimulation(scenario, '22436');
+      const res = await runWhatIfSimulation(scenario, '32216');
       if (res && res.simulation) {
         setSimulationResult(res.simulation);
       }
@@ -56,7 +56,7 @@ export const DigitalTwinStudio: React.FC = () => {
 
   const handleExecute = () => {
     setExecuted(true);
-    alert(`Precedence plan "${simulationResult.recommendedStrategy}" dispatched to Kanpur Signal Interlocking Cabin.`);
+    alert(`Precedence plan "${simulationResult.recommendedStrategy}" dispatched to Sealdah Division Section Controller & Dum Dum Interlocking Cabin.`);
   };
 
   return (
@@ -76,7 +76,7 @@ export const DigitalTwinStudio: React.FC = () => {
                 </span>
               </h2>
               <p className="text-xs text-slate-500">
-                Simulate precedence decisions, bottleneck cascading delays, and corridor dispatch strategies in real time
+                Simulate precedence decisions, bottleneck cascading delays, and corridor dispatch strategies on the 28 km Sealdah–Dankuni chord
               </p>
             </div>
           </div>
@@ -84,24 +84,34 @@ export const DigitalTwinStudio: React.FC = () => {
           {/* Scenario Selection Buttons */}
           <div className="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
             <button
-              onClick={() => handleRunSimulation('VANDE_BHARAT_PRIORITY')}
+              onClick={() => handleRunSimulation('PEAK_EMU_PRECEDENCE')}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                selectedScenario === 'VANDE_BHARAT_PRIORITY'
+                selectedScenario === 'PEAK_EMU_PRECEDENCE'
                   ? 'bg-rail-orange text-white shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Scenario A: Vande Bharat Priority
+              Scenario A: Peak Commuter Precedence
             </button>
             <button
-              onClick={() => handleRunSimulation('RAJDHANI_PRIORITY')}
+              onClick={() => handleRunSimulation('UP_DOWN_CROSSING_HOLD')}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                selectedScenario === 'RAJDHANI_PRIORITY'
+                selectedScenario === 'UP_DOWN_CROSSING_HOLD'
                   ? 'bg-rail-orange text-white shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Scenario B: Rajdhani Priority
+              Scenario B: Junction Crossing Hold
+            </button>
+            <button
+              onClick={() => handleRunSimulation('SIGNAL_FAILURE')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                selectedScenario === 'SIGNAL_FAILURE'
+                  ? 'bg-rail-orange text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Scenario C: Signal Aspect Caution
             </button>
           </div>
         </div>
@@ -116,7 +126,7 @@ export const DigitalTwinStudio: React.FC = () => {
               Cascading Delay Impact Matrix
             </h3>
             <span className="text-xs text-slate-500 font-mono">
-              Topology: Northern & East Central Division
+              Topology: Sealdah - Dankuni Suburban Line (28 km ER)
             </span>
           </div>
 
@@ -142,25 +152,27 @@ export const DigitalTwinStudio: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-4 self-end md:self-center">
+                  <div className="flex items-center space-x-3">
                     <div className="text-right">
-                      <div className="text-[11px] text-slate-500">Delay Impact</div>
+                      <div className="text-xs font-mono font-bold text-slate-900">
+                        {item.newDelayMin > 0 ? `+${item.newDelayMin} min delay` : 'On Time (0 min)'}
+                      </div>
                       <div
-                        className={`text-sm font-heading font-extrabold flex items-center space-x-1 ${
-                          isReduced ? 'text-emerald-700' : 'text-amber-700'
+                        className={`text-xs font-bold flex items-center justify-end space-x-1 ${
+                          isReduced ? 'text-emerald-600' : 'text-amber-600'
                         }`}
                       >
-                        {isReduced ? <TrendingDown className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
-                        <span>
-                          {item.delayChangeMin > 0 ? `+${item.delayChangeMin}` : item.delayChangeMin} min
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="text-right pl-3 border-l border-slate-200">
-                      <div className="text-[11px] text-slate-500">New Delay</div>
-                      <div className="text-sm font-heading font-bold text-slate-800">
-                        +{item.newDelayMin} min
+                        {isReduced ? (
+                          <>
+                            <TrendingDown className="w-3.5 h-3.5" />
+                            <span>{item.delayChangeMin} min</span>
+                          </>
+                        ) : (
+                          <>
+                            <TrendingUp className="w-3.5 h-3.5" />
+                            <span>+{item.delayChangeMin} min</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -168,92 +180,80 @@ export const DigitalTwinStudio: React.FC = () => {
               );
             })}
           </div>
-
-          {/* Network Delay Net Calculation */}
-          <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-slate-50 to-orange-50/30 border border-slate-200 flex items-center justify-between">
-            <div>
-              <div className="text-xs text-slate-500">Net Corridor Delay Impact</div>
-              <div className="text-lg font-heading font-extrabold text-slate-900">
-                {simulationResult.netNetworkDelayMinutes <= 0 ? (
-                  <span className="text-emerald-700 flex items-center space-x-1">
-                    <TrendingDown className="w-5 h-5" />
-                    <span>{simulationResult.netNetworkDelayMinutes} minutes (Passenger Time Saved)</span>
-                  </span>
-                ) : (
-                  <span className="text-amber-700 flex items-center space-x-1">
-                    <TrendingUp className="w-5 h-5" />
-                    <span>+{simulationResult.netNetworkDelayMinutes} minutes (Excess Delay Added)</span>
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="text-right">
-              <div className="text-xs text-slate-500">Simulated Total Delay</div>
-              <div className="text-base font-mono font-bold text-slate-800">
-                {simulationResult.totalNetworkDelayMin || 24} min
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Right Col: AI Decision Support Recommendation */}
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between space-y-4">
-          <div>
-            <div className="flex items-center space-x-2 text-rail-orange text-xs font-bold uppercase tracking-wider mb-2">
-              <Sparkles className="w-4 h-4" />
-              <span>AI Controller Decision Support</span>
+        {/* Right Col: AI Recommendation & Dispatch Action */}
+        <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-2xl p-6 text-white shadow-xl flex flex-col justify-between space-y-6">
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2 text-rail-orange">
+              <Sparkles className="w-5 h-5" />
+              <span className="font-heading font-bold text-sm tracking-wide uppercase text-orange-400">
+                AI Optimization Verdict
+              </span>
             </div>
 
-            <h3 className="font-heading text-lg font-bold text-slate-900 mb-2">
-              {simulationResult.recommendedStrategy}
-            </h3>
+            <div className="space-y-2">
+              <h4 className="font-heading text-lg font-bold text-white">
+                {simulationResult.recommendedStrategy}
+              </h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                {simulationResult.decisionRationale}
+              </p>
+            </div>
 
-            <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-200 mb-4">
-              {simulationResult.decisionRationale}
-            </p>
-
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">Confidence Metric:</span>
-                <span className="font-bold text-emerald-700">96.8%</span>
-              </div>
-              <div className="flex items-center justify-between py-1 border-b border-slate-100">
-                <span className="text-slate-500">Bottleneck Clearance:</span>
-                <span className="font-semibold text-slate-800">Kanpur Interlocking</span>
-              </div>
-              <div className="flex items-center justify-between py-1">
-                <span className="text-slate-500">Execution Safety:</span>
-                <span className="text-emerald-700 font-bold flex items-center space-x-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Conflict Free</span>
-                </span>
+            <div className="p-3 bg-white/10 rounded-xl border border-white/10 space-y-1">
+              <div className="text-xs text-slate-400">Cumulative Corridor Impact</div>
+              <div className="text-xl font-bold font-mono text-emerald-400">
+                {simulationResult.netNetworkDelayMinutes <= 0
+                  ? `${simulationResult.netNetworkDelayMinutes} min Saved`
+                  : `+${simulationResult.netNetworkDelayMinutes} min Cascade`}
               </div>
             </div>
+
+            {simulationResult.affectedJunctions?.length > 0 && (
+              <div className="space-y-1.5">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Critical Interlocking Junctions
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {simulationResult.affectedJunctions.map((junc: string, i: number) => (
+                    <span
+                      key={i}
+                      className="px-2.5 py-1 text-xs rounded-lg bg-white/10 border border-white/15 text-slate-200 font-mono"
+                    >
+                      {junc}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="pt-4 border-t border-slate-100">
+          <div className="space-y-2">
             <button
               onClick={handleExecute}
               disabled={executed || loading}
-              className={`w-full py-3 rounded-xl text-sm font-bold transition flex items-center justify-center space-x-2 shadow-md ${
+              className={`w-full py-3 px-4 rounded-xl font-heading font-bold text-sm flex items-center justify-center space-x-2 transition ${
                 executed
                   ? 'bg-emerald-600 text-white cursor-default'
-                  : 'bg-rail-orange hover:bg-rail-saffron text-white shadow-rail-orange/20'
+                  : 'bg-rail-orange hover:bg-orange-600 text-white shadow-lg shadow-rail-orange/30'
               }`}
             >
               {executed ? (
                 <>
-                  <CheckCircle2 className="w-5 h-5" />
-                  <span>Precedence Dispatched OK</span>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Signal Aspect Dispatched</span>
                 </>
               ) : (
                 <>
                   <Play className="w-4 h-4" />
-                  <span>Apply Priority Decision</span>
+                  <span>Execute Interlocking Precedence</span>
                 </>
               )}
             </button>
+            <p className="text-[10px] text-slate-400 text-center">
+              Direct telemetry handshake with Section Controller Relay Cabin
+            </p>
           </div>
         </div>
       </div>

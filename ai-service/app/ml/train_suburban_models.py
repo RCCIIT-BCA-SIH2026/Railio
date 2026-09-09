@@ -1,196 +1,151 @@
+"""
+train_suburban_models.py — Production ML Model Training Pipeline
+================================================================
+Trains a RandomForestRegressor on the verified 3,680-record Sealdah–Dankuni Local
+schedule & delay dataset using the 12-dimensional feature schema:
+
+Features (12):
+  1. Train No. (numeric: 32211 - 32252)
+  2. day (1-31)
+  3. month (1-12)
+  4. day_of_week (0=Mon ... 6=Sun)
+  5. departure_hour (0-23)
+  6. departure_minute (0-59)
+  7. arrival_hour (0-23)
+  8. arrival_minute (0-59)
+  9. Travel Duration (mins) (e.g. 40 - 110)
+  10. Distance (km) (constant 28.0)
+  11. direction (0=Sealdah-Dankuni UP, 1=Dankuni-Sealdah DOWN)
+  12. departure_delay (mins delayed at scheduled departure)
+
+Target:
+  Delays (mins)
+"""
+
 import os
-import json
+import joblib
 import numpy as np
-from datetime import datetime
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-# Feature mapping lookups
-LINE_MAPPING = {
-    "Tarakeswar Line": 0, "Main Line": 1, "Chord Line": 2, "Bangaon Line": 3,
-    "South Line": 4, "Circular Railway": 5, "Chord Link": 6
-}
-DIVISION_MAPPING = {"Howrah": 0, "Sealdah": 1}
-DIRECTION_MAPPING = {"UP": 0, "DOWN": 1}
+# ── Paths ────────────────────────────────────────────────────────────────────
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_AI_SERVICE_DIR = os.path.dirname(os.path.dirname(_THIS_DIR))
+_PROJECT_ROOT = os.path.dirname(_AI_SERVICE_DIR)
 
-def time_to_minutes(time_str):
-    try:
-        if not time_str or time_str == "nan":
-            return 0
-        time_str = str(time_str).strip()
-        parts = time_str.split(':')
-        h, m = int(parts[0]), int(parts[1])
-        return h * 60 + m
-    except Exception:
-        return 0
+DATA_PATH = os.path.join(_PROJECT_ROOT, "data", "trains", "suburban_trains_schedule_dataset.csv")
+ALT_DATA_PATH = os.path.join(_THIS_DIR, "data", "train_dataset.csv")
+MODEL_OUT_DIR = os.path.join(_THIS_DIR, "models")
+MODEL_OUT_PATH = os.path.join(MODEL_OUT_DIR, "train_delay_model.pkl")
+ROOT_MODEL_PATH = os.path.join(_PROJECT_ROOT, "train_delay_model.pkl")
 
-def extract_features(row):
-    dep_str = row.get("Departure", "00:00")
-    arr_str = row.get("Arrival", "00:00")
-    act_str = row.get("Actual_Arrival_Time (Simulated)", "00:00")
-    
-    dep_min = time_to_minutes(dep_str)
-    arr_min = time_to_minutes(arr_str)
-    act_min = time_to_minutes(act_str)
-    
-    # Calculate target actual delay in minutes
-    diff = (act_min - arr_min) % 1440
-    if diff > 1200:
-        diff -= 1440
-    actual_delay = max(0, diff)
-    
-    # Cyclical encoding of departure time
-    sin_dep = np.sin(2.0 * np.pi * dep_min / 1440.0)
-    cos_dep = np.cos(2.0 * np.pi * dep_min / 1440.0)
-    
-    # Peak hour checks
-    dep_hour = dep_min // 60
-    is_peak_rush = 1.0 if ((7 <= dep_hour <= 10) or (17 <= dep_hour <= 20)) else 0.0
-    
-    # Categoricals
-    line_str = row.get("Line/Route", "Main Line")
-    line_val = LINE_MAPPING.get(line_str, 1)
-    
-    div_str = row.get("Division", "Howrah")
-    div_val = DIVISION_MAPPING.get(div_str, 0)
-    
-    dir_str = row.get("Direction", "DOWN")
-    dir_val = DIRECTION_MAPPING.get(dir_str, 1)
-    
-    dist = float(row.get("Distance (km)", 20.0))
-    duration = float(row.get("Journey Time (mins)", 30.0))
-    avg_delay_5yr = float(row.get("Avg_Delay_5_Years (mins)", 5.0))
-    
-    features = [
-        dep_min, sin_dep, cos_dep, is_peak_rush,
-        line_val, div_val, dir_val, dist, duration, avg_delay_5yr
+
+def load_and_preprocess_dataset(csv_path: str) -> pd.DataFrame:
+    """Load and engineer the 12 required features from the raw CSV dataset."""
+    sep = '\t' if csv_path.endswith('.csv') and '\t' in open(csv_path, 'r', encoding='utf-8').readline() else ','
+    df = pd.read_csv(csv_path, sep=sep)
+
+    # 1. Date Features
+    df["Date_dt"] = pd.to_datetime(df["Date"], format="%d-%m-%Y", errors="coerce")
+    df["day"] = df["Date_dt"].dt.day
+    df["month"] = df["Date_dt"].dt.month
+    df["day_of_week"] = df["Date_dt"].dt.dayofweek
+
+    # 2. Time Features
+    dep_parsed = pd.to_datetime(df["Departure Time"].astype(str), format="%H:%M", errors="coerce")
+    arr_parsed = pd.to_datetime(df["Arrival Time"].astype(str), format="%H:%M", errors="coerce")
+    df["departure_hour"] = dep_parsed.dt.hour
+    df["departure_minute"] = dep_parsed.dt.minute
+    df["arrival_hour"] = arr_parsed.dt.hour
+    df["arrival_minute"] = arr_parsed.dt.minute
+
+    # 3. Numeric Train Number
+    df["Train No."] = pd.to_numeric(df["Train No."], errors="coerce")
+
+    # 4. Departure Delay Calculation
+    actual_dep_parsed = pd.to_datetime(df["Actual Departure Time"].astype(str), format="%H:%M", errors="coerce")
+    df["departure_delay"] = (actual_dep_parsed - dep_parsed).dt.total_seconds() / 60.0
+    # Handle midnight transitions
+    df.loc[df["departure_delay"] < -720, "departure_delay"] += 1440
+
+    # 5. Direction (0 = Sealdah ➔ Dankuni, 1 = Dankuni ➔ Sealdah)
+    df["direction"] = df["Train Name"].apply(lambda x: 0 if "Sealdah - Dankuni" in str(x) else 1)
+
+    # 6. Ensure Distance & Duration
+    df["Travel Duration (mins)"] = pd.to_numeric(df["Travel Duration (mins)"], errors="coerce").fillna(45.0)
+    df["Distance (km)"] = pd.to_numeric(df["Distance (km)"], errors="coerce").fillna(28.0)
+    df["Delays (mins)"] = pd.to_numeric(df["Delays (mins)"], errors="coerce").fillna(0.0)
+
+    # Drop any corrupt row
+    df = df.dropna(subset=[
+        "Train No.", "day", "month", "day_of_week",
+        "departure_hour", "departure_minute", "arrival_hour", "arrival_minute",
+        "Travel Duration (mins)", "Distance (km)", "direction", "departure_delay",
+        "Delays (mins)"
+    ])
+
+    return df
+
+
+def train_model():
+    csv_file = DATA_PATH if os.path.exists(DATA_PATH) else ALT_DATA_PATH
+    if not os.path.exists(csv_file):
+        raise FileNotFoundError(f"Dataset not found at {DATA_PATH} or {ALT_DATA_PATH}")
+
+    print(f"[TrainModel] Loading dataset from: {csv_file}")
+    df = load_and_preprocess_dataset(csv_file)
+    print(f"[TrainModel] Valid processed dataset rows: {len(df)}")
+
+    feature_cols = [
+        "Train No.", "day", "month", "day_of_week",
+        "departure_hour", "departure_minute", "arrival_hour", "arrival_minute",
+        "Travel Duration (mins)", "Distance (km)", "direction", "departure_delay"
     ]
-    return features, actual_delay
+    target_col = "Delays (mins)"
 
-def train_and_save():
-    csv_path = r"c:\Users\dassh\Project\railsathi\data\delays\suburban_5yr_delays_dataset.csv"
-    if not os.path.exists(csv_path):
-        print(f"Error: Dataset {csv_path} not found. Please run conversion first.")
-        return
-        
-    import csv
-    rows = []
-    with open(csv_path, mode='r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for r in reader:
-            rows.append(r)
-            
-    print(f"Loaded {len(rows)} suburban train records.")
-    
-    X = []
-    y = []
-    for r in rows:
-        feat, target = extract_features(r)
-        X.append(feat)
-        y.append(target)
-        
-    X = np.array(X)
-    y = np.array(y)
-    
-    # Calculate simple route and line stats for quick heuristic validation
-    line_delays = {}
-    for r, target in zip(rows, y):
-        line = r.get("Line/Route", "Main Line")
-        if line not in line_delays:
-            line_delays[line] = []
-        line_delays[line].append(target)
-        
-    line_averages = {k: float(np.mean(v)) for k, v in line_delays.items()}
-    print("Average delay by Line/Route:")
-    for k, v in line_averages.items():
-        print(f" - {k}: {v:.2f} mins")
-        
-    # Standard regression coefficients (Ordinary Least Squares) as baseline
-    # features: [dep_min, sin_dep, cos_dep, is_peak_rush, line_val, div_val, dir_val, dist, duration, avg_delay_5yr]
-    try:
-        from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
-        from sklearn.model_selection import train_test_split
-        from sklearn.metrics import mean_absolute_error, root_mean_squared_error
-        
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        
-        # Train Gradient Boosting Model
-        gbr = GradientBoostingRegressor(n_estimators=100, max_depth=4, random_state=42)
-        gbr.fit(X_train, y_train)
-        
-        # Train Random Forest Model
-        rfr = RandomForestRegressor(n_estimators=100, max_depth=5, random_state=42)
-        rfr.fit(X_train, y_train)
-        
-        # Evaluate
-        y_pred_gbr = gbr.predict(X_test)
-        mae_gbr = mean_absolute_error(y_test, y_pred_gbr)
-        rmse_gbr = root_mean_squared_error(y_test, y_pred_gbr)
-        
-        y_pred_rfr = rfr.predict(X_test)
-        mae_rfr = mean_absolute_error(y_test, y_pred_rfr)
-        rmse_rfr = root_mean_squared_error(y_test, y_pred_rfr)
-        
-        print(f"Gradient Boosting MAE: {mae_gbr:.4f}, RMSE: {rmse_gbr:.4f}")
-        print(f"Random Forest MAE: {mae_rfr:.4f}, RMSE: {rmse_rfr:.4f}")
-        
-        # Save model config metadata and stats
-        model_params = {
-            "gbr_mae": mae_gbr,
-            "gbr_rmse": rmse_gbr,
-            "rfr_mae": mae_rfr,
-            "rfr_rmse": rmse_rfr,
-            "line_averages": line_averages,
-            "feature_importance": {
-                "gbr": list(gbr.feature_importances_),
-                "rfr": list(rfr.feature_importances_)
-            },
-            "coefficient_baseline": {
-                # Simple weight estimation to embed directly in python inference for performance
-                "junction_congestion": 8.5,
-                "weather_rain": 6.0,
-                "dwell_overrun": 1.2,
-                "speed_deficit": 0.15,
-                "avg_5yr_weight": 0.85,
-                "peak_rush_weight": 2.5
-            }
-        }
-        
-        # Save to file
-        model_dir = r"c:\Users\dassh\Project\railsathi\ai-service\app\ml\models"
-        os.makedirs(model_dir, exist_ok=True)
-        config_path = os.path.join(model_dir, "suburban_model_params.json")
-        with open(config_path, 'w') as out_f:
-            json.dump(model_params, out_f, indent=4)
-            
-        print(f"Successfully serialized trained model stats to {config_path}")
-        
-        # Export trained model files
-        import joblib
-        gbr_file = os.path.join(model_dir, "suburban_gbr_model.joblib")
-        joblib.dump(gbr, gbr_file)
-        print(f"Exported Gradient Boosting Model to {gbr_file}")
-        
-    except Exception as e:
-        print(f"Error during standard model training/export: {e}")
-        # Fallback to saving statistical matrices in JSON
-        model_dir = r"c:\Users\dassh\Project\railsathi\ai-service\app\ml\models"
-        os.makedirs(model_dir, exist_ok=True)
-        config_path = os.path.join(model_dir, "suburban_model_params.json")
-        model_params = {
-            "gbr_mae": 1.15,
-            "gbr_rmse": 1.48,
-            "line_averages": line_averages,
-            "coefficient_baseline": {
-                "junction_congestion": 8.5,
-                "weather_rain": 6.0,
-                "dwell_overrun": 1.2,
-                "speed_deficit": 0.15,
-                "avg_5yr_weight": 0.88,
-                "peak_rush_weight": 2.2
-            }
-        }
-        with open(config_path, 'w') as out_f:
-            json.dump(model_params, out_f, indent=4)
-        print("Exported fallback statistical matrices.")
+    X = df[feature_cols].values
+    y = df[target_col].values
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    print(f"[TrainModel] Training RandomForestRegressor (100 estimators)...")
+    model = RandomForestRegressor(
+        n_estimators=100,
+        max_depth=16,
+        min_samples_split=4,
+        min_samples_leaf=2,
+        random_state=42,
+        n_jobs=-1
+    )
+    model.fit(X_train, y_train)
+
+    # Evaluation
+    y_pred = model.predict(X_test)
+    mae = mean_absolute_error(y_test, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    r2 = r2_score(y_test, y_pred)
+    within_5min = np.mean(np.abs(y_test - y_pred) <= 5.0) * 100.0
+
+    print("=" * 50)
+    print("           TRAINING EVALUATION RESULTS")
+    print("=" * 50)
+    print(f" Test Samples:     {len(y_test)}")
+    print(f" MAE:              {mae:.4f} minutes")
+    print(f" RMSE:             {rmse:.4f} minutes")
+    print(f" R² Score:         {r2:.4f}")
+    print(f" Within ±5 min:    {within_5min:.2f}%")
+    print("=" * 50)
+
+    # Save to both target locations
+    os.makedirs(MODEL_OUT_DIR, exist_ok=True)
+    joblib.dump(model, MODEL_OUT_PATH)
+    joblib.dump(model, ROOT_MODEL_PATH)
+    print(f"[TrainModel] Model successfully saved to:\n  - {MODEL_OUT_PATH}\n  - {ROOT_MODEL_PATH}")
+
 
 if __name__ == "__main__":
-    train_and_save()
+    train_model()

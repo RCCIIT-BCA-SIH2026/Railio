@@ -9,8 +9,8 @@ class SensorReading(BaseModel):
     gyroX: float = 0.0
     gyroY: float = 0.0
     gyroZ: float = 0.0
-    sectionId: str = "HWH-B17"
-    trainNumber: str = "12301"
+    sectionId: str = "SDAH-BNXR-SUB1"
+    trainNumber: str = "32211"
 
 class AnomalyResult(BaseModel):
     isAnomaly: bool

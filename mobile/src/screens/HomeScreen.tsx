@@ -27,10 +27,15 @@ import { Scan, Ticket, Armchair, Building2, Headset, Users, CloudRain, Bell } fr
 export const HomeScreen: React.FC = React.memo(() => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useTranslation();
-  const [fromStation, setFromStation] = useState('HWH');
-  const [toStation, setToStation] = useState('NDLS');
-  const [journeyDate, setJourneyDate] = useState('Today, 28 Aug');
+  const [fromStation, setFromStation] = useState('SDAH');
+  const [toStation, setToStation] = useState('DKAE');
+  const formatCurrentJourneyDate = (date: Date) => {
+    const shortFormatted = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    return `Today, ${shortFormatted}`;
+  };
+
   const [dateObj, setDateObj] = useState(new Date());
+  const [journeyDate, setJourneyDate] = useState(() => formatCurrentJourneyDate(new Date()));
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeAlertCount, setActiveAlertCount] = useState(3);
@@ -47,8 +52,21 @@ export const HomeScreen: React.FC = React.memo(() => {
     const task = InteractionManager.runAfterInteractions(() => {
       loadAlerts();
     });
-    return () => task.cancel();
-  }, [loadAlerts]);
+
+    // Auto-update date at midnight / background tick
+    const timer = setInterval(() => {
+      const now = new Date();
+      if (now.toDateString() !== dateObj.toDateString()) {
+        setDateObj(now);
+        setJourneyDate(formatCurrentJourneyDate(now));
+      }
+    }, 30000);
+
+    return () => {
+      task.cancel();
+      clearInterval(timer);
+    };
+  }, [loadAlerts, dateObj]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -136,12 +154,12 @@ export const HomeScreen: React.FC = React.memo(() => {
                 style={styles.stationInput}
                 value={fromStation}
                 onChangeText={setFromStation}
-                placeholder="HWH"
+                placeholder="SDAH"
                 placeholderTextColor="#64748B"
                 autoCapitalize="characters"
               />
               <Text style={styles.stationCityText}>
-                {fromStation === 'HWH' ? 'Howrah Jn' : fromStation === 'NDLS' ? 'New Delhi' : 'Station Code'}
+                {fromStation === 'SDAH' ? 'Sealdah' : fromStation === 'DKAE' ? 'Dankuni Jn' : fromStation === 'DAKE' ? 'Dakshineswar' : fromStation === 'DDJ' ? 'Dum Dum Jn' : 'Station Code'}
               </Text>
             </View>
 
@@ -155,12 +173,12 @@ export const HomeScreen: React.FC = React.memo(() => {
                 style={styles.stationInput}
                 value={toStation}
                 onChangeText={setToStation}
-                placeholder="NDLS"
+                placeholder="DKAE"
                 placeholderTextColor="#64748B"
                 autoCapitalize="characters"
               />
               <Text style={styles.stationCityText}>
-                {toStation === 'NDLS' ? 'New Delhi' : toStation === 'HWH' ? 'Howrah Jn' : 'Station Code'}
+                {toStation === 'DKAE' ? 'Dankuni Jn' : toStation === 'SDAH' ? 'Sealdah' : toStation === 'DAKE' ? 'Dakshineswar' : toStation === 'DDJ' ? 'Dum Dum Jn' : 'Station Code'}
               </Text>
             </View>
           </View>
@@ -227,7 +245,7 @@ export const HomeScreen: React.FC = React.memo(() => {
           {/* 1. Live Train Status */}
           <TouchableOpacity
             style={[styles.quickServiceCard, { flex: 1, width: undefined }]}
-            onPress={() => navigation.navigate('LiveTrain', { trainNumber: '12301' })}
+            onPress={() => navigation.navigate('LiveTrain', { trainNumber: '32216' })}
           >
             <View style={[styles.quickServiceIcon, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
               <Image source={require('../../assets/footer_svg_transparent.png')} style={{ width: 40, height: 40, tintColor: '#0284C7' }} resizeMode="contain" />
@@ -409,7 +427,7 @@ export const HomeScreen: React.FC = React.memo(() => {
           {/* Coach Crowd Intelligence */}
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => navigation.navigate('CoachCrowd', { trainNumber: '12301' })}
+            onPress={() => navigation.navigate('CoachCrowd', { trainNumber: '32216' })}
           >
             <View style={[styles.actionIconBox, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
               <Users size={24} color="#A855F7" strokeWidth={2.5} />
@@ -424,7 +442,7 @@ export const HomeScreen: React.FC = React.memo(() => {
           {/* Weather Intelligence */}
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => navigation.navigate('WeatherIntelligence', { stationCode: 'HWH' })}
+            onPress={() => navigation.navigate('WeatherIntelligence', { stationCode: 'SDAH' })}
           >
             <View style={[styles.actionIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
               <CloudRain size={24} color="#10B981" strokeWidth={2.5} />
@@ -498,28 +516,26 @@ export const HomeScreen: React.FC = React.memo(() => {
 
           <View style={styles.statusPillRow}>
             <View style={styles.statusItem}>
-              <Text style={styles.statusNumber}>142</Text>
+              <Text style={styles.statusNumber}>40</Text>
               <Text style={styles.statusLabel}>{t('Active Trains', 'Active Trains')}</Text>
             </View>
             <View style={styles.statusDivider} />
             <View style={styles.statusItem}>
-              <Text style={[styles.statusNumber, { color: '#F59E0B' }]}>27</Text>
+              <Text style={[styles.statusNumber, { color: '#F59E0B' }]}>6</Text>
               <Text style={styles.statusLabel}>{t('Delayed', 'Delayed')}</Text>
             </View>
             <View style={styles.statusDivider} />
             <View style={styles.statusItem}>
-              <Text style={[styles.statusNumber, { color: '#EF4444' }]}>3</Text>
+              <Text style={[styles.statusNumber, { color: '#EF4444' }]}>1</Text>
               <Text style={styles.statusLabel}>{t('Critical Risks', 'Critical Risks')}</Text>
             </View>
             <View style={styles.statusDivider} />
             <View style={styles.statusItem}>
-              <Text style={[styles.statusNumber, { color: '#10B981' }]}>88%</Text>
+              <Text style={[styles.statusNumber, { color: '#10B981' }]}>92%</Text>
               <Text style={styles.statusLabel}>{t('Punctual', 'Punctual')}</Text>
             </View>
           </View>
         </View>
-
-
       </ScrollView>
     </AppBackground>
   );

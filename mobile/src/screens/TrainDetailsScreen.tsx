@@ -9,7 +9,7 @@ import { AppBackground } from '../components/AppBackground';
 export const TrainDetailsScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'TrainDetails'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { trainNumber = '12301' } = route.params || {};
+  const { trainNumber = '32216' } = route.params || {};
 
   const [train, setTrain] = useState<Train | null>(null);
   const [loading, setLoading] = useState<boolean>(true);

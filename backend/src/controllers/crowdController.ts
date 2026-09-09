@@ -26,16 +26,24 @@ export const getStationCrowd = async (req: Request, res: Response): Promise<void
 export const getTrainCoachCrowd = async (req: Request, res: Response): Promise<void> => {
   try {
     const tNum = Array.isArray(req.params.trainNumber) ? req.params.trainNumber[0] : req.params.trainNumber;
-    const trainNumber = tNum || '12301';
+    const trainNumber = tNum || '32216';
     const coachInfo = db.crowdData.coachCrowd?.[trainNumber] || {
       coaches: [
-        { coach: 'A1', density: 82, status: 'RED' },
-        { coach: 'A2', density: 46, status: 'YELLOW' },
-        { coach: 'A3', density: 29, status: 'GREEN' },
-        { coach: 'A4', density: 91, status: 'RED' },
+        { coach: 'C1', density: 38, status: 'GREEN' },
+        { coach: 'C2', density: 45, status: 'YELLOW' },
+        { coach: 'C3', density: 28, status: 'GREEN' },
+        { coach: 'C4', density: 58, status: 'YELLOW' },
+        { coach: 'C5', density: 78, status: 'ORANGE' },
+        { coach: 'C6', density: 85, status: 'RED' },
+        { coach: 'C7', density: 72, status: 'ORANGE' },
+        { coach: 'C8', density: 40, status: 'GREEN' },
+        { coach: 'C9', density: 32, status: 'GREEN' },
+        { coach: 'C10', density: 35, status: 'GREEN' },
+        { coach: 'C11', density: 42, status: 'YELLOW' },
+        { coach: 'C12', density: 30, status: 'GREEN' },
       ],
-      recommendedCoach: 'A3',
-      reason: 'Lowest estimated crowd density (29% occupancy).',
+      recommendedCoach: 'C3',
+      reason: 'Lowest estimated crowd density (28% occupancy).',
     };
 
     res.json({

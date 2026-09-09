@@ -294,7 +294,7 @@ export class WhatsAppSessionManager {
     messageText: string,
     locationPayload?: UserLocation
   ): Promise<void> {
-    const aiRes = await aiGateway.askAgent(messageText, locationPayload?.latitude, locationPayload?.longitude);
+    const aiRes = await aiGateway.askAgent(messageText, phoneNumber, locationPayload?.latitude, locationPayload?.longitude);
     const reply = `🚆 *RailIo AI Response*\n\n${aiRes.answer}\n\n_Type 'Menu' anytime for options._`;
 
     session.state = 'IDLE';

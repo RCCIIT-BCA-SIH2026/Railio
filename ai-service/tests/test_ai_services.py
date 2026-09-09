@@ -16,24 +16,27 @@ from app.agent.rail_agent import RailIoAgent, AgentMessageRequest
 def test_eta_delay_predictor():
     predictor = ETADelayPredictor()
     req = DelayPredictionRequest(
-        trainNumber="12301",
-        currentSpeed=88.0,
-        distanceRemaining=140.0,
-        dwellTime=4.0,
-        weatherCondition="Heavy Rain",
-        junctionCongestionLevel=0.8
+        trainNumber="32211",
+        departureTime="04:07",
+        arrivalTime="04:50",
+        travelDurationMins=43.0,
+        distanceKm=28.0,
+        currentSpeed=45.0,
+        dwellTime=1.5,
+        weatherCondition="Clear",
+        junctionCongestionLevel=0.2
     )
     result = predictor.predict(req)
     assert result.predictedDelayMinutes >= 0
     assert result.confidenceScore > 0
     assert len(result.explainability) > 0
-    print("[PASS] ETA Delay Predictor & SHAP Explainability PASSED")
+    print("[PASS] ETA Delay Predictor & Day-Wise Explainability PASSED")
 
 def test_catch_probability_engine():
     engine = CatchProbabilityEngine()
     req = CatchProbabilityInput(
-        trainNumber="12301",
-        roadDistanceKm=12.0,
+        trainNumber="32216",
+        roadDistanceKm=5.0,
         trafficCondition="MODERATE",
         stationEntryBufferMin=7.0
     )
@@ -45,7 +48,8 @@ def test_catch_probability_engine():
 def test_iot_vibration_anomaly():
     detector = TrackAnomalyDetector()
     reading = SensorReading(
-        accelX=0.45, accelY=0.32, accelZ=3.10, gyroX=12.0, gyroY=8.5, gyroZ=5.2
+        accelX=0.45, accelY=0.32, accelZ=3.10, gyroX=12.0, gyroY=8.5, gyroZ=5.2,
+        sectionId="SDAH-BNXR-SUB1", trainNumber="32211"
     )
     res = detector.process_telemetry(reading)
     assert res.vibrationRms > 0
@@ -55,20 +59,20 @@ def test_iot_vibration_anomaly():
 
 def test_digital_twin_precedence():
     twin = RailwayDigitalTwin()
-    req = WhatIfSimulationRequest(scenario="FAST_LOCAL_PRIORITY", trainNumber="32211")
-    res = twin.simulate_what_if(req)
-    assert res.scenario == "FAST_LOCAL_PRIORITY"
+    req = WhatIfSimulationRequest(scenario="PEAK_EMU_PRECEDENCE", trainNumber="32216")
+    res = twin.run_what_if(req)
+    assert res.scenario == "PEAK_EMU_PRECEDENCE"
     assert res.netNetworkDelayChangeMin is not None
     assert len(res.trainImpacts) > 0
     print("[PASS] NetworkX Digital Twin & What-If Precedence Simulator PASSED")
 
 def test_agent_tool_routing():
     agent = RailIoAgent()
-    req = AgentMessageRequest(message="Can I catch my train 12301?")
+    req = AgentMessageRequest(message="Status of train 32216")
     res = agent.process_query(req)
     assert len(res.answer) > 0
     assert len(res.toolsExecuted) > 0
-    print("[PASS] 10-Tool Agentic AI Router PASSED")
+    print("[PASS] Agentic AI Tool Router PASSED")
 
 if __name__ == "__main__":
     print("====================================================")

@@ -19,10 +19,10 @@ async function runTests() {
   console.log('\n--- Test 2: User taps "🎯 Can I Catch Train?" button ---');
   await whatsappSessionManager.processIncomingMessage(testPhone, 'Can I Catch Train', 'btn_catch_train');
 
-  console.log('\n--- Test 3: User replies with Train "12301" and shares Location ---');
+  console.log('\n--- Test 3: User replies with Train "32216" and shares Location ---');
   await whatsappSessionManager.processIncomingMessage(
     testPhone,
-    '12301',
+    '32216',
     undefined,
     { latitude: 22.5726, longitude: 88.3639, name: 'Esplanade Metro Kolkata' }
   );

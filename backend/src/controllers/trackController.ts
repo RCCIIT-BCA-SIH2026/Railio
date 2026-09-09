@@ -11,7 +11,7 @@ export const getTrackRisk = async (req: Request, res: Response): Promise<void> =
       realHardwareHistory: db.realHardwareTelemetryBuffer,
       summary: {
         activeAnomalies: db.trackSections.filter((s) => s.riskLevel !== 'NORMAL').length,
-        highestRiskSection: 'HWH-B17',
+        highestRiskSection: 'DAKE-DKAE-SUB5',
         maintenanceActionRequired: true,
       },
     });
