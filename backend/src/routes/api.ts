@@ -19,6 +19,16 @@ import {
   recalculateRoute,
   getEnvironmentDefinition
 } from '../controllers/navigationController';
+import {
+  getPlatformConflicts,
+  getCrewDutyAlerts,
+  getRakeTurnaroundStatus,
+  ingestRealTimeTelemetry,
+  ingestCautionOrder,
+  getActiveCautionOrders,
+  getPredictionAuditLog,
+  recordActualArrival,
+} from '../controllers/operationsController';
 
 const router = Router();
 
@@ -81,5 +91,18 @@ router.post('/navigation/event', logNavigationEvent);
 router.post('/navigation/recalculate', recalculateRoute);
 router.get('/navigation/environments/:id', getEnvironmentDefinition);
 
-export default router;
+// 12. Operations Planning (Platform Conflict, Crew HOER, Rake Turnaround)
+router.get('/operations/platform-conflicts/:stationCode', getPlatformConflicts);
+router.get('/operations/crew-alerts', getCrewDutyAlerts);
+router.get('/operations/rake-turnaround', getRakeTurnaroundStatus);
 
+// 13. Real-Time Telemetry Ingestion (RTIS/ISRO GPS + Caution Orders)
+router.post('/telemetry/ingest', ingestRealTimeTelemetry);
+router.post('/telemetry/caution-orders', ingestCautionOrder);
+router.get('/telemetry/caution-orders', getActiveCautionOrders);
+
+// 14. Prediction Audit Trail & Actual Arrival Feedback
+router.get('/audit/predictions', getPredictionAuditLog);
+router.post('/audit/actual-arrival', recordActualArrival);
+
+export default router;

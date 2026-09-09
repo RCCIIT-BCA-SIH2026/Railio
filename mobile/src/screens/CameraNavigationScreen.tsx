@@ -32,7 +32,7 @@ import {
   NavigationSessionSummary,
 } from '../services/navigation/types';
 import { NavCue } from '../services/navigation/GeminiLiveNavService';
-import { AROverlayView } from '../components/navigation/AROverlayView';
+
 import { DestinationPickerModal } from '../components/navigation/DestinationPickerModal';
 import { LiveCameraFeed, LiveCameraFeedHandle } from '../components/navigation/LiveCameraFeed';
 
@@ -291,19 +291,7 @@ export const CameraNavigationScreen: React.FC = () => {
         }}
       />
 
-      {/* ── 2. AR Overlay ── */}
-      {navState !== 'SCANNING' &&
-        navState !== 'LOW_CONFIDENCE' &&
-        navState !== 'TRACKING_LOST' &&
-        navState !== 'RECOVERY' &&
-        navState !== 'ARRIVED' && (
-          <AROverlayView
-            instruction={instruction}
-            scene={scene}
-            pose={pose}
-            isEmergency={isEmergency}
-          />
-        )}
+      {/* ── 2. AR Overlay (Removed as per request) ── */}
 
       <View style={styles.safeArea}>
 

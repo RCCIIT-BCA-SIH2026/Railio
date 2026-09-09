@@ -55,9 +55,9 @@ def test_iot_vibration_anomaly():
 
 def test_digital_twin_precedence():
     twin = RailwayDigitalTwin()
-    req = WhatIfSimulationRequest(scenario="VANDE_BHARAT_PRIORITY", trainNumber="22436")
+    req = WhatIfSimulationRequest(scenario="FAST_LOCAL_PRIORITY", trainNumber="32211")
     res = twin.simulate_what_if(req)
-    assert res.scenario == "VANDE_BHARAT_PRIORITY"
+    assert res.scenario == "FAST_LOCAL_PRIORITY"
     assert res.netNetworkDelayChangeMin is not None
     assert len(res.trainImpacts) > 0
     print("[PASS] NetworkX Digital Twin & What-If Precedence Simulator PASSED")

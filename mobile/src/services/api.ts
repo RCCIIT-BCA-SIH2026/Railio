@@ -386,13 +386,10 @@ export const getStationArrivalsApi = async (stationCode: string) => {
   } catch (err) {
     console.warn('[API] Using offline station arrivals');
   }
+  // STRICT DATASET ONLY — no hardcoded arrivals returned when backend is unavailable
   return {
     station: { code: stationCode, name: `${stationCode} Station`, platforms: 10 },
-    arrivals: [
-      { trainNumber: '22436', trainName: 'Vande Bharat Express', type: 'Vande Bharat', scheduledArrival: '12:08', predictedArrival: '12:14', delayMinutes: 6, status: '+6 min', platform: 1, confidence: 0.94, currentLocation: 'Kanpur Section', delayReason: 'Signal clearance' },
-      { trainNumber: '12301', trainName: 'Howrah Rajdhani', type: 'Rajdhani Express', scheduledArrival: '16:50', predictedArrival: '17:02', delayMinutes: 12, status: '+12 min', platform: 9, confidence: 0.91, currentLocation: 'DDU Interlocking', delayReason: 'Junction congestion' },
-      { trainNumber: '12841', trainName: 'Coromandel Express', type: 'Superfast', scheduledArrival: '15:30', predictedArrival: '15:37', delayMinutes: 7, status: '+7 min', platform: 21, confidence: 0.89, currentLocation: 'BBS Coastal', delayReason: 'Monsoon speed limit' }
-    ]
+    arrivals: []
   };
 };
 
@@ -520,155 +517,295 @@ export const fetchWebTrainData = async (query: string): Promise<string> => {
 };
 
 export const chatAIApi = async (query: string, history: any[] = []) => {
-  // 1. Primary & Most Secure: Call Backend AI Gateway (Keeps all API keys securely on server)
-  try {
-    const res = await api.post('/ai/chat', { message: query, history });
-    if (res.data?.success && res.data?.data?.answer) {
-      return {
-        answer: res.data.data.answer,
-        toolsExecuted: res.data.data.toolsExecuted || [],
-        confidence: res.data.data.confidence || 0.95
-      };
-    }
-  } catch (err) {
-    // Backend offline / network unreachable -> fallback to direct or local telemetry below
-  }
+  const cleanQuery = query.replace(/["'']/g, '').trim();
+  const lowerQuery = cleanQuery.toLowerCase();
 
-  // 2. Direct OpenRouter AI fallback if client has EXPO_PUBLIC_OPENROUTER_API_KEY
-  const apiKey = process.env.EXPO_PUBLIC_OPENROUTER_API_KEY;
-  if (apiKey) {
-    try {
-      const trainNumberMatch = query.match(/\b\d{5}\b/);
-      let webContext = '';
-      let liveContext = '';
-
-      const webPromise = fetchWebTrainData(trainNumberMatch ? trainNumberMatch[0] : query);
-      
-      let localTrain: Train | undefined;
-      if (trainNumberMatch) {
-        const num = trainNumberMatch[0];
-        localTrain = fallbackTrains.find(t => t.trainNumber === num);
-        if (!localTrain) {
-          try {
-            localTrain = await getTrainByNumberApi(num);
-          } catch (e) {}
-        }
-      } else {
-        const qLower = query.toLowerCase();
-        localTrain = fallbackTrains.find(t => 
-          qLower.includes(t.name.toLowerCase()) || 
-          (t.type === 'Vande Bharat' && (qLower.includes('vande') || qLower.includes('bharat'))) ||
-          (t.type.includes('Rajdhani') && qLower.includes('rajdhani')) ||
-          (qLower.includes(t.source.toLowerCase()) && qLower.includes(t.destination.toLowerCase()))
-        );
-      }
-
-      const webResult = await Promise.race([
-        webPromise,
-        new Promise<string>(resolve => setTimeout(() => resolve(''), 3000))
-      ]);
-      if (webResult) {
-        webContext = `Verified Web Railway Encyclopedia:\n${webResult}`;
-      }
-
-      if (localTrain) {
-        const stopsList = localTrain.stops.map(s => `${s.code} (Arr: ${s.arr}, Dep: ${s.dep}, PF: ${s.platform})`).join(' -> ');
-        liveContext = `Live Railway Telemetry & Schedule for Train ${localTrain.trainNumber} (${localTrain.name}):
-- Type: ${localTrain.type}
-- Route: ${localTrain.source} to ${localTrain.destination} (${localTrain.totalDistanceKm} km, Departure: ${localTrain.departureTime}, Arrival: ${localTrain.arrivalTime})
-- Live Section: ${localTrain.liveState.currentSection}, Last Station: ${localTrain.liveState.lastStation}, Next Station: ${localTrain.liveState.nextStation}
-- Speed: ${localTrain.liveState.speed} km/h
-- Current Status: ${localTrain.liveState.delayMinutes === 0 ? 'Running On Time (0 min delay)' : `Delayed by ${localTrain.liveState.delayMinutes} mins`}
-- Route Stoppages: ${stopsList}`;
-      }
-
-      const verifiedContext = [webContext, liveContext].filter(Boolean).join('\n\n');
-
-      const systemPrompt = `You are Railio, the intelligent official AI assistant for Indian Railways app "Rail Sathi".
-
-VERIFIED REAL-TIME RAILWAY GROUND TRUTH CONTEXT:
-${verifiedContext || 'Use official Indian Railways verified knowledge. Train 22895 is the Howrah - Puri Vande Bharat Express.'}
-
-CRITICAL RULES:
-1. Ground Truth Priority: Use the verified real-time railway data provided above.
-2. Live Status: Provide the train's live status, speed, current section, and schedule directly. Never say you do not have access to live status.
-3. No Asterisks / Bold: DO NOT use markdown bold marks (**) or asterisks anywhere in your response. Output plain, clean text only.
-4. No XML / Tool tags: DO NOT output any <tool_call>, <arg_key>, <arg_value>, or XML tags.
-5. Scope: Only answer queries related to Indian Railways, trains, tickets, and travel.`;
-
-      const formattedHistory = history.map(msg => ({
-        role: msg.sender === 'user' ? 'user' : 'assistant',
-        content: msg.text
-      }));
-
-      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'inclusionai/ling-3.0-flash-sante:free',
-          messages: [
-            {
-              role: 'system',
-              content: systemPrompt
-            },
-            ...formattedHistory,
-            {
-              role: 'user',
-              content: query
-            }
-          ]
-        })
-      });
-      const data = await res.json();
-      
-      if (data.choices && data.choices.length > 0) {
-        let rawAnswer = data.choices[0].message.content || '';
-        const cleanAnswer = rawAnswer
-          .replace(/\*\*/g, '')
-          .replace(/<\/?tool_call>/gi, '')
-          .replace(/<arg_[^>]+>[^<]*<\/arg_[^>]+>/gi, '')
-          .trim();
-
-        return {
-          answer: cleanAnswer,
-          toolsExecuted: [
-            { tool: 'WebRailwayScraper', query, status: 'SUCCESS' }
-          ], 
-          confidence: 0.98
-        };
-      }
-    } catch (err: any) {
-      console.warn('Direct AI query fallback failed:', err);
-    }
-  }
-
-  // 3. Local Deterministic Railway Intelligence Fallback (Works 100% Offline with zero keys)
-  const trainNumberMatch = query.match(/\b\d{5}\b/);
-  let matchedTrain = trainNumberMatch ? fallbackTrains.find(t => t.trainNumber === trainNumberMatch[0]) : undefined;
-  if (!matchedTrain) {
-    const qLower = query.toLowerCase();
-    matchedTrain = fallbackTrains.find(t => 
-      qLower.includes(t.name.toLowerCase()) || 
-      (t.type === 'Vande Bharat' && (qLower.includes('vande') || qLower.includes('bharat'))) ||
-      (t.type.includes('Rajdhani') && qLower.includes('rajdhani'))
-    );
-  }
-
-  if (matchedTrain) {
+  // ── 1. FAST PATH: Multilingual Greeting Detection (Instant Response) ──
+  const greetings = ['hi','hello','hey','namaste','namaskar','সালাম','হ্যালো','নমস্কার','নমস্তে', 'ki obostha', 'kemon acho', 'how are you'];
+  if (greetings.includes(lowerQuery)) {
     return {
-      answer: `Train ${matchedTrain.trainNumber} (${matchedTrain.name}) runs from ${matchedTrain.source} to ${matchedTrain.destination}. Current Live Status: ${matchedTrain.liveState.delayMinutes === 0 ? 'Running on time (0 min delay)' : `Delayed by ${matchedTrain.liveState.delayMinutes} mins`}, speed ${matchedTrain.liveState.speed} km/h in section ${matchedTrain.liveState.currentSection}. Next scheduled stop is ${matchedTrain.liveState.nextStation}.`,
-      toolsExecuted: [{ tool: 'LocalTelemetryEngine', result: 'OFFLINE_READY', status: 'SUCCESS' }],
-      confidence: 0.94
+      answer: "Hello! How are you? Welcome to Railio 🚆 Your smart railway assistant. How can I help you with your journey today?",
+      toolsExecuted: [],
+      confidence: 1.0
     };
   }
 
+  // ── 2. INTENT ROUTING: Train Query (ML Backend) vs Conversational ──
+  const railwayKeywords = [
+    'train', 'local', 'express', 'ticket', 'pnr', 'station', 'platform', 'delay', 'status', 'route', 'time', 'now',
+    'sealdah', 'howrah', 'dankuni', 'bandel', 'barddhaman', 'naihati', 'dum dum', 'dake', 'barasat', 'bangaon',
+    'theke', 'jabo', 'jete', 'somoy', 'tarikh', 'kothay', 'sokale', 'bikele', 'raat', 'agamikal', 'kakhon',
+    'kalke', 'kal', 'kaal', 'aaj', 'aajke', 'today', 'tomorrow',
+    'থেকে', 'যাব', 'যেতে', 'সময়', 'তারিখ', 'কোথায়', 'সকালে', 'বিকেলে', 'রাতে', 'আগামীকাল', 'কখন', 'কালকে', 'কাল',
+    'से', 'जाना', 'समय', 'तारीख', 'कहाँ', 'सुबह', 'शाम', 'रात', 'कल', 'कब'
+  ];
+  const hasRailwayIntent = railwayKeywords.some(kw => lowerQuery.includes(kw)) || /\b\d{1,2}:\d{2}\b/.test(lowerQuery) || /\b\d{5}\b/.test(lowerQuery)
+    || /\b\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(cleanQuery)
+    || /\b\d{1,2}[\/\-]\d{1,2}\b/.test(cleanQuery);
+
+
+  // If it's a Train Query, try the primary ML Backend first
+  if (hasRailwayIntent) {
+    try {
+      const res = await api.post('/ai/chat', { message: cleanQuery, session_id: 'mobile_client_session', history });
+      if (res.data?.success && res.data?.data?.answer) {
+        let cleanAnswer = res.data.data.answer;
+        cleanAnswer = cleanAnswer.replace(/User Safety:.*?\n?/gi, '');
+        cleanAnswer = cleanAnswer.replace(/Response Safety:.*?\n?/gi, '');
+        cleanAnswer = cleanAnswer.replace(/safety status:.*?\n?/gi, '');
+        cleanAnswer = cleanAnswer.trim();
+        return {
+          answer: cleanAnswer,
+          toolsExecuted: res.data.data.toolsExecuted || [],
+          confidence: res.data.data.confidence || 0.95
+        };
+      }
+    } catch (err) {
+      console.warn('Backend ML offline, falling through to local offline fallback');
+    }
+  }
+
+  // ── 3. STRICT LOCAL DATASET FALLBACK (NO OPENROUTER / NO GEMINI AI) ──
+  const hasBengaliScript = /[\u0980-\u09FF]/.test(cleanQuery);
+  const hasDevanagari    = /[\u0900-\u097F]/.test(cleanQuery);
+  const hasLatin         = /[a-zA-Z]/.test(cleanQuery);
+  const banglishSignals  = ['theke','jabo','jete','ami','amar','apnar','chai','kothay','kono',
+                             'somoy','tarikh','sokale','bikele','raat','agamikal','lagbe','ache'];
+  const hasBanglish      = banglishSignals.some(w => lowerQuery.includes(w));
+
+  type LangStyle = 'en'|'bn'|'hi'|'banglish'|'mixed';
+  let style: LangStyle = 'en';
+  if (hasBengaliScript && hasLatin) style = 'mixed';
+  else if (hasDevanagari)           style = 'hi';
+  else if (hasBengaliScript)        style = 'bn';
+  else if (hasBanglish)             style = 'banglish';
+
+  const STATION_ALIASES: Record<string,string> = {
+    'কলকাতা':'Kolkata','calcutta':'Kolkata','kolkatha':'Kolkata','kolkota':'Kolkata',
+    'দিল্লি':'Delhi','দিল্লী':'Delhi','new delhi':'Delhi','dilli':'Delhi','dilhi':'Delhi',
+    'শিয়ালদা':'Sealdah','শিয়ালদহ':'Sealdah','sealda':'Sealdah','sealdah':'Sealdah',
+    'ডানকুনি':'Dankuni','dankuni':'Dankuni','dankun':'Dankuni',
+    'হাওড়া':'Howrah','howrah':'Howrah','howra':'Howrah',
+    'ব্যান্ডেল':'Bandel','bandel':'Bandel',
+  };
+  const normalizeStation = (s: string): string => {
+    const lo = s.toLowerCase().trim().replace(/["'']/g, '');
+    for (const [alias, canon] of Object.entries(STATION_ALIASES)) {
+      if (lo === alias.toLowerCase()) return canon;
+    }
+    return s.trim().charAt(0).toUpperCase() + s.trim().slice(1).toLowerCase();
+  };
+
+  const TMPL: Record<string, Record<LangStyle,string>> = {
+    ROUTE: {
+      en:        "No problem 🚆 Where would you like to travel from and to?",
+      bn:        "অবশ্যই 🚆 কোথা থেকে কোথায় যেতে চান?",
+      hi:        "ज़रूर 🚆 आप कहाँ से कहाँ जाना चाहते हैं?",
+      banglish:  "Sure 🚆 Kothay theke kothay jete chao?",
+      mixed:     "অবশ্যই 🚆 কোথা থেকে কোথায় যেতে চান?",
+    },
+    DATE: {
+      en:        "Got it. What date would you like to travel?",
+      bn:        "ঠিক আছে। কোন তারিখে যেতে চান?",
+      hi:        "ठीक है। आप किस तारीख को यात्रा करना चाहते हैं?",
+      banglish:  "Okay 🚆 Kono tarikhey jete chao?",
+      mixed:     "ঠিক আছে। কোন date-এ যেতে চান?",
+    },
+    DEPTIME: {
+      en:        "What time would you prefer to leave?",
+      bn:        "কখনের দিকে রওনা দিতে চান?",
+      hi:        "आप कितने बजे निकलना चाहते हैं?",
+      banglish:  "Kakhon rowana dite chao?",
+      mixed:     "কখন রওনা দিতে চান?",
+    },
+    DEADLINE: {
+      en:        "Do you need to reach your destination by a specific time?",
+      bn:        "কোন সময়ের মধ্যে পৌঁছাতে চান?",
+      hi:        "आपको किस समय तक पहुँचना है?",
+      banglish:  "Koto tar modhye pouchate hobe?",
+      mixed:     "কত টার মধ্যে পৌঁছাতে চান?",
+    },
+  };
+  const t = (key: string) => TMPL[key][style] ?? TMPL[key]['en'];
+
+  // ── Parse all text history + current query for persistent offline context ──
+  const historyText = history.map((m: any) => m.text).join(' ');
+  const combinedText = `${historyText} ${cleanQuery}`.replace(/["'']/g, '');
+  const combinedLower = combinedText.toLowerCase();
+
+  // ── Multilingual Route Extraction ──
+  let origin = '';
+  let destination = '';
+  const skipWords = new Set(['find','need','train','want','search','know','number','dont',
+                              'go','the','a','hi','hello','from','ami','amar','mujhe','mujhko',
+                              'kono','kothay','jao','lagbe','chahiye','local']);
+
+  // Pattern A: "X theke/থেকে/সে Y"
+  const patA = combinedText.match(/([\w\u0980-\u09FF]+)\s+(?:theke|থেকে|সে)\s+([\w\u0980-\u09FF]+)/i);
+  // Pattern B: "X to/jabo/jete/যাব Y"
+  const patB = combinedText.match(/(?:from\s+)?([\w\u0980-\u09FF]+)\s+(?:to|jabo|jete\s*(?:chai)?|->|⇄)\s+([\w\u0980-\u09FF]+)/i);
+  // Pattern C: Bengali script "X থেকে Y"
+  const patC = combinedText.match(/([\u0980-\u09FF\w]+)\s+থেকে\s+([\u0980-\u09FF\w]+)/);
+  // Pattern D: Hindi Devanagari "X से Y"
+  const patD = combinedText.match(/([\u0900-\u097F\w]+)\s+से\s+([\u0900-\u097F\w]+)/);
+
+  for (const pat of [patA, patC, patD, patB]) {
+    if (pat && !origin) {
+      const g1 = (pat[1] || '').trim();
+      const g2 = (pat[2] || '').trim();
+      if (!skipWords.has(g1.toLowerCase()) && !skipWords.has(g2.toLowerCase())) {
+        origin      = normalizeStation(g1);
+        destination = normalizeStation(g2);
+        break;
+      }
+    }
+  }
+
+  // Pattern F: Dataset Station Scanner fallback
+  if (!origin || !destination) {
+    const tokens = combinedText.split(/[\s,]+/);
+    const knownStations = ['sealdah', 'dankuni', 'howrah', 'bandel', 'barddhaman', 'naihati', 'dum dum'];
+    const found: string[] = [];
+    for (const tok of tokens) {
+      const cleanTok = tok.trim().toLowerCase();
+      if (knownStations.includes(cleanTok) && !found.includes(cleanTok)) {
+        found.push(cleanTok);
+      }
+    }
+    if (found.length >= 2) {
+      // Check if found[1] was followed by 'theke'
+      const st1isFrom = new RegExp(`${found[0]}\\s+(?:theke|থেকে|from)`, 'i').test(combinedText);
+      const st2isFrom = new RegExp(`${found[1]}\\s+(?:theke|থেকে|from)`, 'i').test(combinedText);
+      if (st2isFrom && !st1isFrom) {
+        origin = normalizeStation(found[1]);
+        destination = normalizeStation(found[0]);
+      } else {
+        origin = normalizeStation(found[0]);
+        destination = normalizeStation(found[1]);
+      }
+    }
+  }
+
+
+  // ── Multilingual Date Extraction ──
+  let travelDate = '';
+  const tomorrowWords = ['tomorrow','agamikal','agami kal','kalke','kal','kaal','আগামীকাল','আগামী কাল','কালকে','কাল','कल'];
+  const todayWords    = ['today','aaj','aajke','aj','আজ','আজকে','আজই','आज'];
+  if (tomorrowWords.some(w => combinedLower.includes(w))) travelDate = 'Tomorrow';
+  else if (todayWords.some(w => combinedLower.includes(w)))    travelDate = 'Today';
+  else if (combinedLower.includes('next monday') || combinedLower.includes('porer sombar')) travelDate = 'Next Monday';
+  // Explicit date: "10th september", "10 sep", "10/9"
+  else if (/\b\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(combinedText) ||
+           /\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+\d{1,2}/i.test(combinedText) ||
+           /\b\d{1,2}[\/\-]\d{1,2}\b/.test(combinedText)) {
+    travelDate = combinedText.trim();
+  }
+
+
+  // Extract Departure Time
+  let depTime = '';
+  const morningWords   = ['morning','sokale','sakal','সকালে','সকাল','subah','सुबह','bhor'];
+  const afternoonWords = ['afternoon','bikele','bikel','বিকেলে','বিকেল','dopahar','दोपहर'];
+  const eveningWords   = ['evening','night','rate','raat','রাতে','রাত','সন্ধ্যায়','shaam','रात','शाम'];
+  if (morningWords.some(w => combinedLower.includes(w)) || combinedLower.includes('8 am'))
+    depTime = 'Morning (08:00 AM - 12:00 PM)';
+  else if (afternoonWords.some(w => combinedLower.includes(w)))
+    depTime = 'Afternoon (12:00 PM - 05:00 PM)';
+  else if (eveningWords.some(w => combinedLower.includes(w)))
+    depTime = 'Evening/Night (05:00 PM - 11:00 PM)';
+
+  // ── Multilingual Arrival Deadline Extraction ──
+  let deadline = '';
+  // "before 10 pm", "by 10 pm"
+  const dlEn   = combinedLower.match(/(?:before|by)\s+(\d{1,2})\s*(am|pm)/i);
+  // Banglish: "10 tar modhye / 10 tar age"
+  const dlBn   = combinedLower.match(/(\d{1,2})\s*(?:tar|টার)\s*(?:modhye|মধ্যে|age|আগে)/i);
+  // Hindi: "10 baje tak"
+  const dlHi   = combinedLower.match(/(\d{1,2})\s*(?:baje\s*tak|बजे\s*तक)/i);
+  // Plain "10 pm"
+  const dlPlain = combinedLower.match(/\b(\d{1,2})\s*(am|pm)\b/i);
+  if (dlEn)    deadline = `${dlEn[1]} ${dlEn[2].toUpperCase()}`;
+  else if (dlBn)    deadline = `${dlBn[1]} PM`;
+  else if (dlHi)    deadline = `${dlHi[1]} PM`;
+  else if (dlPlain) deadline = `${dlPlain[1]} ${dlPlain[2].toUpperCase()}`;
+  else if (combinedLower.includes('22:00')) deadline = '10 PM';
+
+  // ── Missing Field Prompts (multilingual, per-turn style) ──
+  if (!origin || !destination) {
+    return {
+      answer: t('ROUTE'),
+      toolsExecuted: [{ tool: 'OfflineRailwayAssistant', status: 'SUCCESS' }],
+      confidence: 0.90
+    };
+  }
+
+  if (!travelDate) {
+    return {
+      answer: t('DATE'),
+      toolsExecuted: [{ tool: 'OfflineRailwayAssistant', status: 'SUCCESS' }],
+      confidence: 0.90
+    };
+  }
+
+  if (!depTime) {
+    return {
+      answer: t('DEPTIME'),
+      toolsExecuted: [{ tool: 'OfflineRailwayAssistant', status: 'SUCCESS' }],
+      confidence: 0.90
+    };
+  }
+
+  // Ask deadline only once (check if we just replied with dep-time prompt)
+  const askedDepTime = history.some((m: any) =>
+    ['what time would you prefer','kakhon rowana','kखनके बजे','কখনের মধ্যে','কখন রওনা']
+      .some(sig => (m.text || '').toLowerCase().includes(sig.toLowerCase()))
+  );
+  if (!deadline && askedDepTime) {
+    return {
+      answer: t('DEADLINE'),
+      toolsExecuted: [{ tool: 'OfflineRailwayAssistant', status: 'SUCCESS' }],
+      confidence: 0.90
+    };
+  }
+
+  // ── All fields collected → Multilingual Result ──
+  const deadlineStr = deadline || '10 PM';
+
+  const resultHeaders: Record<LangStyle, string> = {
+    en:       `🚆 I found 3 suitable trains for your journey from ${origin} to ${destination}.`,
+    bn:       `🚆 আপনার ${origin} থেকে ${destination} যাত্রার জন্য 3টি suitable train পেয়েছি।`,
+    hi:       `🚆 ${origin} से ${destination} के लिए 3 trains मिलीं।`,
+    banglish: `🚆 Apnar ${origin} theke ${destination} journey-er jonno 3ta train paisi.`,
+    mixed:    `🚆 আপনার ${origin} থেকে ${destination} এর জন্য 3টি train পেয়েছি।`,
+  };
+  const dlLine = (meets: boolean): string => {
+    const m: Record<LangStyle,string> = {
+      en:       meets ? `✅ Likely to reach before your ${deadlineStr} deadline.` : `⚠️ May miss your deadline.`,
+      bn:       meets ? `✅ ${deadlineStr}-এর মধ্যে পৌঁছানোর সম্ভাবনা আছে।`       : `⚠️ Deadline miss হতে পারে।`,
+      hi:       meets ? `✅ ${deadlineStr} से पहले पहुँचने की संभावना है।`          : `⚠️ Deadline miss हो सकती है।`,
+      banglish: meets ? `✅ ${deadlineStr}-er modhye pouchabe probably.`           : `⚠️ Deadline miss hote pare.`,
+      mixed:    meets ? `✅ ${deadlineStr}-এর মধ্যে পৌঁছানোর সম্ভাবনা আছে।`       : `⚠️ Deadline miss হতে পারে।`,
+    };
+    return m[style] ?? m['en'];
+  };
+  const othersLabel: Record<LangStyle,string> = {
+    en:'Other options:', bn:'আরও options:', hi:'अन्य विकल्प:',
+    banglish:'Aro options:', mixed:'Other options:'
+  };
+
+  // All fields collected but no backend available — strict dataset-only enforcement
+  const offlineMsg: Record<LangStyle, string> = {
+    en:       `I found your route from ${origin} to ${destination} on ${travelDate} around ${depTime}. However, I need a live connection to the backend to fetch real train numbers, schedules, and delay predictions from the dataset. Please check your connection and try again.`,
+    bn:       `আপনার ${origin} থেকে ${destination} রুটটি পেয়েছি (${travelDate}, ${depTime})। কিন্তু real train numbers এবং delay prediction দিতে backend connection দরকার। Please একটু পরে আবার try করুন।`,
+    hi:       `${origin} से ${destination} का रूट मिला (${travelDate}, ${depTime})। लेकिन असली ट्रेन नंबर और delay prediction के लिए backend connection चाहिए। कृपया थोड़ी देर बाद दोबारा कोशिश करें।`,
+    banglish: `Apnar ${origin} theke ${destination} route paisi (${travelDate}, ${depTime}). Kintu real train ar delay dekhate backend connection dorkar. Ektu pore try korun.`,
+    mixed:    `আপনার ${origin} থেকে ${destination} route পেয়েছি (${travelDate}, ${depTime})। কিন্তু real train data দিতে backend connection দরকার। Please retry করুন।`,
+  };
+
   return {
-    answer: `Rail Sathi AI Assistant: I am ready to assist you. Please enter a 5-digit Indian Railways train number (such as 22436 for Vande Bharat or 12301 for Howrah Rajdhani) or search between stations to see live telemetry, catch probability, and seat occupancy.`,
-    toolsExecuted: [{ tool: 'OfflineRailwayAssistant', status: 'SUCCESS' }],
-    confidence: 0.90
+    answer: offlineMsg[style] ?? offlineMsg['en'],
+    toolsExecuted: [{ tool: 'OfflineRailwayAssistant', status: 'NO_DATA' }],
+    confidence: 0.5
   };
 };
 
@@ -680,171 +817,40 @@ export const getAllStationsApi = async (): Promise<Station[]> => {
   return fallbackStations;
 };
 
-export const getUpcomingSuburbanTrainsApi = async (from: string = 'DAKE', to: string = 'SDAH', time?: string) => {
+export const getUpcomingSuburbanTrainsApi = async (from: string = 'DAKE', to: string = 'SDAH', time?: string, forceOffline: boolean = false) => {
   try {
-    const timeParam = time ? `&time=${encodeURIComponent(time)}` : '';
-    const res = await api.get(`/suburban/upcoming?from=${from}&to=${to}${timeParam}`);
-    if (res.data?.trains) return res.data;
+    if (!forceOffline) {
+      const timeParam = time ? `&time=${encodeURIComponent(time)}` : '';
+      const res = await api.get(`/suburban/upcoming?from=${from}&to=${to}${timeParam}`);
+      if (res.data?.trains) {
+        console.log('[API] TRAIN DATA SOURCE = REAL');
+        return res.data;
+      }
+    }
   } catch (err) {
-    console.warn('[API] Using offline dynamic suburban schedule generator');
+    console.warn(`[API] Suburban API fetch failed for ${from} to ${to}:`, err);
   }
 
-  // Dynamic Offline Generator based on Current Time
-  const now = new Date();
-  let currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
-  if (time && time.includes(':')) {
-    const [h, m] = time.split(':').map(Number);
-    currentTotalMinutes = (h || 0) * 60 + (m || 0);
+  // Use offline generator only if explicitly enabled (e.g. development testing)
+  // __DEV__ is true in Metro development bundler
+  if (!forceOffline && !(typeof __DEV__ !== 'undefined' && __DEV__)) {
+    throw new Error("No real suburban trains found and offline fallback is disabled in normal mode.");
   }
-
-  const formatTime = (totalMin: number) => {
-    const h = Math.floor((totalMin % 1440) / 60).toString().padStart(2, '0');
-    const m = ((totalMin % 1440) % 60).toString().padStart(2, '0');
-    return `${h}:${m}`;
-  };
-
-  const dummyTemplates = [
-    { num: '32216', name: 'Dankuni - Sealdah Night Local', type: 'Suburban EMU Local', offset: 4, delay: 0, pf: 2 },
-    { num: '32214', name: 'Dankuni - Sealdah Local', type: 'Suburban EMU Local', offset: 18, delay: 2, pf: 2 },
-    { num: '32250', name: 'Dankuni - Sealdah Fast Local', type: 'Suburban EMU Fast', offset: 35, delay: 0, pf: 2 },
-    { num: '32248', name: 'Dankuni - Sealdah Local', type: 'Suburban EMU Local', offset: 52, delay: 4, pf: 2 },
-    { num: '32246', name: 'Dankuni - Sealdah Local', type: 'Suburban EMU Local', offset: 70, delay: 0, pf: 2 },
-    { num: '32238', name: 'Dankuni - Sealdah Matribhoomi Ladies Spl', type: 'Matribhoomi Local', offset: 95, delay: 0, pf: 1 },
-  ];
-
-  const generatedTrains = dummyTemplates.map((item, idx) => {
-    const depTotalMin = currentTotalMinutes + item.offset;
-    const arrTotalMin = depTotalMin + 28;
-    const scheduledDep = formatTime(depTotalMin);
-    const predictedDep = formatTime(depTotalMin + item.delay);
-    const scheduledArr = formatTime(arrTotalMin);
-    const predictedArr = formatTime(arrTotalMin + item.delay);
-
-    const isPeak = (Math.floor(depTotalMin / 60) >= 8 && Math.floor(depTotalMin / 60) <= 10) || (Math.floor(depTotalMin / 60) >= 17 && Math.floor(depTotalMin / 60) <= 20);
-
-    const coachConfigs = [
-      { id: 'C1', name: 'Coach 1 (Front General)', type: 'GENERAL' as const, marker: 'FRONT_PLATFORM', density: isPeak ? 65 : 28, phones: isPeak ? 58 : 22 },
-      { id: 'C2', name: 'Coach 2 (Ladies Compartment)', type: 'LADIES' as const, marker: 'FRONT_PLATFORM', density: isPeak ? 78 : 35, phones: isPeak ? 64 : 18 },
-      { id: 'C3', name: 'Coach 3 (General Second)', type: 'GENERAL' as const, marker: 'FRONT_MIDDLE', density: isPeak ? 48 : 22, phones: isPeak ? 42 : 16 },
-      { id: 'C4', name: 'Coach 4 (Vendor Compartment)', type: 'VENDOR' as const, marker: 'MIDDLE_PLATFORM', density: isPeak ? 92 : 48, phones: isPeak ? 88 : 34 },
-      { id: 'C5', name: 'Coach 5 (Mid General)', type: 'GENERAL' as const, marker: 'MIDDLE_STAIRS', density: isPeak ? 118 : 65, phones: isPeak ? 142 : 52 },
-      { id: 'C6', name: 'Coach 6 (Mid General)', type: 'GENERAL' as const, marker: 'MIDDLE_STAIRS', density: isPeak ? 125 : 72, phones: isPeak ? 156 : 60 },
-      { id: 'C7', name: 'Coach 7 (General Second)', type: 'GENERAL' as const, marker: 'REAR_MIDDLE', density: isPeak ? 98 : 44, phones: isPeak ? 94 : 36 },
-      { id: 'C8', name: 'Coach 8 (Ladies Compartment)', type: 'LADIES' as const, marker: 'REAR_MIDDLE', density: isPeak ? 70 : 30, phones: isPeak ? 58 : 15 },
-      { id: 'C9', name: 'Coach 9 (General Second)', type: 'GENERAL' as const, marker: 'REAR_PLATFORM', density: isPeak ? 52 : 25, phones: isPeak ? 46 : 19 },
-      { id: 'C10', name: 'Coach 10 (General Second)', type: 'GENERAL' as const, marker: 'REAR_PLATFORM', density: isPeak ? 58 : 32, phones: isPeak ? 50 : 24 },
-      { id: 'C11', name: 'Coach 11 (Vendor Compartment)', type: 'VENDOR' as const, marker: 'REAR_END', density: isPeak ? 85 : 40, phones: isPeak ? 76 : 28 },
-      { id: 'C12', name: 'Coach 12 (Rear General)', type: 'GENERAL' as const, marker: 'REAR_END', density: isPeak ? 62 : 36, phones: isPeak ? 54 : 26 },
-    ];
-
-    const coaches = coachConfigs.map(c => {
-      let status: 'GREEN' | 'YELLOW' | 'ORANGE' | 'RED' | 'CRITICAL' = 'GREEN';
-      if (c.density >= 105) status = 'CRITICAL';
-      else if (c.density >= 85) status = 'RED';
-      else if (c.density >= 65) status = 'ORANGE';
-      else if (c.density >= 45) status = 'YELLOW';
-
-      return {
-        coach: c.id,
-        name: c.name,
-        density: c.density,
-        status,
-        activePhoneSignals: c.phones,
-        signalStrengthDbm: -50 - Math.round(c.density * 0.22),
-        bleBeacons: Math.round(c.phones * 0.6),
-        coachType: c.type,
-        platformMarker: c.marker,
-        advice: c.density < 40 ? 'High vacancy - Best boarding' : c.density < 70 ? 'Comfortable standing' : 'High crowd near stairs',
-      };
-    });
-
-    const avgDensity = Math.round(coaches.reduce((s, c) => s + c.density, 0) / coaches.length);
-
-    return {
-      trainNumber: item.num,
-      name: item.name,
-      type: item.type,
-      source: 'DKAE',
-      destination: 'SDAH',
-      fromStation: from,
-      toStation: to,
-      scheduledDeparture: scheduledDep,
-      predictedDeparture: predictedDep,
-      scheduledArrival: scheduledArr,
-      predictedArrival: predictedArr,
-      minutesUntilDeparture: item.offset + item.delay,
-      delayMinutes: item.delay,
-      platform: item.pf,
-      status: item.delay > 0 ? ('DELAYED' as const) : ('ON_TIME' as const),
-      overallCrowdPct: avgDensity,
-      overallCrowdStatus: avgDensity >= 80 ? ('RED' as const) : avgDensity >= 60 ? ('ORANGE' as const) : ('YELLOW' as const),
-      coaches,
-      recommendedCoach: 'C3',
-      recommendedCoaches: ['C3', 'C9', 'C1'],
-      bestPlatformZone: `${from === 'DAKE' ? 'Platform 2' : 'Platform 3'} (Middle-Rear Marker)`,
-      reason: `Google Maps cellular signal clustering detected only ${coaches[2].activePhoneSignals} active mobile signals in Coach C3 (${coaches[2].density}% load).`,
-      telemetry: {
-        trackedDevices: coaches.reduce((s, c) => s + c.activePhoneSignals, 0),
-        signalConfidence: 0.95,
-        cellularTechnology: 'Google Maps Anonymized Cellular Pings + BLE Mesh Beacons',
-        velocityKmh: 48,
-        lastUpdatedSecs: 3,
-      },
-    };
-  });
-
-  return {
-    success: true,
-    corridor: {
-      from: { code: from, name: from === 'DAKE' ? 'Dakshineswar' : from },
-      to: { code: to, name: to === 'SDAH' ? 'Sealdah' : to },
-      distanceKm: 18,
-      averageTravelMinutes: 28,
-      sectionName: 'Sealdah - Dankuni Chord Suburban Section (ER)',
-    },
-    queriedAt: new Date().toISOString(),
-    currentTimeBasis: formatTime(currentTotalMinutes),
-    telemetryProvider: 'Google Maps Anonymized Cellular Signal Density & BLE Mesh Aggregation',
-    count: generatedTrains.length,
-    trains: generatedTrains,
-  };
+  
+  console.warn('[API] Using offline fallback, but we MUST NOT invent fake schedules! Throwing error to preserve Strict Dataset Only rule.');
+  throw new Error("No real suburban trains found in the dataset for this route and time. (STRICT DATASET ONLY RULE ENFORCED)");
 };
 
 export const getSuburbanCoachCrowdApi = async (trainNumber: string) => {
   try {
     const res = await api.get(`/suburban/crowd-telemetry/${trainNumber}`);
     if (res.data?.telemetry) return res.data.telemetry;
-  } catch (err) {}
-
-  return {
-    trainNumber,
-    name: 'Dankuni - Sealdah Night Local',
-    type: 'Suburban EMU Local',
-    coaches: [
-      { coach: 'C1', name: 'Coach 1 (Front General)', density: 28, status: 'GREEN', activePhoneSignals: 22, signalStrengthDbm: -72, bleBeacons: 14, coachType: 'GENERAL', platformMarker: 'FRONT_PLATFORM', advice: 'Plenty of seats available' },
-      { coach: 'C2', name: 'Coach 2 (Ladies Compartment)', density: 35, status: 'GREEN', activePhoneSignals: 18, signalStrengthDbm: -68, bleBeacons: 12, coachType: 'LADIES', platformMarker: 'FRONT_PLATFORM', advice: 'Ladies only - low occupancy' },
-      { coach: 'C3', name: 'Coach 3 (General Second)', density: 22, status: 'GREEN', activePhoneSignals: 16, signalStrengthDbm: -75, bleBeacons: 9, coachType: 'GENERAL', platformMarker: 'FRONT_MIDDLE', advice: 'Optimal coach (22% load)' },
-      { coach: 'C4', name: 'Coach 4 (Vendor Compartment)', density: 48, status: 'YELLOW', activePhoneSignals: 34, signalStrengthDbm: -65, bleBeacons: 20, coachType: 'VENDOR', platformMarker: 'MIDDLE_PLATFORM', advice: 'Moderate cargo & passengers' },
-      { coach: 'C5', name: 'Coach 5 (Mid General)', density: 65, status: 'YELLOW', activePhoneSignals: 52, signalStrengthDbm: -62, bleBeacons: 35, coachType: 'GENERAL', platformMarker: 'MIDDLE_STAIRS', advice: 'Near foot-over-bridge stairs' },
-      { coach: 'C6', name: 'Coach 6 (Mid General)', density: 72, status: 'ORANGE', activePhoneSignals: 60, signalStrengthDbm: -60, bleBeacons: 41, coachType: 'GENERAL', platformMarker: 'MIDDLE_STAIRS', advice: 'Staircase boarding rush' },
-      { coach: 'C7', name: 'Coach 7 (General Second)', density: 44, status: 'YELLOW', activePhoneSignals: 36, signalStrengthDbm: -70, bleBeacons: 23, coachType: 'GENERAL', platformMarker: 'REAR_MIDDLE', advice: 'Comfortable standing space' },
-      { coach: 'C8', name: 'Coach 8 (Ladies Compartment)', density: 30, status: 'GREEN', activePhoneSignals: 15, signalStrengthDbm: -74, bleBeacons: 11, coachType: 'LADIES', platformMarker: 'REAR_MIDDLE', advice: 'Ladies only - spacious' },
-      { coach: 'C9', name: 'Coach 9 (General Second)', density: 25, status: 'GREEN', activePhoneSignals: 19, signalStrengthDbm: -78, bleBeacons: 13, coachType: 'GENERAL', platformMarker: 'REAR_PLATFORM', advice: 'High seat vacancy' },
-      { coach: 'C10', name: 'Coach 10 (General Second)', density: 32, status: 'GREEN', activePhoneSignals: 24, signalStrengthDbm: -73, bleBeacons: 16, coachType: 'GENERAL', platformMarker: 'REAR_PLATFORM', advice: 'Seats available' },
-      { coach: 'C11', name: 'Coach 11 (Vendor Compartment)', density: 40, status: 'GREEN', activePhoneSignals: 28, signalStrengthDbm: -69, bleBeacons: 18, coachType: 'VENDOR', platformMarker: 'REAR_END', advice: 'Light vendor load' },
-      { coach: 'C12', name: 'Coach 12 (Rear General)', density: 36, status: 'GREEN', activePhoneSignals: 26, signalStrengthDbm: -71, bleBeacons: 17, coachType: 'GENERAL', platformMarker: 'REAR_END', advice: 'Easy deboarding at Sealdah' }
-    ],
-    recommendedCoach: 'C3',
-    recommendedCoaches: ['C3', 'C9', 'C1'],
-    reason: 'Google Maps cellular tracking detects only 16 active phone signals in Coach C3 (22% load). Board at Platform 2 front-middle marker.',
-    telemetryStats: {
-      totalTrackedDevices: 348,
-      aggregationMethod: 'Google Maps Mobile Signal Density & BLE Mesh Clustering',
-      accuracyRadiusMeters: 2.8,
-      averageVelocityKmh: 50,
-      lastRefreshedSecsAgo: 3
-    }
-  };
+    // Return the full response body if telemetry is nested differently
+    if (res.data?.coaches) return res.data;
+  } catch (err) {
+    throw new Error(`[STRICT DATASET ONLY] Could not fetch coach crowd telemetry for train ${trainNumber} from backend. No hardcoded fallback allowed.`);
+  }
+  throw new Error(`[STRICT DATASET ONLY] Backend returned no coach crowd telemetry for train ${trainNumber}.`);
 };
 
 export const getSuburbanCorridorsApi = async () => {

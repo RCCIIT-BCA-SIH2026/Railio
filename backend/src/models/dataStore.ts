@@ -57,6 +57,83 @@ export interface Train {
   stops: TrainStop[];
 }
 
+// ─── Operational Infrastructure Models ────────────────────────────────────────
+
+export interface CautionOrder {
+  id: string;
+  sectionId: string;
+  startKm: number;
+  endKm: number;
+  maxSpeedKmh: number;
+  normalSpeedKmh: number;
+  reason: string;
+  validFrom: string;
+  validTo: string;
+  zone: string;
+  active: boolean;
+  ingestedAt: string;
+}
+
+export interface SignalBlock {
+  sectionId: string;
+  fromStation: string;
+  toStation: string;
+  aspect: 'GREEN' | 'DOUBLE_YELLOW' | 'YELLOW' | 'RED';
+  distanceMeters: number;
+  expectedHaltMin: number;
+  lastUpdated: string;
+}
+
+export interface CrewDutyRecord {
+  crewId: string;
+  role: 'LOCO_PILOT' | 'ASSISTANT_LP' | 'GUARD';
+  signOnTime: string;
+  signOnDate: string;
+  homeDepot: string;
+  currentSection: string;
+  trainNumber: string;
+  nextCrewChangeDepot: string;
+  estimatedETAToDepot: string;
+  currentDutyHours: number;
+  riskLevel: 'OK' | 'MONITOR' | 'HIGH_RISK' | 'CRITICAL';
+}
+
+export interface PlatformSchedule {
+  stationCode: string;
+  platform: number;
+  trainNumber: string;
+  trainName: string;
+  scheduledETA: string;
+  predictedETA: string;
+  dwellMinutes: number;
+  priority: number;
+  requiresElectricLine: boolean;
+}
+
+export interface RTISTelemetry {
+  trainNumber: string;
+  latitude: number;
+  longitude: number;
+  speedKmh: number;
+  headingDeg: number;
+  sectionId: string;
+  timestamp: string;
+  delayMinutes: number;
+  signalAspect: string;
+  source: 'RTIS' | 'SIMULATED' | 'MANUAL';
+}
+
+export interface PredictionAuditLog {
+  trainNumber: string;
+  stationCode: string;
+  predictedDelayMin: number;
+  actualDelayMin?: number;
+  predictedAt: string;
+  actualArrivalAt?: string;
+  modelType: string;
+  confidenceScore: number;
+}
+
 export interface TrackSection {
   id: string;
   name: string;
@@ -164,11 +241,20 @@ class DataStore {
   public crowdData: any = {};
   public weatherReports: Record<string, WeatherInfo> = {};
   public alerts: AlertItem[] = [];
+
+  // ── Operational infrastructure (runtime state) ──────────────────────────
+  public cautionOrders: CautionOrder[] = [];
+  public signalBlocks: Map<string, SignalBlock> = new Map();
+  public crewDutyRecords: CrewDutyRecord[] = [];
+  public platformSchedules: PlatformSchedule[] = [];
+  public rtisBuffer: Map<string, RTISTelemetry> = new Map();
+  public predictionAuditLog: PredictionAuditLog[] = [];
   public users: any[] = [
     {
       id: 'usr-001',
       email: 'passenger@railio.ai',
-      password: 'password123', // In demo, plain check or bcrypt
+      // NOTE: In production, use bcrypt hash. Demo placeholder only.
+      passwordHash: '$2b$10$placeholder_hash_aarav_sharma',
       fullName: 'Aarav Sharma',
       phoneNumber: '+91 98765 43210',
       role: 'PASSENGER',
@@ -176,7 +262,7 @@ class DataStore {
     {
       id: 'adm-001',
       email: 'admin@railio.ai',
-      password: 'adminpassword',
+      passwordHash: '$2b$10$placeholder_hash_meera_sen',
       fullName: 'Chief Controller Meera Sen',
       phoneNumber: '+91 98765 00001',
       role: 'ADMIN',
@@ -211,6 +297,154 @@ class DataStore {
 
   public getStation(code: string): Station | undefined {
     return this.stations.find((s) => s.code.toUpperCase() === code.toUpperCase());
+  }
+
+  // ── RTIS Telemetry Ingestion ───────────────────────────────────────────────
+
+  public ingestRTISTelemetry(payload: RTISTelemetry): void {
+    this.rtisBuffer.set(payload.trainNumber, payload);
+    // Update in-memory train live state if train exists
+    const train = this.getTrain(payload.trainNumber);
+    if (train) {
+      train.liveState.lat = payload.latitude;
+      train.liveState.lng = payload.longitude;
+      train.liveState.speed = payload.speedKmh;
+      train.liveState.heading = payload.headingDeg;
+      train.liveState.currentSection = payload.sectionId;
+      train.liveState.delayMinutes = payload.delayMinutes;
+      if (payload.signalAspect === 'RED' || payload.delayMinutes > 15) {
+        train.liveState.status = 'DELAYED';
+      } else if (payload.delayMinutes > 30) {
+        train.liveState.status = 'CRITICAL_DELAY';
+      } else {
+        train.liveState.status = 'ON_TIME';
+      }
+    }
+  }
+
+  public getLatestTelemetry(trainNumber: string): RTISTelemetry | undefined {
+    return this.rtisBuffer.get(trainNumber);
+  }
+
+  // ── Caution Order (TSR) Management ────────────────────────────────────────
+
+  public ingestCautionOrder(order: CautionOrder): void {
+    // Replace if same section already has an order
+    const idx = this.cautionOrders.findIndex(c => c.sectionId === order.sectionId);
+    if (idx >= 0) {
+      this.cautionOrders[idx] = order;
+    } else {
+      this.cautionOrders.push(order);
+    }
+  }
+
+  public getActiveCautionOrders(): CautionOrder[] {
+    return this.cautionOrders.filter(c => c.active);
+  }
+
+  public getTSRsForSection(sectionId: string): CautionOrder[] {
+    return this.cautionOrders.filter(
+      c => c.active && c.sectionId === sectionId
+    );
+  }
+
+  // ── Signal Block State ────────────────────────────────────────────────────
+
+  public updateSignalBlock(block: SignalBlock): void {
+    this.signalBlocks.set(block.sectionId, block);
+  }
+
+  public getSignalBlock(sectionId: string): SignalBlock | undefined {
+    return this.signalBlocks.get(sectionId);
+  }
+
+  // ── Crew Duty Records ─────────────────────────────────────────────────────
+
+  public upsertCrewRecord(record: CrewDutyRecord): void {
+    const idx = this.crewDutyRecords.findIndex(c => c.crewId === record.crewId);
+    if (idx >= 0) {
+      this.crewDutyRecords[idx] = record;
+    } else {
+      this.crewDutyRecords.push(record);
+    }
+  }
+
+  public getCrewForTrain(trainNumber: string): CrewDutyRecord[] {
+    return this.crewDutyRecords.filter(c => c.trainNumber === trainNumber);
+  }
+
+  public getCrewAtRisk(): CrewDutyRecord[] {
+    return this.crewDutyRecords.filter(
+      c => c.riskLevel === 'HIGH_RISK' || c.riskLevel === 'CRITICAL'
+    );
+  }
+
+  // ── Platform Schedule ─────────────────────────────────────────────────────
+
+  public getPlatformSchedule(stationCode: string): PlatformSchedule[] {
+    return this.platformSchedules.filter(
+      p => p.stationCode.toUpperCase() === stationCode.toUpperCase()
+    );
+  }
+
+  // ── Prediction Audit Log ──────────────────────────────────────────────────
+
+  public logPrediction(log: PredictionAuditLog): void {
+    this.predictionAuditLog.push(log);
+    // Keep last 1000 entries in memory
+    if (this.predictionAuditLog.length > 1000) {
+      this.predictionAuditLog.shift();
+    }
+  }
+
+  public recordActualArrival(trainNumber: string, stationCode: string,
+                              actualDelayMin: number): void {
+    const log = [...this.predictionAuditLog]
+      .reverse()
+      .find(l => l.trainNumber === trainNumber && l.stationCode === stationCode
+              && !l.actualDelayMin);
+    if (log) {
+      log.actualDelayMin   = actualDelayMin;
+      log.actualArrivalAt  = new Date().toISOString();
+    }
+  }
+
+  // ── Compute actual distance remaining from live position ──────────────────
+
+  public computeDistanceRemainingKm(trainNumber: string): number {
+    const train = this.getTrain(trainNumber);
+    if (!train || !train.stops || train.stops.length < 2) return 300;
+
+    const telemetry = this.rtisBuffer.get(trainNumber);
+    if (!telemetry) {
+      // Fallback: use fraction of route elapsed by last station
+      const lastStopCode = train.liveState.lastStation;
+      const lastStop = train.stops.find(s => s.code === lastStopCode);
+      const destStop  = train.stops[train.stops.length - 1];
+      if (lastStop && destStop) {
+        return Math.abs(destStop.km - lastStop.km);
+      }
+      return train.totalDistanceKm * 0.5;
+    }
+
+    // Best estimate: destination km minus current km (approximated by last station)
+    const lastStopCode = train.liveState.lastStation;
+    const lastStop  = train.stops.find(s => s.code === lastStopCode);
+    const destStop   = train.stops[train.stops.length - 1];
+    if (lastStop && destStop) {
+      return Math.max(0, destStop.km - lastStop.km);
+    }
+    return train.totalDistanceKm * 0.4;
+  }
+
+  // ── Derive junction congestion from delay accrual rate ────────────────────
+
+  public deriveJunctionCongestionLevel(trainNumber: string): number {
+    const train = this.getTrain(trainNumber);
+    if (!train) return 0.3;
+    const delay = train.liveState.delayMinutes;
+    // Normalise: 0 delay → 0.1 base, 30+ min → 0.9
+    return Math.min(0.9, Math.max(0.05, delay / 35.0 + 0.1));
   }
 
   public getTrain(trainNumber: string): Train | undefined {
@@ -328,29 +562,32 @@ class DataStore {
       currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
     }
 
-    // Generate dynamic upcoming trains schedule relative to current time
-    // E.g. next departures in +4 min, +16 min, +32 min, +48 min, +68 min, +90 min
-    const minuteOffsets = [4, 18, 32, 48, 65, 88, 115, 145];
-
     const upcomingList: SuburbanDeparture[] = matchingTrains.map((train, idx) => {
       const fromStop = train.stops.find((s) => s.code.toUpperCase() === fromCode)!;
       const toStop = train.stops.find((s) => s.code.toUpperCase() === toCode)!;
 
-      const offsetMinutes = minuteOffsets[idx % minuteOffsets.length] + Math.floor(idx / minuteOffsets.length) * 120;
-      const depTotalMin = (currentTotalMinutes + offsetMinutes) % 1440;
-      const travelDurationMin = 28 + (idx % 3) * 2;
-      const arrTotalMin = (depTotalMin + travelDurationMin) % 1440;
+      const scheduledDep = fromStop.dep;
+      const scheduledArr = toStop.arr;
 
+      const [dh, dm] = scheduledDep.split(':').map(Number);
+      const depTotalMin = (dh || 0) * 60 + (dm || 0);
+
+      // Calculate minutes until departure relative to current time
+      let diff = depTotalMin - currentTotalMinutes;
+      if (diff < -120) diff += 1440; // wrap around for next day
+
+      const delayMin = train.liveState.delayMinutes || 0;
+      
       const formatTime = (totalMin: number) => {
-        const h = Math.floor(totalMin / 60).toString().padStart(2, '0');
-        const m = (totalMin % 60).toString().padStart(2, '0');
+        const h = Math.floor((totalMin % 1440) / 60).toString().padStart(2, '0');
+        const m = ((totalMin % 1440) % 60).toString().padStart(2, '0');
         return `${h}:${m}`;
       };
 
-      const scheduledDep = formatTime(depTotalMin);
-      const delayMin = train.liveState.delayMinutes || (idx % 2 === 0 ? 0 : 2);
       const predictedDep = formatTime(depTotalMin + delayMin);
-      const scheduledArr = formatTime(arrTotalMin);
+      
+      const [ah, am] = scheduledArr.split(':').map(Number);
+      const arrTotalMin = (ah || 0) * 60 + (am || 0);
       const predictedArr = formatTime(arrTotalMin + delayMin);
 
       // Determine if current time falls in peak rush hour (08:00 - 10:30 or 17:00 - 20:00)
@@ -385,7 +622,7 @@ class DataStore {
         predictedDeparture: predictedDep,
         scheduledArrival: scheduledArr,
         predictedArrival: predictedArr,
-        minutesUntilDeparture: offsetMinutes + delayMin,
+        minutesUntilDeparture: diff + delayMin,
         delayMinutes: delayMin,
         platform: fromStop.platform || 2,
         status: delayMin > 0 ? 'DELAYED' : 'ON_TIME',
@@ -406,8 +643,10 @@ class DataStore {
       };
     });
 
-    // Sort by departure time closest to now
-    return upcomingList.sort((a, b) => a.minutesUntilDeparture - b.minutesUntilDeparture);
+    // Sort by departure time closest to now, and only return upcoming ones
+    return upcomingList
+      .filter(t => t.minutesUntilDeparture >= -30 && t.minutesUntilDeparture <= 1440)
+      .sort((a, b) => a.minutesUntilDeparture - b.minutesUntilDeparture);
   }
 
   /**

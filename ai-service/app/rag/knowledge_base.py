@@ -21,12 +21,7 @@ class RailwayKnowledgeBase:
                 "content": "Passengers needing emergency medical attention can alert the Train Ticket Examiner (TTE) or tweet/message @RailMinIndia or dial 139. Emergency first aid boxes are available with the Guard/TTE, and station doctors attend at upcoming major stoppages.",
                 "tags": ["medical", "emergency", "doctor", "helpline", "139"]
             },
-            {
-                "id": "KB-004",
-                "title": "Vande Bharat Express Guidelines",
-                "content": "Vande Bharat rakes operate with automatic plug doors that close before train departure. Catering charges are optional during booking. Onboard Wi-Fi infotainment is available. Maximum operational speed is 130 to 160 km/h depending on track section rating.",
-                "tags": ["vande bharat", "speed", "catering", "doors", "wifi"]
-            },
+
             {
                 "id": "KB-005",
                 "title": "Monsoon & Heavy Rain Operating Procedures",

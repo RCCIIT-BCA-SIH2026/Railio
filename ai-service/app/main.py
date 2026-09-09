@@ -23,7 +23,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount router once with /api prefix (covers /api/ai/whatsapp-webhook)
+# Mount router with both root and /api prefix for full backward/forward compatibility
+app.include_router(api_router)
 app.include_router(api_router, prefix="/api")
 
 # Mount websocket router with /ws prefix
