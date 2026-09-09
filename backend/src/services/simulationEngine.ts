@@ -34,9 +34,9 @@ export class SimulationEngine {
       live.lat = Number((live.lat + deltaLat).toFixed(4));
       live.lng = Number((live.lng + deltaLng).toFixed(4));
 
-      // Speed variation
-      const baseSpeed = train.type.includes('Vande Bharat') ? 115 : 85;
-      live.speed = Math.max(40, Math.min(130, Math.round(baseSpeed + (Math.sin(this.tickCount * 0.5) * 12) + (Math.random() * 6))));
+      // Suburban Local EMU Speed variation (25 to 75 km/h)
+      const baseSpeed = train.avgSpeed || 42;
+      live.speed = Math.max(25, Math.min(80, Math.round(baseSpeed + (Math.sin(this.tickCount * 0.5) * 8) + (Math.random() * 4))));
 
       // Delay variation occasionally
       if (this.tickCount % 6 === 0) {
@@ -64,12 +64,12 @@ export class SimulationEngine {
 
       if (this.tickCount % 5 === 0) {
         this.io.emit('crowd_update', {
-          station: 'HWH',
+          station: 'SDAH',
           timestamp: new Date().toISOString(),
           platforms: {
-            platform1: Math.min(100, Math.max(30, 88 + Math.floor((Math.random() - 0.5) * 8))),
-            platform2: 54,
-            platform3: 21,
+            platform1: Math.min(100, Math.max(30, 84 + Math.floor((Math.random() - 0.5) * 8))),
+            platform2: 72,
+            platform3: 65,
           }
         });
 

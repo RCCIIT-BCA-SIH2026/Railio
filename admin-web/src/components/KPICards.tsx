@@ -11,7 +11,7 @@ export const KPICards: React.FC<KPICardsProps> = ({ metrics }) => {
     {
       title: 'Active Trains',
       value: metrics.activeTrains,
-      subtext: 'Across East & North Corridors',
+      subtext: '40 Scheduled UP/DOWN Locals',
       icon: Train,
       color: 'from-sky-500 to-blue-600',
       border: 'border-sky-200',
@@ -41,7 +41,7 @@ export const KPICards: React.FC<KPICardsProps> = ({ metrics }) => {
     {
       title: 'High-Crowd Stations',
       value: metrics.highCrowdStations,
-      subtext: 'Howrah, NDLS, Sealdah',
+      subtext: 'Sealdah, Dum Dum Jn, Dankuni',
       icon: Users,
       color: 'from-purple-500 to-indigo-600',
       border: 'border-purple-200',
@@ -51,7 +51,7 @@ export const KPICards: React.FC<KPICardsProps> = ({ metrics }) => {
     {
       title: 'Track Risks (ESP32)',
       value: metrics.trackRisks,
-      subtext: 'Section B-17 (RMS 3.42g)',
+      subtext: 'Section DAKE-DKAE (RMS 2.45g)',
       icon: Activity,
       color: 'from-rail-orange to-amber-600',
       border: 'border-orange-200',
@@ -61,7 +61,7 @@ export const KPICards: React.FC<KPICardsProps> = ({ metrics }) => {
     {
       title: 'Weather Warnings',
       value: metrics.weatherAlerts,
-      subtext: 'Heavy Monsoon Rain at HWH',
+      subtext: 'Monsoon Showers at SDAH',
       icon: CloudRain,
       color: 'from-teal-500 to-cyan-600',
       border: 'border-teal-200',

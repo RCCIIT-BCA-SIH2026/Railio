@@ -159,19 +159,19 @@ export const AIAssistantScreen: React.FC = () => {
           <Train size={20} color={COLORS.primary} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.richCardTrainName}>Rajdhani Express (12301)</Text>
-          <Text style={styles.richCardRoute}>Kolkata → New Delhi</Text>
-          <Text style={styles.richCardMeta}>Tomorrow • 16h 55m</Text>
+          <Text style={styles.richCardTrainName}>Dankuni - Sealdah Local (32216)</Text>
+          <Text style={styles.richCardRoute}>Dakshineswar → Sealdah</Text>
+          <Text style={styles.richCardMeta}>Today • 44 mins • 28 km</Text>
         </View>
       </View>
       <View style={styles.richCardTimeRow}>
         <View>
           <Text style={styles.richCardTimeLabel}>Departure</Text>
-          <Text style={styles.richCardTimeValue}>16:50</Text>
+          <Text style={styles.richCardTimeValue}>06:34</Text>
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <Text style={styles.richCardTimeLabel}>Arrival</Text>
-          <Text style={styles.richCardTimeValue}>09:45</Text>
+          <Text style={styles.richCardTimeLabel}>Arrival (ETA)</Text>
+          <Text style={styles.richCardTimeValue}>07:21 (+3m)</Text>
         </View>
       </View>
       <View style={styles.richCardActions}>

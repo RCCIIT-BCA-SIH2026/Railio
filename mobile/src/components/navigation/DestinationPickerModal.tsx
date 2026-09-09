@@ -27,7 +27,7 @@ export const DestinationPickerModal: React.FC<DestinationPickerModalProps> = ({
 
   const presets = [
     { label: 'Nearest Exit', icon: '🚪', query: 'nearest exit', sub: 'Fastest way outside', isEmergency: false },
-    { label: 'Platform 4', icon: '🚆', query: 'platform 4', sub: 'Howrah Rajdhani Express', isEmergency: false },
+    { label: 'Platform 4', icon: '🚆', query: 'platform 4', sub: 'Dankuni Local (Train 32216)', isEmergency: false },
     { label: 'Passenger Lift / Elevator', icon: '🛗', query: 'lift elevator', sub: 'Accessible step-free access', isEmergency: false },
     { label: 'Footover Bridge Stairs', icon: '🪜', query: 'stairs bridge', sub: 'Direct platform transfer', isEmergency: false },
     { label: 'Restroom / Washroom', icon: '🚻', query: 'restroom washroom', sub: 'Clean passenger facilities', isEmergency: false },

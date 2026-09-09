@@ -41,14 +41,14 @@ CREATE INDEX IF NOT EXISTS idx_stations_geom ON stations USING GIST(geom);
 CREATE TABLE IF NOT EXISTS trains (
     train_number VARCHAR(10) PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
-    type VARCHAR(50) NOT NULL, -- Vande Bharat, Rajdhani, Shatabdi, Superfast, Mail/Express
+    type VARCHAR(50) NOT NULL, -- Suburban EMU Local (Sealdah - Dankuni Corridor 32211-32252)
     source_code VARCHAR(10) REFERENCES stations(code),
     destination_code VARCHAR(10) REFERENCES stations(code),
     total_distance_km DOUBLE PRECISION NOT NULL,
     average_speed_kmh DOUBLE PRECISION NOT NULL,
-    runs_on VARCHAR(50) DEFAULT 'DAILY', -- DAILY, MON-WED-FRI, etc.
-    rakes_count INT DEFAULT 16,
-    coach_composition JSONB, -- Coach classes e.g. ["E1", "C1", "C2", ...] or ["H1", "A1", "A2", "B1", ...]
+    runs_on VARCHAR(50) DEFAULT 'DAILY', -- DAILY
+    rakes_count INT DEFAULT 12,
+    coach_composition JSONB DEFAULT '["C1","C2","C3","C4","C5","C6","C7","C8","C9","C10","C11","C12"]'::jsonb, -- 12-coach EMU Suburban composition
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS train_schedules (
     distance_from_source_km DOUBLE PRECISION NOT NULL,
     day_count INT DEFAULT 1,
     platform_number INT DEFAULT 1,
-    dwell_time_minutes INT DEFAULT 2,
+    dwell_time_minutes INT DEFAULT 1,
     UNIQUE(train_number, stop_sequence)
 );
 

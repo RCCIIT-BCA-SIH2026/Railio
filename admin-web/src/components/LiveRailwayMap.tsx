@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Train as TrainIcon, Navigation, AlertTriangle, ShieldCheck, MapPin, Gauge, Clock } from 'lucide-react';
+import { Train as TrainIcon, Navigation, AlertTriangle, ShieldCheck, MapPin, Gauge, Clock, Layers } from 'lucide-react';
 import { LiveTrain, TrackSection } from '../types';
 
 interface LiveRailwayMapProps {
@@ -18,57 +18,40 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
     }
   }, [trains, selectedTrain]);
 
-  // Scaled coordinates mapping for Indian Railway Corridors (SVG Viewbox: 0 0 1000 700)
+  // Sealdah - Dankuni Suburban Corridor Stations (28.0 km SSOT)
   const stationNodes = [
-    { code: 'NDLS', name: 'New Delhi', x: 260, y: 150, zone: 'NR' },
-    { code: 'CNB', name: 'Kanpur Central', x: 400, y: 220, zone: 'NCR' },
-    { code: 'PRYJ', name: 'Prayagraj Jn', x: 480, y: 260, zone: 'NCR' },
-    { code: 'DDU', name: 'Pt Deen Dayal Upadhyaya', x: 550, y: 275, zone: 'ECR' },
-    { code: 'BSB', name: 'Varanasi', x: 540, y: 250, zone: 'NR' },
-    { code: 'PNBE', name: 'Patna', x: 650, y: 270, zone: 'ECR' },
-    { code: 'HWH', name: 'Howrah (Kolkata)', x: 780, y: 350, zone: 'ER' },
-    { code: 'SDAH', name: 'Sealdah', x: 790, y: 365, zone: 'ER' },
-    { code: 'BBS', name: 'Bhubaneswar', x: 720, y: 440, zone: 'ECoR' },
-    { code: 'MAS', name: 'Chennai Central', x: 520, y: 600, zone: 'SR' },
-    { code: 'SBC', name: 'KSR Bengaluru', x: 440, y: 610, zone: 'SWR' },
-    { code: 'MMCT', name: 'Mumbai Central', x: 200, y: 430, zone: 'WR' },
-    { code: 'ST', name: 'Surat', x: 210, y: 370, zone: 'WR' },
-    { code: 'BRC', name: 'Vadodara', x: 230, y: 320, zone: 'WR' },
-    { code: 'ADI', name: 'Ahmedabad', x: 200, y: 280, zone: 'WR' },
-    { code: 'JP', name: 'Jaipur', x: 240, y: 210, zone: 'NWR' },
-    { code: 'LKO', name: 'Lucknow', x: 430, y: 200, zone: 'NR' },
-    { code: 'RNC', name: 'Ranchi', x: 680, y: 330, zone: 'SER' },
+    { code: 'SDAH', name: 'Sealdah Terminal', x: 100, y: 280, km: '0.0 km', platforms: 21, isJn: true },
+    { code: 'BNXR', name: 'Bidhan Nagar Road', x: 245, y: 280, km: '4.0 km', platforms: 4, isJn: false },
+    { code: 'DDJ', name: 'Dum Dum Junction', x: 400, y: 280, km: '7.0 km', platforms: 5, isJn: true },
+    { code: 'BARN', name: 'Baranagar Road', x: 550, y: 280, km: '12.0 km', platforms: 2, isJn: false },
+    { code: 'DAKE', name: 'Dakshineswar', x: 700, y: 280, km: '15.0 km', platforms: 4, isJn: false },
+    { code: 'DKAE', name: 'Dankuni Junction', x: 860, y: 280, km: '28.0 km', platforms: 5, isJn: true },
   ];
 
-  // Primary railway corridor lines
-  const corridors = [
-    { from: 'NDLS', to: 'CNB', id: 'CNB-NDLS' },
-    { from: 'CNB', to: 'PRYJ', id: 'CNB-PRYJ-S1' },
-    { from: 'PRYJ', to: 'DDU', id: 'DDU-PRYJ-B17' },
-    { from: 'DDU', to: 'BSB', id: 'DDU-BSB' },
-    { from: 'DDU', to: 'PNBE', id: 'DDU-PNBE' },
-    { from: 'PNBE', to: 'HWH', id: 'PNBE-HWH' },
-    { from: 'HWH', to: 'BBS', id: 'HWH-BBS' },
-    { from: 'BBS', to: 'MAS', id: 'BBS-PSA-SEC4' },
-    { from: 'MAS', to: 'SBC', id: 'MAS-SBC' },
-    { from: 'NDLS', to: 'JP', id: 'NDLS-JP' },
-    { from: 'NDLS', to: 'MMCT', id: 'NDLS-MMCT' },
-    { from: 'MMCT', to: 'ST', id: 'MMCT-ST' },
-    { from: 'ST', to: 'BRC', id: 'ST-BRC-VB8' },
-    { from: 'BRC', to: 'ADI', id: 'BRC-ADI' },
-    { from: 'CNB', to: 'LKO', id: 'CNB-LKO' },
-    { from: 'HWH', to: 'RNC', id: 'HWH-RNC' },
+  // 5 Block Sections along the corridor
+  const sections = [
+    { id: 'SDAH-BNXR-SUB1', from: 'SDAH', to: 'BNXR', length: '4.0 km', x1: 100, x2: 245 },
+    { id: 'BNXR-DDJ-SUB2', from: 'BNXR', to: 'DDJ', length: '3.0 km', x1: 245, x2: 400 },
+    { id: 'DDJ-BARN-SUB3', from: 'DDJ', to: 'BARN', length: '5.0 km', x1: 400, x2: 550 },
+    { id: 'BARN-DAKE-SUB4', from: 'BARN', to: 'DAKE', length: '3.0 km', x1: 550, x2: 700 },
+    { id: 'DAKE-DKAE-SUB5', from: 'DAKE', to: 'DKAE', length: '13.0 km', x1: 700, x2: 860 },
   ];
 
-  // Calculate pixel positions for live trains
+  // Calculate pixel positions for live trains along UP/DOWN tracks
   const getTrainCoord = (train: LiveTrain, index: number) => {
-    // Coordinate interpolation matching Indian geography
-    const lat = train?.lat || 22.58;
-    const lng = train?.lng || 88.34;
-    // Map Lat (10 to 30) -> Y (650 to 100), Lng (70 to 92) -> X (150 to 850)
-    const x = Math.max(120, Math.min(880, 150 + ((lng - 72) / (90 - 72)) * 680));
-    const y = Math.max(80, Math.min(640, 620 - ((lat - 12) / (29 - 12)) * 500));
-    return { x, y };
+    const isUp = (train.trainNumber ? parseInt(train.trainNumber, 10) % 2 === 1 : index % 2 === 1) ||
+                 (train.direction === 'UP') ||
+                 (train.name && train.name.includes('Dankuni Local'));
+    
+    // UP trains run on top track (y: 250), DOWN trains run on bottom track (y: 310)
+    const yTrack = isUp ? 248 : 312;
+
+    const sec = sections.find((s) => s.id === train.currentSection) || sections[index % sections.length];
+    // Spread trains along section if multiple are present
+    const progressOffset = 0.25 + ((index * 0.35) % 0.5);
+    const xTrack = sec.x1 + (sec.x2 - sec.x1) * (isUp ? progressOffset : (1 - progressOffset));
+
+    return { x: xTrack, y: yTrack, isUp };
   };
 
   return (
@@ -82,13 +65,13 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
             </div>
             <div>
               <h3 className="font-heading text-base font-bold text-slate-900 flex items-center space-x-2">
-                <span>National Railway Corridor Digital Twin</span>
+                <span>Sealdah – Dankuni Suburban Corridor Digital Twin</span>
                 <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  REAL-TIME GPS
+                  REAL-TIME EMU GPS
                 </span>
               </h3>
               <p className="text-xs text-slate-500">
-                Interactive Indian Railway network topology with live train vector positions & block health
+                28.0 km high-density electrified EMU corridor (6 Stations • 5 Block Sections • 40 Daily Locals)
               </p>
             </div>
           </div>
@@ -100,22 +83,23 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
             </div>
             <div className="flex items-center space-x-1.5 text-slate-600">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              <span>Delayed (&gt;5m)</span>
+              <span>Delayed (&gt;3m)</span>
             </div>
             <div className="flex items-center space-x-1.5 text-slate-600">
               <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-              <span>Track Risk</span>
+              <span>Track Alert</span>
             </div>
           </div>
         </div>
 
         {/* SVG Railway Network Canvas */}
-        <div className="relative flex-1 min-h-[460px] bg-[#F1F5F9] rounded-xl border border-slate-200 p-2 overflow-hidden flex items-center justify-center">
-          <svg viewBox="0 0 950 680" className="w-full h-full select-none">
+        <div className="relative flex-1 min-h-[460px] bg-[#F8FAFC] rounded-xl border border-slate-200 p-2 overflow-hidden flex items-center justify-center">
+          <svg viewBox="0 0 960 480" className="w-full h-full select-none">
             <defs>
-              <linearGradient id="trackGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#94A3B8" />
-                <stop offset="100%" stopColor="#64748B" />
+              <linearGradient id="trackGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#0284C7" />
+                <stop offset="50%" stopColor="#0EA5E9" />
+                <stop offset="100%" stopColor="#0284C7" />
               </linearGradient>
               <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
                 <feGaussianBlur stdDeviation="3" result="blur" />
@@ -124,55 +108,149 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
             </defs>
 
             {/* Grid Pattern */}
-            <g stroke="rgba(0,0,0,0.04)" strokeWidth="1">
-              {Array.from({ length: 15 }).map((_, i) => (
-                <line key={`h-${i}`} x1="0" y1={i * 50} x2="950" y2={i * 50} />
+            <g stroke="rgba(0,0,0,0.03)" strokeWidth="1">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <line key={`h-${i}`} x1="0" y1={i * 50} x2="960" y2={i * 50} />
               ))}
               {Array.from({ length: 20 }).map((_, i) => (
-                <line key={`v-${i}`} x1={i * 50} y1="0" x2={i * 50} y2="680" />
+                <line key={`v-${i}`} x1={i * 50} y1="0" x2={i * 50} y2={480} />
               ))}
             </g>
 
-            {/* Track Corridor Lines */}
-            {corridors.map((c, i) => {
-              const nodeA = stationNodes.find((n) => n.code === c.from);
-              const nodeB = stationNodes.find((n) => n.code === c.to);
-              if (!nodeA || !nodeB) return null;
+            {/* Line Category Headers */}
+            <g transform="translate(40, 190)">
+              <rect width="180" height="24" rx="6" fill="#0284C7" fillOpacity="0.1" />
+              <text x="10" y="16" fill="#0369A1" fontSize="11" fontWeight="bold" fontFamily="Inter">
+                ▲ UP LINE (Sealdah ➔ Dankuni)
+              </text>
+            </g>
+            <g transform="translate(40, 360)">
+              <rect width="180" height="24" rx="6" fill="#EA580C" fillOpacity="0.1" />
+              <text x="10" y="16" fill="#C2410C" fontSize="11" fontWeight="bold" fontFamily="Inter">
+                ▼ DOWN LINE (Dankuni ➔ Sealdah)
+              </text>
+            </g>
 
-              const isRiskSection = c.id === 'CNB-PRYJ-S1' || c.id === 'DDU-PRYJ-B17';
-              const lineColor = isRiskSection ? '#EA580C' : '#94A3B8';
-
+            {/* Track Sections (UP & DOWN Double Track lines) */}
+            {sections.map((sec, i) => {
+              const hasAlert = sec.id === 'DAKE-DKAE-SUB5';
               return (
-                <g key={i}>
+                <g key={sec.id}>
+                  {/* UP Line Track Section */}
                   <line
-                    x1={nodeA.x}
-                    y1={nodeA.y}
-                    x2={nodeB.x}
-                    y2={nodeB.y}
-                    stroke={lineColor}
-                    strokeWidth={isRiskSection ? 3.5 : 2.5}
-                    strokeDasharray={isRiskSection ? '6 4' : undefined}
-                    strokeOpacity={0.9}
+                    x1={sec.x1}
+                    y1={248}
+                    x2={sec.x2}
+                    y2={248}
+                    stroke={hasAlert ? '#F97316' : '#94A3B8'}
+                    strokeWidth={hasAlert ? 4 : 3}
+                    strokeDasharray={hasAlert ? '6 4' : undefined}
                   />
+
+                  {/* DOWN Line Track Section */}
+                  <line
+                    x1={sec.x1}
+                    y1={312}
+                    x2={sec.x2}
+                    y2={312}
+                    stroke={hasAlert ? '#F97316' : '#94A3B8'}
+                    strokeWidth={hasAlert ? 4 : 3}
+                    strokeDasharray={hasAlert ? '6 4' : undefined}
+                  />
+
+                  {/* Section Label & Distance */}
+                  <g transform={`translate(${(sec.x1 + sec.x2) / 2}, 280)`}>
+                    <rect x="-42" y="-10" width="84" height="20" rx="4" fill="#FFFFFF" stroke="#E2E8F0" strokeWidth="1" />
+                    <text
+                      x="0"
+                      y="4"
+                      textAnchor="middle"
+                      fill="#64748B"
+                      fontSize="9"
+                      fontFamily="Inter"
+                      fontWeight="bold"
+                    >
+                      {sec.length}
+                    </text>
+                  </g>
+
+                  {/* Block Section Code Below */}
+                  <text
+                    x={(sec.x1 + sec.x2) / 2}
+                    y="348"
+                    textAnchor="middle"
+                    fill="#94A3B8"
+                    fontSize="8.5"
+                    fontFamily="monospace"
+                  >
+                    {sec.id}
+                  </text>
                 </g>
               );
             })}
 
             {/* Station Hub Nodes */}
             {stationNodes.map((s, i) => (
-              <g key={i} className="cursor-pointer group">
-                <circle cx={s.x} cy={s.y} r="6" fill="#FFFFFF" stroke="#0284C7" strokeWidth="2.5" />
-                <circle cx={s.x} cy={s.y} r="2.5" fill="#0284C7" />
+              <g key={s.code} className="cursor-pointer group">
+                {/* Station Pillar Line */}
+                <line x1={s.x} y1={215} x2={s.x} y2={345} stroke="#CBD5E1" strokeWidth="2" strokeDasharray="2 2" />
+
+                {/* Upper Track Node */}
+                <circle cx={s.x} cy={248} r="6" fill="#FFFFFF" stroke="#0284C7" strokeWidth="2.5" />
+                <circle cx={s.x} cy={248} r="2.5" fill="#0284C7" />
+
+                {/* Lower Track Node */}
+                <circle cx={s.x} cy={312} r="6" fill="#FFFFFF" stroke="#EA580C" strokeWidth="2.5" />
+                <circle cx={s.x} cy={312} r="2.5" fill="#EA580C" />
+
+                {/* Station Name & Info Header */}
+                <g transform={`translate(${s.x}, 145)`}>
+                  <rect
+                    x={s.isJn ? -48 : -40}
+                    y="-22"
+                    width={s.isJn ? 96 : 80}
+                    height="36"
+                    rx="6"
+                    fill="#FFFFFF"
+                    stroke={s.isJn ? '#0284C7' : '#E2E8F0'}
+                    strokeWidth={s.isJn ? 1.5 : 1}
+                    className="shadow-sm group-hover:stroke-rail-orange transition"
+                  />
+                  <text
+                    x="0"
+                    y="-7"
+                    textAnchor="middle"
+                    fill="#0F172A"
+                    fontSize="11"
+                    fontFamily="Inter"
+                    fontWeight="800"
+                  >
+                    {s.code}
+                  </text>
+                  <text
+                    x="0"
+                    y="7"
+                    textAnchor="middle"
+                    fill="#64748B"
+                    fontSize="8"
+                    fontFamily="Inter"
+                  >
+                    {s.km} • {s.platforms} PF
+                  </text>
+                </g>
+
+                {/* Station Full Name Below */}
                 <text
-                  x={s.x + 9}
-                  y={s.y + 4}
-                  fill="#475569"
+                  x={s.x}
+                  y={385}
+                  textAnchor="middle"
+                  fill="#334155"
                   fontSize="10"
                   fontFamily="Inter"
-                  fontWeight="700"
-                  className="group-hover:fill-slate-900 transition-colors"
+                  fontWeight="600"
+                  className="group-hover:fill-rail-orange transition"
                 >
-                  {s.code}
+                  {s.name}
                 </text>
               </g>
             ))}
@@ -181,13 +259,12 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
             {trains.map((train, i) => {
               const coord = getTrainCoord(train, i);
               const isSelected = selectedTrain?.trainNumber === train.trainNumber;
-              const isDelayed = (train.delayMinutes || 0) > 5;
-              const isVandeBharat = (train.type || train.name || '').toLowerCase().includes('vande');
-              const markerColor = isVandeBharat ? '#FF671F' : isDelayed ? '#D97706' : '#10B981';
+              const isDelayed = (train.delayMinutes || 0) > 3;
+              const markerColor = isDelayed ? '#D97706' : '#10B981';
 
               return (
                 <g
-                  key={train.trainNumber}
+                  key={train.trainNumber || i}
                   className="cursor-pointer transition-all duration-700"
                   onClick={() => setSelectedTrain(train)}
                 >
@@ -195,7 +272,7 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
                   <circle
                     cx={coord.x}
                     cy={coord.y}
-                    r={isSelected ? 16 : 11}
+                    r={isSelected ? 18 : 12}
                     fill={markerColor}
                     fillOpacity={0.2}
                     className="animate-pulse-glow"
@@ -203,7 +280,7 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
                   <circle
                     cx={coord.x}
                     cy={coord.y}
-                    r={isSelected ? 8 : 6}
+                    r={isSelected ? 9 : 7}
                     fill={markerColor}
                     stroke="#FFFFFF"
                     strokeWidth={isSelected ? 2.5 : 1.5}
@@ -211,14 +288,14 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
                   />
 
                   {/* Train Label Badge */}
-                  <g transform={`translate(${coord.x - 28}, ${coord.y - 26})`}>
+                  <g transform={`translate(${coord.x - 28}, ${coord.y + (coord.isUp ? -24 : 14)})`}>
                     <rect
                       width="56"
                       height="16"
                       rx="4"
                       fill="#FFFFFF"
-                      stroke={markerColor}
-                      strokeWidth="1.5"
+                      stroke={isSelected ? '#FF671F' : markerColor}
+                      strokeWidth={isSelected ? 2 : 1.5}
                       className="shadow-sm"
                     />
                     <text
@@ -241,7 +318,7 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
           {/* Map Controls Floating Badge */}
           <div className="absolute bottom-3 left-3 flex items-center space-x-2 bg-white/95 border border-slate-200 px-3 py-1.5 rounded-lg text-xs text-slate-700 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-rail-orange animate-ping" />
-            <span className="font-medium">Digital Twin Active ({trains.length} Rakes Tracked)</span>
+            <span className="font-medium">Corridor Digital Twin Active ({trains.length} EMU Rakes Tracked)</span>
           </div>
         </div>
       </div>
@@ -256,14 +333,14 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
               </div>
               <div>
                 <h4 className="font-heading font-bold text-slate-900 text-sm">
-                  {selectedTrain?.name || 'Vande Bharat Express'}
+                  {selectedTrain?.name || 'Sealdah - Dankuni Local'}
                 </h4>
-                <p className="text-[11px] text-slate-500">Train #{selectedTrain?.trainNumber || '22436'}</p>
+                <p className="text-[11px] text-slate-500">EMU Local #{selectedTrain?.trainNumber || '32211'} (12 Coaches C1-C12)</p>
               </div>
             </div>
             <span
               className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                selectedTrain && selectedTrain.delayMinutes > 5
+                selectedTrain && selectedTrain.delayMinutes > 3
                   ? 'bg-amber-50 border-amber-200 text-amber-700'
                   : 'bg-emerald-50 border-emerald-200 text-emerald-700'
               }`}
@@ -277,10 +354,10 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
             <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
               <div className="flex items-center space-x-1.5 text-slate-500 text-xs mb-1">
                 <Gauge className="w-3.5 h-3.5 text-sky-600" />
-                <span>Live Speed</span>
+                <span>Live EMU Speed</span>
               </div>
               <div className="text-xl font-heading font-extrabold text-slate-900">
-                {selectedTrain?.speed || 118} <span className="text-xs font-normal text-slate-500">km/h</span>
+                {selectedTrain?.speed || 58} <span className="text-xs font-normal text-slate-500">km/h</span>
               </div>
             </div>
 
@@ -290,7 +367,7 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
                 <span>Predicted Delay</span>
               </div>
               <div className="text-xl font-heading font-extrabold text-slate-900">
-                +{selectedTrain?.predictedDelay || 6} <span className="text-xs font-normal text-slate-500">min</span>
+                +{selectedTrain?.predictedDelay || 2} <span className="text-xs font-normal text-slate-500">min</span>
               </div>
             </div>
           </div>
@@ -299,15 +376,15 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
           <div className="space-y-2 text-xs mb-4">
             <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
               <span className="text-slate-500">Current Block Section:</span>
-              <span className="font-mono font-bold text-slate-800">{selectedTrain?.currentSection || 'CNB-PRYJ-S1'}</span>
+              <span className="font-mono font-bold text-slate-800">{selectedTrain?.currentSection || 'SDAH-BNXR-SUB1'}</span>
             </div>
             <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
-              <span className="text-slate-500">AI Confidence Index:</span>
-              <span className="font-bold text-emerald-600">94.2%</span>
+              <span className="text-slate-500">AI Model R² Accuracy:</span>
+              <span className="font-bold text-emerald-600">0.9862 (98.6%)</span>
             </div>
             <div className="flex items-center justify-between py-1.5">
-              <span className="text-slate-500">Traction Status:</span>
-              <span className="font-semibold text-slate-800">25 kV AC Overhead 100% OK</span>
+              <span className="text-slate-500">OHE Traction Status:</span>
+              <span className="font-semibold text-slate-800">25 kV AC Suburban OHE Active</span>
             </div>
           </div>
 
@@ -319,16 +396,16 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
             </h5>
             <div className="space-y-1.5 text-[11px]">
               <div className="flex items-center justify-between text-slate-700">
-                <span>• Junction Interlocking Switch:</span>
-                <span className="font-mono font-bold text-amber-700">+3 min</span>
+                <span>• Platform Dwell Time Overshoot:</span>
+                <span className="font-mono font-bold text-amber-700">+1.5 min</span>
               </div>
               <div className="flex items-center justify-between text-slate-700">
-                <span>• Weather & Headway Buffer:</span>
-                <span className="font-mono font-bold text-slate-500">+1 min</span>
+                <span>• Dum Dum Junction Interlocking Hold:</span>
+                <span className="font-mono font-bold text-slate-500">+0.5 min</span>
               </div>
               <div className="flex items-center justify-between text-slate-700">
-                <span>• Dwell Overshoot:</span>
-                <span className="font-mono font-bold text-slate-500">0 min</span>
+                <span>• Bally Bridge TSR Impact:</span>
+                <span className="font-mono font-bold text-slate-500">0.0 min</span>
               </div>
             </div>
           </div>
@@ -337,19 +414,20 @@ export const LiveRailwayMap: React.FC<LiveRailwayMapProps> = ({ trains, trackSec
         {/* Action Controls */}
         <div className="mt-4 pt-3 border-t border-slate-100 flex space-x-2">
           <button
-            onClick={() => alert(`Broadcasting speed advisory to Driver of Train ${selectedTrain?.trainNumber}`)}
+            onClick={() => alert(`Broadcasting speed advisory to Motorman of EMU Local ${selectedTrain?.trainNumber}`)}
             className="flex-1 py-2 px-3 bg-rail-orange hover:bg-rail-saffron text-white rounded-lg text-xs font-bold transition shadow-sm"
           >
-            Issue Speed Advisory
+            Issue Motorman Advisory
           </button>
           <button
-            onClick={() => alert(`Precedence simulator opened for ${selectedTrain?.trainNumber}`)}
+            onClick={() => alert(`Precedence simulator opened for EMU Local ${selectedTrain?.trainNumber}`)}
             className="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border border-slate-200 transition"
           >
-            Simulate Priority
+            Simulate Precedence
           </button>
         </div>
       </div>
     </div>
   );
 };
+

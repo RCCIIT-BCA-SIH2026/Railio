@@ -1,115 +1,85 @@
 {
   "stations": {
-    "HWH": {
-      "platform1": 91,
-      "platform2": 54,
-      "platform3": 21,
-      "platform9": 84,
-      "platform21": 73,
-      "overall": 82
+    "SDAH": {
+      "platform1": 84,
+      "platform2": 72,
+      "platform3": 65,
+      "platform4": 78,
+      "platform5": 54,
+      "overall": 71
     },
-    "NDLS": {
-      "platform1": 78,
-      "platform5": 62,
-      "platform10": 45,
-      "platform12": 89,
+    "BNXR": {
+      "platform1": 45,
+      "platform2": 52,
+      "platform3": 38,
+      "platform4": 40,
+      "overall": 44
+    },
+    "DDJ": {
+      "platform1": 91,
+      "platform2": 68,
+      "platform3": 85,
+      "platform4": 60,
+      "platform5": 74,
       "overall": 76
     },
-    "MMCT": {
-      "platform1": 42,
-      "platform2": 38,
-      "platform5": 68,
-      "overall": 51
+    "BARN": {
+      "platform1": 38,
+      "platform2": 42,
+      "overall": 40
     },
-    "BBS": {
-      "platform1": 35,
-      "platform3": 55,
-      "platform4": 79,
-      "overall": 58
+    "DAKE": {
+      "platform1": 78,
+      "platform2": 62,
+      "platform3": 45,
+      "platform4": 55,
+      "overall": 60
+    },
+    "DKAE": {
+      "platform1": 65,
+      "platform2": 58,
+      "platform3": 72,
+      "platform4": 48,
+      "platform5": 50,
+      "overall": 59
     }
   },
   "coachCrowd": {
-    "12301": {
+    "32216": {
       "coaches": [
-        {
-          "coach": "H1",
-          "density": 38,
-          "status": "GREEN"
-        },
-        {
-          "coach": "A1",
-          "density": 82,
-          "status": "RED"
-        },
-        {
-          "coach": "A2",
-          "density": 46,
-          "status": "YELLOW"
-        },
-        {
-          "coach": "A3",
-          "density": 29,
-          "status": "GREEN"
-        },
-        {
-          "coach": "A4",
-          "density": 91,
-          "status": "RED"
-        },
-        {
-          "coach": "B1",
-          "density": 77,
-          "status": "RED"
-        },
-        {
-          "coach": "B2",
-          "density": 65,
-          "status": "YELLOW"
-        },
-        {
-          "coach": "B3",
-          "density": 58,
-          "status": "YELLOW"
-        }
+        { "coach": "C1", "name": "Coach 1 (Front Gen)", "density": 38, "status": "GREEN", "coachType": "GENERAL" },
+        { "coach": "C2", "name": "Coach 2 (Ladies)", "density": 45, "status": "YELLOW", "coachType": "LADIES" },
+        { "coach": "C3", "name": "Coach 3 (Gen)", "density": 28, "status": "GREEN", "coachType": "GENERAL" },
+        { "coach": "C4", "name": "Coach 4 (Vendor)", "density": 58, "status": "YELLOW", "coachType": "VENDOR" },
+        { "coach": "C5", "name": "Coach 5 (Mid Gen)", "density": 78, "status": "ORANGE", "coachType": "GENERAL" },
+        { "coach": "C6", "name": "Coach 6 (Mid Gen)", "density": 85, "status": "RED", "coachType": "GENERAL" },
+        { "coach": "C7", "name": "Coach 7 (Gen)", "density": 72, "status": "ORANGE", "coachType": "GENERAL" },
+        { "coach": "C8", "name": "Coach 8 (Ladies)", "density": 40, "status": "GREEN", "coachType": "LADIES" },
+        { "coach": "C9", "name": "Coach 9 (Gen)", "density": 32, "status": "GREEN", "coachType": "GENERAL" },
+        { "coach": "C10", "name": "Coach 10 (Gen)", "density": 35, "status": "GREEN", "coachType": "GENERAL" },
+        { "coach": "C11", "name": "Coach 11 (Gen)", "density": 42, "status": "YELLOW", "coachType": "GENERAL" },
+        { "coach": "C12", "name": "Coach 12 (Rear Gen)", "density": 30, "status": "GREEN", "coachType": "GENERAL" }
       ],
-      "recommendedCoach": "A3",
-      "reason": "Lowest estimated crowd density (29% occupancy, smooth air-conditioning zone)."
+      "recommendedCoach": "C3",
+      "reason": "Lowest crowd density (28% load) near middle-front platform marker."
     },
-    "22436": {
+    "32211": {
       "coaches": [
-        {
-          "coach": "E1",
-          "density": 42,
-          "status": "GREEN"
-        },
-        {
-          "coach": "C1",
-          "density": 70,
-          "status": "YELLOW"
-        },
-        {
-          "coach": "C2",
-          "density": 35,
-          "status": "GREEN"
-        },
-        {
-          "coach": "C3",
-          "density": 88,
-          "status": "RED"
-        },
-        {
-          "coach": "C4",
-          "density": 52,
-          "status": "YELLOW"
-        },
-        {
-          "coach": "E2",
-          "density": 30,
-          "status": "GREEN"
-        }
+        { "coach": "C1", "name": "Coach 1 (Front Gen)", "density": 32, "status": "GREEN", "coachType": "GENERAL" },
+        { "coach": "C2", "name": "Coach 2 (Ladies)", "density": 36, "status": "GREEN", "coachType": "LADIES" },
+        { "coach": "C3", "name": "Coach 3 (Gen)", "density": 26, "status": "GREEN", "coachType": "GENERAL" },
+        { "coach": "C4", "name": "Coach 4 (Vendor)", "density": 48, "status": "YELLOW", "coachType": "VENDOR" },
+        { "coach": "C5", "name": "Coach 5 (Mid Gen)", "density": 68, "status": "YELLOW", "coachType": "GENERAL" },
+        { "coach": "C6", "name": "Coach 6 (Mid Gen)", "density": 74, "status": "ORANGE", "coachType": "GENERAL" },
+        { "coach": "C7", "name": "Coach 7 (Gen)", "density": 65, "status": "YELLOW", "coachType": "GENERAL" },
+        { "coach": "C8", "name": "Coach 8 (Ladies)", "density": 34, "status": "GREEN", "coachType": "LADIES" },
+        { "coach": "C9", "name": "Coach 9 (Gen)", "density": 29, "status": "GREEN", "coachType": "GENERAL" },
+        { "coach": "C10", "name": "Coach 10 (Gen)", "density": 31, "status": "GREEN", "coachType": "GENERAL" },
+        { "coach": "C11", "name": "Coach 11 (Gen)", "density": 38, "status": "GREEN", "coachType": "GENERAL" },
+        { "coach": "C12", "name": "Coach 12 (Rear Gen)", "density": 25, "status": "GREEN", "coachType": "GENERAL" }
       ],
-      "recommendedCoach": "E2",
-      "reason": "Executive Class coach with only 30% passenger load."
+      "recommendedCoach": "C12",
+      "reason": "Optimal rear coach with light passenger boarding load (25%)."
     }
   }
 }

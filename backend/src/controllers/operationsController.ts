@@ -12,8 +12,8 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const getPlatformConflicts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { stationCode } = req.params;
-    const code = stationCode?.toUpperCase() || 'HWH';
+    const stationCode = req.params.stationCode as string | undefined;
+    const code = stationCode ? stationCode.toUpperCase() : 'SDAH';
 
     // Build train platform slots from scheduled arrivals at this station
     const slots = db.trains
@@ -26,9 +26,9 @@ export const getPlatformConflicts = async (req: Request, res: Response): Promise
           trainName:           train.name,
           scheduledETA:        stop.arr,
           predictedETA:        stop.arr,     // real ML ETA would be used here
-          dwellMinutes:        5.0,
+          dwellMinutes:        1.0,
           platform:            stop.platform,
-          priority:            train.type.includes('Rajdhani') || train.type.includes('Vande') ? 1 : 2,
+          priority:            1,
           trainType:           train.type,
           delayMinutes:        delayMin,
           requiresElectricLine: true,
@@ -93,7 +93,7 @@ export const getCrewDutyAlerts = async (req: Request, res: Response): Promise<vo
     });
 
     // Update risk levels in store
-    result.crewAlerts.forEach(alert => {
+    result.crewAlerts.forEach((alert: any) => {
       const rec = db.crewDutyRecords.find(c => c.crewId === alert.crewId);
       if (rec) rec.riskLevel = alert.riskLevel as any;
     });
@@ -133,8 +133,8 @@ export const getRakeTurnaroundStatus = async (req: Request, res: Response): Prom
       arrivalTime:          train.arrivalTime,
       scheduledReturnTime:  train.departureTime,   // next outward trip
       pitLineSlot:          (idx % 4) + 1,
-      maintenanceTypeHours: 6.0,
-      priority:             train.type.includes('Rajdhani') ? 1 : 2,
+      maintenanceTypeHours: 0.35,  // 20-min rapid suburban EMU turn-around inspection
+      priority:             1,
     }));
 
     const result = await aiGateway.evaluateRakeTurnaround({

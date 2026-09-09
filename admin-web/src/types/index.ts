@@ -10,6 +10,9 @@ export interface LiveTrain {
   delayMinutes: number;
   predictedDelay: number;
   status: 'ON_TIME' | 'DELAYED' | 'CRITICAL_DELAY' | 'DIVERTED' | 'CANCELLED';
+  direction?: 'UP' | 'DOWN';
+  source?: string;
+  destination?: string;
 }
 
 export interface TrackSection {

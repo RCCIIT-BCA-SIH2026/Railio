@@ -26,7 +26,7 @@ export const handleAIChat = async (req: Request, res: Response): Promise<void> =
 export const handleWhatsAppWebhook = async (req: Request, res: Response): Promise<void> => {
   try {
     const { From, Body, location } = req.body;
-    const incomingText = Body || 'Status of Train 12301';
+    const incomingText = Body || 'Status of Train 32211';
     const sessionId = From ? `wa_${From.replace(/\D/g, '')}` : 'default_wa';
 
     const aiRes = await aiGateway.askAgent(incomingText, sessionId);

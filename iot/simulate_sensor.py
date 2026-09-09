@@ -11,8 +11,8 @@ import requests
 import sys
 
 SERVER_URL = "http://localhost:5000/api/track/sensor"
-SECTION_ID = "HWH-B17"
-TRAIN_NUMBER = "12301"
+SECTION_ID = "SDAH-BNXR-SUB1"
+TRAIN_NUMBER = "32211"
 
 def generate_telemetry(tick, force_anomaly=False):
     if force_anomaly or (tick % 7 == 0 and tick > 0):

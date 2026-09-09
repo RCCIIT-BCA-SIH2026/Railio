@@ -41,6 +41,9 @@ export const CoachCrowdScreen: React.FC = () => {
     { coach: 'C7', name: 'Coach 7 (Gen)', density: 44, status: 'YELLOW', activePhoneSignals: 36, coachType: 'GENERAL' },
     { coach: 'C8', name: 'Coach 8 (Ladies)', density: 30, status: 'GREEN', activePhoneSignals: 15, coachType: 'LADIES' },
     { coach: 'C9', name: 'Coach 9 (Gen)', density: 25, status: 'GREEN', activePhoneSignals: 19, coachType: 'GENERAL' },
+    { coach: 'C10', name: 'Coach 10 (Gen)', density: 38, status: 'GREEN', activePhoneSignals: 26, coachType: 'GENERAL' },
+    { coach: 'C11', name: 'Coach 11 (Ladies)', density: 29, status: 'GREEN', activePhoneSignals: 17, coachType: 'LADIES' },
+    { coach: 'C12', name: 'Coach 12 (Rear Gen/Vendor)', density: 33, status: 'GREEN', activePhoneSignals: 21, coachType: 'VENDOR' },
   ];
 
   return (
@@ -53,25 +56,25 @@ export const CoachCrowdScreen: React.FC = () => {
           onPress={() => setCurrentTrain('32216')}
         >
           <Text style={[styles.selectorPillText, currentTrain === '32216' && styles.selectorPillTextActive]}>
-            #32216 Dakshineswar Local
+            #32216 Dankuni Local
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.selectorPill, currentTrain === '12301' && styles.selectorPillActive]}
-          onPress={() => setCurrentTrain('12301')}
+          style={[styles.selectorPill, currentTrain === '32211' && styles.selectorPillActive]}
+          onPress={() => setCurrentTrain('32211')}
         >
-          <Text style={[styles.selectorPillText, currentTrain === '12301' && styles.selectorPillTextActive]}>
-            #12301 Rajdhani Exp
+          <Text style={[styles.selectorPillText, currentTrain === '32211' && styles.selectorPillTextActive]}>
+            #32211 Sealdah Local
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.selectorPill, currentTrain === '22436' && styles.selectorPillActive]}
-          onPress={() => setCurrentTrain('22436')}
+          style={[styles.selectorPill, currentTrain === '32243' && styles.selectorPillActive]}
+          onPress={() => setCurrentTrain('32243')}
         >
-          <Text style={[styles.selectorPillText, currentTrain === '22436' && styles.selectorPillTextActive]}>
-            #22436 Vande Bharat
+          <Text style={[styles.selectorPillText, currentTrain === '32243' && styles.selectorPillTextActive]}>
+            #32243 Evening Local
           </Text>
         </TouchableOpacity>
       </View>

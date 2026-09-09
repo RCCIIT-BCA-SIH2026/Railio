@@ -755,6 +755,11 @@ class RailIoAgent:
             ml_result = eta_predictor.predict(ml_req)
             delay_min = ml_result.predictedDelayMinutes
             status_icon = "🟢 On Time" if delay_min == 0 else f"🟡 +{delay_min} min delay predicted"
+            tools_executed.append(ToolExecutionLog(
+                tool="ETA_DELAY_PREDICTOR",
+                input={"trainNumber": train_num},
+                output=f"Predicted delay: +{delay_min} min, ETA: {ml_result.predictedETA}"
+            ))
 
             current_section = live.get("currentSection", ctx.get("source", ""))
             next_station    = live.get("nextStation", ctx.get("destination", ""))

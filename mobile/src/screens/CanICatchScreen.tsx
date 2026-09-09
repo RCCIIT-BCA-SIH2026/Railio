@@ -9,9 +9,9 @@ import { AppBackground } from '../components/AppBackground';
 export const CanICatchScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'CanICatch'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const { trainNumber = '12301' } = route.params || {};
+  const { trainNumber = '32216' } = route.params || {};
 
-  const [distanceKm, setDistanceKm] = useState<number>(12);
+  const [distanceKm, setDistanceKm] = useState<number>(5);
   const [traffic, setTraffic] = useState<'LOW' | 'MODERATE' | 'HEAVY' | 'SEVERE'>('MODERATE');
   const [stationBuffer, setStationBuffer] = useState<number>(7);
   const [result, setResult] = useState<CatchTrainResult | null>(null);

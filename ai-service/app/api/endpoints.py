@@ -248,7 +248,7 @@ def get_active_caution_orders():
 # ─── 8. Meta WhatsApp Cloud API Webhook ──────────────────────────────────────
 
 async def send_whatsapp_reply(to_number: str, message_text: str):
-    phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "1362878316903671")
+    phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "")
     access_token    = os.getenv("WHATSAPP_ACCESS_TOKEN", os.getenv("META_WHATSAPP_TOKEN", ""))
     url             = f"https://graph.facebook.com/v18.0/{phone_number_id}/messages"
 

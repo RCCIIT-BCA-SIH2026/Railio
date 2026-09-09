@@ -1,16 +1,15 @@
 [
   {
-    "trainNumber": "22436",
-    "name": "Vande Bharat Express",
-    "type": "Vande Bharat",
-    "source": "NDLS",
-    "destination": "BSB",
-    "departureTime": "06:00",
-    "arrivalTime": "14:00",
-    "totalDistanceKm": 759,
-    "avgSpeed": 95,
+    "trainNumber": "32211",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "04:07",
+    "arrivalTime": "04:50",
+    "totalDistanceKm": 28,
+    "avgSpeed": 29.5,
     "coaches": [
-      "E1",
       "C1",
       "C2",
       "C3",
@@ -19,709 +18,5105 @@
       "C6",
       "C7",
       "C8",
-      "E2"
+      "C9",
+      "C10",
+      "C11",
+      "C12"
     ],
     "liveState": {
-      "lat": 26.4547,
-      "lng": 80.3507,
-      "speed": 118,
-      "heading": 125,
-      "currentSection": "CNB-PRYJ-S1",
-      "lastStation": "CNB",
-      "nextStation": "PRYJ",
-      "delayMinutes": 4,
-      "predictedDelay": 6,
-      "confidence": 0.94,
-      "status": "ON_TIME",
-      "delayReasons": [
-        {
-          "factor": "Junction switch clearance",
-          "impactMin": 3
-        },
-        {
-          "factor": "Minor speed restriction",
-          "impactMin": 1
-        }
-      ]
-    },
-    "stops": [
-      {
-        "code": "NDLS",
-        "sequence": 1,
-        "arr": "06:00",
-        "dep": "06:00",
-        "km": 0,
-        "platform": 1
-      },
-      {
-        "code": "CNB",
-        "sequence": 2,
-        "arr": "10:08",
-        "dep": "10:10",
-        "km": 440,
-        "platform": 5
-      },
-      {
-        "code": "PRYJ",
-        "sequence": 3,
-        "arr": "12:08",
-        "dep": "12:10",
-        "km": 634,
-        "platform": 6
-      },
-      {
-        "code": "BSB",
-        "sequence": 4,
-        "arr": "14:00",
-        "dep": "14:00",
-        "km": 759,
-        "platform": 1
-      }
-    ]
-  },
-  {
-    "trainNumber": "12301",
-    "name": "Howrah Rajdhani Express",
-    "type": "Rajdhani Express",
-    "source": "HWH",
-    "destination": "NDLS",
-    "departureTime": "16:50",
-    "arrivalTime": "10:05",
-    "totalDistanceKm": 1451,
-    "avgSpeed": 85,
-    "coaches": [
-      "H1",
-      "A1",
-      "A2",
-      "A3",
-      "A4",
-      "B1",
-      "B2",
-      "B3",
-      "B4",
-      "B5",
-      "B6",
-      "PC"
-    ],
-    "liveState": {
-      "lat": 25.2818,
-      "lng": 83.1189,
-      "speed": 92,
-      "heading": 305,
-      "currentSection": "DDU-PRYJ-B17",
-      "lastStation": "DDU",
-      "nextStation": "PRYJ",
-      "delayMinutes": 12,
-      "predictedDelay": 14,
-      "confidence": 0.91,
-      "status": "DELAYED",
-      "delayReasons": [
-        {
-          "factor": "Junction congestion at DDU",
-          "impactMin": 7
-        },
-        {
-          "factor": "Preceding freight train clearance",
-          "impactMin": 4
-        },
-        {
-          "factor": "Weather & visibility buffer",
-          "impactMin": 1
-        }
-      ]
-    },
-    "stops": [
-      {
-        "code": "HWH",
-        "sequence": 1,
-        "arr": "16:50",
-        "dep": "16:50",
-        "km": 0,
-        "platform": 9
-      },
-      {
-        "code": "DDU",
-        "sequence": 2,
-        "arr": "00:45",
-        "dep": "00:55",
-        "km": 673,
-        "platform": 4
-      },
-      {
-        "code": "PRYJ",
-        "sequence": 3,
-        "arr": "02:43",
-        "dep": "02:45",
-        "km": 826,
-        "platform": 1
-      },
-      {
-        "code": "CNB",
-        "sequence": 4,
-        "arr": "04:50",
-        "dep": "04:55",
-        "km": 1020,
-        "platform": 1
-      },
-      {
-        "code": "NDLS",
-        "sequence": 5,
-        "arr": "10:05",
-        "dep": "10:05",
-        "km": 1451,
-        "platform": 12
-      }
-    ]
-  },
-  {
-    "trainNumber": "12841",
-    "name": "Coromandel Express",
-    "type": "Superfast",
-    "source": "HWH",
-    "destination": "MAS",
-    "departureTime": "15:30",
-    "arrivalTime": "17:00",
-    "totalDistanceKm": 1662,
-    "avgSpeed": 68,
-    "coaches": [
-      "A1",
-      "A2",
-      "B1",
-      "B2",
-      "B3",
-      "B4",
-      "S1",
-      "S2",
-      "S3",
-      "S4",
-      "S5",
-      "GEN"
-    ],
-    "liveState": {
-      "lat": 20.2668,
-      "lng": 85.8436,
-      "speed": 84,
-      "heading": 195,
-      "currentSection": "BBS-PSA-SEC4",
-      "lastStation": "BBS",
-      "nextStation": "MAS",
-      "delayMinutes": 7,
-      "predictedDelay": 8,
-      "confidence": 0.89,
-      "status": "ON_TIME",
-      "delayReasons": [
-        {
-          "factor": "Station dwell overshoot at BBS",
-          "impactMin": 5
-        },
-        {
-          "factor": "Heavy coastal rainfall",
-          "impactMin": 2
-        }
-      ]
-    },
-    "stops": [
-      {
-        "code": "HWH",
-        "sequence": 1,
-        "arr": "15:30",
-        "dep": "15:30",
-        "km": 0,
-        "platform": 21
-      },
-      {
-        "code": "BBS",
-        "sequence": 2,
-        "arr": "21:50",
-        "dep": "21:55",
-        "km": 437,
-        "platform": 4
-      },
-      {
-        "code": "MAS",
-        "sequence": 3,
-        "arr": "17:00",
-        "dep": "17:00",
-        "km": 1662,
-        "platform": 3
-      }
-    ]
-  },
-  {
-    "trainNumber": "12951",
-    "name": "Mumbai Rajdhani Express",
-    "type": "Rajdhani Express",
-    "source": "MMCT",
-    "destination": "NDLS",
-    "departureTime": "17:00",
-    "arrivalTime": "08:32",
-    "totalDistanceKm": 1386,
-    "avgSpeed": 89,
-    "coaches": [
-      "H1",
-      "A1",
-      "A2",
-      "A3",
-      "B1",
-      "B2",
-      "B3",
-      "B4",
-      "B5"
-    ],
-    "liveState": {
-      "lat": 22.3107,
-      "lng": 73.1812,
-      "speed": 112,
-      "heading": 25,
-      "currentSection": "BRC-RTM-N3",
-      "lastStation": "BRC",
-      "nextStation": "NDLS",
-      "delayMinutes": 2,
-      "predictedDelay": 0,
-      "confidence": 0.96,
-      "status": "ON_TIME",
-      "delayReasons": [
-        {
-          "factor": "Normal running on green corridor",
-          "impactMin": 0
-        }
-      ]
-    },
-    "stops": [
-      {
-        "code": "MMCT",
-        "sequence": 1,
-        "arr": "17:00",
-        "dep": "17:00",
-        "km": 0,
-        "platform": 1
-      },
-      {
-        "code": "ST",
-        "sequence": 2,
-        "arr": "19:32",
-        "dep": "19:35",
-        "km": 263,
-        "platform": 1
-      },
-      {
-        "code": "BRC",
-        "sequence": 3,
-        "arr": "21:05",
-        "dep": "21:10",
-        "km": 392,
-        "platform": 2
-      },
-      {
-        "code": "NDLS",
-        "sequence": 4,
-        "arr": "08:32",
-        "dep": "08:32",
-        "km": 1386,
-        "platform": 3
-      }
-    ]
-  },
-  {
-    "trainNumber": "20898",
-    "name": "Ranchi Vande Bharat Express",
-    "type": "Vande Bharat",
-    "source": "HWH",
-    "destination": "RNC",
-    "departureTime": "15:45",
-    "arrivalTime": "22:50",
-    "totalDistanceKm": 463,
-    "avgSpeed": 66,
-    "coaches": [
-      "E1",
-      "C1",
-      "C2",
-      "C3",
-      "C4",
-      "C5",
-      "C6",
-      "E2"
-    ],
-    "liveState": {
-      "lat": 22.95,
-      "lng": 86.8,
-      "speed": 98,
-      "heading": 290,
-      "currentSection": "KGP-TATA-V1",
-      "lastStation": "HWH",
-      "nextStation": "RNC",
-      "delayMinutes": 0,
-      "predictedDelay": 2,
-      "confidence": 0.95,
-      "status": "ON_TIME",
-      "delayReasons": []
-    },
-    "stops": [
-      {
-        "code": "HWH",
-        "sequence": 1,
-        "arr": "15:45",
-        "dep": "15:45",
-        "km": 0,
-        "platform": 20
-      },
-      {
-        "code": "RNC",
-        "sequence": 2,
-        "arr": "22:50",
-        "dep": "22:50",
-        "km": 463,
-        "platform": 1
-      }
-    ]
-  },
-  {
-    "trainNumber": "12004",
-    "name": "Lucknow Shatabdi Express",
-    "type": "Shatabdi Express",
-    "source": "NDLS",
-    "destination": "LKO",
-    "departureTime": "06:10",
-    "arrivalTime": "12:40",
-    "totalDistanceKm": 512,
-    "avgSpeed": 79,
-    "coaches": [
-      "E1",
-      "C1",
-      "C2",
-      "C3",
-      "C4",
-      "C5",
-      "C6",
-      "C7"
-    ],
-    "liveState": {
-      "lat": 26.4547,
-      "lng": 80.3507,
-      "speed": 88,
-      "heading": 85,
-      "currentSection": "CNB-LKO-S3",
-      "lastStation": "CNB",
-      "nextStation": "LKO",
-      "delayMinutes": 8,
-      "predictedDelay": 11,
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 29.5,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 13,
+      "predictedDelay": 15,
       "confidence": 0.88,
       "status": "DELAYED",
       "delayReasons": [
         {
-          "factor": "Kanpur terminal yard congestion",
-          "impactMin": 6
-        },
-        {
-          "factor": "Track maintenance speed limit 60km/h",
-          "impactMin": 2
+          "factor": "Historical average delay",
+          "impactMin": 13
         }
       ]
     },
     "stops": [
       {
-        "code": "NDLS",
+        "code": "SDAH",
         "sequence": 1,
-        "arr": "06:10",
-        "dep": "06:10",
+        "arr": "04:07",
+        "dep": "04:07",
         "km": 0,
-        "platform": 10
-      },
-      {
-        "code": "CNB",
-        "sequence": 2,
-        "arr": "11:20",
-        "dep": "11:25",
-        "km": 440,
-        "platform": 1
-      },
-      {
-        "code": "LKO",
-        "sequence": 3,
-        "arr": "12:40",
-        "dep": "12:40",
-        "km": 512,
         "platform": 2
-      }
-    ]
-  },
-  {
-    "trainNumber": "12245",
-    "name": "Howrah SMVT Bengaluru Duronto",
-    "type": "Duronto Express",
-    "source": "HWH",
-    "destination": "SBC",
-    "departureTime": "10:50",
-    "arrivalTime": "16:00",
-    "totalDistanceKm": 1944,
-    "avgSpeed": 67,
-    "coaches": [
-      "H1",
-      "A1",
-      "A2",
-      "B1",
-      "B2",
-      "B3",
-      "B4",
-      "S1",
-      "S2"
-    ],
-    "liveState": {
-      "lat": 17.6868,
-      "lng": 83.2185,
-      "speed": 75,
-      "heading": 210,
-      "currentSection": "VSKP-BZA-D2",
-      "lastStation": "BBS",
-      "nextStation": "SBC",
-      "delayMinutes": 18,
-      "predictedDelay": 22,
-      "confidence": 0.86,
-      "status": "DELAYED",
-      "delayReasons": [
-        {
-          "factor": "Heavy coastal cross-winds & rain",
-          "impactMin": 10
-        },
-        {
-          "factor": "Preceding express delayed at junction",
-          "impactMin": 8
-        }
-      ]
-    },
-    "stops": [
-      {
-        "code": "HWH",
-        "sequence": 1,
-        "arr": "10:50",
-        "dep": "10:50",
-        "km": 0,
-        "platform": 22
       },
       {
-        "code": "BBS",
+        "code": "BNXR",
         "sequence": 2,
-        "arr": "16:45",
-        "dep": "16:50",
-        "km": 437,
-        "platform": 3
+        "arr": "04:18",
+        "dep": "04:18",
+        "km": 7,
+        "platform": 2
       },
       {
-        "code": "SBC",
+        "code": "DDJ",
         "sequence": 3,
-        "arr": "16:00",
-        "dep": "16:00",
-        "km": 1944,
-        "platform": 1
-      }
-    ]
-  },
-  {
-    "trainNumber": "12022",
-    "name": "Barbil Jan Shatabdi Express",
-    "type": "Jan Shatabdi",
-    "source": "HWH",
-    "destination": "BBS",
-    "departureTime": "06:20",
-    "arrivalTime": "13:05",
-    "totalDistanceKm": 399,
-    "avgSpeed": 60,
-    "coaches": [
-      "D1",
-      "D2",
-      "D3",
-      "D4",
-      "D5",
-      "D6",
-      "C1",
-      "C2"
-    ],
-    "liveState": {
-      "lat": 21.45,
-      "lng": 86.92,
-      "speed": 64,
-      "heading": 215,
-      "currentSection": "BLS-BHC-J1",
-      "lastStation": "HWH",
-      "nextStation": "BBS",
-      "delayMinutes": 12,
-      "predictedDelay": 15,
-      "confidence": 0.9,
-      "status": "DELAYED",
-      "delayReasons": [
-        {
-          "factor": "Suburban block clearance near Kharagpur",
-          "impactMin": 9
-        },
-        {
-          "factor": "Dwell time at local station",
-          "impactMin": 3
-        }
-      ]
-    },
-    "stops": [
-      {
-        "code": "HWH",
-        "sequence": 1,
-        "arr": "06:20",
-        "dep": "06:20",
-        "km": 0,
-        "platform": 19
-      },
-      {
-        "code": "BBS",
-        "sequence": 2,
-        "arr": "13:05",
-        "dep": "13:05",
-        "km": 399,
-        "platform": 5
-      }
-    ]
-  },
-  {
-    "trainNumber": "12305",
-    "name": "Kolkata Rajdhani Express (via Patna)",
-    "type": "Rajdhani Express",
-    "source": "HWH",
-    "destination": "NDLS",
-    "departureTime": "14:05",
-    "arrivalTime": "10:10",
-    "totalDistanceKm": 1531,
-    "avgSpeed": 76,
-    "coaches": [
-      "H1",
-      "A1",
-      "A2",
-      "A3",
-      "B1",
-      "B2",
-      "B3",
-      "B4"
-    ],
-    "liveState": {
-      "lat": 25.6022,
-      "lng": 85.1376,
-      "speed": 82,
-      "heading": 290,
-      "currentSection": "PNBE-DDU-R4",
-      "lastStation": "PNBE",
-      "nextStation": "DDU",
-      "delayMinutes": 5,
-      "predictedDelay": 7,
-      "confidence": 0.93,
-      "status": "ON_TIME",
-      "delayReasons": []
-    },
-    "stops": [
-      {
-        "code": "HWH",
-        "sequence": 1,
-        "arr": "14:05",
-        "dep": "14:05",
-        "km": 0,
-        "platform": 9
-      },
-      {
-        "code": "PNBE",
-        "sequence": 2,
-        "arr": "21:00",
-        "dep": "21:10",
-        "km": 535,
+        "arr": "04:24",
+        "dep": "04:24",
+        "km": 11,
         "platform": 1
       },
       {
-        "code": "DDU",
-        "sequence": 3,
-        "arr": "23:55",
-        "dep": "00:05",
-        "km": 747,
-        "platform": 3
-      },
-      {
-        "code": "CNB",
+        "code": "BARN",
         "sequence": 4,
-        "arr": "04:50",
-        "dep": "04:55",
-        "km": 1094,
+        "arr": "04:33",
+        "dep": "04:33",
+        "km": 17,
         "platform": 1
       },
       {
-        "code": "NDLS",
+        "code": "DAKE",
         "sequence": 5,
-        "arr": "10:10",
-        "dep": "10:10",
-        "km": 1531,
-        "platform": 11
+        "arr": "04:38",
+        "dep": "04:38",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "04:50",
+        "dep": "04:50",
+        "km": 28,
+        "platform": 3
       }
-    ]
+    ],
+    "historicalDelays": [
+      17,
+      2,
+      12,
+      7,
+      9,
+      8,
+      5,
+      5,
+      3,
+      12,
+      0,
+      4,
+      3,
+      6,
+      5,
+      3,
+      0,
+      3,
+      3,
+      0,
+      2,
+      28,
+      48,
+      6,
+      1,
+      0,
+      4,
+      37,
+      28,
+      23
+    ],
+    "avgHistoricalDelayMins": 13.3,
+    "totalHistoricalRecords": 92
   },
   {
-    "trainNumber": "20901",
-    "name": "Mumbai Gandhinagar Vande Bharat",
-    "type": "Vande Bharat",
-    "source": "MMCT",
-    "destination": "ADI",
-    "departureTime": "06:00",
-    "arrivalTime": "11:25",
-    "totalDistanceKm": 491,
-    "avgSpeed": 90,
+    "trainNumber": "32212",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "05:00",
+    "arrivalTime": "05:45",
+    "totalDistanceKm": 28,
+    "avgSpeed": 37.3,
     "coaches": [
-      "E1",
       "C1",
       "C2",
       "C3",
       "C4",
       "C5",
       "C6",
-      "E2"
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
     ],
     "liveState": {
-      "lat": 21.205,
-      "lng": 72.8407,
-      "speed": 126,
-      "heading": 350,
-      "currentSection": "ST-BRC-VB8",
-      "lastStation": "ST",
-      "nextStation": "BRC",
-      "delayMinutes": 0,
-      "predictedDelay": 0,
-      "confidence": 0.98,
-      "status": "ON_TIME",
-      "delayReasons": []
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 37.3,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 15,
+      "predictedDelay": 16,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 15
+        }
+      ]
     },
     "stops": [
       {
-        "code": "MMCT",
+        "code": "DKAE",
         "sequence": 1,
-        "arr": "06:00",
-        "dep": "06:00",
+        "arr": "05:00",
+        "dep": "05:00",
         "km": 0,
-        "platform": 5
+        "platform": 3
       },
       {
-        "code": "ST",
+        "code": "DAKE",
         "sequence": 2,
-        "arr": "08:34",
-        "dep": "08:37",
-        "km": 263,
-        "platform": 1
-      },
-      {
-        "code": "BRC",
-        "sequence": 3,
-        "arr": "09:43",
-        "dep": "09:46",
-        "km": 392,
+        "arr": "05:13",
+        "dep": "05:13",
+        "km": 8,
         "platform": 2
       },
       {
-        "code": "ADI",
-        "sequence": 4,
-        "arr": "11:25",
-        "dep": "11:25",
-        "km": 491,
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "05:18",
+        "dep": "05:18",
+        "km": 11,
         "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "05:27",
+        "dep": "05:27",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "05:34",
+        "dep": "05:34",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "05:45",
+        "dep": "05:45",
+        "km": 28,
+        "platform": 2
       }
-    ]
+    ],
+    "historicalDelays": [
+      3,
+      3,
+      7,
+      0,
+      13,
+      22,
+      0,
+      6,
+      9,
+      18,
+      5,
+      0,
+      0,
+      6,
+      5,
+      5,
+      2,
+      2,
+      23,
+      24,
+      0,
+      51,
+      9,
+      7,
+      4,
+      19,
+      18,
+      16,
+      74,
+      2
+    ],
+    "avgHistoricalDelayMins": 14.9,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32213",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "05:00",
+    "arrivalTime": "05:44",
+    "totalDistanceKm": 28,
+    "avgSpeed": 36.5,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 36.5,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 15,
+      "predictedDelay": 17,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 15
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "05:00",
+        "dep": "05:00",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "05:11",
+        "dep": "05:11",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "05:17",
+        "dep": "05:17",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "05:27",
+        "dep": "05:27",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "05:31",
+        "dep": "05:31",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "05:44",
+        "dep": "05:44",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      4,
+      3,
+      12,
+      31,
+      0,
+      0,
+      2,
+      0,
+      2,
+      12,
+      9,
+      4,
+      5,
+      52,
+      9,
+      9,
+      13,
+      0,
+      2,
+      0,
+      1,
+      0,
+      17,
+      18,
+      8,
+      44,
+      18,
+      19,
+      39,
+      0
+    ],
+    "avgHistoricalDelayMins": 15.1,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32214",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "05:53",
+    "arrivalTime": "06:36",
+    "totalDistanceKm": 28,
+    "avgSpeed": 33.6,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 33.6,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 14,
+      "predictedDelay": 15,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 14
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "05:53",
+        "dep": "05:53",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "06:05",
+        "dep": "06:05",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "06:10",
+        "dep": "06:10",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "06:19",
+        "dep": "06:19",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "06:25",
+        "dep": "06:25",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "06:36",
+        "dep": "06:36",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      7,
+      1,
+      7,
+      2,
+      5,
+      6,
+      2,
+      6,
+      4,
+      8,
+      5,
+      0,
+      9,
+      11,
+      21,
+      4,
+      0,
+      6,
+      1,
+      0,
+      2,
+      18,
+      36,
+      47,
+      49,
+      2,
+      18,
+      39,
+      8,
+      17
+    ],
+    "avgHistoricalDelayMins": 14.0,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32215",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "05:42",
+    "arrivalTime": "06:25",
+    "totalDistanceKm": 28,
+    "avgSpeed": 39.1,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 39.1,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 14,
+      "predictedDelay": 15,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 14
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "05:42",
+        "dep": "05:42",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "05:53",
+        "dep": "05:53",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "05:59",
+        "dep": "05:59",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "06:08",
+        "dep": "06:08",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "06:13",
+        "dep": "06:13",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "06:25",
+        "dep": "06:25",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      0,
+      8,
+      7,
+      29,
+      14,
+      11,
+      1,
+      2,
+      3,
+      4,
+      7,
+      3,
+      3,
+      3,
+      2,
+      16,
+      4,
+      5,
+      21,
+      28,
+      5,
+      18,
+      22,
+      11,
+      11,
+      3,
+      68,
+      2,
+      12,
+      39
+    ],
+    "avgHistoricalDelayMins": 13.6,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32216",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "06:34",
+    "arrivalTime": "07:18",
+    "totalDistanceKm": 28,
+    "avgSpeed": 38.2,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 38.2,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 15,
+      "predictedDelay": 17,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 15
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "06:34",
+        "dep": "06:34",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "06:47",
+        "dep": "06:47",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "06:51",
+        "dep": "06:51",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "07:01",
+        "dep": "07:01",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "07:07",
+        "dep": "07:07",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "07:18",
+        "dep": "07:18",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      3,
+      8,
+      4,
+      1,
+      0,
+      0,
+      3,
+      6,
+      6,
+      5,
+      3,
+      0,
+      13,
+      1,
+      12,
+      6,
+      8,
+      8,
+      8,
+      2,
+      0,
+      5,
+      78,
+      6,
+      5,
+      34,
+      16,
+      2,
+      15,
+      21
+    ],
+    "avgHistoricalDelayMins": 15.3,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32217",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "06:05",
+    "arrivalTime": "06:50",
+    "totalDistanceKm": 28,
+    "avgSpeed": 25.1,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 25.1,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 12,
+      "predictedDelay": 13,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 12
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "06:05",
+        "dep": "06:05",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "06:16",
+        "dep": "06:16",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "06:23",
+        "dep": "06:23",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "06:32",
+        "dep": "06:32",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "06:37",
+        "dep": "06:37",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "06:50",
+        "dep": "06:50",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      24,
+      6,
+      0,
+      14,
+      6,
+      3,
+      5,
+      5,
+      8,
+      19,
+      1,
+      0,
+      2,
+      5,
+      7,
+      11,
+      6,
+      4,
+      5,
+      25,
+      6,
+      2,
+      17,
+      7,
+      5,
+      2,
+      28,
+      6,
+      16,
+      17
+    ],
+    "avgHistoricalDelayMins": 11.7,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32218",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "07:00",
+    "arrivalTime": "07:46",
+    "totalDistanceKm": 28,
+    "avgSpeed": 31.7,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 31.7,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 17,
+      "predictedDelay": 19,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 17
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "07:00",
+        "dep": "07:00",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "07:13",
+        "dep": "07:13",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "07:18",
+        "dep": "07:18",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "07:28",
+        "dep": "07:28",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "07:34",
+        "dep": "07:34",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "07:46",
+        "dep": "07:46",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      7,
+      5,
+      7,
+      4,
+      8,
+      8,
+      22,
+      17,
+      20,
+      7,
+      45,
+      17,
+      25,
+      38,
+      0,
+      2,
+      9,
+      8,
+      3,
+      4,
+      13,
+      4,
+      4,
+      14,
+      24,
+      8,
+      41,
+      24,
+      71,
+      29
+    ],
+    "avgHistoricalDelayMins": 17.3,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32219",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "06:45",
+    "arrivalTime": "07:25",
+    "totalDistanceKm": 28,
+    "avgSpeed": 30.0,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 30.0,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 16,
+      "predictedDelay": 17,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 16
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "06:45",
+        "dep": "06:45",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "06:55",
+        "dep": "06:55",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "07:01",
+        "dep": "07:01",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "07:09",
+        "dep": "07:09",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "07:14",
+        "dep": "07:14",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "07:25",
+        "dep": "07:25",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      16,
+      7,
+      0,
+      2,
+      3,
+      56,
+      21,
+      0,
+      2,
+      22,
+      9,
+      3,
+      3,
+      21,
+      14,
+      3,
+      1,
+      3,
+      1,
+      13,
+      5,
+      48,
+      7,
+      12,
+      33,
+      10,
+      2,
+      27,
+      7,
+      1
+    ],
+    "avgHistoricalDelayMins": 15.9,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32220",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "07:42",
+    "arrivalTime": "08:32",
+    "totalDistanceKm": 28,
+    "avgSpeed": 28.5,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 28.5,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 19,
+      "predictedDelay": 21,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 19
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "07:42",
+        "dep": "07:42",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "07:56",
+        "dep": "07:56",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "08:02",
+        "dep": "08:02",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "08:12",
+        "dep": "08:12",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "08:20",
+        "dep": "08:20",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "08:32",
+        "dep": "08:32",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      10,
+      0,
+      9,
+      0,
+      42,
+      8,
+      10,
+      14,
+      16,
+      9,
+      18,
+      11,
+      7,
+      23,
+      11,
+      21,
+      9,
+      15,
+      15,
+      25,
+      45,
+      10,
+      18,
+      1,
+      0,
+      15,
+      10,
+      10,
+      29,
+      18
+    ],
+    "avgHistoricalDelayMins": 19.1,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32221",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "07:46",
+    "arrivalTime": "08:30",
+    "totalDistanceKm": 28,
+    "avgSpeed": 38.2,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 38.2,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 17,
+      "predictedDelay": 19,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 17
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "07:46",
+        "dep": "07:46",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "07:57",
+        "dep": "07:57",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "08:03",
+        "dep": "08:03",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "08:13",
+        "dep": "08:13",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "08:17",
+        "dep": "08:17",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "08:30",
+        "dep": "08:30",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      0,
+      38,
+      17,
+      13,
+      8,
+      6,
+      20,
+      15,
+      4,
+      7,
+      8,
+      11,
+      11,
+      16,
+      0,
+      4,
+      24,
+      35,
+      0,
+      4,
+      25,
+      49,
+      7,
+      6,
+      3,
+      14,
+      40,
+      8,
+      9,
+      8
+    ],
+    "avgHistoricalDelayMins": 17.1,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32222",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "08:40",
+    "arrivalTime": "09:28",
+    "totalDistanceKm": 28,
+    "avgSpeed": 26.7,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 26.7,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 20,
+      "predictedDelay": 22,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 20
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "08:40",
+        "dep": "08:40",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "08:54",
+        "dep": "08:54",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "08:59",
+        "dep": "08:59",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "09:09",
+        "dep": "09:09",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "09:16",
+        "dep": "09:16",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "09:28",
+        "dep": "09:28",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      25,
+      13,
+      9,
+      6,
+      3,
+      9,
+      31,
+      12,
+      9,
+      59,
+      55,
+      7,
+      17,
+      10,
+      22,
+      3,
+      10,
+      9,
+      54,
+      7,
+      7,
+      46,
+      15,
+      18,
+      49,
+      7,
+      59,
+      6,
+      29,
+      8
+    ],
+    "avgHistoricalDelayMins": 20.3,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32223",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "08:25",
+    "arrivalTime": "09:07",
+    "totalDistanceKm": 28,
+    "avgSpeed": 29.0,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 29.0,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 19,
+      "predictedDelay": 21,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 19
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "08:25",
+        "dep": "08:25",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "08:36",
+        "dep": "08:36",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "08:42",
+        "dep": "08:42",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "08:50",
+        "dep": "08:50",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "08:55",
+        "dep": "08:55",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "09:07",
+        "dep": "09:07",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      16,
+      56,
+      6,
+      9,
+      9,
+      0,
+      26,
+      13,
+      1,
+      30,
+      6,
+      20,
+      12,
+      3,
+      37,
+      20,
+      69,
+      49,
+      34,
+      8,
+      5,
+      12,
+      18,
+      24,
+      15,
+      24,
+      8,
+      22,
+      21,
+      2
+    ],
+    "avgHistoricalDelayMins": 19.3,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32224",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "09:15",
+    "arrivalTime": "10:00",
+    "totalDistanceKm": 28,
+    "avgSpeed": 32.9,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 32.9,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 20,
+      "predictedDelay": 22,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 20
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "09:15",
+        "dep": "09:15",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "09:28",
+        "dep": "09:28",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "09:33",
+        "dep": "09:33",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "09:42",
+        "dep": "09:42",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "09:49",
+        "dep": "09:49",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "10:00",
+        "dep": "10:00",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      7,
+      1,
+      8,
+      18,
+      10,
+      36,
+      30,
+      6,
+      21,
+      2,
+      46,
+      7,
+      12,
+      8,
+      5,
+      52,
+      2,
+      19,
+      4,
+      14,
+      55,
+      7,
+      6,
+      29,
+      26,
+      22,
+      19,
+      15,
+      24,
+      19
+    ],
+    "avgHistoricalDelayMins": 20.2,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32225",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "08:48",
+    "arrivalTime": "09:31",
+    "totalDistanceKm": 28,
+    "avgSpeed": 35.7,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 35.7,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 19,
+      "predictedDelay": 21,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 19
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "08:48",
+        "dep": "08:48",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "08:59",
+        "dep": "08:59",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "09:05",
+        "dep": "09:05",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "09:14",
+        "dep": "09:14",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "09:19",
+        "dep": "09:19",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "09:31",
+        "dep": "09:31",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      12,
+      7,
+      6,
+      10,
+      3,
+      8,
+      10,
+      51,
+      8,
+      40,
+      24,
+      13,
+      39,
+      9,
+      31,
+      53,
+      4,
+      5,
+      8,
+      4,
+      23,
+      12,
+      21,
+      18,
+      32,
+      27,
+      18,
+      1,
+      19,
+      9
+    ],
+    "avgHistoricalDelayMins": 19.4,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32226",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "09:47",
+    "arrivalTime": "10:35",
+    "totalDistanceKm": 28,
+    "avgSpeed": 20.7,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 20.7,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 19,
+      "predictedDelay": 21,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 19
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "09:47",
+        "dep": "09:47",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "10:01",
+        "dep": "10:01",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "10:06",
+        "dep": "10:06",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "10:16",
+        "dep": "10:16",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "10:23",
+        "dep": "10:23",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "10:35",
+        "dep": "10:35",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      34,
+      2,
+      38,
+      12,
+      17,
+      30,
+      6,
+      7,
+      9,
+      49,
+      7,
+      19,
+      7,
+      19,
+      5,
+      17,
+      6,
+      7,
+      6,
+      9,
+      5,
+      0,
+      24,
+      17,
+      8,
+      76,
+      7,
+      12,
+      8,
+      30
+    ],
+    "avgHistoricalDelayMins": 19.0,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32227",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "09:54",
+    "arrivalTime": "10:34",
+    "totalDistanceKm": 28,
+    "avgSpeed": 22.7,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 22.7,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 22,
+      "predictedDelay": 24,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 22
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "09:54",
+        "dep": "09:54",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "10:04",
+        "dep": "10:04",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "10:10",
+        "dep": "10:10",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "10:18",
+        "dep": "10:18",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "10:23",
+        "dep": "10:23",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "10:34",
+        "dep": "10:34",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      34,
+      0,
+      10,
+      9,
+      6,
+      8,
+      48,
+      20,
+      54,
+      8,
+      13,
+      10,
+      13,
+      9,
+      12,
+      12,
+      22,
+      44,
+      14,
+      51,
+      20,
+      7,
+      16,
+      20,
+      24,
+      30,
+      22,
+      11,
+      16,
+      17
+    ],
+    "avgHistoricalDelayMins": 21.9,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32228",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "11:02",
+    "arrivalTime": "11:45",
+    "totalDistanceKm": 28,
+    "avgSpeed": 39.1,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 39.1,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 14,
+      "predictedDelay": 16,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 14
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "11:02",
+        "dep": "11:02",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "11:14",
+        "dep": "11:14",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "11:19",
+        "dep": "11:19",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "11:28",
+        "dep": "11:28",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "11:34",
+        "dep": "11:34",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "11:45",
+        "dep": "11:45",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      0,
+      8,
+      8,
+      1,
+      3,
+      8,
+      1,
+      0,
+      8,
+      39,
+      9,
+      5,
+      0,
+      2,
+      15,
+      1,
+      6,
+      2,
+      23,
+      5,
+      3,
+      15,
+      14,
+      12,
+      47,
+      7,
+      5,
+      6,
+      0,
+      2
+    ],
+    "avgHistoricalDelayMins": 14.1,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32229",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "10:15",
+    "arrivalTime": "11:02",
+    "totalDistanceKm": 28,
+    "avgSpeed": 35.0,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 35.0,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 17,
+      "predictedDelay": 18,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 17
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "10:15",
+        "dep": "10:15",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "10:27",
+        "dep": "10:27",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "10:33",
+        "dep": "10:33",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "10:44",
+        "dep": "10:44",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "10:49",
+        "dep": "10:49",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "11:02",
+        "dep": "11:02",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      4,
+      3,
+      10,
+      1,
+      12,
+      5,
+      0,
+      4,
+      6,
+      5,
+      1,
+      8,
+      2,
+      0,
+      16,
+      25,
+      0,
+      1,
+      13,
+      1,
+      54,
+      59,
+      29,
+      37,
+      14,
+      26,
+      8,
+      8,
+      36,
+      15
+    ],
+    "avgHistoricalDelayMins": 16.6,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32230",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "11:18",
+    "arrivalTime": "12:06",
+    "totalDistanceKm": 28,
+    "avgSpeed": 34.3,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 34.3,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 14,
+      "predictedDelay": 15,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 14
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "11:18",
+        "dep": "11:18",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "11:32",
+        "dep": "11:32",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "11:37",
+        "dep": "11:37",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "11:47",
+        "dep": "11:47",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "11:54",
+        "dep": "11:54",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "12:06",
+        "dep": "12:06",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      1,
+      14,
+      16,
+      10,
+      3,
+      10,
+      0,
+      6,
+      2,
+      0,
+      6,
+      6,
+      4,
+      4,
+      9,
+      4,
+      0,
+      3,
+      15,
+      0,
+      6,
+      5,
+      6,
+      7,
+      34,
+      20,
+      14,
+      35,
+      1,
+      49
+    ],
+    "avgHistoricalDelayMins": 13.5,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32231",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "10:52",
+    "arrivalTime": "11:40",
+    "totalDistanceKm": 28,
+    "avgSpeed": 28.5,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 28.5,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 14,
+      "predictedDelay": 16,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 14
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "10:52",
+        "dep": "10:52",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "11:04",
+        "dep": "11:04",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "11:11",
+        "dep": "11:11",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "11:21",
+        "dep": "11:21",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "11:26",
+        "dep": "11:26",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "11:40",
+        "dep": "11:40",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      12,
+      5,
+      5,
+      14,
+      26,
+      6,
+      15,
+      7,
+      15,
+      8,
+      8,
+      7,
+      24,
+      0,
+      2,
+      4,
+      3,
+      50,
+      10,
+      3,
+      4,
+      5,
+      6,
+      13,
+      25,
+      11,
+      0,
+      6,
+      15,
+      11
+    ],
+    "avgHistoricalDelayMins": 14.2,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32232",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "11:51",
+    "arrivalTime": "12:42",
+    "totalDistanceKm": 28,
+    "avgSpeed": 32.3,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 32.3,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 17,
+      "predictedDelay": 19,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 17
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "11:51",
+        "dep": "11:51",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "12:06",
+        "dep": "12:06",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "12:11",
+        "dep": "12:11",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "12:22",
+        "dep": "12:22",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "12:29",
+        "dep": "12:29",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "12:42",
+        "dep": "12:42",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      1,
+      20,
+      4,
+      3,
+      48,
+      6,
+      5,
+      0,
+      4,
+      10,
+      2,
+      3,
+      5,
+      1,
+      12,
+      1,
+      0,
+      17,
+      2,
+      18,
+      1,
+      11,
+      60,
+      20,
+      2,
+      10,
+      5,
+      16,
+      3,
+      7
+    ],
+    "avgHistoricalDelayMins": 16.9,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32233",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "12:13",
+    "arrivalTime": "12:57",
+    "totalDistanceKm": 28,
+    "avgSpeed": 31.7,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 31.7,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 14,
+      "predictedDelay": 16,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 14
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "12:13",
+        "dep": "12:13",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "12:24",
+        "dep": "12:24",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "12:30",
+        "dep": "12:30",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "12:40",
+        "dep": "12:40",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "12:44",
+        "dep": "12:44",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "12:57",
+        "dep": "12:57",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      9,
+      4,
+      54,
+      4,
+      3,
+      2,
+      7,
+      0,
+      6,
+      14,
+      5,
+      2,
+      11,
+      5,
+      8,
+      1,
+      16,
+      11,
+      5,
+      14,
+      0,
+      4,
+      10,
+      28,
+      9,
+      10,
+      4,
+      24,
+      22,
+      17
+    ],
+    "avgHistoricalDelayMins": 14.3,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32234",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "13:07",
+    "arrivalTime": "14:00",
+    "totalDistanceKm": 28,
+    "avgSpeed": 30.5,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 30.5,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 11,
+      "predictedDelay": 12,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 11
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "13:07",
+        "dep": "13:07",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "13:22",
+        "dep": "13:22",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "13:28",
+        "dep": "13:28",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "13:39",
+        "dep": "13:39",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "13:47",
+        "dep": "13:47",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "14:00",
+        "dep": "14:00",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      3,
+      3,
+      14,
+      3,
+      7,
+      1,
+      0,
+      0,
+      4,
+      32,
+      3,
+      3,
+      1,
+      5,
+      3,
+      1,
+      3,
+      39,
+      7,
+      3,
+      1,
+      2,
+      11,
+      1,
+      9,
+      23,
+      5,
+      2,
+      24,
+      29
+    ],
+    "avgHistoricalDelayMins": 11.3,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32235",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "13:25",
+    "arrivalTime": "14:07",
+    "totalDistanceKm": 28,
+    "avgSpeed": 36.5,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 36.5,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 15,
+      "predictedDelay": 16,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 15
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "13:25",
+        "dep": "13:25",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "13:36",
+        "dep": "13:36",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "13:42",
+        "dep": "13:42",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "13:50",
+        "dep": "13:50",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "13:55",
+        "dep": "13:55",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "14:07",
+        "dep": "14:07",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      15,
+      0,
+      2,
+      1,
+      0,
+      8,
+      3,
+      28,
+      9,
+      0,
+      56,
+      11,
+      15,
+      0,
+      2,
+      5,
+      5,
+      0,
+      2,
+      0,
+      6,
+      16,
+      28,
+      34,
+      23,
+      9,
+      23,
+      9,
+      25,
+      10
+    ],
+    "avgHistoricalDelayMins": 14.9,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32236",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "14:17",
+    "arrivalTime": "15:05",
+    "totalDistanceKm": 28,
+    "avgSpeed": 33.6,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 33.6,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 15,
+      "predictedDelay": 16,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 15
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "14:17",
+        "dep": "14:17",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "14:31",
+        "dep": "14:31",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "14:36",
+        "dep": "14:36",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "14:46",
+        "dep": "14:46",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "14:53",
+        "dep": "14:53",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "15:05",
+        "dep": "15:05",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      2,
+      3,
+      4,
+      3,
+      7,
+      6,
+      6,
+      14,
+      21,
+      6,
+      5,
+      5,
+      8,
+      49,
+      0,
+      4,
+      6,
+      5,
+      0,
+      14,
+      2,
+      8,
+      2,
+      6,
+      7,
+      57,
+      6,
+      8,
+      6,
+      59
+    ],
+    "avgHistoricalDelayMins": 14.8,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32237",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "15:28",
+    "arrivalTime": "16:12",
+    "totalDistanceKm": 28,
+    "avgSpeed": 28.0,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 28.0,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 15,
+      "predictedDelay": 17,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 15
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "15:28",
+        "dep": "15:28",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "15:39",
+        "dep": "15:39",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "15:45",
+        "dep": "15:45",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "15:55",
+        "dep": "15:55",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "15:59",
+        "dep": "15:59",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "16:12",
+        "dep": "16:12",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      16,
+      5,
+      12,
+      6,
+      6,
+      10,
+      14,
+      8,
+      8,
+      3,
+      0,
+      2,
+      3,
+      7,
+      3,
+      1,
+      13,
+      0,
+      2,
+      5,
+      6,
+      13,
+      23,
+      57,
+      8,
+      21,
+      16,
+      34,
+      52,
+      36
+    ],
+    "avgHistoricalDelayMins": 15.3,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32238",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "16:22",
+    "arrivalTime": "17:07",
+    "totalDistanceKm": 28,
+    "avgSpeed": 17.3,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 17.3,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 10,
+      "predictedDelay": 12,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 10
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "16:22",
+        "dep": "16:22",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "16:35",
+        "dep": "16:35",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "16:40",
+        "dep": "16:40",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "16:49",
+        "dep": "16:49",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "16:56",
+        "dep": "16:56",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "17:07",
+        "dep": "17:07",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      52,
+      3,
+      2,
+      5,
+      4,
+      11,
+      0,
+      6,
+      12,
+      9,
+      3,
+      6,
+      17,
+      22,
+      3,
+      0,
+      2,
+      3,
+      3,
+      5,
+      11,
+      2,
+      16,
+      4,
+      1,
+      4,
+      1,
+      6,
+      46,
+      6
+    ],
+    "avgHistoricalDelayMins": 10.5,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32239",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "16:07",
+    "arrivalTime": "16:47",
+    "totalDistanceKm": 28,
+    "avgSpeed": 33.6,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 33.6,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 14,
+      "predictedDelay": 15,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 14
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "16:07",
+        "dep": "16:07",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "16:17",
+        "dep": "16:17",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "16:23",
+        "dep": "16:23",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "16:31",
+        "dep": "16:31",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "16:36",
+        "dep": "16:36",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "16:47",
+        "dep": "16:47",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      10,
+      10,
+      2,
+      8,
+      3,
+      3,
+      3,
+      2,
+      0,
+      13,
+      19,
+      3,
+      2,
+      6,
+      55,
+      23,
+      1,
+      2,
+      3,
+      2,
+      2,
+      15,
+      3,
+      25,
+      14,
+      23,
+      24,
+      16,
+      10,
+      5
+    ],
+    "avgHistoricalDelayMins": 13.8,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32240",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "17:06",
+    "arrivalTime": "17:55",
+    "totalDistanceKm": 28,
+    "avgSpeed": 34.3,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 34.3,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 18,
+      "predictedDelay": 19,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 18
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "17:06",
+        "dep": "17:06",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "17:20",
+        "dep": "17:20",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "17:25",
+        "dep": "17:25",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "17:36",
+        "dep": "17:36",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "17:43",
+        "dep": "17:43",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "17:55",
+        "dep": "17:55",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      1,
+      2,
+      52,
+      8,
+      7,
+      50,
+      25,
+      9,
+      12,
+      9,
+      17,
+      7,
+      5,
+      45,
+      5,
+      8,
+      13,
+      55,
+      6,
+      9,
+      17,
+      20,
+      2,
+      27,
+      9,
+      20,
+      13,
+      2,
+      23,
+      38
+    ],
+    "avgHistoricalDelayMins": 17.6,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32241",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "17:22",
+    "arrivalTime": "18:02",
+    "totalDistanceKm": 28,
+    "avgSpeed": 38.2,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 38.2,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 18,
+      "predictedDelay": 20,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 18
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "17:22",
+        "dep": "17:22",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "17:32",
+        "dep": "17:32",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "17:38",
+        "dep": "17:38",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "17:46",
+        "dep": "17:46",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "17:51",
+        "dep": "17:51",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "18:02",
+        "dep": "18:02",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      4,
+      18,
+      55,
+      7,
+      43,
+      7,
+      17,
+      8,
+      19,
+      26,
+      0,
+      2,
+      48,
+      41,
+      10,
+      17,
+      14,
+      22,
+      13,
+      10,
+      7,
+      11,
+      0,
+      66,
+      18,
+      8,
+      27,
+      9,
+      0,
+      15
+    ],
+    "avgHistoricalDelayMins": 18.0,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32242",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "18:10",
+    "arrivalTime": "18:54",
+    "totalDistanceKm": 28,
+    "avgSpeed": 38.2,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 38.2,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 18,
+      "predictedDelay": 20,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 18
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "18:10",
+        "dep": "18:10",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "18:23",
+        "dep": "18:23",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "18:27",
+        "dep": "18:27",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "18:37",
+        "dep": "18:37",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "18:43",
+        "dep": "18:43",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "18:54",
+        "dep": "18:54",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      0,
+      14,
+      6,
+      15,
+      42,
+      17,
+      12,
+      6,
+      1,
+      2,
+      36,
+      39,
+      6,
+      15,
+      0,
+      5,
+      3,
+      13,
+      8,
+      28,
+      10,
+      10,
+      6,
+      6,
+      72,
+      8,
+      24,
+      19,
+      11,
+      23
+    ],
+    "avgHistoricalDelayMins": 18.1,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32243",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "18:08",
+    "arrivalTime": "18:50",
+    "totalDistanceKm": 28,
+    "avgSpeed": 19.3,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 19.3,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 20,
+      "predictedDelay": 22,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 20
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "18:08",
+        "dep": "18:08",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "18:18",
+        "dep": "18:18",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "18:24",
+        "dep": "18:24",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "18:34",
+        "dep": "18:34",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "18:38",
+        "dep": "18:38",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "18:50",
+        "dep": "18:50",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      51,
+      6,
+      3,
+      5,
+      46,
+      43,
+      54,
+      24,
+      0,
+      8,
+      6,
+      6,
+      4,
+      7,
+      2,
+      49,
+      32,
+      22,
+      8,
+      13,
+      0,
+      17,
+      19,
+      12,
+      27,
+      51,
+      16,
+      22,
+      7,
+      50
+    ],
+    "avgHistoricalDelayMins": 19.9,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32245",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "19:07",
+    "arrivalTime": "19:50",
+    "totalDistanceKm": 28,
+    "avgSpeed": 39.1,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 39.1,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 19,
+      "predictedDelay": 21,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 19
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "19:07",
+        "dep": "19:07",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "19:18",
+        "dep": "19:18",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "19:24",
+        "dep": "19:24",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "19:33",
+        "dep": "19:33",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "19:38",
+        "dep": "19:38",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "19:50",
+        "dep": "19:50",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      1,
+      19,
+      26,
+      16,
+      0,
+      7,
+      2,
+      10,
+      2,
+      3,
+      7,
+      11,
+      6,
+      59,
+      10,
+      7,
+      50,
+      24,
+      5,
+      5,
+      10,
+      10,
+      24,
+      62,
+      13,
+      14,
+      23,
+      7,
+      13,
+      14
+    ],
+    "avgHistoricalDelayMins": 19.1,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32246",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "19:10",
+    "arrivalTime": "19:58",
+    "totalDistanceKm": 28,
+    "avgSpeed": 30.0,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 30.0,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 20,
+      "predictedDelay": 22,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 20
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "19:10",
+        "dep": "19:10",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "19:24",
+        "dep": "19:24",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "19:29",
+        "dep": "19:29",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "19:39",
+        "dep": "19:39",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "19:46",
+        "dep": "19:46",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "19:58",
+        "dep": "19:58",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      11,
+      10,
+      12,
+      7,
+      7,
+      27,
+      8,
+      18,
+      6,
+      9,
+      10,
+      8,
+      10,
+      23,
+      0,
+      8,
+      36,
+      6,
+      2,
+      6,
+      6,
+      7,
+      10,
+      9,
+      30,
+      19,
+      26,
+      16,
+      27,
+      43
+    ],
+    "avgHistoricalDelayMins": 19.6,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32247",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "21:34",
+    "arrivalTime": "22:17",
+    "totalDistanceKm": 28,
+    "avgSpeed": 36.5,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 36.5,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 13,
+      "predictedDelay": 14,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 13
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "21:34",
+        "dep": "21:34",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "21:45",
+        "dep": "21:45",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "21:51",
+        "dep": "21:51",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "22:00",
+        "dep": "22:00",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "22:05",
+        "dep": "22:05",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "22:17",
+        "dep": "22:17",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      3,
+      7,
+      15,
+      1,
+      1,
+      3,
+      3,
+      10,
+      2,
+      3,
+      1,
+      4,
+      7,
+      3,
+      2,
+      0,
+      0,
+      5,
+      2,
+      5,
+      5,
+      14,
+      15,
+      15,
+      19,
+      56,
+      9,
+      10,
+      14,
+      25
+    ],
+    "avgHistoricalDelayMins": 12.8,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32248",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "20:29",
+    "arrivalTime": "21:20",
+    "totalDistanceKm": 28,
+    "avgSpeed": 32.9,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 32.9,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 14,
+      "predictedDelay": 16,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 14
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "20:29",
+        "dep": "20:29",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "20:44",
+        "dep": "20:44",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "20:49",
+        "dep": "20:49",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "21:00",
+        "dep": "21:00",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "21:07",
+        "dep": "21:07",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "21:20",
+        "dep": "21:20",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      3,
+      2,
+      16,
+      2,
+      13,
+      8,
+      3,
+      13,
+      4,
+      4,
+      4,
+      9,
+      0,
+      8,
+      8,
+      18,
+      1,
+      0,
+      9,
+      6,
+      26,
+      2,
+      0,
+      0,
+      12,
+      16,
+      9,
+      0,
+      9,
+      9
+    ],
+    "avgHistoricalDelayMins": 14.2,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32249",
+    "name": "Sealdah - Dankuni Local",
+    "type": "Suburban EMU Local",
+    "source": "SDAH",
+    "destination": "DKAE",
+    "departureTime": "22:25",
+    "arrivalTime": "23:07",
+    "totalDistanceKm": 28,
+    "avgSpeed": 40.0,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 40.0,
+      "heading": 270,
+      "currentSection": "SDAH-DKAE-SUB1",
+      "lastStation": "SDAH",
+      "nextStation": "DKAE",
+      "delayMinutes": 12,
+      "predictedDelay": 14,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 12
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "SDAH",
+        "sequence": 1,
+        "arr": "22:25",
+        "dep": "22:25",
+        "km": 0,
+        "platform": 2
+      },
+      {
+        "code": "BNXR",
+        "sequence": 2,
+        "arr": "22:36",
+        "dep": "22:36",
+        "km": 7,
+        "platform": 2
+      },
+      {
+        "code": "DDJ",
+        "sequence": 3,
+        "arr": "22:42",
+        "dep": "22:42",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "BARN",
+        "sequence": 4,
+        "arr": "22:50",
+        "dep": "22:50",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "DAKE",
+        "sequence": 5,
+        "arr": "22:55",
+        "dep": "22:55",
+        "km": 20,
+        "platform": 2
+      },
+      {
+        "code": "DKAE",
+        "sequence": 6,
+        "arr": "23:07",
+        "dep": "23:07",
+        "km": 28,
+        "platform": 3
+      }
+    ],
+    "historicalDelays": [
+      8,
+      5,
+      7,
+      8,
+      0,
+      6,
+      9,
+      6,
+      1,
+      1,
+      1,
+      15,
+      2,
+      12,
+      3,
+      6,
+      13,
+      24,
+      13,
+      3,
+      0,
+      55,
+      2,
+      12,
+      3,
+      13,
+      4,
+      13,
+      4,
+      7
+    ],
+    "avgHistoricalDelayMins": 12.3,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32250",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "22:29",
+    "arrivalTime": "23:20",
+    "totalDistanceKm": 28,
+    "avgSpeed": 30.0,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 30.0,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 13,
+      "predictedDelay": 14,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 13
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "22:29",
+        "dep": "22:29",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "22:44",
+        "dep": "22:44",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "22:49",
+        "dep": "22:49",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "23:00",
+        "dep": "23:00",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "23:07",
+        "dep": "23:07",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "23:20",
+        "dep": "23:20",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      5,
+      4,
+      3,
+      24,
+      3,
+      0,
+      9,
+      0,
+      11,
+      5,
+      6,
+      0,
+      19,
+      0,
+      5,
+      16,
+      4,
+      6,
+      14,
+      8,
+      1,
+      7,
+      11,
+      8,
+      20,
+      36,
+      12,
+      8,
+      12,
+      18
+    ],
+    "avgHistoricalDelayMins": 12.9,
+    "totalHistoricalRecords": 92
+  },
+  {
+    "trainNumber": "32252",
+    "name": "Dankuni - Sealdah Local",
+    "type": "Suburban EMU Local",
+    "source": "DKAE",
+    "destination": "SDAH",
+    "departureTime": "23:40",
+    "arrivalTime": "00:28",
+    "totalDistanceKm": 28,
+    "avgSpeed": 21.0,
+    "coaches": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "C12"
+    ],
+    "liveState": {
+      "lat": 22.5697,
+      "lng": 88.3697,
+      "speed": 21.0,
+      "heading": 90,
+      "currentSection": "DKAE-SDAH-SUB1",
+      "lastStation": "DKAE",
+      "nextStation": "SDAH",
+      "delayMinutes": 16,
+      "predictedDelay": 18,
+      "confidence": 0.88,
+      "status": "DELAYED",
+      "delayReasons": [
+        {
+          "factor": "Historical average delay",
+          "impactMin": 16
+        }
+      ]
+    },
+    "stops": [
+      {
+        "code": "DKAE",
+        "sequence": 1,
+        "arr": "23:40",
+        "dep": "23:40",
+        "km": 0,
+        "platform": 3
+      },
+      {
+        "code": "DAKE",
+        "sequence": 2,
+        "arr": "23:54",
+        "dep": "23:54",
+        "km": 8,
+        "platform": 2
+      },
+      {
+        "code": "BARN",
+        "sequence": 3,
+        "arr": "23:59",
+        "dep": "23:59",
+        "km": 11,
+        "platform": 1
+      },
+      {
+        "code": "DDJ",
+        "sequence": 4,
+        "arr": "00:09",
+        "dep": "00:09",
+        "km": 17,
+        "platform": 1
+      },
+      {
+        "code": "BNXR",
+        "sequence": 5,
+        "arr": "00:16",
+        "dep": "00:16",
+        "km": 21,
+        "platform": 2
+      },
+      {
+        "code": "SDAH",
+        "sequence": 6,
+        "arr": "00:28",
+        "dep": "00:28",
+        "km": 28,
+        "platform": 2
+      }
+    ],
+    "historicalDelays": [
+      32,
+      7,
+      1,
+      12,
+      8,
+      13,
+      15,
+      7,
+      0,
+      2,
+      3,
+      10,
+      5,
+      5,
+      29,
+      23,
+      18,
+      24,
+      33,
+      1,
+      9,
+      5,
+      10,
+      22,
+      3,
+      13,
+      45,
+      5,
+      29,
+      13
+    ],
+    "avgHistoricalDelayMins": 16.4,
+    "totalHistoricalRecords": 92
   }
 ]

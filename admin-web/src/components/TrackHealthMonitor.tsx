@@ -81,7 +81,7 @@ export const TrackHealthMonitor: React.FC<TrackHealthMonitorProps> = ({
 
   const handleIssueCautionOrder = () => {
     setCautionIssued(true);
-    alert('🚨 Caution Order Dispatched: 45 km/h speed limit imposed on Section HWH-B17 (km 64.0 to km 68.0).');
+    alert('🚨 Caution Order Dispatched: 40 km/h speed limit imposed on Section DAKE-DKAE-SUB5 (km 15.0 to km 28.0).');
   };
 
   return (
@@ -174,7 +174,7 @@ export const TrackHealthMonitor: React.FC<TrackHealthMonitorProps> = ({
             <div>
               <h3 className="font-heading font-bold text-slate-900 text-sm flex items-center space-x-2">
                 <Radio className="w-4 h-4 text-rail-orange animate-pulse" />
-                <span>Live Vibration RMS Waveform (Section HWH-B17)</span>
+                <span>Live Vibration RMS Waveform (Section DAKE-DKAE-SUB5)</span>
               </h3>
               <p className="text-xs text-slate-500">
                 {isHardware ? '🟢 Streaming from Physical ESP32 + MPU6050' : 'ESP32 MPU6050 Accelerometer Stream (g-force)'}

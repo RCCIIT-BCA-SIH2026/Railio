@@ -9,9 +9,9 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigateTab, onFilterSearch }) => {
   const [activeSearchTab, setActiveSearchTab] = useState<'search' | 'pnr' | 'live'>('search');
-  const [fromStation, setFromStation] = useState('New Delhi (NDLS)');
-  const [toStation, setToStation] = useState('Varanasi Jn (BSB)');
-  const [journeyDate, setJourneyDate] = useState('2026-08-29');
+  const [fromStation, setFromStation] = useState('Sealdah (SDAH)');
+  const [toStation, setToStation] = useState('Dankuni (DKAE)');
+  const [journeyDate, setJourneyDate] = useState('2026-09-09');
   const [pnrInput, setPnrInput] = useState('8452109876');
 
   const handleSwap = () => {
@@ -206,9 +206,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onNavigateTab, onFilte
                   <label className="block text-[9px] uppercase font-bold text-slate-600 tracking-wider">TRAIN NUMBER OR NAME</label>
                   <input
                     type="text"
-                    defaultValue="12301 - Howrah Rajdhani Express"
+                    defaultValue="32216 - Dankuni - Sealdah Local"
                     className="w-full bg-transparent text-xs font-bold text-slate-800 focus:outline-none"
-                    placeholder="e.g. 12301 or Vande Bharat"
+                    placeholder="e.g. 32216 or 32211"
                   />
                 </div>
                 <button
