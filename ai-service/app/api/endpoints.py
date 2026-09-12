@@ -19,9 +19,14 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from app.ml.eta_delay_predictor import (
     eta_predictor, DelayPredictionRequest, DelayPredictionResponse, DelayPrediction
 )
+from app.ml.dynamic_ground_truth_eta import (
+    dynamic_eta_engine, DynamicETAPredictionRequest, DynamicETAPredictionResponse,
+    GroundCrewIncident, ActiveTSR, StationMasterPlatformAssign
+)
 from app.ml.train_schedule_db import train_schedule_db, get_ist_now
 from app.ml.catch_probability import catch_engine, CatchProbabilityInput, CatchProbabilityOutput
 from app.ml.catch_up_optimizer import catch_up_optimizer, CatchUpRequest, CatchUpResponse
+from app.ml.self_learning_reward_engine import self_learning_engine
 
 # ── Operations Planning ───────────────────────────────────────────────────────
 from app.operations.platform_allocator import (
@@ -83,6 +88,120 @@ def catch_up_potential(req: CatchUpRequest):
     a train can recover across upcoming high-speed corridor sections.
     """
     return catch_up_optimizer.calculate(req)
+
+
+@router.post("/ml/predict-dynamic-eta", response_model=DynamicETAPredictionResponse)
+def predict_dynamic_eta(req: DynamicETAPredictionRequest):
+    """
+    Ground-Truth Dynamic ETA forecasting engine.
+    Integrates live crew incident feeds (ACP, CRO, signal halts), Caution Orders (TSR),
+    Station Master platform berth updates, physics kinematics (Davis drag resistance),
+    and multi-station downstream arrival cascading.
+    """
+    return dynamic_eta_engine.predict_dynamic_eta(req)
+
+
+@router.post("/telemetry/crew-incident")
+def log_crew_incident(req: DynamicETAPredictionRequest):
+    """
+    1-Tap Frontline Ground Incident Ingestion (Guard / Loco Pilot / Station Master).
+    Instantly logs the operational disruption and computes a sub-second downstream ETA cascade.
+    """
+    return dynamic_eta_engine.predict_dynamic_eta(req)
+
+
+@router.post("/ml/feedback/actual-arrival")
+def record_actual_arrival(payload: Dict[str, Any]):
+    """
+    Legacy feedback loop (EMA-only). Prefer /ml/feedback/arrival-scored for full reward pipeline.
+    """
+    train_no = str(payload.get("trainNumber", ""))
+    stn = str(payload.get("stationCode", ""))
+    sched = str(payload.get("scheduledTime", "08:00"))
+    pred = str(payload.get("predictedETA", "08:00"))
+    act = str(payload.get("actualArrival", "08:00"))
+    return dynamic_eta_engine.record_actual_arrival(train_no, stn, sched, pred, act)
+
+
+@router.post("/ml/feedback/arrival-scored")
+def record_arrival_scored(payload: Dict[str, Any]):
+    """
+    Self-Learning Reward-Penalty Feedback Endpoint.
+
+    Called automatically every time a train arrives at a station.
+    Computes reward (+1) if |error| <= 5 min, penalty (-1) if |error| > 15 min.
+    Updates multi-dimensional EMA bias (station, hour, season, route, rake).
+    Triggers incremental XGBoost retrain in background every 100 events.
+
+    Required fields:
+      trainNumber, stationCode, scheduledArr, predictedETA, actualArrival
+    Optional fields:
+      routeId, rakeType, stationSequence, distanceRemainingKm,
+      fogVisibilityKm, incidentActive, tsrActive, precedingDelayMin
+    """
+    return self_learning_engine.record_arrival_feedback(
+        train_number=str(payload.get("trainNumber", "")),
+        station_code=str(payload.get("stationCode", "")),
+        scheduled_arr=str(payload.get("scheduledArr", payload.get("scheduledTime", "08:00"))),
+        predicted_eta=str(payload.get("predictedETA", "08:00")),
+        actual_arrival=str(payload.get("actualArrival", "08:00")),
+        route_id=str(payload.get("routeId", "")),
+        rake_type=str(payload.get("rakeType", "LHB_COACHING")),
+        station_sequence=int(payload.get("stationSequence", 1)),
+        distance_remaining_km=float(payload.get("distanceRemainingKm", 0.0)),
+        fog_visibility_km=float(payload.get("fogVisibilityKm", 10.0)),
+        incident_active=bool(payload.get("incidentActive", False)),
+        tsr_active=bool(payload.get("tsrActive", False)),
+        preceding_delay_min=float(payload.get("precedingDelayMin", 0.0)),
+    )
+
+
+@router.get("/ml/self-learning/health")
+def self_learning_health():
+    """
+    Self-Learning Engine Health Dashboard.
+    Returns reward rate, penalty rate, total feedback events,
+    bias summary, model trainer status, and configuration thresholds.
+    """
+    return self_learning_engine.system_health()
+
+
+@router.get("/ml/self-learning/bias/{station_code}")
+def get_station_bias(station_code: str, hour: int = 12, season: str = "ALL",
+                     route_id: str = "", rake_type: str = "LHB_COACHING"):
+    """
+    Returns the current composite adaptive bias correction (in minutes)
+    for a specific station, factoring in time-of-day, season, route, and rake type.
+    Used by the ETA engine to apply learned correction to new predictions.
+    """
+    bias = self_learning_engine.get_bias_correction(
+        station_code=station_code.upper(),
+        hour_bucket=hour,
+        season=season,
+        route_id=route_id,
+        rake_type=rake_type
+    )
+    return {
+        "stationCode": station_code.upper(),
+        "hour": hour,
+        "season": season,
+        "compositeAdaptiveBiasMinutes": bias,
+        "interpretation": (
+            f"Predictions at {station_code.upper()} are biased by {bias:+.2f} min "
+            f"(+ve = model tends to predict early, -ve = tends to predict late)"
+        )
+    }
+
+
+@router.get("/ml/train/{train_number}/ixigo-running-status")
+async def get_ixigo_running_status(train_number: str):
+    """
+    Fetches real-time train running status, passed stations, current delays,
+    and platform numbers directly from ixigo.com/trains/{train_number}/running-status.
+    """
+    from app.ml.live_data_poller import fetch_ixigo_train_live
+    result = await fetch_ixigo_train_live(train_number)
+    return result
 
 
 # ─── 2. Operations Planning Endpoints ────────────────────────────────────────

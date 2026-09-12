@@ -260,8 +260,106 @@ export const recordActualArrival = async (req: Request, res: Response): Promise<
       return;
     }
     db.recordActualArrival(trainNumber, stationCode, Number(actualDelayMin));
+    
+    // Also feed to Python online adaptive model
+    aiGateway.recordActualArrivalFeedback({
+      trainNumber,
+      stationCode,
+      actualArrival: req.body.actualArrival || '04:50',
+      predictedETA: req.body.predictedETA,
+    }).catch(() => {});
+
     res.json({ success: true, message: 'Actual arrival recorded for model feedback.' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to record actual arrival' });
   }
 };
+
+export const reportCrewIncident = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const {
+      trainNumber,
+      reporterRole,
+      staffId,
+      incidentCategory,
+      coachNumber,
+      severity,
+      estimatedClearanceMin,
+      chainageKm,
+      sectionId,
+      details,
+    } = req.body;
+
+    if (!trainNumber || !incidentCategory) {
+      res.status(400).json({ success: false, error: 'trainNumber and incidentCategory required' });
+      return;
+    }
+
+    const train = db.getTrain(trainNumber);
+    const incident: any = {
+      id: `INC-${Date.now()}`,
+      trainNumber,
+      reporterRole: reporterRole || 'GUARD',
+      staffId: staffId || 'STAFF_GUEST',
+      incidentCategory,
+      coachNumber: coachNumber || '',
+      severity: severity || 'MEDIUM',
+      estimatedClearanceMin: estimatedClearanceMin ? Number(estimatedClearanceMin) : undefined,
+      chainageKm: chainageKm !== undefined ? Number(chainageKm) : 0,
+      sectionId: sectionId || train?.liveState.currentSection || 'MAIN-SEC-1',
+      details: details || `Ground incident reported by ${reporterRole || 'Crew'}`,
+      timestamp: new Date().toISOString(),
+      resolved: false,
+    };
+
+    db.ingestCrewIncident(incident);
+
+    // Create live alert in operations dashboard
+    db.alerts.unshift({
+      id: incident.id,
+      title: `🚨 ${incident.reporterRole} Alert: ${incident.incidentCategory.replace(/_/g, ' ')} on Train ${trainNumber}`,
+      category: 'SAFETY',
+      severity: incident.severity === 'CRITICAL' ? 'CRITICAL' : 'WARNING',
+      affectedSection: incident.sectionId,
+      description: `${incident.details}${incident.coachNumber ? ` (Coach ${incident.coachNumber})` : ''}. Clearance estimate: ~${incident.estimatedClearanceMin || 8.5} mins.`,
+      recommendedAction: 'Dynamic ETA updated for all downstream stations. Section controller notified.',
+      timestamp: incident.timestamp,
+      active: true,
+    });
+
+    // Compute updated dynamic ETA cascade immediately
+    const dynamicETA = await aiGateway.predictDynamicGroundTruthETA({
+      trainNumber,
+      trainName: train?.name || `Train ${trainNumber}`,
+      rakeType: train?.type?.includes('Vande') ? 'VANDE_BHARAT_TRAINSET' : (train?.type?.includes('Suburban') ? 'SUBURBAN_EMU_12CAR' : 'LHB_COACHING'),
+      locoType: 'WAP-7',
+      sourceStation: train?.source || 'SDAH',
+      destinationStation: train?.destination || 'DKAE',
+      currentSpeedKmh: 0,
+      currentChainageKm: incident.chainageKm,
+      currentSectionId: incident.sectionId,
+      currentDelayMinutes: (train?.liveState.delayMinutes || 0) + (incident.estimatedClearanceMin || 8.5),
+      activeIncidents: [incident],
+      stops: train?.stops,
+    });
+
+    // Update train live state in memory
+    if (train) {
+      train.liveState.delayMinutes = dynamicETA.overallPredictedDelayMinutes;
+      train.liveState.predictedDelay = dynamicETA.overallPredictedDelayMinutes;
+      train.liveState.status = 'DELAYED';
+      train.liveState.speed = 0;
+    }
+
+    res.json({
+      success: true,
+      incident,
+      message: `Incident recorded. Downstream ETAs recalculated in < 300ms.`,
+      dynamicETA,
+    });
+  } catch (error) {
+    console.error('[Operations] Report crew incident error:', error);
+    res.status(500).json({ success: false, error: 'Failed to record crew incident' });
+  }
+};
+

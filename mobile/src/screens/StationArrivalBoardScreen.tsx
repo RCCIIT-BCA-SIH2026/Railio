@@ -5,6 +5,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import { getStationArrivalsApi } from '../services/api';
 import { AppBackground } from '../components/AppBackground';
+import { StationPickerModal } from '../components/StationPickerModal';
+import { Search } from 'lucide-react-native';
 
 export const StationArrivalBoardScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'StationArrivalBoard'>>();
@@ -14,14 +16,16 @@ export const StationArrivalBoardScreen: React.FC = () => {
   const [selectedStation, setSelectedStation] = useState<string>(initialCode);
   const [stationData, setStationData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [showPicker, setShowPicker] = useState<boolean>(false);
 
   const stations = [
     { code: 'SDAH', name: 'Sealdah' },
     { code: 'DKAE', name: 'Dankuni Jn' },
     { code: 'DAKE', name: 'Dakshineswar' },
     { code: 'DDJ', name: 'Dum Dum Jn' },
-    { code: 'BNXR', name: 'Bidhan Nagar' },
-    { code: 'BARN', name: 'Baranagar Road' },
+    { code: 'HWH', name: 'Howrah Jn' },
+    { code: 'NDLS', name: 'New Delhi' },
+    { code: 'CSMT', name: 'Mumbai CSMT' },
   ];
 
   useEffect(() => {
@@ -43,8 +47,20 @@ export const StationArrivalBoardScreen: React.FC = () => {
   return (
     <AppBackground variant="blue">
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Station Tabs */}
+      {/* Station Tabs with Search Button */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsScroll}>
+        <TouchableOpacity
+          style={[styles.stationTab, { backgroundColor: '#FF671F', borderColor: '#FF671F' }]}
+          onPress={() => setShowPicker(true)}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Search size={13} color="#FFFFFF" />
+            <Text style={[styles.stationTabText, { color: '#FFFFFF', fontWeight: '800' }]}>
+              Search Station
+            </Text>
+          </View>
+        </TouchableOpacity>
+
         {stations.map((s) => (
           <TouchableOpacity
             key={s.code}
@@ -134,6 +150,17 @@ export const StationArrivalBoardScreen: React.FC = () => {
         </View>
       )}
     </ScrollView>
+
+    <StationPickerModal
+      visible={showPicker}
+      onClose={() => setShowPicker(false)}
+      title="Select Station for Arrival Board"
+      currentCode={selectedStation}
+      onSelectStation={(st) => {
+        setSelectedStation(st.code);
+        setShowPicker(false);
+      }}
+    />
     </AppBackground>
   );
 };
