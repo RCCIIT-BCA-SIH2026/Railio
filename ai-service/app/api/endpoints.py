@@ -336,6 +336,7 @@ from app.whatsapp.whatsapp_sender import whatsapp_sender
 from app.whatsapp.idempotency_store import idempotency_store
 from app.whatsapp.workflow_handler import workflow_handler
 from app.whatsapp.state_manager import state_manager
+from app.whatsapp.status_tracker import whatsapp_status_tracker
 
 logger = logging.getLogger(__name__)
 
@@ -601,9 +602,42 @@ async def handle_whatsapp_webhook(request: Request, background_tasks: Background
         else:
             statuses = value.get("statuses", [])
             if statuses and isinstance(statuses, list):
-                st = statuses[0].get("status")
-                recip = mask_phone_number(statuses[0].get("recipient_id", ""))
-                logger.info(f"[WA] STATUS_EVENT_RECEIVED status={st} recipient={recip}")
+                for status_obj in statuses:
+                    wamid = str(status_obj.get("id", "") or "").strip()
+                    st = str(status_obj.get("status", "unknown")).lower()
+                    recip_raw = str(status_obj.get("recipient_id", ""))
+                    masked_recip = mask_phone_number(recip_raw)
+                    ts = str(status_obj.get("timestamp", str(int(time.time()))))
+                    errors = status_obj.get("errors", [])
+
+                    logger.info(
+                        f"[WHATSAPP_STATUS] message_id={wamid} status={st} recipient={masked_recip} timestamp={ts}"
+                    )
+
+                    whatsapp_status_tracker.record_status(
+                        wamid=wamid,
+                        status=st,
+                        recipient=recip_raw,
+                        timestamp=ts,
+                        errors=errors
+                    )
+
+                    if st == "failed" or errors:
+                        err_code = "UNKNOWN"
+                        err_title = "UNKNOWN"
+                        err_msg = "UNKNOWN"
+                        if errors and isinstance(errors, list) and len(errors) > 0:
+                            err0 = errors[0]
+                            err_code = str(err0.get("code", err_code))
+                            err_title = str(err0.get("title", err_title))
+                            err_msg = str(err0.get("message", err_msg))
+
+                        logger.error(
+                            f"[WHATSAPP_STATUS_FAILED] message_id={wamid} status={st} error_code={err_code} error_title='{err_title}' error_message='{err_msg}'"
+                        )
+                        logger.error(f"error_code={err_code}")
+                        logger.error(f"error_title={err_title}")
+                        logger.error(f"error_message={err_msg}")
             else:
                 logger.info("[WA] NON_MESSAGE_EVENT_RECEIVED")
 
@@ -611,5 +645,40 @@ async def handle_whatsapp_webhook(request: Request, background_tasks: Background
     except Exception as e:
         logger.error(f"[WA] ERROR component=webhook_handler status=exception: {e}", exc_info=True)
         return JSONResponse(content={"status": "received_with_error"}, status_code=200)
+
+@router.get("/admin/whatsapp/status/{wamid}")
+@router.get("/whatsapp/status/{wamid}")
+@router.get("/ai/whatsapp/status/{wamid}")
+async def get_whatsapp_message_status(wamid: str):
+    """Retrieve delivery lifecycle and status events for a given WhatsApp message ID (wamid)."""
+    record = whatsapp_status_tracker.get_status(wamid)
+    if not record:
+        return JSONResponse(
+            status_code=404,
+            content={
+                "found": False,
+                "message_id": wamid,
+                "detail": "No status events recorded yet for this message_id"
+            }
+        )
+    return {
+        "found": True,
+        "message_id": wamid,
+        "current_status": record.get("current_status"),
+        "recipient": record.get("recipient"),
+        "history": record.get("history", []),
+        "errors": record.get("errors", [])
+    }
+
+@router.get("/admin/whatsapp/status-history")
+@router.get("/whatsapp/status-history")
+@router.get("/ai/whatsapp/status-history")
+async def get_recent_whatsapp_status_history(limit: int = 50):
+    """Retrieve recent WhatsApp outbound status webhook events."""
+    events = whatsapp_status_tracker.get_recent_statuses(limit=limit)
+    return {
+        "count": len(events),
+        "events": events
+    }
 
 

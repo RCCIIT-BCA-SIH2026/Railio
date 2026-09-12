@@ -119,6 +119,13 @@ def test_meta_status_event_handling():
     assert response.status_code == 200
     assert response.json().get("status") == "received"
 
+    # Query status tracking endpoint
+    st_res = client.get("/whatsapp/status/wamid.STATUS_MSG_001")
+    assert st_res.status_code == 200
+    st_data = st_res.json()
+    assert st_data.get("found") is True
+    assert st_data.get("current_status") == "delivered"
+
 def test_malformed_webhook_payload_safety():
     # Empty JSON object
     res1 = client.post("/whatsapp/webhook", json={})
