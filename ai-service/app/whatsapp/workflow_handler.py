@@ -88,28 +88,37 @@ class WhatsAppWorkflowHandler:
         )
 
     async def ask_role(self, from_number: str, train_type: str):
-        # We use interactive list here since there are many roles
+        # Meta API restricts interactive lists to a maximum of 10 rows total
         sections = [
             {
-                "title": "Operations & Station",
+                "title": "Operations & Security",
                 "rows": [
-                    {"id": "ROLE_GUARD", "title": "Guard", "description": ""},
-                    {"id": "ROLE_TTE", "title": "Ticket Checker (TTE)", "description": ""},
-                    {"id": "ROLE_STATION", "title": "Station Staff", "description": ""}
+                    {"id": "ROLE_GUARD", "title": "Train Guard"},
+                    {"id": "ROLE_LOCO_PILOT", "title": "Loco Pilot"},
+                    {"id": "ROLE_STATION_MASTER", "title": "Station Master"},
+                    {"id": "ROLE_RPF", "title": "RPF / Security"}
                 ]
             },
             {
-                "title": "Service Staff",
+                "title": "Passenger Services",
                 "rows": [
-                    {"id": "ROLE_SWEEPER", "title": "Sweeper", "description": ""},
-                    {"id": "ROLE_LINEN", "title": "Linen Staff", "description": ""},
-                    {"id": "ROLE_PANTRY", "title": "Pantry Staff", "description": ""}
+                    {"id": "ROLE_TTE", "title": "Ticket Checker (TTE)"},
+                    {"id": "ROLE_COACH_ATTENDANT", "title": "Coach Attendant"},
+                    {"id": "ROLE_PANTRY", "title": "Catering / Pantry"}
+                ]
+            },
+            {
+                "title": "Maintenance & Cleaning",
+                "rows": [
+                    {"id": "ROLE_SWEEPER", "title": "Sweeper / Cleaners"},
+                    {"id": "ROLE_OBHS", "title": "Housekeeping (OBHS)"},
+                    {"id": "ROLE_AC_MECHANIC", "title": "Electrical / AC Tech"}
                 ]
             }
         ]
         return await whatsapp_sender.send_interactive_list(
             from_number,
-            "Please select your role:",
+            "Please select your role from the list below:",
             "Select Role",
             sections
         )
