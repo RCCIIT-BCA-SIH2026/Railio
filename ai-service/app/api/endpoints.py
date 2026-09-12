@@ -389,6 +389,10 @@ async def process_and_reply_whatsapp(from_number: str, text_body: str,
 @router.api_route("/whatsapp-webhook",    methods=["GET", "POST"])
 @router.api_route("/ai/whatsapp/webhook", methods=["GET", "POST"])
 @router.api_route("/whatsapp/webhook",    methods=["GET", "POST"])
+@router.api_route("/ai/whatsapp-webhook/", methods=["GET", "POST"])
+@router.api_route("/whatsapp-webhook/",    methods=["GET", "POST"])
+@router.api_route("/ai/whatsapp/webhook/", methods=["GET", "POST"])
+@router.api_route("/whatsapp/webhook/",    methods=["GET", "POST"])
 async def handle_whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
     if request.method == "GET":
         params   = dict(request.query_params)
