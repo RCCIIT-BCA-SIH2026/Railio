@@ -38,6 +38,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
     { id: 'gnn', label: 'Network GNN', icon: GitBranch },
     { id: 'federated', label: 'Federated AI', icon: Network },
     { id: 'logistics', label: 'Logistics Sync', icon: Settings },
+    { id: 'ml-engine', label: '🧠 ML Engine', icon: Cpu },
   ];
 
   return (

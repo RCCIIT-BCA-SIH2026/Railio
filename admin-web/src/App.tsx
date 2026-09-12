@@ -13,6 +13,7 @@ import { DelayPropagationTree } from './components/DelayPropagationTree';
 import { GNNCascadeVisualizer } from './components/GNNCascadeVisualizer';
 import { FederatedLearningDashboard } from './components/FederatedLearningDashboard';
 import { LogisticsOrchestrator } from './components/LogisticsOrchestrator';
+import { SelfLearningMLDashboard } from './components/SelfLearningMLDashboard';
 import { fetchDashboardData, fetchTrackRisk, initSocket } from './services/api';
 import { LiveTrain, TrackSection, AlertItem, DashboardMetrics } from './types';
 import bgOrange from './assets/bg_vande_orange.jpg';
@@ -28,6 +29,7 @@ const tabBackgrounds: Record<string, string> = {
   'gnn': bgOrange,
   'federated': bgBlue,
   'logistics': bgOrange,
+  'ml-engine': bgBlue,
 };
 
 const DashboardContent: React.FC = () => {
@@ -171,6 +173,12 @@ const DashboardContent: React.FC = () => {
         {activeTab === 'logistics' && (
           <div className="space-y-6">
             <LogisticsOrchestrator />
+          </div>
+        )}
+
+        {activeTab === 'ml-engine' && (
+          <div style={{ margin: '0 -24px' }}>
+            <SelfLearningMLDashboard />
           </div>
         )}
       </main>

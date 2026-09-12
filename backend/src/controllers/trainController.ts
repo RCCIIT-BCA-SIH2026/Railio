@@ -83,8 +83,52 @@ export const getLiveTrainStatus = async (req: Request, res: Response): Promise<v
       ? req.params.trainNumber[0]
       : req.params.trainNumber;
     const train = db.getTrain(tNum || '');
+    
     if (!train) {
-      res.status(404).json({ success: false, error: 'Train not found' });
+      // For all-India trains not in local suburban dataset (e.g. 12301, 12951, 20607),
+      // fetch real-time live running status directly from ixigo + NTES via AI service!
+      const ixigoData = await aiGateway.getIxigoRunningStatus(tNum || '');
+      if (ixigoData && !ixigoData.error && ixigoData.stations?.length > 0) {
+        const passedStns = ixigoData.stations.filter((s: any) => s.status === 'PASSED');
+        const lastPassed = passedStns.length > 0 ? passedStns[passedStns.length - 1] : null;
+        const upcomingStns = ixigoData.stations.filter((s: any) => s.status === 'UPCOMING');
+        const nextStn = upcomingStns.length > 0 ? upcomingStns[0] : null;
+
+        res.json({
+          success: true,
+          trainNumber: tNum,
+          name: ixigoData.train_name || `Train ${tNum}`,
+          isAllIndiaTrain: true,
+          liveSource: 'ixigo.com (Live Running Status & Delays)',
+          lastUpdated: ixigoData.last_updated,
+          liveState: {
+            currentStation: lastPassed?.station_code || ixigoData.stations[0]?.station_code || '',
+            nextStation: nextStn?.station_code || '',
+            delayMinutes: lastPassed?.delay_minutes ?? (nextStn?.delay_minutes ?? 0),
+            status: (lastPassed?.delay_minutes ?? 0) <= 5 ? 'ON_TIME' : 'DELAYED',
+            speed: 85,
+            progressPct: Math.round((ixigoData.stations_passed / Math.max(1, ixigoData.total_stations)) * 100),
+          },
+          ixigoData,
+          stops: ixigoData.stations.map((s: any, idx: number) => ({
+            code: s.station_code,
+            name: s.station_name,
+            sequence: idx + 1,
+            distanceKm: parseFloat(s.distance) || (idx * 50),
+            scheduledArrival: s.arrival_scheduled,
+            scheduledDeparture: s.departure_scheduled,
+            actualArrival: s.arrival_actual,
+            actualDeparture: s.departure_actual,
+            delay: s.delay,
+            platform: s.platform,
+            status: s.status,
+          })),
+          timestamp: new Date().toISOString(),
+        });
+        return;
+      }
+
+      res.status(404).json({ success: false, error: 'Train not found in live tracking feeds' });
       return;
     }
 
@@ -104,6 +148,36 @@ export const getLiveTrainStatus = async (req: Request, res: Response): Promise<v
     });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to get live status' });
+  }
+};
+
+export const getIxigoTrainRunningStatus = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const tNum = Array.isArray(req.params.trainNumber)
+      ? req.params.trainNumber[0]
+      : req.params.trainNumber;
+    const data = await aiGateway.getIxigoRunningStatus(tNum || '');
+    res.json({ success: true, ...data });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message || 'Failed to fetch ixigo status' });
+  }
+};
+
+export const getLivePollerStatsHandler = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const stats = await aiGateway.getMLLivePollerStats();
+    res.json({ success: true, stats });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const getMLSelfLearningHealthHandler = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const health = await aiGateway.getMLSelfLearningHealth();
+    res.json({ success: true, health });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
@@ -153,40 +227,45 @@ export const getTrainETAPrediction = async (req: Request, res: Response): Promis
     // Preceding train headway (simplified: use delay difference)
     const precedingTrainDelayMin = Math.max(0, train.liveState.delayMinutes - 5);
 
-    // ── Call ML inference ─────────────────────────────────────────────────
-    const prediction = await aiGateway.predictDelay({
+    // ── Call Dynamic Ground-Truth Multi-Station Cascade ML inference ────
+    const dynamicETA = await aiGateway.predictDynamicGroundTruthETA({
       trainNumber:        train.trainNumber,
-      departureTime:      train.departureTime,
-      arrivalTime:        train.arrivalTime,
-      travelDurationMins: train.totalDistanceKm / Math.max(train.avgSpeed, 10) * 60,
-      distanceKm:         distanceRemaining,
-      line:               'Main Line',
-      division:           'Sealdah',
-      direction:          'DOWN',
-      avgDelay5Yr:        5.0,
-      departureDelay:     train.liveState.delayMinutes,
-      currentSpeed:       train.liveState.speed,
-      dwellTime:          dwellTime,
-      weatherCondition,
-      junctionCongestionLevel: junctionCongestion,
+      trainName:          train.name,
+      rakeType:           train.type.includes('Vande') ? 'VANDE_BHARAT_TRAINSET' : (train.type.includes('Suburban') ? 'SUBURBAN_EMU_12CAR' : 'LHB_COACHING'),
+      locoType:           'WAP-7',
+      sourceStation:      train.source,
+      destinationStation: train.destination,
+      currentSpeedKmh:    train.liveState.speed,
+      currentChainageKm:  train.totalDistanceKm - distanceRemaining,
+      currentSectionId:   train.liveState.currentSection,
+      currentDelayMinutes: train.liveState.delayMinutes,
+      activeIncidents:    db.getActiveCrewIncidents(train.trainNumber).map(inc => ({
+        reporterRole:          inc.reporterRole,
+        staffId:               inc.staffId,
+        incidentCategory:      inc.incidentCategory,
+        coachNumber:           inc.coachNumber,
+        severity:              inc.severity,
+        estimatedClearanceMin: inc.estimatedClearanceMin,
+        details:               inc.details,
+      })),
       activeTSRs,
-      signalAspect:       signalBlock ? {
-        aspect:          signalBlock.aspect,
-        distanceMeters:  signalBlock.distanceMeters,
-        expectedHaltMin: signalBlock.expectedHaltMin,
-      } : undefined,
-      precedingTrainDelayMin,
+      signalAspect:       signalBlock?.aspect || 'GREEN',
       fogVisibilityKm,
+      weatherCondition,
+      precedingTrainDelayMin,
+      stops:              train.stops,
     });
+
+    const activeIncidents = db.getActiveCrewIncidents(train.trainNumber);
 
     // ── Log prediction for audit trail ───────────────────────────────────
     db.logPrediction({
       trainNumber:      train.trainNumber,
       stationCode:      train.destination,
-      predictedDelayMin: prediction.predictedDelayMinutes,
+      predictedDelayMin: dynamicETA.overallPredictedDelayMinutes,
       predictedAt:      new Date().toISOString(),
-      modelType:        prediction.modelType,
-      confidenceScore:  prediction.confidenceScore,
+      modelType:        'DynamicGroundTruthCascade (v3.0)',
+      confidenceScore:  dynamicETA.overallConfidenceScore,
     });
 
     res.json({
@@ -196,12 +275,26 @@ export const getTrainETAPrediction = async (req: Request, res: Response): Promis
       source:           train.source,
       destination:      train.destination,
       scheduledArrival: train.arrivalTime,
-      predictedArrival: `${train.arrivalTime} (${prediction.arrivalWindow})`,
+      predictedArrival: `${dynamicETA.predictedFinalETA} (+${dynamicETA.overallPredictedDelayMinutes} min)`,
       distanceRemainingKm: distanceRemaining,
       junctionCongestionLevel: junctionCongestion,
-      activeTSRCount:  activeTSRs.length,
-      signalAspect:    signalBlock?.aspect || 'GREEN',
-      prediction,
+      activeTSRCount:      activeTSRs.length,
+      activeIncidentCount: activeIncidents.length,
+      signalAspect:        signalBlock?.aspect || 'GREEN',
+      dynamicETA,
+      prediction: {
+        predictedDelayMinutes: dynamicETA.overallPredictedDelayMinutes,
+        predictedETA:          dynamicETA.predictedFinalETA,
+        scheduledArrival:      train.arrivalTime,
+        arrivalWindow:         `${dynamicETA.predictedFinalETA} (+${dynamicETA.overallConfidenceInterval[0]} to +${dynamicETA.overallConfidenceInterval[1]} min)`,
+        confidenceScore:       dynamicETA.overallConfidenceScore,
+        confidenceIntervalMin: dynamicETA.overallConfidenceInterval,
+        delayProbability:      Math.min(0.98, dynamicETA.overallPredictedDelayMinutes / 25.0 + 0.1),
+        expectedDelay:         dynamicETA.overallPredictedDelayMinutes > 0 ? `+${dynamicETA.overallPredictedDelayMinutes} min` : 'On Time',
+        explainability:        dynamicETA.explainability,
+        catchUpPotentialMin:   dynamicETA.currentStatus?.totalRecoveredMinutes || 0,
+        modelType:             'DynamicGroundTruthCascade (v3.0)',
+      },
       timestamp:       new Date().toISOString(),
     });
   } catch (error) {
@@ -209,3 +302,4 @@ export const getTrainETAPrediction = async (req: Request, res: Response): Promis
     res.status(500).json({ success: false, error: 'ETA prediction failed' });
   }
 };
+
