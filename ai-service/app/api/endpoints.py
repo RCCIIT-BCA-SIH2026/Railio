@@ -374,16 +374,14 @@ async def process_and_reply_whatsapp(from_number: str, text_body: str,
 
     user_text = (text_body or "").strip()
     
-    # Route through the new deterministic state machine
+    # Route incoming message to the LLM agent (like the passenger app)
     try:
-        await workflow_handler.handle_incoming(from_number, user_text)
-    except Exception as e:
-        print(f"[WHATSAPP] Error in workflow handler: {e}")
-        # Fallback to the original agent if something critically fails
-        req       = AgentMessageRequest(message=user_text, session_id=clean_number)
-        res       = rail_agent.process_query(req)
+        req = AgentMessageRequest(message=user_text, session_id=clean_number)
+        res = rail_agent.process_query(req)
         await send_whatsapp_reply(from_number, res.answer)
-
+    except Exception as e:
+        print(f"[WHATSAPP] Error generating AI response: {e}")
+        await send_whatsapp_reply(from_number, "I'm sorry, I encountered an error processing your request. Please try again.")
 
 @router.api_route("/ai/whatsapp-webhook", methods=["GET", "POST"])
 @router.api_route("/whatsapp-webhook",    methods=["GET", "POST"])
