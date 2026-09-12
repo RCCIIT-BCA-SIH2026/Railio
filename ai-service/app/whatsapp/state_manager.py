@@ -1,16 +1,17 @@
 import time
 from typing import Dict, Any, Optional
-from pydantic import BaseModel
+from dataclasses import dataclass, field
 
-class SessionState(BaseModel):
+@dataclass
+class SessionState:
     whatsapp_number: str
     state: str = "IDLE"
     train_type: Optional[str] = None
     role: Optional[str] = None
     query_type: Optional[str] = None
     train_number: Optional[str] = None
-    context: Dict[str, Any] = {}
-    last_updated: float = time.time()
+    context: Dict[str, Any] = field(default_factory=dict)
+    last_updated: float = field(default_factory=time.time)
 
 class StateManager:
     def __init__(self, timeout_seconds=1800):
