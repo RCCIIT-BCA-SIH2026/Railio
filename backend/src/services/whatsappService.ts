@@ -6,34 +6,52 @@ export interface WhatsAppButtonOption {
 }
 
 export class WhatsAppService {
-  private get phoneNumberId(): string {
-    return process.env.WHATSAPP_PHONE_NUMBER_ID || '';
-  }
+  private getCredentials(targetPhoneId?: string): { phoneNumberId: string; accessToken: string } {
+    const workerPhoneId = process.env.WHATSAPP_WORKER_PHONE_NUMBER_ID || '1282348971633521';
+    const primaryPhoneId = process.env.WHATSAPP_PHONE_NUMBER_ID || '1362878316903671';
 
-  private get accessToken(): string {
-    return process.env.WHATSAPP_ACCESS_TOKEN || '';
-  }
+    const workerToken = process.env.WHATSAPP_WORKER_ACCESS_TOKEN || '';
+    const primaryToken = process.env.WHATSAPP_ACCESS_TOKEN || process.env.META_WHATSAPP_TOKEN || '';
 
-  private get graphApiUrl(): string {
-    return `https://graph.facebook.com/v18.0/${this.phoneNumberId}/messages`;
+    if (targetPhoneId) {
+      const cleaned = String(targetPhoneId).trim();
+      if (cleaned === workerPhoneId) {
+        return { phoneNumberId: cleaned, accessToken: workerToken || primaryToken };
+      } else if (cleaned === primaryPhoneId) {
+        return { phoneNumberId: cleaned, accessToken: primaryToken || workerToken };
+      } else {
+        return { phoneNumberId: cleaned, accessToken: primaryToken || workerToken };
+      }
+    }
+
+    const phoneNumberId = workerPhoneId || primaryPhoneId;
+    const accessToken = workerToken || primaryToken;
+    return { phoneNumberId, accessToken };
   }
 
   /**
    * Send a standard WhatsApp text message with Markdown formatting
    */
-  async sendMessage(recipientPhoneNumber: string, text: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  async sendMessage(
+    recipientPhoneNumber: string,
+    text: string,
+    targetPhoneId?: string
+  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
     const formattedRecipient = recipientPhoneNumber.replace(/[^0-9]/g, '');
+    const { phoneNumberId, accessToken } = this.getCredentials(targetPhoneId);
 
-    console.log(`[WhatsApp Service] Outbound Message to ${formattedRecipient}:`, text);
+    console.log(`[WA] OUTBOUND_STARTED recipient=${formattedRecipient.slice(0, 3)}****${formattedRecipient.slice(-4)} phone_number_id=${phoneNumberId}`);
 
-    if (!this.accessToken) {
-      console.warn('[WhatsApp Service] WHATSAPP_ACCESS_TOKEN not set. Running in simulation mode.');
-      return { success: true, messageId: `sim-${Date.now()}` };
+    if (!accessToken) {
+      console.warn('[WA] ERROR component=outbound_sender status=credentials_missing WHATSAPP_ACCESS_TOKEN not set.');
+      return { success: false, error: 'WHATSAPP_ACCESS_TOKEN not set' };
     }
+
+    const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
 
     try {
       const response = await axios.post(
-        this.graphApiUrl,
+        url,
         {
           messaging_product: 'whatsapp',
           recipient_type: 'individual',
@@ -43,7 +61,7 @@ export class WhatsAppService {
         },
         {
           headers: {
-            Authorization: `Bearer ${this.accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
           timeout: 8000,
@@ -51,18 +69,14 @@ export class WhatsAppService {
       );
 
       const messageId = response.data?.messages?.[0]?.id || `wa-${Date.now()}`;
+      console.log(`[WA] OUTBOUND_HTTP_STATUS=${response.status} OUTBOUND_COMPLETED success=true message_id=${messageId}`);
       return { success: true, messageId };
     } catch (error: any) {
       const errDetail = error.response?.data?.error?.message || error.message;
       const errCode = error.response?.data?.error?.code;
-      const errSubcode = error.response?.data?.error?.error_subcode;
+      const errType = error.response?.data?.error?.type;
       const httpStatus = error.response?.status;
-      console.error(`[WhatsApp Service Error] Failed to send message to ${formattedRecipient} (HTTP ${httpStatus}):`, {
-        message: errDetail,
-        code: errCode,
-        subcode: errSubcode,
-        details: error.response?.data?.error,
-      });
+      console.error(`[WA] ERROR component=outbound_sender status=${httpStatus} error_code=${errCode} error_type=${errType} error_message="${errDetail}"`);
       return { success: false, error: errDetail };
     }
   }
@@ -74,65 +88,60 @@ export class WhatsAppService {
     recipientPhoneNumber: string,
     bodyText: string,
     buttons: WhatsAppButtonOption[],
-    headerText?: string
+    headerText?: string,
+    targetPhoneId?: string
   ): Promise<{ success: boolean; messageId?: string; error?: string }> {
     const formattedRecipient = recipientPhoneNumber.replace(/[^0-9]/g, '');
+    const { phoneNumberId, accessToken } = this.getCredentials(targetPhoneId);
 
-    console.log(`[WhatsApp Service] Sending Interactive Buttons to ${formattedRecipient}:`, { bodyText, buttons });
+    console.log(`[WA] OUTBOUND_INTERACTIVE_STARTED recipient=${formattedRecipient.slice(0, 3)}****${formattedRecipient.slice(-4)} phone_number_id=${phoneNumberId}`);
 
-    if (!this.accessToken) {
-      console.warn('[WhatsApp Service] WHATSAPP_ACCESS_TOKEN not set. Running in simulation mode.');
-      return { success: true, messageId: `sim-interactive-${Date.now()}` };
+    if (!accessToken) {
+      console.warn('[WA] ERROR component=outbound_sender status=credentials_missing WHATSAPP_ACCESS_TOKEN not set.');
+      return { success: false, error: 'WHATSAPP_ACCESS_TOKEN not set' };
+    }
+
+    const url = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
+
+    const interactiveButtons = buttons.slice(0, 3).map((btn) => ({
+      type: 'reply',
+      reply: { id: btn.id, title: btn.title },
+    }));
+
+    const payload: any = {
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+      to: formattedRecipient,
+      type: 'interactive',
+      interactive: {
+        type: 'button',
+        body: { text: bodyText },
+        action: { buttons: interactiveButtons },
+      },
+    };
+
+    if (headerText) {
+      payload.interactive.header = { type: 'text', text: headerText };
     }
 
     try {
-      const payload: any = {
-        messaging_product: 'whatsapp',
-        recipient_type: 'individual',
-        to: formattedRecipient,
-        type: 'interactive',
-        interactive: {
-          type: 'button',
-          body: { text: bodyText },
-          action: {
-            buttons: buttons.slice(0, 3).map((b) => ({
-              type: 'reply',
-              reply: {
-                id: b.id,
-                title: b.title.substring(0, 20), // Meta limit is 20 chars max for button title
-              },
-            })),
-          },
-        },
-      };
-
-      if (headerText) {
-        payload.interactive.header = { type: 'text', text: headerText };
-      }
-
-      const response = await axios.post(this.graphApiUrl, payload, {
+      const response = await axios.post(url, payload, {
         headers: {
-          Authorization: `Bearer ${this.accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
         },
         timeout: 8000,
       });
 
-      const messageId = response.data?.messages?.[0]?.id || `wa-${Date.now()}`;
+      const messageId = response.data?.messages?.[0]?.id || `wa-btn-${Date.now()}`;
+      console.log(`[WA] OUTBOUND_HTTP_STATUS=${response.status} OUTBOUND_COMPLETED success=true message_id=${messageId}`);
       return { success: true, messageId };
     } catch (error: any) {
       const errDetail = error.response?.data?.error?.message || error.message;
       const errCode = error.response?.data?.error?.code;
       const httpStatus = error.response?.status;
-      console.error(`[WhatsApp Service Error] Failed to send interactive buttons to ${formattedRecipient} (HTTP ${httpStatus}):`, {
-        message: errDetail,
-        code: errCode,
-        details: error.response?.data?.error,
-      });
-      // Fallback: send text with options if interactive buttons fail
-      const fallbackText = `${headerText ? `*${headerText}*\n\n` : ''}${bodyText}\n\nOptions:\n` +
-        buttons.map((b, i) => `${i + 1}. ${b.title}`).join('\n');
-      return this.sendMessage(recipientPhoneNumber, fallbackText);
+      console.error(`[WA] ERROR component=outbound_interactive status=${httpStatus} error_code=${errCode} error_message="${errDetail}"`);
+      return { success: false, error: errDetail };
     }
   }
 }

@@ -8,7 +8,7 @@ import { getStationCrowd, getTrainCoachCrowd } from '../controllers/crowdControl
 import { getTrackRisk, ingestSensorTelemetry, getRealTelemetryHistory } from '../controllers/trackController';
 import { simulateWhatIfScenario } from '../controllers/digitalTwinController';
 import { handleAIChat } from '../controllers/aiController';
-import { verifyWebhook, handleIncomingWebhook } from '../controllers/whatsappController';
+import { verifyWebhook, handleIncomingWebhook, testOutboundTransport } from '../controllers/whatsappController';
 import { getDashboardOverview, getAlerts, createAlert, getWeatherIntelligence } from '../controllers/adminController';
 import { getUpcomingSuburbanTrains, getCoachCrowdTelemetry, getSuburbanCorridors } from '../controllers/suburbanController';
 import {
@@ -75,6 +75,15 @@ router.get('/ai/whatsapp-webhook', verifyWebhook);
 router.post('/ai/whatsapp-webhook', handleIncomingWebhook);
 router.get('/whatsapp/webhook', verifyWebhook);
 router.post('/whatsapp/webhook', handleIncomingWebhook);
+router.get('/whatsapp-webhook', verifyWebhook);
+router.post('/whatsapp-webhook', handleIncomingWebhook);
+router.get('/ai/whatsapp/webhook', verifyWebhook);
+router.post('/ai/whatsapp/webhook', handleIncomingWebhook);
+router.get('/whatsapp/test-outbound', testOutboundTransport);
+router.post('/whatsapp/test-outbound', testOutboundTransport);
+router.get('/ai/whatsapp/test-outbound', testOutboundTransport);
+router.post('/ai/whatsapp/test-outbound', testOutboundTransport);
+
 
 // 9. Weather Intelligence
 router.get('/weather', getWeatherIntelligence);
