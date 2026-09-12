@@ -7,6 +7,10 @@ WhatsApp, and agent endpoints.
 
 import os
 import re
+import hmac
+import hashlib
+import time
+import logging
 import httpx
 import asyncio
 from datetime import datetime
@@ -328,60 +332,81 @@ def get_active_caution_orders():
 
 # ─── 8. Meta WhatsApp Cloud API Webhook ──────────────────────────────────────
 
-async def send_whatsapp_reply(to_number: str, message_text: str):
-    phone_number_id = os.getenv("WHATSAPP_WORKER_PHONE_NUMBER_ID", os.getenv("WHATSAPP_PHONE_NUMBER_ID", ""))
-    access_token    = os.getenv("WHATSAPP_WORKER_ACCESS_TOKEN", os.getenv("WHATSAPP_ACCESS_TOKEN", os.getenv("META_WHATSAPP_TOKEN", "")))
-    url             = f"https://graph.facebook.com/v18.0/{phone_number_id}/messages"
-
-    clean_to = "".join(filter(str.isdigit, to_number))
-    masked_to = mask_phone_number(clean_to)
-    print(f"[WHATSAPP] Sending to {masked_to} via Phone ID {phone_number_id}")
-
-    if not access_token:
-        print("[WHATSAPP] WHATSAPP_ACCESS_TOKEN missing — cannot send reply.")
-        return
-
-    payload = {
-        "messaging_product": "whatsapp",
-        "recipient_type":    "individual",
-        "to":                clean_to,
-        "type":              "text",
-        "text":              {"preview_url": False, "body": message_text},
-    }
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type":  "application/json",
-    }
-    async with httpx.AsyncClient() as client:
-        try:
-            res = await client.post(url, json=payload, headers=headers, timeout=10.0)
-            print(f"[WHATSAPP] Meta API status: {res.status_code}")
-            if res.status_code not in [200, 201]:
-                print(f"[WHATSAPP] Error: {res.text}")
-        except Exception as e:
-            print(f"[WHATSAPP] Exception: {e}")
-
-
+from app.whatsapp.whatsapp_sender import whatsapp_sender
+from app.whatsapp.idempotency_store import idempotency_store
 from app.whatsapp.workflow_handler import workflow_handler
+from app.whatsapp.state_manager import state_manager
+
+logger = logging.getLogger(__name__)
+
+def get_whatsapp_config() -> dict:
+    phone_number_id = os.getenv("WHATSAPP_WORKER_PHONE_NUMBER_ID", os.getenv("WHATSAPP_PHONE_NUMBER_ID", ""))
+    access_token = os.getenv("WHATSAPP_WORKER_ACCESS_TOKEN", os.getenv("WHATSAPP_ACCESS_TOKEN", os.getenv("META_WHATSAPP_TOKEN", "")))
+    verify_token = os.getenv("WHATSAPP_VERIFY_TOKEN", "railio_whatsapp_verify_token_2026")
+    app_secret = os.getenv("META_APP_SECRET", "")
+    return {
+        "phone_number_id": phone_number_id,
+        "access_token": access_token,
+        "verify_token": verify_token,
+        "app_secret": app_secret,
+    }
+
+def verify_meta_signature(body_bytes: bytes, signature_header: Optional[str], app_secret: str) -> bool:
+    if not app_secret:
+        return True
+    if not signature_header:
+        logger.warning("[WHATSAPP] Signature header X-Hub-Signature-256 missing while META_APP_SECRET is set.")
+        return False
+    try:
+        expected = "sha256=" + hmac.new(app_secret.encode("utf-8"), body_bytes, hashlib.sha256).hexdigest()
+        return hmac.compare_digest(expected, signature_header)
+    except Exception as e:
+        logger.error(f"[WHATSAPP] Signature verification exception: {e}")
+        return False
+
+async def send_whatsapp_reply(to_number: str, message_text: str):
+    return await whatsapp_sender.send_text(to_number, message_text)
 
 USER_SESSIONS: dict = {}
 
 async def process_and_reply_whatsapp(from_number: str, text_body: str,
-                                      location_payload: dict = None):
-    clean_number = "".join(filter(str.isdigit, from_number))
-    masked_from  = mask_phone_number(clean_number)
-    print(f"[WHATSAPP] Incoming from {masked_from}: '{text_body}'")
-
-    user_text = (text_body or "").strip()
+                                      location_payload: dict = None,
+                                      msg_id: str = None):
+    start_time = time.time()
+    clean_number = "".join(filter(str.isdigit, from_number or ""))
+    masked_from = mask_phone_number(clean_number)
     
-    # Route incoming message to the LLM agent (like the passenger app)
+    logger.info(f"[WHATSAPP] processing_started msg_id={msg_id} from={masked_from} text='{text_body}'")
+    user_text = (text_body or "").strip()
+
     try:
-        req = AgentMessageRequest(message=user_text, session_id=clean_number)
-        res = rail_agent.process_query(req)
-        await send_whatsapp_reply(from_number, res.answer)
-    except Exception as e:
-        print(f"[WHATSAPP] Error generating AI response: {e}")
-        await send_whatsapp_reply(from_number, "I'm sorry, I encountered an error processing your request. Please try again.")
+        session_state = state_manager.get_session(from_number).state
+        is_staff_trigger = (
+            session_state != "IDLE" or 
+            user_text.upper().startswith("ROLE_") or 
+            user_text.upper().startswith("TRAIN_TYPE_") or 
+            user_text.lower() in ["local train", "express train", "change train", "main menu", "refresh"]
+        )
+
+        if is_staff_trigger:
+            logger.info(f"[WHATSAPP] Routing to staff workflow handler for state={session_state}")
+            await workflow_handler.handle_incoming(from_number, user_text)
+        else:
+            req = AgentMessageRequest(message=user_text, session_id=clean_number)
+            res = rail_agent.process_query(req)
+            success = await whatsapp_sender.send_text(from_number, res.answer)
+            logger.info(f"[WHATSAPP] Outbound message dispatch status={success}")
+
+        duration_ms = (time.time() - start_time) * 1000
+        logger.info(f"[WHATSAPP] processing_completed msg_id={msg_id} duration_ms={duration_ms:.1f}")
+    except Exception as exc:
+        duration_ms = (time.time() - start_time) * 1000
+        logger.error(f"[WHATSAPP] Error in background task for msg_id={msg_id} after {duration_ms:.1f}ms: {exc}", exc_info=True)
+        try:
+            fallback_text = "I'm sorry, I encountered a temporary issue processing your request. Please try again in a moment."
+            await whatsapp_sender.send_text(from_number, fallback_text)
+        except Exception as send_err:
+            logger.error(f"[WHATSAPP] Fallback message dispatch failed: {send_err}")
 
 @router.api_route("/ai/whatsapp-webhook", methods=["GET", "POST"])
 @router.api_route("/whatsapp-webhook",    methods=["GET", "POST"])
@@ -392,53 +417,92 @@ async def process_and_reply_whatsapp(from_number: str, text_body: str,
 @router.api_route("/ai/whatsapp/webhook/", methods=["GET", "POST"])
 @router.api_route("/whatsapp/webhook/",    methods=["GET", "POST"])
 async def handle_whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
+    config = get_whatsapp_config()
+
     if request.method == "GET":
-        params   = dict(request.query_params)
-        mode     = params.get("hub.mode") or params.get("hub_mode")
-        token    = params.get("hub.verify_token") or params.get("hub_verify_token")
+        params = dict(request.query_params)
+        mode = params.get("hub.mode") or params.get("hub_mode")
+        token = params.get("hub.verify_token") or params.get("hub_verify_token")
         challenge = params.get("hub.challenge") or params.get("hub_challenge")
-        expected  = os.getenv("WHATSAPP_VERIFY_TOKEN", "railio_whatsapp_verify_token_2026")
-        if token == expected or mode == "subscribe":
-            print("[WHATSAPP] Webhook verified.")
+        
+        expected_token = config["verify_token"]
+        valid_tokens = {expected_token, "railsathi_whatsapp_verify_token_2026", "railio_whatsapp_verify_token_2026"}
+        if mode == "subscribe" and token in valid_tokens:
+            logger.info(f"[WHATSAPP] Webhook verification SUCCESS challenge={challenge}")
             return PlainTextResponse(content=str(challenge or "VERIFIED"), status_code=200)
+        
+        logger.warning(f"[WHATSAPP] Webhook verification REJECTED mode={mode} token_match={token in valid_tokens}")
         return PlainTextResponse(content="Forbidden", status_code=403)
 
+
+    raw_body = await request.body()
+    sig_header = request.headers.get("X-Hub-Signature-256")
+    if not verify_meta_signature(raw_body, sig_header, config["app_secret"]):
+        logger.warning("[WHATSAPP] Webhook rejected: Invalid HMAC signature.")
+        return PlainTextResponse(content="Invalid Signature", status_code=403)
+
     try:
-        body     = await request.json()
-        entry    = body.get("entry", [{}])[0]
-        change   = entry.get("changes", [{}])[0]
-        value    = change.get("value", {})
+        body = await request.json()
+    except Exception as parse_err:
+        logger.error(f"[WHATSAPP] Malformed JSON payload: {parse_err}")
+        return JSONResponse(content={"status": "invalid_json"}, status_code=200)
+
+    try:
+        entries = body.get("entry", [])
+        if not isinstance(entries, list) or not entries:
+            return JSONResponse(content={"status": "ignored_empty_entry"}, status_code=200)
+
+        entry = entries[0]
+        changes = entry.get("changes", [])
+        if not isinstance(changes, list) or not changes:
+            return JSONResponse(content={"status": "ignored_empty_changes"}, status_code=200)
+
+        value = changes[0].get("value", {})
         messages = value.get("messages", [])
 
-        if messages:
-            msg           = messages[0]
-            from_number   = msg.get("from")
-            msg_type      = msg.get("type")
-            text_body     = ""
+        if messages and isinstance(messages, list):
+            msg = messages[0]
+            msg_id = msg.get("id")
+            from_number = msg.get("from")
+            msg_type = msg.get("type")
+            text_body = ""
             location_payload = None
 
             if msg_type == "text":
                 text_body = msg.get("text", {}).get("body", "")
             elif msg_type == "interactive":
-                text_body = (msg.get("interactive", {}).get("button_reply", {}).get("title", "")
-                             or msg.get("interactive", {}).get("list_reply", {}).get("title", ""))
+                interactive = msg.get("interactive", {})
+                btn = interactive.get("button_reply", {})
+                lst = interactive.get("list_reply", {})
+                text_body = btn.get("title") or lst.get("title") or btn.get("id") or lst.get("id") or ""
             elif msg_type == "location":
                 location_payload = msg.get("location")
                 text_body = "LOCATION_PIN"
 
             if from_number and (text_body or location_payload):
+                if msg_id:
+                    is_new = idempotency_store.mark_processed(msg_id, from_number)
+                    if not is_new:
+                        logger.info(f"[WHATSAPP] Duplicate event ignored msg_id={msg_id}")
+                        return JSONResponse(content={"status": "duplicate_ignored"}, status_code=200)
+
+                logger.info(f"[WHATSAPP] Webhook acknowledged, enqueuing background task msg_id={msg_id}")
                 background_tasks.add_task(
-                    process_and_reply_whatsapp, from_number, text_body, location_payload)
+                    process_and_reply_whatsapp, from_number, text_body, location_payload, msg_id
+                )
+            else:
+                logger.info(f"[WHATSAPP] Ignored message payload with empty text/sender: type={msg_type}")
         else:
             statuses = value.get("statuses", [])
-            if statuses:
-                st    = statuses[0].get("status")
+            if statuses and isinstance(statuses, list):
+                st = statuses[0].get("status")
                 recip = mask_phone_number(statuses[0].get("recipient_id", ""))
-                print(f"[WHATSAPP] Status update ignored: {st} for {recip}")
+                logger.info(f"[WHATSAPP] Status notification acknowledged: status={st} for {recip}")
             else:
-                print("[WHATSAPP] Non-message webhook event ignored.")
+                logger.info("[WHATSAPP] Non-message webhook event acknowledged.")
 
         return JSONResponse(content={"status": "received"}, status_code=200)
     except Exception as e:
-        print(f"[WHATSAPP] Webhook Exception: {e}")
-        return JSONResponse(content={"status": "received"}, status_code=200)
+        logger.error(f"[WHATSAPP] Webhook handling exception: {e}", exc_info=True)
+        return JSONResponse(content={"status": "received_with_error"}, status_code=200)
+
