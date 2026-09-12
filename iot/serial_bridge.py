@@ -10,14 +10,14 @@ import time
 import requests
 
 try:
-    import serial
-    import serial.tools.list_ports
+    import serial  # type: ignore
+    import serial.tools.list_ports  # type: ignore
 except ImportError:
     print("Installing pyserial...")
     import subprocess
     subprocess.check_call([sys.executable, "-m", "pip", "install", "pyserial"])
-    import serial
-    import serial.tools.list_ports
+    import serial  # type: ignore
+    import serial.tools.list_ports  # type: ignore
 
 SERVER_URL = "http://localhost:5000/api/track/sensor"
 BAUD_RATE = 115200

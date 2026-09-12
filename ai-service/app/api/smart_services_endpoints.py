@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 import random
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 router = APIRouter()
 
@@ -21,7 +21,7 @@ def configure_smart_alarm(request: AlarmRequest):
         scheduled_time = datetime.fromisoformat(request.scheduledArrivalTime.replace('Z', '+00:00'))
     except ValueError:
         # Fallback if parsing fails, just use current time + 2 hours
-        scheduled_time = datetime.utcnow() + timedelta(hours=2)
+        scheduled_time = datetime.now(timezone.utc) + timedelta(hours=2)
 
     predicted_arrival = scheduled_time + timedelta(minutes=delay_minutes)
     alarm_trigger_time = predicted_arrival - timedelta(minutes=request.bufferMinutes)
@@ -52,7 +52,7 @@ def optimize_food_delivery(request: FoodOrderRequest):
     try:
         scheduled_time = datetime.fromisoformat(request.scheduledArrivalTime.replace('Z', '+00:00'))
     except ValueError:
-        scheduled_time = datetime.utcnow() + timedelta(hours=3)
+        scheduled_time = datetime.now(timezone.utc) + timedelta(hours=3)
 
     predicted_arrival = scheduled_time + timedelta(minutes=delay_minutes)
     
