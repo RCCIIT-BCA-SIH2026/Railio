@@ -373,12 +373,13 @@ USER_SESSIONS: dict = {}
 async def process_and_reply_whatsapp(from_number: str, text_body: str,
                                       location_payload: dict = None,
                                       msg_id: str = None,
-                                      phone_number_id: str = None):
+                                      phone_number_id: str = None,
+                                      req_id: str = None):
     start_time = time.time()
     clean_number = "".join(filter(str.isdigit, from_number or ""))
     masked_from = mask_phone_number(clean_number)
     
-    logger.info(f"[WA] PROCESSING_STARTED msg_id={msg_id} from={masked_from} phone_number_id={phone_number_id}")
+    logger.info(f"[WA-AI] PROCESSING_STARTED message_id={msg_id} request_id={req_id or 'bg_task'}")
     user_text = (text_body or "").strip()
 
     try:
@@ -391,30 +392,41 @@ async def process_and_reply_whatsapp(from_number: str, text_body: str,
         )
 
         if is_staff_trigger:
-            logger.info(f"[WA] Routing to staff workflow handler for state={session_state}")
+            logger.info(f"[WA-AI] Routing to staff workflow handler for state={session_state}")
             await workflow_handler.handle_incoming(from_number, user_text)
         else:
-            logger.info(f"[WA] AI_STARTED msg_id={msg_id} text='{user_text}'")
+            logger.info(f"[WA-AI] AGENT_CALLED message_id={msg_id}")
             ai_start = time.time()
             req = AgentMessageRequest(message=user_text, session_id=clean_number)
             res = rail_agent.process_query(req)
             ai_duration_ms = (time.time() - ai_start) * 1000
-            logger.info(f"[WA] AI_COMPLETED msg_id={msg_id} duration_ms={ai_duration_ms:.1f}")
+            logger.info(f"[WA-AI] AGENT_COMPLETED duration_ms={ai_duration_ms:.1f}")
 
-            logger.info(f"[WA] OUTBOUND_STARTED recipient={masked_from} phone_number_id={phone_number_id}")
-            success = await whatsapp_sender.send_text(from_number, res.answer, phone_number_id=phone_number_id)
-            logger.info(f"[WA] OUTBOUND_COMPLETED success={success}")
+            ans_text = res.answer if res and hasattr(res, "answer") and res.answer else "Hello! How can I assist you with Railio today?"
+            logger.info(f"[WA-AI] RESPONSE_GENERATED message_length={len(ans_text)}")
+
+            logger.info("[WA-AI] SHARED_SENDER_CALLED sender=whatsapp_sender.send_text")
+            logger.info(f"[WHATSAPP] OUTBOUND_REQUEST_STARTED recipient={masked_from} phone_number_id={phone_number_id}")
+
+            result = await whatsapp_sender.send_text(from_number, ans_text, phone_number_id=phone_number_id)
+            is_success = bool(result)
+            outbound_wamid = getattr(result, "message_id", None)
+            status_code = getattr(result, "status_code", 200 if is_success else 500)
+
+            logger.info(f"[WHATSAPP] META_RESPONSE status={status_code} message_id={outbound_wamid or 'wa-reply'}")
+            logger.info(f"[WA-E2E] inbound_message_id={msg_id} outbound_message_id={outbound_wamid}")
 
         duration_ms = (time.time() - start_time) * 1000
-        logger.info(f"[WA] PROCESSING_COMPLETED msg_id={msg_id} duration_ms={duration_ms:.1f}")
+        logger.info(f"[WA-AI] PROCESSING_COMPLETED message_id={msg_id} duration_ms={duration_ms:.1f}")
     except Exception as exc:
         duration_ms = (time.time() - start_time) * 1000
-        logger.error(f"[WA] ERROR component=background_processor status=exception msg_id={msg_id} duration_ms={duration_ms:.1f}: {exc}", exc_info=True)
+        logger.error(f"[WA-AI] AGENT_FAILED exception_type={type(exc).__name__} error='{str(exc)[:200]}'", exc_info=True)
         try:
             fallback_text = "I'm sorry, I encountered a temporary issue processing your request. Please try again in a moment."
+            logger.info("[WA-AI] SHARED_SENDER_CALLED sender=whatsapp_sender.send_text (fallback)")
             await whatsapp_sender.send_text(from_number, fallback_text, phone_number_id=phone_number_id)
         except Exception as send_err:
-            logger.error(f"[WA] ERROR component=fallback_sender status=failed: {send_err}")
+            logger.error(f"[WA-AI] ERROR component=fallback_sender status=failed: {send_err}")
 
 @router.api_route("/ai/whatsapp/test-outbound", methods=["GET", "POST"])
 @router.api_route("/whatsapp/test-outbound",    methods=["GET", "POST"])
@@ -516,6 +528,9 @@ async def send_worker_whatsapp_message_api(req: WorkerWhatsAppSendRequest):
 @router.api_route("/ai/whatsapp/webhook/", methods=["GET", "POST"])
 @router.api_route("/whatsapp/webhook/",    methods=["GET", "POST"])
 async def handle_whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
+    start_req_time = time.time()
+    req_id = f"req_{int(start_req_time * 1000)}"
+    now_iso = datetime.now().isoformat()
     config = get_whatsapp_config()
 
     if request.method == "GET":
@@ -533,6 +548,8 @@ async def handle_whatsapp_webhook(request: Request, background_tasks: Background
         logger.warning(f"[WA] ERROR component=webhook_verifier status=rejected mode={mode} token_match={token in valid_tokens}")
         return PlainTextResponse(content="Forbidden", status_code=403)
 
+    logger.info(f"[WA-INBOUND] POST_RECEIVED request_id={req_id} timestamp={now_iso}")
+
     raw_body = await request.body()
     sig_header = request.headers.get("X-Hub-Signature-256")
     if not verify_meta_signature(raw_body, sig_header, config["app_secret"]):
@@ -541,7 +558,11 @@ async def handle_whatsapp_webhook(request: Request, background_tasks: Background
 
     try:
         body = await request.json()
-        logger.info("[WA] WEBHOOK_RECEIVED")
+        obj_type = body.get("object", "unknown")
+        first_entry = (body.get("entry", []) or [{}])[0]
+        first_change = (first_entry.get("changes", []) or [{}])[0]
+        field_name = first_change.get("field", "messages")
+        logger.info(f"[WA-INBOUND] PAYLOAD_RECEIVED request_id={req_id} object={obj_type} field={field_name}")
     except Exception as parse_err:
         logger.error(f"[WA] ERROR component=json_parser status=malformed: {parse_err}")
         return JSONResponse(content={"status": "invalid_json"}, status_code=200)
@@ -549,11 +570,15 @@ async def handle_whatsapp_webhook(request: Request, background_tasks: Background
     try:
         entries = body.get("entry", [])
         if not isinstance(entries, list) or not entries:
+            ack_dur_ms = (time.time() - start_req_time) * 1000
+            logger.info(f"[WA-INBOUND] ACK_200 request_id={req_id} duration_ms={ack_dur_ms:.1f}")
             return JSONResponse(content={"status": "ignored_empty_entry"}, status_code=200)
 
         entry = entries[0]
         changes = entry.get("changes", [])
         if not isinstance(changes, list) or not changes:
+            ack_dur_ms = (time.time() - start_req_time) * 1000
+            logger.info(f"[WA-INBOUND] ACK_200 request_id={req_id} duration_ms={ack_dur_ms:.1f}")
             return JSONResponse(content={"status": "ignored_empty_changes"}, status_code=200)
 
         value = changes[0].get("value", {})
@@ -581,9 +606,9 @@ async def handle_whatsapp_webhook(request: Request, background_tasks: Background
                 location_payload = msg.get("location")
                 text_body = "LOCATION_PIN"
 
+            text_len = len(text_body) if text_body else 0
             logger.info(
-                f"[WA] MESSAGE_PARSED type={msg_type} text='{text_body}' "
-                f"msg_id={msg_id} from={mask_phone_number(from_number)} phone_number_id={incoming_phone_id}"
+                f"[WA-INBOUND] MESSAGE_PARSED request_id={req_id} message_id={msg_id} from={mask_phone_number(from_number)} text_length={text_len}"
             )
 
             if from_number and (text_body or location_payload):
@@ -591,11 +616,13 @@ async def handle_whatsapp_webhook(request: Request, background_tasks: Background
                     is_new = idempotency_store.mark_processed(msg_id, from_number)
                     if not is_new:
                         logger.info(f"[WA] DUPLICATE_IGNORED msg_id={msg_id}")
+                        ack_dur_ms = (time.time() - start_req_time) * 1000
+                        logger.info(f"[WA-INBOUND] ACK_200 request_id={req_id} duration_ms={ack_dur_ms:.1f}")
                         return JSONResponse(content={"status": "duplicate_ignored"}, status_code=200)
 
                 logger.info(f"[WA] WEBHOOK_ACKNOWLEDGED enqueuing_background_task msg_id={msg_id}")
                 background_tasks.add_task(
-                    process_and_reply_whatsapp, from_number, text_body, location_payload, msg_id, incoming_phone_id
+                    process_and_reply_whatsapp, from_number, text_body, location_payload, msg_id, incoming_phone_id, req_id
                 )
             else:
                 logger.info(f"[WA] MESSAGE_IGNORED reason=empty_payload type={msg_type}")
@@ -641,6 +668,8 @@ async def handle_whatsapp_webhook(request: Request, background_tasks: Background
             else:
                 logger.info("[WA] NON_MESSAGE_EVENT_RECEIVED")
 
+        ack_dur_ms = (time.time() - start_req_time) * 1000
+        logger.info(f"[WA-INBOUND] ACK_200 request_id={req_id} duration_ms={ack_dur_ms:.1f}")
         return JSONResponse(content={"status": "received"}, status_code=200)
     except Exception as e:
         logger.error(f"[WA] ERROR component=webhook_handler status=exception: {e}", exc_info=True)

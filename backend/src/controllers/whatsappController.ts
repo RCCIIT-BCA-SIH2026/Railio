@@ -33,16 +33,22 @@ export const verifyWebhook = (req: Request, res: Response): void => {
  * Meta WhatsApp Cloud API Incoming Message Handler (POST /whatsapp/webhook & /api/whatsapp/webhook)
  */
 export const handleIncomingWebhook = async (req: Request, res: Response): Promise<void> => {
+  const reqStart = Date.now();
+  const reqId = `req_${reqStart}`;
   const timestamp = new Date().toISOString();
-  console.log(`[WA-WEBHOOK] POST RECEIVED path=${req.path} timestamp=${timestamp}`);
-  console.log(`[WA-WEBHOOK] headers_received:`, JSON.stringify(req.headers));
+
+  console.log(`[WA-INBOUND] POST_RECEIVED request_id=${reqId} timestamp=${timestamp}`);
 
   // Always acknowledge webhook immediately with HTTP 200 to prevent Meta retry loops
   res.status(200).json({ status: 'received' });
+  const ackDurationMs = Date.now() - reqStart;
+  console.log(`[WA-INBOUND] ACK_200 request_id=${reqId} duration_ms=${ackDurationMs}`);
 
   try {
     const body = req.body;
-    console.log(`[WA-WEBHOOK] payload_received object=${body?.object}`);
+    const objType = body?.object || 'unknown';
+    const fieldName = body?.entry?.[0]?.changes?.[0]?.field || 'messages';
+    console.log(`[WA-INBOUND] PAYLOAD_RECEIVED request_id=${reqId} object=${objType} field=${fieldName}`);
 
     if (body?.object === 'whatsapp_business_account') {
       const entry = body.entry?.[0];
@@ -82,28 +88,35 @@ export const handleIncomingWebhook = async (req: Request, res: Response): Promis
           }
         }
 
-        console.log(`[WA-WEBHOOK] MESSAGE_RECEIVED message_id=${msgId} from=${fromNumber} phone_number_id=${incomingPhoneId} text="${messageText}"`);
+        const cleanFrom = String(fromNumber || '').replace(/[^0-9]/g, '');
+        const maskedFrom = `${cleanFrom.slice(0, 3)}****${cleanFrom.slice(-4)}`;
+        const textLen = (messageText || '').length;
+
+        console.log(`[WA-INBOUND] MESSAGE_PARSED request_id=${reqId} message_id=${msgId} from=${maskedFrom} text_length=${textLen}`);
 
         // Process in background session manager asynchronously
         await whatsappSessionManager.processIncomingMessage(fromNumber, messageText, buttonReplyId, locationPayload, incomingPhoneId);
       } else {
         const statusEvent = value?.statuses?.[0];
         if (statusEvent) {
-          console.log(`[WA-WEBHOOK] STATUS_EVENT status=${statusEvent.status} recipient=${statusEvent.recipient_id}`);
+          const wamid = statusEvent.id || '';
+          const st = statusEvent.status || 'unknown';
+          const recipRaw = statusEvent.recipient_id || '';
+          const maskedRecip = `${recipRaw.slice(0, 3)}****${recipRaw.slice(-4)}`;
+          const ts = statusEvent.timestamp || new Date().toISOString();
+
+          console.log(`[WHATSAPP_STATUS] message_id=${wamid} status=${st} recipient=${maskedRecip} timestamp=${ts}`);
+          if (st === 'failed' || statusEvent.errors) {
+            const err = statusEvent.errors?.[0] || {};
+            console.error(`[WHATSAPP_STATUS_FAILED] message_id=${wamid} status=${st} error_code=${err.code || 'UNKNOWN'} error_title="${err.title || 'UNKNOWN'}" error_message="${err.message || 'UNKNOWN'}"`);
+          }
         } else {
-          console.log('[WA-WEBHOOK] NON_MESSAGE_EVENT');
+          console.log('[WA-INBOUND] NON_MESSAGE_EVENT');
         }
       }
-    } else if (body?.From || body?.Body) {
-      const fromNumber = body.From || '+15556783260';
-      const messageText = body.Body || body.message;
-      const locationPayload = body.location;
-
-      console.log(`[WA-WEBHOOK] SIMULATED_MESSAGE_RECEIVED from=${fromNumber} text="${messageText}"`);
-      await whatsappSessionManager.processIncomingMessage(fromNumber, messageText, undefined, locationPayload);
     }
   } catch (error) {
-    console.error('[WA-WEBHOOK] Handler Error:', error);
+    console.error('[WA-INBOUND] Handler Error:', error);
   }
 };
 
