@@ -16,10 +16,12 @@ from datetime import datetime
 # Add ai-service to sys.path
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-if sys.stdout.encoding != 'utf-8':
+if getattr(sys.stdout, 'encoding', None) != 'utf-8':
     try:
-        sys.stdout.reconfigure(encoding='utf-8')
-        sys.stderr.reconfigure(encoding='utf-8')
+        if hasattr(sys.stdout, 'reconfigure'):
+            sys.stdout.reconfigure(encoding='utf-8')  # type: ignore
+        if hasattr(sys.stderr, 'reconfigure'):
+            sys.stderr.reconfigure(encoding='utf-8')  # type: ignore
     except Exception:
         pass
 
@@ -91,8 +93,9 @@ def run_tests():
         print(f"Synthesizer Model Used: {rag_res.get('modelUsed')}")
         print(f"Confidence Score: {rag_res.get('confidenceScore')}")
         print(f"Retrieved Sources: {rag_res.get('retrievedKnowledgeDocs')}")
-        print(f"Answer Output:\n{rag_res.get('answer')[:350]}...\n")
-        assert len(rag_res.get("answer", "")) > 50, "Answer too short"
+        ans_text = str(rag_res.get('answer') or "")
+        print(f"Answer Output:\n{ans_text[:350]}...\n")
+        assert len(ans_text) > 50, "Answer too short"
         assert rag_res.get("confidenceScore", 0) >= 0.80, "Confidence score too low"
 
     # ── Test 5: RailAgent Chat Integration ──

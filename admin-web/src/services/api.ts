@@ -38,3 +38,19 @@ export const fetchStationCrowd = async (stationCode: string) => {
   const res = await apiClient.get(`/crowd/station/${stationCode}`);
   return res.data;
 };
+
+// Future Scopes APIs
+export const fetchGnnCascade = async () => {
+  const res = await apiClient.get('/future/gnn-cascade');
+  return res.data;
+};
+
+export const fetchFederatedLearning = async () => {
+  const res = await apiClient.get('/future/federated');
+  return res.data;
+};
+
+export const fetchLogisticsOrchestration = async () => {
+  const res = await apiClient.get('/future/logistics');
+  return res.data;
+};

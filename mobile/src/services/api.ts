@@ -665,3 +665,22 @@ export const getSuburbanCorridorsApi = async () => {
   });
 };
 
+export const configureSmartAlarmApi = async (params: { trainNumber: string; stationName: string; scheduledArrivalTime: string; bufferMinutes: number }) => {
+  try {
+    const res = await api.post('/services/smart-alarm', params);
+    return res.data;
+  } catch (err) {
+    console.error('Smart Alarm Error:', err);
+    throw err;
+  }
+};
+
+export const optimizeFoodDeliveryApi = async (params: { trainNumber: string; stationName: string; vendorName: string; orderId: string; scheduledArrivalTime: string }) => {
+  try {
+    const res = await api.post('/services/food-delivery', params);
+    return res.data;
+  } catch (err) {
+    console.error('Food Delivery Error:', err);
+    throw err;
+  }
+};

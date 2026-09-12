@@ -10,6 +10,9 @@ import { TrackHealthMonitor } from './components/TrackHealthMonitor';
 import { CrowdHeatmaps } from './components/CrowdHeatmaps';
 import { AlertsManager } from './components/AlertsManager';
 import { DelayPropagationTree } from './components/DelayPropagationTree';
+import { GNNCascadeVisualizer } from './components/GNNCascadeVisualizer';
+import { FederatedLearningDashboard } from './components/FederatedLearningDashboard';
+import { LogisticsOrchestrator } from './components/LogisticsOrchestrator';
 import { fetchDashboardData, fetchTrackRisk, initSocket } from './services/api';
 import { LiveTrain, TrackSection, AlertItem, DashboardMetrics } from './types';
 import bgOrange from './assets/bg_vande_orange.jpg';
@@ -22,6 +25,9 @@ const tabBackgrounds: Record<string, string> = {
   'track-health': bgBlue,
   'crowd': bgOrange,
   'alerts': bgBlue,
+  'gnn': bgOrange,
+  'federated': bgBlue,
+  'logistics': bgOrange,
 };
 
 const DashboardContent: React.FC = () => {
@@ -147,6 +153,24 @@ const DashboardContent: React.FC = () => {
               alerts={alerts}
               onNewAlert={(newAlt) => setAlerts((prev) => [newAlt, ...prev])}
             />
+          </div>
+        )}
+
+        {activeTab === 'gnn' && (
+          <div className="space-y-6">
+            <GNNCascadeVisualizer />
+          </div>
+        )}
+
+        {activeTab === 'federated' && (
+          <div className="space-y-6">
+            <FederatedLearningDashboard />
+          </div>
+        )}
+
+        {activeTab === 'logistics' && (
+          <div className="space-y-6">
+            <LogisticsOrchestrator />
           </div>
         )}
       </main>

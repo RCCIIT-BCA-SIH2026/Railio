@@ -22,7 +22,7 @@ import pandas as pd
 import joblib
 from datetime import datetime
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any, Union
+from typing import List, Optional, Dict, Any, Union, Tuple
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
 _THIS_DIR       = os.path.dirname(os.path.abspath(__file__))               # ai-service/app/ml
@@ -147,7 +147,8 @@ class ETADelayPredictor:
             df = pd.read_csv(csv_file, sep=sep)
             if 'Date' in df.columns and 'Train No.' in df.columns and 'Delays (mins)' in df.columns:
                 df['Date_dt'] = pd.to_datetime(df['Date'], format='%d-%m-%Y', errors='coerce')
-                df['dow'] = df['Date_dt'].dt.dayofweek
+                dt_prop: Any = df['Date_dt'].dt
+                df['dow'] = dt_prop.dayofweek
                 df['Train_No'] = pd.to_numeric(df['Train No.'], errors='coerce')
                 df['Delay_num'] = pd.to_numeric(df['Delays (mins)'], errors='coerce')
 
@@ -160,7 +161,7 @@ class ETADelayPredictor:
                         self._day_stats[t_int][d_int] = {
                             'mean': float(group['Delay_num'].mean()),
                             'std': float(group['Delay_num'].std() or 2.0),
-                            'count': int(len(group)),
+                            'count': len(group),
                             'max': float(group['Delay_num'].max()),
                             'min': float(group['Delay_num'].min()),
                         }
@@ -171,10 +172,10 @@ class ETADelayPredictor:
     # ── Helpers ──────────────────────────────────────────────────────────────
 
     @staticmethod
-    def _parse_time_str(t_str: str) -> (int, int):
+    def _parse_time_str(t_str: str) -> Tuple[int, int]:
         """Parse 'HH:MM' string to (hour, minute)."""
         try:
-            parts = str(t_str).strip().split(":")
+            parts = t_str.strip().split(":")
             return int(parts[0]), int(parts[1])
         except Exception:
             return 8, 0
@@ -221,10 +222,10 @@ class ETADelayPredictor:
             "dir_val":  1 if (isinstance(dir_val, str) and "dankuni" in dir_val.lower()) or dir_val == 1 else 0
         }
 
-    def _resolve_date_features(self, req: DelayPredictionRequest) -> (int, int, int):
+    def _resolve_date_features(self, req: DelayPredictionRequest) -> Tuple[int, int, int]:
         """Resolve (day, month, day_of_week) from date string or request integers."""
         if req.date:
-            d_clean = str(req.date).strip()
+            d_clean = req.date.strip()
             # Try DD-MM-YYYY
             for fmt in ("%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y"):
                 try:
@@ -321,7 +322,7 @@ class ETADelayPredictor:
         elif "rain" in wc:
             weather_penalty += 2.0
 
-        total_delay = max(0, int(round(raw_pred + tsr_penalty + signal_penalty + weather_penalty)))
+        total_delay = max(0, round(raw_pred + tsr_penalty + signal_penalty + weather_penalty))
 
         # 3. Compute Predicted Arrival Clock Time (ETA)
         sched_arr_total = ah * 60 + am
@@ -365,7 +366,7 @@ class ETADelayPredictor:
                 category="CAUTION_ORDER"
             ))
 
-        if signal_penalty > 0:
+        if signal_penalty > 0 and req.signalAspect:
             factors.append(ExplainabilityFactor(
                 factor=f"Signal aspect caution ({req.signalAspect.aspect})",
                 impactMin=round(signal_penalty, 1),
@@ -384,7 +385,7 @@ class ETADelayPredictor:
         ci_upper = total_delay + 3.5
 
         arrival_window = (
-            f"{pred_arr_str} (+{total_delay} to +{int(round(ci_upper))} min)"
+            f"{pred_arr_str} (+{total_delay} to +{round(ci_upper)} min)"
             if total_delay > 0
             else f"{pred_arr_str} (On Time ±2 min)"
         )

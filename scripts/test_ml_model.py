@@ -8,7 +8,11 @@ except Exception:
     pass
 
 # Ensure ai-service is in python path
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "ai-service"))
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_ROOT = os.path.dirname(_THIS_DIR)
+_AI_SERVICE_DIR = os.path.join(_PROJECT_ROOT, "ai-service")
+if _AI_SERVICE_DIR not in sys.path:
+    sys.path.insert(0, _AI_SERVICE_DIR)
 
 try:
     from app.ml.eta_delay_predictor import eta_predictor, DelayPredictionRequest
@@ -46,9 +50,9 @@ def run_ml_terminal_test():
 
     for item in test_suite:
         req = DelayPredictionRequest(
-            trainNumber=item["train"],
-            date=item["date"],
-            departureDelay=item["depDelay"],
+            trainNumber=str(item["train"]),
+            date=str(item["date"]),
+            departureDelay=float(item["depDelay"]),
         )
         res = eta_predictor.predict(req)
         print(f"\n[Test #{item['train']} - {item['desc']}] Date: {item['date']}")

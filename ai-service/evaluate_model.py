@@ -31,15 +31,18 @@ print("\n========== DATASET ==========")
 print("File:", DATA_FILE)
 print("Rows:", len(df))
 
+from typing import Any
+
 # =========================
 # DATE FEATURES
 # =========================
 
 df["Date_dt"] = pd.to_datetime(df["Date"], format="%d-%m-%Y", errors="coerce")
+dt_prop: Any = df["Date_dt"].dt
 
-df["day"] = df["Date_dt"].dt.day
-df["month"] = df["Date_dt"].dt.month
-df["day_of_week"] = df["Date_dt"].dt.dayofweek
+df["day"] = dt_prop.day
+df["month"] = dt_prop.month
+df["day_of_week"] = dt_prop.dayofweek
 
 
 # =========================
@@ -48,12 +51,14 @@ df["day_of_week"] = df["Date_dt"].dt.dayofweek
 
 dep_parsed = pd.to_datetime(df["Departure Time"].astype(str), format="%H:%M", errors="coerce")
 arr_parsed = pd.to_datetime(df["Arrival Time"].astype(str), format="%H:%M", errors="coerce")
+dep_dt: Any = dep_parsed.dt
+arr_dt: Any = arr_parsed.dt
 
-df["departure_hour"] = dep_parsed.dt.hour
-df["departure_minute"] = dep_parsed.dt.minute
+df["departure_hour"] = dep_dt.hour
+df["departure_minute"] = dep_dt.minute
 
-df["arrival_hour"] = arr_parsed.dt.hour
-df["arrival_minute"] = arr_parsed.dt.minute
+df["arrival_hour"] = arr_dt.hour
+df["arrival_minute"] = arr_dt.minute
 
 
 # =========================

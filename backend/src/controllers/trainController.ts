@@ -8,7 +8,42 @@ export const getTrains = async (req: Request, res: Response): Promise<void> => {
     let result = db.trains;
 
     if (from && to) {
-      result = db.searchTrains(from as string, to as string);
+      const matched = db.searchTrains(from as string, to as string);
+      
+      // Real-time ML Inference for searched trains
+      const enriched = await Promise.all(
+        matched.map(async (t) => {
+          try {
+            const pred = await aiGateway.predictDelay({
+              trainNumber: t.trainNumber,
+              departureTime: t.departureTime,
+              arrivalTime: t.arrivalTime,
+              travelDurationMins: (t.totalDistanceKm / Math.max(t.avgSpeed, 10)) * 60,
+              distanceKm: t.totalDistanceKm,
+              direction: t.source.toUpperCase() === 'SDAH' ? '0' : '1',
+              departureDelay: t.liveState?.delayMinutes ?? 0,
+              currentSpeed: t.liveState?.speed ?? t.avgSpeed,
+              dwellTime: 1.5,
+              weatherCondition: db.weatherReports[t.destination]?.condition || 'Clear',
+              junctionCongestionLevel: db.deriveJunctionCongestionLevel(t.trainNumber),
+            });
+
+            return {
+              ...t,
+              liveState: {
+                ...t.liveState,
+                predictedDelay: pred.predictedDelayMinutes,
+                delayMinutes: pred.predictedDelayMinutes,
+                confidence: pred.confidenceScore,
+                status: (pred.predictedDelayMinutes <= 5 ? 'ON_TIME' : 'DELAYED') as any,
+              },
+            };
+          } catch {
+            return t;
+          }
+        })
+      );
+      result = enriched;
     } else if (search) {
       const q = (search as string).toLowerCase();
       result = result.filter(

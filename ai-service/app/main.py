@@ -16,6 +16,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import router as api_router
 from app.api.live_nav_ws import router as ws_router
+from app.api.future_endpoints import router as future_router
+from app.api.smart_services_endpoints import router as services_router
 
 app = FastAPI(
     title="RailIo AI & ML Intelligence Microservice",
@@ -37,6 +39,12 @@ app.include_router(api_router, prefix="/api")
 
 # Mount websocket router with /ws prefix
 app.include_router(ws_router, prefix="/ws")
+
+# Mount future scope mock endpoints
+app.include_router(future_router, prefix="/future")
+
+# Mount smart in-train services
+app.include_router(services_router, prefix="/services")
 
 @app.get("/health")
 def health():

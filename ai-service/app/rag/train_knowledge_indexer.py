@@ -98,33 +98,35 @@ class TrainKnowledgeIndexer:
             df = pd.read_csv(csv_path)
             df['Train_No'] = df['Train No.'].astype(str).str.strip()
             df['Date_dt'] = pd.to_datetime(df['Date'], format='%d-%m-%Y', errors='coerce')
-            df['dow'] = df['Date_dt'].dt.dayofweek
+            dt_prop: Any = df['Date_dt'].dt
+            df['dow'] = dt_prop.dayofweek
             df['Delay_num'] = pd.to_numeric(df['Delays (mins)'], errors='coerce').fillna(0.0)
 
             day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
             for t_num, group in df.groupby('Train_No'):
-                all_delays = group['Delay_num'].values
-                mean_delay = float(np.mean(all_delays))
-                std_delay = float(np.std(all_delays)) if len(all_delays) > 1 else 2.0
-                max_delay = float(np.max(all_delays))
-                min_delay = float(np.min(all_delays))
-                on_time_pct = float(np.mean(all_delays <= 5.0) * 100.0)
-                trip_count = int(len(group))
+                delays_arr = np.asarray(group['Delay_num'].values, dtype=float)
+                mean_delay = float(np.mean(delays_arr))
+                std_delay = float(np.std(delays_arr)) if len(delays_arr) > 1 else 2.0
+                max_delay = float(np.max(delays_arr))
+                min_delay = float(np.min(delays_arr))
+                on_time_pct = float(np.mean(delays_arr <= 5.0) * 100.0)
+                trip_count = len(group)
 
                 # Day-of-week breakdown
                 dow_stats = {}
                 dow_text_lines = []
                 for dow_idx, dow_group in group.groupby('dow'):
-                    d_delays = dow_group['Delay_num'].values
+                    d_delays = np.asarray(dow_group['Delay_num'].values, dtype=float)
                     d_mean = float(np.mean(d_delays))
                     d_max = float(np.max(d_delays))
-                    d_name = day_names[int(dow_idx)]
+                    d_name = day_names[int(float(str(dow_idx)))]
                     dow_stats[d_name] = {"mean": d_mean, "max": d_max, "count": len(d_delays)}
                     dow_text_lines.append(f"  • **{d_name}**: Average delay +{d_mean:.1f} mins (Max: +{d_max:.0f} mins, {len(d_delays)} trips)")
 
-                t_name = str(group['Train Name'].iloc[0]) if 'Train Name' in group.columns else f"Local Train {t_num}"
-                self.train_5yr_stats[t_num] = {
+                t_num_str = str(t_num)
+                t_name = str(group['Train Name'].iloc[0]) if 'Train Name' in group.columns else f"Local Train {t_num_str}"
+                self.train_5yr_stats[t_num_str] = {
                     "train_name": t_name,
                     "mean_delay": mean_delay,
                     "std_delay": std_delay,
@@ -137,7 +139,7 @@ class TrainKnowledgeIndexer:
 
                 # Create a comprehensive 5-Year Historical Analytics chunk
                 content = (
-                    f"Historical 5-Year Delay Analysis for Train {t_num} ({t_name}):\n"
+                    f"Historical 5-Year Delay Analysis for Train {t_num_str} ({t_name}):\n"
                     f"• Total Analyzed Trips: {trip_count} verified commuter runs\n"
                     f"• Historical Average Delay: +{mean_delay:.1f} minutes (Std Dev: ±{std_delay:.1f} mins)\n"
                     f"• On-Time Punctuality Rate (within 5 min): {on_time_pct:.1f}%\n"
@@ -148,13 +150,13 @@ class TrainKnowledgeIndexer:
                 )
 
                 chunk = KnowledgeChunk(
-                    chunk_id=f"HIST_DELAY_{t_num}",
-                    title=f"5-Year Historical Delay Pattern for Train {t_num} ({t_name})",
+                    chunk_id=f"HIST_DELAY_{t_num_str}",
+                    title=f"5-Year Historical Delay Pattern for Train {t_num_str} ({t_name})",
                     content=content,
                     category="HISTORICAL_DELAYS",
-                    train_numbers=[t_num],
-                    keywords=[t_num, t_name, "historical delay", "5 year delay", "punctuality", "average delay", "delay stats"],
-                    metadata={"trainNumber": t_num, "mean_delay": mean_delay, "on_time_pct": on_time_pct}
+                    train_numbers=[t_num_str],
+                    keywords=[t_num_str, t_name, "historical delay", "5 year delay", "punctuality", "average delay", "delay stats"],
+                    metadata={"trainNumber": t_num_str, "mean_delay": mean_delay, "on_time_pct": on_time_pct}
                 )
                 self.chunks.append(chunk)
 
@@ -486,12 +488,13 @@ class TrainKnowledgeIndexer:
         ]
 
         for p in policies:
+            p_tags = list(p["tags"])
             chunk = KnowledgeChunk(
-                chunk_id=p["id"],
-                title=p["title"],
-                content=p["content"],
+                chunk_id=str(p["id"]),
+                title=str(p["title"]),
+                content=str(p["content"]),
                 category="POLICY",
-                keywords=p["tags"] + ["railway rules", "irctc policy"]
+                keywords=p_tags + ["railway rules", "irctc policy"]
             )
             self.chunks.append(chunk)
 

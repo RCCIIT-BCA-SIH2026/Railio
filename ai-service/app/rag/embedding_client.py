@@ -90,7 +90,7 @@ class EmbeddingClient:
         norm = np.linalg.norm(vec)
         if norm > 0:
             vec = vec / norm
-        return vec.tolist()
+        return [float(x) for x in vec]
 
     @staticmethod
     def cosine_similarity(vec1: List[float], vec2: List[float]) -> float:

@@ -29,6 +29,7 @@ import {
   getPredictionAuditLog,
   recordActualArrival,
 } from '../controllers/operationsController';
+import { getGnnCascade, getFederatedLearning, getLogisticsOrchestration } from '../controllers/futureController';
 
 const router = Router();
 
@@ -104,5 +105,15 @@ router.get('/telemetry/caution-orders', getActiveCautionOrders);
 // 14. Prediction Audit Trail & Actual Arrival Feedback
 router.get('/audit/predictions', getPredictionAuditLog);
 router.post('/audit/actual-arrival', recordActualArrival);
+
+// 15. Advanced Future Scopes (GNN, Federated Learning, Logistics)
+router.get('/future/gnn-cascade', getGnnCascade);
+router.get('/future/federated', getFederatedLearning);
+router.get('/future/logistics', getLogisticsOrchestration);
+
+// 16. Smart In-Train Services
+import { configureSmartAlarm, optimizeFoodDelivery } from '../controllers/servicesController';
+router.post('/services/smart-alarm', configureSmartAlarm);
+router.post('/services/food-delivery', optimizeFoodDelivery);
 
 export default router;
