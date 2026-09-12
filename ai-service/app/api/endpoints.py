@@ -384,16 +384,22 @@ async def process_and_reply_whatsapp(from_number: str, text_body: str,
 
     try:
         session_state = state_manager.get_session(from_number).state
+        user_text_clean = user_text.lower()
+        user_text_upper = user_text.upper()
+
         is_staff_trigger = (
             session_state != "IDLE" or 
-            user_text.upper().startswith("ROLE_") or 
-            user_text.upper().startswith("TRAIN_TYPE_") or 
-            user_text.lower() in ["local train", "express train", "change train", "main menu", "refresh"]
+            user_text_clean in ["hi", "hello", "hey", "start", "/start", "menu", "help", "staff", "role", "local train", "local", "express train", "express", "change train", "main menu", "refresh"] or 
+            user_text_upper.startswith("ROLE_") or 
+            user_text_upper.startswith("TRAIN_TYPE_") or 
+            user_text_upper.startswith("QUERY_") or 
+            user_text_upper.startswith("ACTION_") or
+            user_text_upper.startswith("BTN_")
         )
 
         if is_staff_trigger:
             logger.info(f"[WA-AI] Routing to staff workflow handler for state={session_state}")
-            await workflow_handler.handle_incoming(from_number, user_text)
+            await workflow_handler.handle_incoming(from_number, user_text, phone_number_id=phone_number_id)
         else:
             logger.info(f"[WA-AI] AGENT_CALLED message_id={msg_id}")
             ai_start = time.time()
