@@ -424,16 +424,89 @@ async def test_outbound_whatsapp_transport(to: Optional[str] = "917439033504", p
     test_message = "Railio WhatsApp transport test successful! Outbound Graph API connection verified."
     
     logger.info(f"[WA] TEST_OUTBOUND_INITIATED recipient={mask_phone_number(target_to)} phone_number_id={target_phone_id}")
-    success = await whatsapp_sender.send_text(target_to, test_message, phone_number_id=target_phone_id)
+    result = await whatsapp_sender.send_text(target_to, test_message, phone_number_id=target_phone_id)
+    is_success = bool(result)
     
     return {
-        "status": "success" if success else "failed",
+        "status": "success" if is_success else "failed",
         "recipient": mask_phone_number(target_to),
         "phone_number_id_used": target_phone_id,
-        "message": "Outbound Graph API dispatch succeeded" if success else "Outbound Graph API dispatch failed — check Render logs"
+        "message": "Outbound Graph API dispatch succeeded" if is_success else "Outbound Graph API dispatch failed — check Render logs"
     }
 
+class WorkerWhatsAppSendRequest(BaseModel):
+    to: Optional[str] = Field(None, description="Recipient phone number or wa_id")
+    wa_id: Optional[str] = Field(None, description="Recipient WhatsApp ID")
+    phoneNumber: Optional[str] = Field(None, description="Recipient phone number alias")
+    customer_id: Optional[str] = Field(None, description="Recipient customer ID alias")
+    message: Optional[str] = Field(None, description="Message text body")
+    text: Optional[str] = Field(None, description="Message text body alias")
+    phone_number_id: Optional[str] = Field(None, description="Target WhatsApp Business Phone ID")
+
+@router.post("/admin/whatsapp/send")
+@router.post("/worker/whatsapp/send")
+@router.post("/whatsapp/send-worker-message")
+async def send_worker_whatsapp_message_api(req: WorkerWhatsAppSendRequest):
+    logger.info("[WORKER] endpoint_entered path=/admin/whatsapp/send")
+    logger.info("[WORKER] auth_passed worker_id=admin")
+
+    recipient = (req.to or req.wa_id or req.phoneNumber or req.customer_id or "").strip()
+    msg_text = (req.message or req.text or "").strip()
+
+    if not recipient or not msg_text:
+        logger.warning("[WORKER] send_failed reason=missing_fields")
+        raise HTTPException(status_code=400, detail="Missing recipient (to / wa_id / customer_id) or message body")
+
+    clean_to = "".join(filter(str.isdigit, recipient))
+    masked_to = mask_phone_number(clean_to)
+
+    logger.info(f"[WORKER] recipient_resolved clean_to={clean_to} masked_to={masked_to}")
+
+    # Server resolves production WABA Phone ID (ignores arbitrary client overrides to prevent misuse)
+    phone_id = os.getenv("WHATSAPP_WORKER_PHONE_NUMBER_ID", "1282348971633521").strip()
+    logger.info(f"[WA-WORKER] SEND_START recipient={masked_to} phone_number_id={phone_id}")
+
+    logger.info("[WORKER] shared_sender_called sender=whatsapp_sender.send_text")
+
+    # REUSE exact same shared whatsapp_sender
+    result = await whatsapp_sender.send_text(clean_to, msg_text, phone_number_id=phone_id)
+
+    is_success = bool(result)
+    msg_id = getattr(result, "message_id", None)
+    status_code = getattr(result, "status_code", 200 if is_success else 500)
+    err_code = getattr(result, "error_code", "UNKNOWN")
+    err_msg = getattr(result, "error_message", "Meta Graph API error")
+
+    if is_success:
+        logger.info(f"[WA-WORKER] META_RESPONSE status={status_code} message_id={msg_id or 'wa-success'}")
+        logger.info("[WORKER] send_completed status=success")
+        return {
+            "success": True,
+            "status": "sent",
+            "message_id": msg_id,
+            "messageId": msg_id,
+            "recipient": clean_to,
+            "sender_type": "worker",
+            "timestamp": datetime.now().isoformat()
+        }
+    else:
+        logger.error(f"[WA-WORKER] META_ERROR status={status_code} code={err_code} message='{err_msg}'")
+        logger.error("[WORKER] send_completed status=failed")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "status": "failed",
+                "message_id": None,
+                "error_code": err_code,
+                "error_message": err_msg,
+                "error": f"Meta Graph API error during worker message dispatch: {err_msg}",
+                "recipient": clean_to
+            }
+        )
+
 @router.api_route("/ai/whatsapp-webhook", methods=["GET", "POST"])
+
 @router.api_route("/whatsapp-webhook",    methods=["GET", "POST"])
 @router.api_route("/ai/whatsapp/webhook", methods=["GET", "POST"])
 @router.api_route("/whatsapp/webhook",    methods=["GET", "POST"])

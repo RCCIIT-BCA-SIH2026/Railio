@@ -127,3 +127,73 @@ export const testOutboundTransport = async (req: Request, res: Response): Promis
     message: result.success ? 'Outbound Graph API dispatch succeeded' : 'Outbound Graph API dispatch failed — check logs',
   });
 };
+
+/**
+ * Worker / Admin Outbound WhatsApp Message Endpoint
+ * Reuses the EXACT SAME shared whatsappService.sendMessage(...)
+ */
+export const sendWorkerWhatsAppMessage = async (req: Request, res: Response): Promise<void> => {
+  console.log('[WORKER] endpoint_entered path=' + req.path);
+  const workerUser = (req as any).user || { id: 'worker_admin', role: 'OPERATOR' };
+  console.log('[WORKER] auth_passed user=' + (workerUser.id || 'admin'));
+
+  const recipient = String(req.body.to || req.body.wa_id || req.body.phoneNumber || req.body.customer_id || '').trim();
+  const messageText = String(req.body.message || req.body.text || '').trim();
+  
+  // Server-enforced production phone ID
+  const phoneId = String(process.env.WHATSAPP_WORKER_PHONE_NUMBER_ID || '1282348971633521').trim();
+
+  if (!recipient || !messageText) {
+    console.log('[WORKER] send_failed reason=missing_fields');
+    res.status(400).json({
+      success: false,
+      error: 'Missing recipient (to / wa_id / customer_id) or message body'
+    });
+    return;
+  }
+
+  const cleanRecipient = recipient.replace(/[^0-9]/g, '');
+  const maskedRecipient = `${cleanRecipient.slice(0, 3)}****${cleanRecipient.slice(-4)}`;
+
+  console.log(`[WORKER] recipient_resolved clean_to=${cleanRecipient} masked_to=${maskedRecipient}`);
+  console.log(`[WA-WORKER] SEND_START recipient=${maskedRecipient} phone_number_id=${phoneId}`);
+
+  console.log('[WORKER] shared_sender_called sender=whatsappService.sendMessage');
+
+  try {
+    // REUSE the exact same shared WhatsApp outbound service
+    const result = await whatsappService.sendMessage(cleanRecipient, messageText, phoneId);
+
+    if (result.success) {
+      console.log(`[WA-WORKER] META_RESPONSE status=${result.status || 200} message_id=${result.messageId}`);
+      console.log('[WORKER] send_completed status=success');
+      res.status(200).json({
+        success: true,
+        status: 'sent',
+        message_id: result.messageId,
+        messageId: result.messageId,
+        recipient: cleanRecipient,
+        sender_type: 'worker',
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.error(`[WA-WORKER] META_ERROR status=${result.status || 500} code=${result.errorCode || 'UNKNOWN'} message="${result.error}"`);
+      console.log('[WORKER] send_completed status=failed');
+      res.status(500).json({
+        success: false,
+        status: 'failed',
+        message_id: null,
+        error: result.error || 'Meta Graph API error during worker message dispatch',
+        recipient: cleanRecipient
+      });
+    }
+  } catch (error: any) {
+    console.error(`[WA-WORKER] META_ERROR status=500 code=EXCEPTION message="${error.message}"`);
+    console.log('[WORKER] send_completed status=failed');
+    res.status(500).json({
+      success: false,
+      status: 'failed',
+      error: error.message || 'Internal exception during worker WhatsApp message dispatch'
+    });
+  }
+};

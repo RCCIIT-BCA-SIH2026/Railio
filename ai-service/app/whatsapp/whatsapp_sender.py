@@ -12,6 +12,17 @@ def mask_phone(phone: str) -> str:
         return clean[:3] + "****" + clean[-4:]
     return "****"
 
+class WhatsAppSendResult:
+    def __init__(self, success: bool, message_id: str = None, status_code: int = 0, error_code: str = None, error_message: str = None):
+        self.success = success
+        self.message_id = message_id
+        self.status_code = status_code
+        self.error_code = error_code
+        self.error_message = error_message
+
+    def __bool__(self):
+        return self.success
+
 class WhatsAppSender:
     def __init__(self):
         self.api_version = "v18.0"
@@ -38,17 +49,16 @@ class WhatsAppSender:
         access_token = worker_token or primary_token
         return phone_number_id, access_token
 
-    async def _send_payload(self, payload: dict, target_phone_id: str = None) -> bool:
+    async def _send_payload(self, payload: dict, target_phone_id: str = None) -> WhatsAppSendResult:
         phone_number_id, access_token = self._get_credentials(target_phone_id)
         recipient_raw = str(payload.get("to", ""))
         recipient_masked = mask_phone(recipient_raw)
 
         if not phone_number_id or not access_token:
             logger.error(
-                f"[WA] ERROR component=outbound_sender status=credentials_missing "
-                f"phone_number_id={phone_number_id} access_token_set={bool(access_token)}"
+                f"[WA-WORKER] META_ERROR status=401 code=CREDENTIALS_MISSING message='WHATSAPP_ACCESS_TOKEN or PHONE_NUMBER_ID missing' recipient={recipient_masked}"
             )
-            return False
+            return WhatsAppSendResult(success=False, status_code=401, error_code="CREDENTIALS_MISSING", error_message="WHATSAPP_ACCESS_TOKEN or PHONE_NUMBER_ID missing")
 
         url = f"https://graph.facebook.com/{self.api_version}/{phone_number_id}/messages"
         headers = {
@@ -60,6 +70,7 @@ class WhatsAppSender:
         base_delays = [0, 1.0, 2.0, 4.0]
 
         logger.info(f"[WA] OUTBOUND_STARTED recipient={recipient_masked} phone_number_id={phone_number_id} api_version={self.api_version}")
+        logger.info(f"[WHATSAPP] outbound_request_started recipient={recipient_masked} phone_number_id={phone_number_id}")
 
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             for attempt in range(1, max_attempts + 1):
@@ -76,11 +87,19 @@ class WhatsAppSender:
                     duration_ms = (asyncio.get_event_loop().time() - start_req) * 1000
                     status = res.status_code
 
-                    logger.info(f"[WA] OUTBOUND_HTTP_STATUS={status} duration_ms={duration_ms:.1f} recipient={recipient_masked}")
+                    logger.info(f"[WHATSAPP] meta_response_received status={status} duration_ms={duration_ms:.1f} recipient={recipient_masked}")
 
                     if status in (200, 201):
-                        logger.info(f"[WA] OUTBOUND_COMPLETED success=True recipient={recipient_masked}")
-                        return True
+                        msg_id = None
+                        try:
+                            res_json = res.json()
+                            messages = res_json.get("messages", [])
+                            if messages and isinstance(messages, list):
+                                msg_id = messages[0].get("id")
+                        except Exception:
+                            pass
+                        logger.info(f"[WA] OUTBOUND_COMPLETED success=True message_id={msg_id} recipient={recipient_masked}")
+                        return WhatsAppSendResult(success=True, message_id=msg_id, status_code=status)
 
                     err_code = "UNKNOWN"
                     err_type = "UNKNOWN"
@@ -89,24 +108,21 @@ class WhatsAppSender:
 
                     try:
                         err_json = res.json().get("error", {})
-                        err_code = err_json.get("code", err_code)
-                        err_type = err_json.get("type", err_type)
-                        err_msg = err_json.get("message", err_msg)
-                        fbtrace_id = err_json.get("fbtrace_id", "")
+                        err_code = str(err_json.get("code", err_code))
+                        err_type = str(err_json.get("type", err_type))
+                        err_msg = str(err_json.get("message", err_msg))
+                        fbtrace_id = str(err_json.get("fbtrace_id", ""))
                     except Exception:
                         pass
 
                     if 400 <= status < 500 and status != 429:
                         logger.error(
-                            f"[WA] ERROR component=outbound_sender status={status} "
-                            f"error_code={err_code} error_type={err_type} error_message='{err_msg}' "
-                            f"fbtrace_id={fbtrace_id} recipient={recipient_masked}"
+                            f"[WA-WORKER] META_ERROR status={status} code={err_code} error_type={err_type} message='{err_msg}' fbtrace_id={fbtrace_id} recipient={recipient_masked}"
                         )
-                        return False
+                        return WhatsAppSendResult(success=False, status_code=status, error_code=err_code, error_message=err_msg)
 
                     logger.warning(
-                        f"[WA] ERROR component=outbound_sender status={status} "
-                        f"error_code={err_code} error_message='{err_msg}' attempt={attempt}/{max_attempts}"
+                        f"[WA] ERROR component=outbound_sender status={status} error_code={err_code} message='{err_msg}' attempt={attempt}/{max_attempts}"
                     )
 
                 except (httpx.TimeoutException, httpx.NetworkError, httpx.RequestError) as net_err:
@@ -115,8 +131,8 @@ class WhatsAppSender:
                 except Exception as exc:
                     logger.error(f"[WA] ERROR component=outbound_sender status=exception attempt={attempt}/{max_attempts}: {exc}")
 
-        logger.error(f"[WA] ERROR component=outbound_sender status=max_attempts_exceeded recipient={recipient_masked}")
-        return False
+        logger.error(f"[WA-WORKER] META_ERROR status=500 code=MAX_ATTEMPTS_EXCEEDED message='Max retries exceeded' recipient={recipient_masked}")
+        return WhatsAppSendResult(success=False, status_code=500, error_code="MAX_ATTEMPTS_EXCEEDED", error_message="Max retries exceeded")
 
     async def send_text(self, to_number: str, text: str, phone_number_id: str = None):
         clean_to = "".join(filter(str.isdigit, str(to_number)))

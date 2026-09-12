@@ -174,5 +174,5 @@ async def test_outbound_retry_logic():
         
         with patch("asyncio.sleep", new_callable=AsyncMock):
             success = await sender.send_text("919876543210", "Test message")
-            assert success is True
+            assert bool(success) is True
             assert mock_post.call_count == 3
