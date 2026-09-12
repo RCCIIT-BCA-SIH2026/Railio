@@ -362,6 +362,8 @@ async def send_whatsapp_reply(to_number: str, message_text: str):
             print(f"[WHATSAPP] Exception: {e}")
 
 
+from app.whatsapp.workflow_handler import workflow_handler
+
 USER_SESSIONS: dict = {}
 
 async def process_and_reply_whatsapp(from_number: str, text_body: str,
@@ -371,9 +373,16 @@ async def process_and_reply_whatsapp(from_number: str, text_body: str,
     print(f"[WHATSAPP] Incoming from {masked_from}: '{text_body}'")
 
     user_text = (text_body or "").strip()
-    req       = AgentMessageRequest(message=user_text, session_id=clean_number)
-    res       = rail_agent.process_query(req)
-    await send_whatsapp_reply(from_number, res.answer)
+    
+    # Route through the new deterministic state machine
+    try:
+        await workflow_handler.handle_incoming(from_number, user_text)
+    except Exception as e:
+        print(f"[WHATSAPP] Error in workflow handler: {e}")
+        # Fallback to the original agent if something critically fails
+        req       = AgentMessageRequest(message=user_text, session_id=clean_number)
+        res       = rail_agent.process_query(req)
+        await send_whatsapp_reply(from_number, res.answer)
 
 
 @router.api_route("/ai/whatsapp-webhook", methods=["GET", "POST"])
