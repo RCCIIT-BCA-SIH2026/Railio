@@ -34,15 +34,16 @@ const tabBackgrounds: Record<string, string> = {
 
 const DashboardContent: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');
+  const [selectedZone, setSelectedZone] = useState<string>('ALL');
   const [metrics, setMetrics] = useState<DashboardMetrics>({
-    activeTrains: 142,
-    delayedTrains: 27,
+    activeTrains: 1000,
+    delayedTrains: 142,
     criticalIncidents: 3,
-    highCrowdStations: 4,
-    trackRisks: 6,
-    weatherAlerts: 12,
-    networkPunctualityPct: 88.4,
-    avgNetworkSpeedKmh: 82.5,
+    highCrowdStations: 12,
+    trackRisks: 8,
+    weatherAlerts: 14,
+    networkPunctualityPct: 89.2,
+    avgNetworkSpeedKmh: 84.0,
   });
   const [trains, setTrains] = useState<LiveTrain[]>([]);
   const [trackSections, setTrackSections] = useState<TrackSection[]>([]);
@@ -80,6 +81,15 @@ const DashboardContent: React.FC = () => {
       setTrains(updatedTrains);
     });
 
+    socket.on('engine_telemetry', (engineStats: any) => {
+      if (engineStats && engineStats.activeTrains) {
+        setMetrics((prev) => ({
+          ...prev,
+          activeTrains: engineStats.activeTrains,
+        }));
+      }
+    });
+
     socket.on('sensor_telemetry', (telemetry: any) => {
       setLiveTelemetry(telemetry);
     });
@@ -103,15 +113,30 @@ const DashboardContent: React.FC = () => {
       }}
     >
       {/* Top Navigation Bar */}
-      <Navbar activeTab={activeTab} setActiveTab={setActiveTab} metrics={metrics} />
+      <Navbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        metrics={metrics}
+        selectedZone={selectedZone}
+        onSelectZone={setSelectedZone}
+      />
 
       {/* Main Dashboard Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {activeTab === 'overview' && (
           <div className="space-y-6">
-            <HeroSection onNavigateTab={setActiveTab} />
+            <HeroSection 
+              onNavigateTab={setActiveTab} 
+              selectedZone={selectedZone}
+              onSelectZone={setSelectedZone}
+            />
             <KPICards metrics={metrics} />
-            <LiveRailwayMap trains={trains} trackSections={trackSections} />
+            <LiveRailwayMap 
+              trains={trains} 
+              trackSections={trackSections} 
+              selectedZone={selectedZone}
+              onSelectZone={setSelectedZone}
+            />
             <DelayPropagationTree />
           </div>
         )}
@@ -119,7 +144,12 @@ const DashboardContent: React.FC = () => {
         {activeTab === 'map' && (
           <div className="space-y-6">
             <KPICards metrics={metrics} />
-            <LiveRailwayMap trains={trains} trackSections={trackSections} />
+            <LiveRailwayMap 
+              trains={trains} 
+              trackSections={trackSections} 
+              selectedZone={selectedZone}
+              onSelectZone={setSelectedZone}
+            />
           </div>
         )}
 
@@ -189,10 +219,10 @@ const DashboardContent: React.FC = () => {
           <div>
             <span className="font-russo font-normal text-slate-900 notranslate text-sm" translate="no">
               Rail<span className="text-[#FF671F]">io</span>
-            </span> — AI-Powered Railway Intelligence Ecosystem (Predict • Protect • Connect)
+            </span> — Indian Railways National AI Intelligence Platform (18 Operational Zones • 5,000+ Concurrent Fleet)
           </div>
           <div className="text-[11px] text-slate-400">
-            Hackathon Production Prototype • Supabase Unified Infrastructure Active
+            Vectorized ML Inference • Real-Time Discrete-Event Digital Twin
           </div>
         </div>
       </footer>

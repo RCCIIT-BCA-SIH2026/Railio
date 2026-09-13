@@ -1,61 +1,121 @@
 import { Request, Response } from 'express';
 import { db } from '../models/dataStore';
+import { zoneRegistry } from '../models/zoneRegistry';
 import { aiGateway } from '../services/aiServiceGateway';
+import { simulationEngine } from '../services/simulationEngine';
 
 export const getTrains = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { from, to, date, search } = req.query;
-    let result = db.trains;
+    const { from, to, date, search, zone, division, limit, offset, minLat, maxLat, minLng, maxLng } = req.query;
 
-    if (from && to) {
-      const matched = db.searchTrains(from as string, to as string);
-      
-      // Real-time ML Inference for searched trains
-      const enriched = await Promise.all(
-        matched.map(async (t) => {
-          try {
-            const pred = await aiGateway.predictDelay({
-              trainNumber: t.trainNumber,
-              departureTime: t.departureTime,
-              arrivalTime: t.arrivalTime,
-              travelDurationMins: (t.totalDistanceKm / Math.max(t.avgSpeed, 10)) * 60,
-              distanceKm: t.totalDistanceKm,
-              direction: t.source.toUpperCase() === 'SDAH' ? '0' : '1',
-              departureDelay: t.liveState?.delayMinutes ?? 0,
-              currentSpeed: t.liveState?.speed ?? t.avgSpeed,
-              dwellTime: 1.5,
-              weatherCondition: db.weatherReports[t.destination]?.condition || 'Clear',
-              junctionCongestionLevel: db.deriveJunctionCongestionLevel(t.trainNumber),
-            });
-
-            return {
-              ...t,
-              liveState: {
-                ...t.liveState,
-                predictedDelay: pred.predictedDelayMinutes,
-                delayMinutes: pred.predictedDelayMinutes,
-                confidence: pred.confidenceScore,
-                status: (pred.predictedDelayMinutes <= 5 ? 'ON_TIME' : 'DELAYED') as any,
-              },
-            };
-          } catch {
-            return t;
-          }
-        })
+    // 1. Spatial bounding-box query (e.g. Map viewport bounds)
+    if (minLat && maxLat && minLng && maxLng) {
+      const spatialTrains = db.queryByBoundingBox(
+        parseFloat(minLat as string),
+        parseFloat(maxLat as string),
+        parseFloat(minLng as string),
+        parseFloat(maxLng as string),
+        parseInt((limit as string) || '300', 10)
       );
-      result = enriched;
-    } else if (search) {
-      const q = (search as string).toLowerCase();
-      result = result.filter(
-        (t) =>
+      res.json({
+        success: true,
+        count: spatialTrains.length,
+        activeScale: db.activeScaleLimit,
+        totalFleet: db.trains.length,
+        trains: spatialTrains
+      });
+      return;
+    }
+
+    // 2. Search by route (from station -> to station)
+    if (from && to) {
+      const matched = db.searchTrains(from as string, to as string, zone as string);
+      
+      // Fast vectorized ML delay batch inference for searched trains
+      const batchPayload = matched.slice(0, 30).map((t) => ({
+        trainNumber: t.trainNumber,
+        zone: t.zone || 'NR',
+        departureTime: t.departureTime,
+        arrivalTime: t.arrivalTime,
+        travelDurationMins: (t.totalDistanceKm / Math.max(t.avgSpeed, 10)) * 60,
+        distanceKm: t.totalDistanceKm,
+        direction: t.source.toUpperCase() === 'SDAH' || t.source.toUpperCase() === 'NDLS' ? 0 : 1,
+        departureDelay: t.liveState?.delayMinutes ?? 0,
+        currentSpeed: t.liveState?.speed ?? t.avgSpeed,
+        dwellTime: 1.5,
+        weatherCondition: db.weatherReports[t.destination]?.condition || 'Clear',
+        junctionCongestionLevel: db.deriveJunctionCongestionLevel(t.trainNumber),
+      }));
+
+      const predictions = await aiGateway.predictDelaysBatch(batchPayload);
+      const predMap = new Map();
+      predictions.forEach((p) => {
+        if (p.trainNumber) predMap.set(p.trainNumber, p);
+      });
+
+      const enriched = matched.map((t) => {
+        const pred = predMap.get(t.trainNumber);
+        if (pred) {
+          return {
+            ...t,
+            liveState: {
+              ...t.liveState,
+              predictedDelay: pred.predictedDelayMinutes,
+              delayMinutes: pred.predictedDelayMinutes,
+              confidence: pred.confidenceScore,
+              status: pred.predictedDelayMinutes <= 5 ? 'ON_TIME' : 'DELAYED',
+              delayReasons: pred.explainability?.map((e: any) => ({ factor: e.factor, impactMin: e.impactMin })) || []
+            }
+          };
+        }
+        return t;
+      });
+
+      res.json({
+        success: true,
+        count: enriched.length,
+        activeScale: db.activeScaleLimit,
+        totalFleet: db.trains.length,
+        trains: enriched
+      });
+      return;
+    }
+
+    // 3. Search query filter
+    if (search) {
+      const q = (search as string).toLowerCase().trim();
+      const matched = db.trains
+        .filter((t) =>
           t.trainNumber.includes(q) ||
           t.name.toLowerCase().includes(q) ||
           t.source.toLowerCase().includes(q) ||
-          t.destination.toLowerCase().includes(q)
-      );
+          t.destination.toLowerCase().includes(q) ||
+          (t.zone && t.zone.toLowerCase() === q)
+        )
+        .slice(0, parseInt((limit as string) || '100', 10));
+
+      res.json({
+        success: true,
+        count: matched.length,
+        activeScale: db.activeScaleLimit,
+        totalFleet: db.trains.length,
+        trains: matched
+      });
+      return;
     }
 
-    res.json({ success: true, count: result.length, trains: result });
+    // 4. Default: Return active slice partitioned by zone / division / limit
+    const parsedLimit = limit ? parseInt(limit as string, 10) : 500;
+    const parsedOffset = offset ? parseInt(offset as string, 10) : 0;
+    const activeSlice = db.getActiveTrainsSlice(zone as string, division as string, parsedLimit, parsedOffset);
+
+    res.json({
+      success: true,
+      count: activeSlice.length,
+      activeScale: db.activeScaleLimit,
+      totalFleet: db.trains.length,
+      trains: activeSlice
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to retrieve trains' });
   }
@@ -85,8 +145,6 @@ export const getLiveTrainStatus = async (req: Request, res: Response): Promise<v
     const train = db.getTrain(tNum || '');
     
     if (!train) {
-      // For all-India trains not in local suburban dataset (e.g. 12301, 12951, 20607),
-      // fetch real-time live running status directly from ixigo + NTES via AI service!
       const ixigoData = await aiGateway.getIxigoRunningStatus(tNum || '');
       if (ixigoData && !ixigoData.error && ixigoData.stations?.length > 0) {
         const passedStns = ixigoData.stations.filter((s: any) => s.status === 'PASSED');
@@ -132,13 +190,13 @@ export const getLiveTrainStatus = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    // Enrich with latest RTIS telemetry if available
     const telemetry = db.getLatestTelemetry(tNum || '');
 
     res.json({
       success: true,
       trainNumber: train.trainNumber,
       name: train.name,
+      zone: train.zone,
       liveState: train.liveState,
       stops: train.stops,
       latestTelemetry: telemetry || null,
@@ -148,6 +206,51 @@ export const getLiveTrainStatus = async (req: Request, res: Response): Promise<v
     });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Failed to get live status' });
+  }
+};
+
+export const setSimulationScale = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { scale } = req.body;
+    const numScale = parseInt(scale, 10);
+    if (isNaN(numScale) || numScale < 10) {
+      res.status(400).json({ success: false, error: 'Invalid scale number (min 10)' });
+      return;
+    }
+    const result = db.setScaleLimit(numScale);
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+export const getOperationalZones = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const zones = zoneRegistry.getAllZones();
+    const health = db.getEngineHealth();
+    res.json({
+      success: true,
+      zonesCount: zones.length,
+      zones,
+      zoneDistribution: health.zoneDistribution
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+export const getEngineStats = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const metrics = simulationEngine.getTelemetryMetrics();
+    const health = db.getEngineHealth();
+    res.json({
+      success: true,
+      ...health,
+      ...metrics,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
   }
 };
 
@@ -193,11 +296,9 @@ export const getTrainETAPrediction = async (req: Request, res: Response): Promis
       return;
     }
 
-    // ── Ground-reality feature extraction ──────────────────────────────────
     const distanceRemaining = db.computeDistanceRemainingKm(tNum || '');
     const junctionCongestion = db.deriveJunctionCongestionLevel(tNum || '');
 
-    // Get active TSRs on current section
     const activeTSRs = db.getActiveCautionOrders()
       .filter(c => c.sectionId === train.liveState.currentSection)
       .map(c => ({
@@ -209,29 +310,20 @@ export const getTrainETAPrediction = async (req: Request, res: Response): Promis
         reason:         c.reason,
       }));
 
-    // Get signal block for current section
     const signalBlock = db.getSignalBlock(train.liveState.currentSection);
-
-    // Determine dwell overrun from stop sequence
     const depStop  = train.stops[0];
-    const dwellTime = depStop ? 3.0 : 2.0;  // minutes (simplified)
+    const dwellTime = depStop ? 3.0 : 2.0;
 
-    // Weather for destination
     const weatherCondition =
       db.weatherReports[train.destination]?.condition || 'Clear';
-
-    // Fog/visibility (from weather data if available)
     const weatherReport = db.weatherReports[train.destination];
     const fogVisibilityKm = weatherReport?.visibilityKm ?? 10.0;
-
-    // Preceding train headway (simplified: use delay difference)
     const precedingTrainDelayMin = Math.max(0, train.liveState.delayMinutes - 5);
 
-    // ── Call Dynamic Ground-Truth Multi-Station Cascade ML inference ────
     const dynamicETA = await aiGateway.predictDynamicGroundTruthETA({
       trainNumber:        train.trainNumber,
       trainName:          train.name,
-      rakeType:           train.type.includes('Vande') ? 'VANDE_BHARAT_TRAINSET' : (train.type.includes('Suburban') ? 'SUBURBAN_EMU_12CAR' : 'LHB_COACHING'),
+      rakeType:           train.type.includes('VANDE') || train.type.includes('Vande') ? 'VANDE_BHARAT_TRAINSET' : (train.type.includes('SUBURBAN') || train.type.includes('Suburban') ? 'SUBURBAN_EMU_12CAR' : 'LHB_COACHING'),
       locoType:           'WAP-7',
       sourceStation:      train.source,
       destinationStation: train.destination,
@@ -258,7 +350,6 @@ export const getTrainETAPrediction = async (req: Request, res: Response): Promis
 
     const activeIncidents = db.getActiveCrewIncidents(train.trainNumber);
 
-    // ── Log prediction for audit trail ───────────────────────────────────
     db.logPrediction({
       trainNumber:      train.trainNumber,
       stationCode:      train.destination,
@@ -272,6 +363,7 @@ export const getTrainETAPrediction = async (req: Request, res: Response): Promis
       success: true,
       trainNumber:      train.trainNumber,
       name:             train.name,
+      zone:             train.zone,
       source:           train.source,
       destination:      train.destination,
       scheduledArrival: train.arrivalTime,
@@ -302,4 +394,3 @@ export const getTrainETAPrediction = async (req: Request, res: Response): Promis
     res.status(500).json({ success: false, error: 'ETA prediction failed' });
   }
 };
-
