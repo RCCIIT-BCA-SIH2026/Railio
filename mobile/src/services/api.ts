@@ -40,18 +40,22 @@ export const getCachedOrFetch = async <T>(key: string, ttlMs: number, fetcher: (
 };
 
 import rawSuburbanTrains from '../data/suburban_trains.json';
+import { ALL_INDIAN_STATIONS } from '../data/stationsData';
 
-// Fallback Seed Data for 100% Guaranteed Offline Demo Mode — Powered by real Dankuni-Sealdah dataset
+// Fallback Seed Data for 100% Guaranteed Offline Demo Mode — Powered by real Dankuni-Sealdah dataset + All-India Hubs
 const fallbackTrains: Train[] = rawSuburbanTrains as unknown as Train[];
 
-const fallbackStations: Station[] = [
-  { code: 'SDAH', name: 'Sealdah', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.5675, lng: 88.3712, platforms: 21, isJunction: true },
-  { code: 'BNXR', name: 'Bidhan Nagar Road', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.5898, lng: 88.3892, platforms: 4, isJunction: false },
-  { code: 'DDJ', name: 'Dum Dum Junction', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.6219, lng: 88.3931, platforms: 5, isJunction: true },
-  { code: 'BARN', name: 'Baranagar Road', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.6392, lng: 88.3732, platforms: 2, isJunction: false },
-  { code: 'DAKE', name: 'Dakshineswar', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.6534, lng: 88.3601, platforms: 4, isJunction: false },
-  { code: 'DKAE', name: 'Dankuni Junction', city: 'Hooghly', state: 'West Bengal', zone: 'ER', lat: 22.6872, lng: 88.2934, platforms: 5, isJunction: true },
-];
+const fallbackStations: Station[] = ALL_INDIAN_STATIONS.map((s) => ({
+  code: s.code,
+  name: s.name,
+  city: s.city,
+  state: s.state,
+  zone: s.zone,
+  lat: 22.5675,
+  lng: 88.3712,
+  platforms: s.platforms,
+  isJunction: s.isJunction,
+}));
 
 export const searchTrainsApi = async (from: string, to: string): Promise<Train[]> => {
   try {
@@ -94,6 +98,16 @@ export const getLiveTrainApi = async (trainNumber: string) => {
     liveState: train.liveState,
     stops: train.stops,
   };
+};
+
+export const getIxigoLiveTrainStatusApi = async (trainNumber: string) => {
+  try {
+    const res = await api.get(`/trains/${trainNumber}/ixigo-status`);
+    if (res.data && res.data.success) return res.data;
+  } catch (err) {
+    console.warn(`[API] Ixigo live status fetch failed for ${trainNumber}:`, err);
+  }
+  return null;
 };
 
 export const calculateCatchProbabilityApi = async (params: {

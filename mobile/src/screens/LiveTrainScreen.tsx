@@ -43,12 +43,14 @@ const CORRIDOR_STATIONS = [
 ];
 
 const POPULAR_TRAINS = [
+  { number: '12301', label: '12301 (HWH-NDLS Rajdhani)', dir: 'EXP', name: 'Howrah - New Delhi Rajdhani Express' },
+  { number: '12951', label: '12951 (MMCT-NDLS Tejas)', dir: 'EXP', name: 'Mumbai Central - New Delhi Tejas Rajdhani' },
+  { number: '20607', label: '20607 (MAS-MYS Vande)', dir: 'VB', name: 'Mgr Chennai - Mysuru Vande Bharat' },
+  { number: '12002', label: '12002 (NDLS-RKMP Shatabdi)', dir: 'EXP', name: 'New Delhi - Bhopal Shatabdi Express' },
   { number: '32211', label: '32211 (04:07 UP)', dir: 'UP', name: 'Sealdah - Dankuni Local' },
   { number: '32212', label: '32212 (05:00 DN)', dir: 'DN', name: 'Dankuni - Sealdah Local' },
   { number: '32216', label: '32216 (06:34 DN)', dir: 'DN', name: 'Dankuni - Sealdah Local' },
   { number: '32217', label: '32217 (06:05 UP)', dir: 'UP', name: 'Sealdah - Dankuni Local' },
-  { number: '32243', label: '32243 (18:08 UP)', dir: 'UP', name: 'Sealdah - Dankuni Local' },
-  { number: '32244', label: '32244 (19:00 DN)', dir: 'DN', name: 'Dankuni - Sealdah Local' },
 ];
 
 // Haversine Distance in km
@@ -246,27 +248,35 @@ export const LiveTrainScreen: React.FC = () => {
     }
   };
 
-  // Find train record in local dataset
+  // Find train record in local dataset or use live data from ixigo/NTES
   const currentRecord =
     (rawSuburbanTrains as any[]).find((t) => t.trainNumber === activeTrain) ||
-    (rawSuburbanTrains as any[])[0];
+    (liveData?.isAllIndiaTrain ? {
+      trainNumber: activeTrain,
+      name: liveData.name,
+      source: liveData.stops?.[0]?.code || 'SRC',
+      destination: liveData.stops?.[liveData.stops.length - 1]?.code || 'DST',
+      departureTime: liveData.stops?.[0]?.scheduledDeparture || '00:00',
+      arrivalTime: liveData.stops?.[liveData.stops.length - 1]?.scheduledArrival || '00:00',
+      stops: liveData.stops || [],
+    } : (rawSuburbanTrains as any[])[0]);
 
   const isUpTrain = parseInt(activeTrain, 10) % 2 === 1 || currentRecord.source === 'SDAH';
-  const trainName = currentRecord.name || (isUpTrain ? 'Sealdah - Dankuni Local' : 'Dankuni - Sealdah Local');
-  const departureTime = currentRecord.departureTime || '04:07';
-  const arrivalTime = currentRecord.arrivalTime || '04:50';
-  const stops = currentRecord.stops || [];
+  const trainName = liveData?.name || currentRecord.name || (isUpTrain ? 'Sealdah - Dankuni Local' : 'Dankuni - Sealdah Local');
+  const departureTime = liveData?.stops?.[0]?.scheduledDeparture || currentRecord.departureTime || '04:07';
+  const arrivalTime = liveData?.stops?.[liveData?.stops?.length - 1]?.scheduledArrival || currentRecord.arrivalTime || '04:50';
+  const stops = liveData?.stops || currentRecord.stops || [];
 
   // Telemetry speeds and delays
   const baseSpeed = currentRecord.avgSpeed ? Math.round(currentRecord.avgSpeed * 1.3) : 48;
   const speedOffset = (ticker % 4) * 2;
-  const liveSpeed = realGpsCoords?.speed ?? Math.max(25, Math.min(75, baseSpeed + speedOffset));
+  const liveSpeed = realGpsCoords?.speed ?? (liveData?.liveState?.speed || Math.max(25, Math.min(75, baseSpeed + speedOffset)));
 
   const baseDelay = currentRecord.avgHistoricalDelayMins ? Math.round(currentRecord.avgHistoricalDelayMins) : 4;
   const currentDelay = liveData?.liveState?.delayMinutes ?? baseDelay;
   const predictedDelay = liveData?.liveState?.predictedDelay ?? currentDelay + (currentDelay > 5 ? 2 : 0);
 
-  // Dynamic Current Section calculation along 6 stations
+  // Dynamic Current Section calculation
   const currentSection =
     liveData?.liveState?.currentSection ||
     (isUpTrain ? 'SDAH-BNXR-SUB1' : 'DAKE-DKAE-SUB5');
@@ -390,9 +400,16 @@ export const LiveTrainScreen: React.FC = () => {
                   <Text style={styles.trainNumberTitle}>Train #{activeTrain}</Text>
                   <View style={[styles.dirBadge, isUpTrain ? styles.dirBadgeUp : styles.dirBadgeDn]}>
                     <Text style={[styles.dirBadgeText, isUpTrain ? styles.dirBadgeTextUp : styles.dirBadgeTextDn]}>
-                      {isUpTrain ? '▲ UP LOCAL' : '▼ DOWN LOCAL'}
+                      {liveData?.isAllIndiaTrain ? '🚆 ALL-INDIA EXPRESS' : (isUpTrain ? '▲ UP LOCAL' : '▼ DOWN LOCAL')}
                     </Text>
                   </View>
+                  {liveData?.liveSource && (
+                    <View style={[styles.dirBadge, { backgroundColor: '#38BDF822', borderColor: '#38BDF844' }]}>
+                      <Text style={[styles.dirBadgeText, { color: '#0284C7' }]}>
+                        📡 {liveData.liveSource.split(' ')[0]}
+                      </Text>
+                    </View>
+                  )}
                 </View>
                 <Text style={styles.trainNameSubtitle}>{trainName}</Text>
               </View>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -22,13 +22,35 @@ import { AppBackground } from '../components/AppBackground';
 import { getAlertsApi } from '../services/api';
 import { useTranslation } from '../context/LanguageContext';
 import { LanguageTopButton } from '../components/LanguageTopButton';
-import { Scan, Ticket, Armchair, Building2, Headset, Users, CloudRain, Bell, AlarmClock } from 'lucide-react-native';
+import { StationPickerModal } from '../components/StationPickerModal';
+import { getStationByCode, StationItem } from '../data/stationsData';
+import {
+  Scan,
+  Ticket,
+  Armchair,
+  Building2,
+  Headset,
+  Users,
+  CloudRain,
+  Bell,
+  AlarmClock,
+  ArrowRightLeft,
+  Calendar as CalendarIcon,
+  Sparkles,
+  MapPin,
+  ChevronDown,
+} from 'lucide-react-native';
 
 export const HomeScreen: React.FC = React.memo(() => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { t } = useTranslation();
   const [fromStation, setFromStation] = useState('SDAH');
   const [toStation, setToStation] = useState('DKAE');
+  const [stationModalType, setStationModalType] = useState<'FROM' | 'TO' | null>(null);
+
+  const fromStationItem = useMemo(() => getStationByCode(fromStation), [fromStation]);
+  const toStationItem = useMemo(() => getStationByCode(toStation), [toStation]);
+
   const formatCurrentJourneyDate = (date: Date) => {
     const shortFormatted = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
     return `Today, ${shortFormatted}`;
@@ -140,61 +162,166 @@ export const HomeScreen: React.FC = React.memo(() => {
         {/* Main Train Search Card */}
         <View style={styles.searchCard}>
           <View style={styles.searchCardHeader}>
-            <Text style={styles.searchCardTitle}>🔍 {t('search.find_trains', 'Search Train & AI Predictions')}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Sparkles size={16} color="#FF671F" />
+              <Text style={styles.searchCardTitle}>{t('search.find_trains', 'Search Trains & AI Predictions')}</Text>
+            </View>
             <View style={styles.demoBadge}>
-              <Text style={styles.demoBadgeText}>LIVE GPS</Text>
+              <Text style={styles.demoBadgeText}>LIVE GPS • ML 2.0</Text>
             </View>
           </View>
 
-          {/* From & To Station Row with Swap Button */}
+          {/* From & To Interactive Cards with Animated Swap Button */}
           <View style={styles.stationsRow}>
-            <View style={styles.stationInputBox}>
-              <Text style={styles.stationInputLabel}>{t('FROM', 'FROM')}</Text>
-              <TextInput
-                style={styles.stationInput}
-                value={fromStation}
-                onChangeText={setFromStation}
-                placeholder="SDAH"
-                placeholderTextColor="#64748B"
-                autoCapitalize="characters"
-              />
-              <Text style={styles.stationCityText}>
-                {fromStation === 'SDAH' ? 'Sealdah' : fromStation === 'DKAE' ? 'Dankuni Jn' : fromStation === 'DAKE' ? 'Dakshineswar' : fromStation === 'DDJ' ? 'Dum Dum Jn' : 'Station Code'}
-              </Text>
-            </View>
+            {/* FROM Station Box */}
+            <TouchableOpacity
+              style={styles.stationInputBox}
+              onPress={() => setStationModalType('FROM')}
+              activeOpacity={0.8}
+            >
+              <View style={styles.stationLabelRow}>
+                <View style={[styles.stationIndicatorDot, { backgroundColor: '#10B981' }]} />
+                <Text style={styles.stationInputLabel}>{t('FROM (SOURCE)', 'FROM (SOURCE)')}</Text>
+              </View>
 
-            <TouchableOpacity style={styles.swapButton} onPress={swapStations}>
-              <Text style={styles.swapIcon}>⇄</Text>
+              <View style={styles.stationCodeRow}>
+                <Text style={styles.stationCodeText}>{fromStation}</Text>
+                <ChevronDown size={14} color="#94A3B8" />
+              </View>
+
+              <Text style={styles.stationCityText} numberOfLines={1}>
+                {fromStationItem?.name || fromStation}
+                {fromStationItem?.city ? `, ${fromStationItem.city}` : ''}
+              </Text>
             </TouchableOpacity>
 
-            <View style={styles.stationInputBox}>
-              <Text style={styles.stationInputLabel}>{t('TO', 'TO')}</Text>
-              <TextInput
-                style={styles.stationInput}
-                value={toStation}
-                onChangeText={setToStation}
-                placeholder="DKAE"
-                placeholderTextColor="#64748B"
-                autoCapitalize="characters"
-              />
-              <Text style={styles.stationCityText}>
-                {toStation === 'DKAE' ? 'Dankuni Jn' : toStation === 'SDAH' ? 'Sealdah' : toStation === 'DAKE' ? 'Dakshineswar' : toStation === 'DDJ' ? 'Dum Dum Jn' : 'Station Code'}
+            {/* Swap Button */}
+            <TouchableOpacity style={styles.swapButton} onPress={swapStations} activeOpacity={0.7}>
+              <ArrowRightLeft size={16} color="#FF671F" strokeWidth={2.5} />
+            </TouchableOpacity>
+
+            {/* TO Station Box */}
+            <TouchableOpacity
+              style={styles.stationInputBox}
+              onPress={() => setStationModalType('TO')}
+              activeOpacity={0.8}
+            >
+              <View style={styles.stationLabelRow}>
+                <View style={[styles.stationIndicatorDot, { backgroundColor: '#FF671F' }]} />
+                <Text style={styles.stationInputLabel}>{t('TO (DESTINATION)', 'TO (DESTINATION)')}</Text>
+              </View>
+
+              <View style={styles.stationCodeRow}>
+                <Text style={styles.stationCodeText}>{toStation}</Text>
+                <ChevronDown size={14} color="#94A3B8" />
+              </View>
+
+              <Text style={styles.stationCityText} numberOfLines={1}>
+                {toStationItem?.name || toStation}
+                {toStationItem?.city ? `, ${toStationItem.city}` : ''}
               </Text>
-            </View>
+            </TouchableOpacity>
           </View>
 
-          {/* Date Selector */}
-          <TouchableOpacity style={styles.dateSelector} onPress={() => setShowDatePicker(true)}>
-            <Text style={styles.dateLabel}>{t('JOURNEY DATE', 'JOURNEY DATE')}</Text>
-            <Text style={[styles.dateInput, { color: '#0F172A', paddingTop: 4 }]}>
-              {journeyDate}
-            </Text>
-          </TouchableOpacity>
+          {/* Quick Corridor Chips */}
+          <View style={styles.quickCorridorsRow}>
+            {[
+              { from: 'SDAH', to: 'DKAE', label: 'SDAH ⇄ DKAE' },
+              { from: 'DAKE', to: 'SDAH', label: 'DAKE ⇄ SDAH' },
+              { from: 'HWH', to: 'NDLS', label: 'HWH ⇄ NDLS' },
+              { from: 'CSMT', to: 'PUNE', label: 'CSMT ⇄ PUNE' },
+            ].map((route, idx) => (
+              <TouchableOpacity
+                key={idx}
+                style={[
+                  styles.corridorChip,
+                  fromStation === route.from && toStation === route.to && styles.corridorChipActive,
+                ]}
+                onPress={() => {
+                  setFromStation(route.from);
+                  setToStation(route.to);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.corridorChipText,
+                    fromStation === route.from && toStation === route.to && styles.corridorChipTextActive,
+                  ]}
+                >
+                  {route.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Date Selector with Quick Pills */}
+          <View style={styles.dateSelectorContainer}>
+            <View style={styles.dateHeaderRow}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                <CalendarIcon size={14} color="#64748B" />
+                <Text style={styles.dateLabel}>{t('JOURNEY DATE', 'JOURNEY DATE')}</Text>
+              </View>
+              <Text style={styles.currentDateValue}>{journeyDate}</Text>
+            </View>
+
+            <View style={styles.datePillsRow}>
+              <TouchableOpacity
+                style={[
+                  styles.datePill,
+                  journeyDate.startsWith('Today') && styles.datePillActive,
+                ]}
+                onPress={() => {
+                  const now = new Date();
+                  setDateObj(now);
+                  setJourneyDate(formatCurrentJourneyDate(now));
+                }}
+              >
+                <Text style={[styles.datePillText, journeyDate.startsWith('Today') && styles.datePillTextActive]}>
+                  {t('Today', 'Today')}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.datePill,
+                  journeyDate.startsWith('Tomorrow') && styles.datePillActive,
+                ]}
+                onPress={() => {
+                  const tom = new Date();
+                  tom.setDate(tom.getDate() + 1);
+                  setDateObj(tom);
+                  const shortFormatted = tom.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+                  setJourneyDate(`Tomorrow, ${shortFormatted}`);
+                }}
+              >
+                <Text style={[styles.datePillText, journeyDate.startsWith('Tomorrow') && styles.datePillTextActive]}>
+                  {t('Tomorrow', 'Tomorrow')}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.datePill,
+                  !journeyDate.startsWith('Today') && !journeyDate.startsWith('Tomorrow') && styles.datePillActive,
+                ]}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text
+                  style={[
+                    styles.datePillText,
+                    !journeyDate.startsWith('Today') && !journeyDate.startsWith('Tomorrow') && styles.datePillTextActive,
+                  ]}
+                >
+                  📅 {t('Select Date', 'Select Date')}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
           
           <Modal visible={showDatePicker} transparent animationType="slide">
             <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', padding: 20 }}>
               <View style={{ backgroundColor: '#fff', borderRadius: 20, padding: 20, overflow: 'hidden' }}>
-                <Text style={{ fontSize: 18, fontWeight: '800', marginBottom: 16, color: '#0F172A', textAlign: 'center' }}>Select Journey Date</Text>
+                <Text style={{ fontSize: 18, fontWeight: '800', marginBottom: 16, color: '#0F172A', textAlign: 'center' }}>{t('Select Journey Date', 'Select Journey Date')}</Text>
                 
                 <Calendar
                   current={dateObj.toISOString()}
@@ -228,14 +355,15 @@ export const HomeScreen: React.FC = React.memo(() => {
                 />
 
                 <TouchableOpacity onPress={() => setShowDatePicker(false)} style={{ marginTop: 16, alignItems: 'center', padding: 14, backgroundColor: '#F1F5F9', borderRadius: 12 }}>
-                  <Text style={{ fontWeight: '700', color: '#475569', fontSize: 16 }}>Cancel</Text>
+                  <Text style={{ fontWeight: '700', color: '#475569', fontSize: 16 }}>{t('Cancel', 'Cancel')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </Modal>
 
           {/* Search CTA */}
-          <TouchableOpacity style={styles.searchCta} onPress={handleSearch}>
+          <TouchableOpacity style={styles.searchCta} onPress={handleSearch} activeOpacity={0.85}>
+            <Sparkles size={16} color="#FFFFFF" />
             <Text style={styles.searchCtaText}>{t('SEARCH TRAINS WITH AI', 'SEARCH TRAINS WITH AI')}</Text>
           </TouchableOpacity>
         </View>
@@ -537,6 +665,31 @@ export const HomeScreen: React.FC = React.memo(() => {
           </View>
         </View>
       </ScrollView>
+
+      {/* Real-time Station Autocomplete & Directory Picker Modal */}
+      <StationPickerModal
+        visible={stationModalType !== null}
+        onClose={() => setStationModalType(null)}
+        type={stationModalType || 'FROM'}
+        currentCode={stationModalType === 'FROM' ? fromStation : toStation}
+        title={
+          stationModalType === 'FROM'
+            ? t('Select Departure Station', 'Select Departure Station')
+            : t('Select Destination Station', 'Select Destination Station')
+        }
+        onSelectStation={(st) => {
+          if (stationModalType === 'FROM') {
+            setFromStation(st.code);
+            // Seamless auto-flow: Automatically prompt TO station picker if user is selecting journey
+            setTimeout(() => {
+              setStationModalType('TO');
+            }, 300);
+          } else {
+            setToStation(st.code);
+            setStationModalType(null);
+          }
+        }}
+      />
     </AppBackground>
   );
 });
@@ -683,83 +836,162 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   stationInputBox: {
     flex: 1,
     backgroundColor: '#F8FAFC',
-    borderRadius: 12,
+    borderRadius: 14,
     padding: 10,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: '#E2E8F0',
+    minHeight: 74,
+    justifyContent: 'space-between',
+  },
+  stationLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  stationIndicatorDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   stationInputLabel: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#64748B',
-    marginBottom: 2,
-  },
-  stationInput: {
-    fontSize: 16,
+    fontSize: 8.5,
     fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.5,
+  },
+  stationCodeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 2,
+  },
+  stationCodeText: {
+    fontSize: 18,
+    fontWeight: '900',
     color: '#0F172A',
-    padding: 0,
+    letterSpacing: 0.5,
   },
   stationCityText: {
     fontSize: 10,
-    color: '#94A3B8',
-    marginTop: 2,
+    color: '#64748B',
+    fontWeight: '600',
+    marginTop: 1,
   },
   swapButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#FED7AA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 2,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+  },
+  quickCorridorsRow: {
+    flexDirection: 'row',
+    gap: 6,
+    marginBottom: 12,
+    flexWrap: 'wrap',
+  },
+  corridorChip: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  corridorChipActive: {
+    backgroundColor: '#FFF7ED',
+    borderColor: '#FF671F',
+  },
+  corridorChipText: {
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: '#475569',
+  },
+  corridorChipTextActive: {
+    color: '#FF671F',
+    fontWeight: '800',
+  },
+  dateSelectorContainer: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 12,
+  },
+  dateHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  dateLabel: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 0.5,
+  },
+  currentDateValue: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  datePillsRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  datePill: {
+    flex: 1,
+    paddingVertical: 7,
+    borderRadius: 8,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 1,
   },
-  swapIcon: {
-    fontSize: 18,
-    color: '#FF671F',
-    fontWeight: 'bold',
+  datePillActive: {
+    backgroundColor: '#0284C7',
+    borderColor: '#0284C7',
   },
-  dateSelector: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    marginBottom: 12,
-  },
-  dateLabel: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    color: '#64748B',
-    marginBottom: 2,
-  },
-  dateInput: {
-    fontSize: 13,
+  datePillText: {
+    fontSize: 10.5,
     fontWeight: '700',
-    color: '#0F172A',
-    padding: 0,
+    color: '#334155',
+  },
+  datePillTextActive: {
+    color: '#FFFFFF',
+    fontWeight: '800',
   },
   searchCta: {
+    flexDirection: 'row',
+    gap: 8,
     backgroundColor: '#FF671F',
     borderRadius: 14,
     paddingVertical: 13,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 2,
+    elevation: 3,
     shadowColor: '#FF671F',
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowOpacity: 0.35,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
   },
   searchCtaText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: 12.5,
     fontWeight: '900',
     letterSpacing: 0.8,
   },
