@@ -7,9 +7,10 @@ import { RootStackParamList, BottomTabParamList } from '../types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Home, MapPin, CircleUserRound, Scan } from 'lucide-react-native';
+import { Home, MapPin, CircleUserRound, Scan, Navigation } from 'lucide-react-native';
 import { useTranslation } from '../context/LanguageContext';
 import { LanguageTopButton } from '../components/LanguageTopButton';
+import { liveNavigationService } from '../services/navigation/LiveNavigationService';
 
 // Screens
 import { HomeScreen } from '../screens/HomeScreen';
@@ -36,6 +37,7 @@ import { AdminQuickAlertsScreen } from '../screens/AdminQuickAlertsScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { SmartServicesScreen } from '../screens/SmartServicesScreen';
+import { LiveNavigationUI } from '../components/LiveNavigationUI';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -113,10 +115,18 @@ const MainTabNavigator: React.FC = React.memo(() => {
         />
         <Tab.Screen
           name="PlatformTab"
-          component={CameraNavigationScreen}
+          component={View}
           options={{
-            tabBarLabel: t('Platform Scan', 'Platform Scan'),
-            tabBarIcon: ({ color }) => <Scan color={color} size={20} strokeWidth={2.5} />,
+            tabBarLabel: t('nav.live_tracking', 'Live Nav'),
+            tabBarIcon: ({ color }) => <Navigation color={color} size={20} strokeWidth={2.5} />,
+            tabBarButton: (props) => (
+              <TouchableOpacity
+                {...props}
+                onPress={() => {
+                  liveNavigationService.openFullScreen();
+                }}
+              />
+            ),
           }}
         />
         <Tab.Screen
@@ -200,6 +210,7 @@ const MainTabNavigator: React.FC = React.memo(() => {
       >
         <AnimatedMascot />
       </TouchableOpacity>
+      <LiveNavigationUI />
     </View>
   );
 });
