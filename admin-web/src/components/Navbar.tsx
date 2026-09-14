@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Bell, Shield, Train, Radio, Cpu, User, Users, FileText, LogOut, GitBranch, Network, Settings } from 'lucide-react';
+import { Activity, Bell, Shield, Train, Radio, Cpu, User, Users, FileText, LogOut, GitBranch, Network, Settings, Globe, Zap } from 'lucide-react';
 import { useAdminAuth } from '../context/AuthContext';
 import { UserManagementModal } from './UserManagementModal';
 import { AuditLogViewer } from './AuditLogViewer';
@@ -10,9 +10,16 @@ interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   metrics?: any;
+  selectedZone?: string;
+  onSelectZone?: (zone: string) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
+export const Navbar: React.FC<NavbarProps> = ({ 
+  activeTab, 
+  setActiveTab,
+  selectedZone = 'ALL',
+  onSelectZone
+}) => {
   const { user, profile, signOut } = useAdminAuth();
   const [time, setTime] = useState<string>('');
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -57,11 +64,11 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                     Rail<span className="text-[#FF671F]">io</span>
                   </span>
                   <span className="px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase bg-orange-50 text-rail-orange border border-orange-200 rounded-full whitespace-nowrap">
-                    HQ Controller
+                    18-Zone Controller
                   </span>
                 </div>
                 <p className="text-[9.5px] font-bold tracking-wider text-[#FF671F] uppercase hidden sm:block whitespace-nowrap">
-                  AI RAILWAY INTELLIGENCE
+                  INDIAN RAILWAYS AI ECOSYSTEM
                 </p>
               </div>
             </div>
@@ -100,7 +107,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                 title="Manage Users & Roles"
               >
                 <Users className="w-3.5 h-3.5 text-slate-500" />
-                <span>RBAC Users</span>
+                <span>RBAC</span>
               </button>
 
               {/* Audit Logs Trigger */}
@@ -110,12 +117,13 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                 title="View Admin Audit Trail"
               >
                 <FileText className="w-3.5 h-3.5 text-slate-500" />
-                <span>Audit Logs</span>
+                <span>Audit</span>
               </button>
 
-              <div className="flex items-center space-x-2 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-mono font-medium">
+              {/* Live Realtime Engine Indicator */}
+              <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-mono font-bold">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-glow" />
-                <span className="hidden md:inline">SUPABASE REALTIME</span>
+                <span className="hidden md:inline">5,548 FLEET ACTIVE</span>
               </div>
 
               <div className="hidden xl:block text-right">
@@ -129,13 +137,13 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
                     {profile?.full_name || user?.email?.split('@')[0]}
                   </div>
                   <div className="text-[10px] font-mono text-rail-orange font-bold uppercase">
-                    {profile?.role || 'ADMIN'}
+                    {profile?.role || 'CHIEF_CONTROLLER'}
                   </div>
                 </div>
 
                 <button
                   onClick={signOut}
-                  className="p-2 hover:bg-red-50 hover:text-red-600 rounded-lg text-slate-500 transition"
+                  className="p-2 hover:bg-red-50 hover:text-red-600 rounded-lg text-slate-500 transition cursor-pointer"
                   title="Sign Out"
                 >
                   <LogOut className="w-4 h-4" />
@@ -143,32 +151,14 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
               </div>
             </div>
           </div>
-
-          {/* Mobile Navigation Row */}
-          <div className="flex lg:hidden overflow-x-auto py-2 space-x-2 border-t border-slate-200">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-md text-[11px] whitespace-nowrap font-medium ${
-                    isActive ? 'bg-rail-orange text-white font-bold' : 'text-slate-600 bg-slate-100'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
         </div>
       </header>
 
-      {/* Admin Modals */}
-      <UserManagementModal isOpen={isUserModalOpen} onClose={() => setIsUserModalOpen(false)} />
-      <AuditLogViewer isOpen={isAuditModalOpen} onClose={() => setIsAuditModalOpen(false)} />
+      {/* RBAC Modal */}
+      {isUserModalOpen && <UserManagementModal isOpen={isUserModalOpen} onClose={() => setIsUserModalOpen(false)} />}
+
+      {/* Audit Log Modal */}
+      {isAuditModalOpen && <AuditLogViewer isOpen={isAuditModalOpen} onClose={() => setIsAuditModalOpen(false)} />}
     </>
   );
 };

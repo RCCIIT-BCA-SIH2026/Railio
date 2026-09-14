@@ -2,6 +2,8 @@ export interface LiveTrain {
   trainNumber: string;
   name: string;
   type: string;
+  zone?: string;
+  division?: string;
   lat: number;
   lng: number;
   speed: number;
@@ -13,6 +15,39 @@ export interface LiveTrain {
   direction?: 'UP' | 'DOWN';
   source?: string;
   destination?: string;
+  delayReasons?: Array<{ factor: string; impactMin: number }>;
+}
+
+export interface OperationalZone {
+  code: string;
+  name: string;
+  hq: string;
+  state: string;
+  divisions: string[];
+  color: string;
+  routeKm: number;
+  maxSpeedKmh: number;
+  terrain: string;
+  weatherSensitivities: {
+    winterFog: number;
+    summerHeat: number;
+    monsoonFlood: number;
+    cyclone: number;
+  };
+  gradientDragFactor: number;
+  defaultFogSpeedCapKmh: number;
+  primaryCorridors: string[];
+  keyJunctions: string[];
+}
+
+export interface EngineTelemetry {
+  tick: number;
+  activeTrains: number;
+  totalFleet: number;
+  throughputTPS: number;
+  mlBatchDurationMs: number;
+  memoryMB: number;
+  timestamp: string;
 }
 
 export interface TrackSection {

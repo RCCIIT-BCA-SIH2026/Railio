@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import { zoneRegistry } from './zoneRegistry';
 
 export interface Station {
   code: string;
@@ -7,10 +8,12 @@ export interface Station {
   city: string;
   state: string;
   zone: string;
+  division?: string;
   lat: number;
   lng: number;
   platforms: number;
   isJunction: boolean;
+  elevationM?: number;
 }
 
 export interface DelayReason {
@@ -46,6 +49,8 @@ export interface Train {
   trainNumber: string;
   name: string;
   type: string;
+  zone?: string;
+  division?: string;
   source: string;
   destination: string;
   departureTime: string;
@@ -172,12 +177,6 @@ export interface ProgressiveRisk {
   trend: string;
 }
 
-export interface CoachCrowdInfo {
-  coach: string;
-  density: number;
-  status: 'GREEN' | 'YELLOW' | 'RED';
-}
-
 export interface WeatherInfo {
   city: string;
   tempC: number;
@@ -249,6 +248,7 @@ export interface SuburbanDeparture {
 }
 
 class DataStore {
+  // ── Primary arrays for backwards compatibility ──────────────────────────
   public stations: Station[] = [];
   public trains: Train[] = [];
   public trackSections: TrackSection[] = [];
@@ -257,6 +257,17 @@ class DataStore {
   public crowdData: any = {};
   public weatherReports: Record<string, WeatherInfo> = {};
   public alerts: AlertItem[] = [];
+
+  // ── High-Performance O(1) Index Shards ───────────────────────────────────
+  public trainsById: Map<string, Train> = new Map();
+  public stationsByCode: Map<string, Station> = new Map();
+  public trainsByZone: Map<string, Set<string>> = new Map();
+  public trainsByDivision: Map<string, Set<string>> = new Map();
+
+  // ── Dynamic Fleet Scale Controller ───────────────────────────────────────
+  // Allows testing from 50 (standard demo) up to 5,500+ active trains across India
+  public activeScaleLimit: number = 1000;
+  public totalFleetCount: number = 0;
 
   // ── Operational infrastructure (runtime state) ──────────────────────────
   public cautionOrders: CautionOrder[] = [];
@@ -270,7 +281,6 @@ class DataStore {
     {
       id: 'usr-001',
       email: 'passenger@railio.ai',
-      // NOTE: In production, use bcrypt hash. Demo placeholder only.
       passwordHash: '$2b$10$placeholder_hash_aarav_sharma',
       fullName: 'Aarav Sharma',
       phoneNumber: '+91 98765 43210',
@@ -292,68 +302,142 @@ class DataStore {
 
   private loadInitialSeed() {
     try {
+      // 1. Load All-India Stations Master Dataset (120+ key junction hubs)
+      const allStationsPath = path.resolve(__dirname, '../../../data/stations/all_india_stations.json');
+      if (fs.existsSync(allStationsPath)) {
+        const rawStations = fs.readFileSync(allStationsPath, 'utf8');
+        const list: Station[] = JSON.parse(rawStations);
+        this.stations = list;
+        list.forEach(s => this.stationsByCode.set(s.code.toUpperCase(), s));
+      }
+
+      // 2. Load Fallback / Legacy Seed Data (Track sections, risk history, alerts)
       const seedPath = path.resolve(__dirname, '../../../database/seed/seedData.json');
       if (fs.existsSync(seedPath)) {
         const raw = fs.readFileSync(seedPath, 'utf-8');
         const data = JSON.parse(raw);
-        this.stations = data.stations || [];
-        this.trains = data.trains || [];
+        if (this.stations.length === 0) {
+          this.stations = data.stations || [];
+          this.stations.forEach(s => this.stationsByCode.set(s.code.toUpperCase(), s));
+        }
         this.trackSections = data.trackSections || [];
         this.progressiveRiskHistory = data.progressiveRiskHistory || [];
         this.crowdData = data.crowdData || {};
         this.weatherReports = data.weatherReports || {};
         this.alerts = data.alerts || [];
+      }
 
-        // Merge major Indian junction stations to ensure 100% all-India coverage
-        const majorHubs: Station[] = [
-          { code: 'HWH', name: 'Howrah Junction', city: 'Howrah', state: 'West Bengal', zone: 'ER', lat: 22.5839, lng: 88.3426, platforms: 23, isJunction: true },
-          { code: 'KOAA', name: 'Kolkata Terminal', city: 'Kolkata', state: 'West Bengal', zone: 'ER', lat: 22.6025, lng: 88.3752, platforms: 5, isJunction: true },
-          { code: 'NDLS', name: 'New Delhi', city: 'New Delhi', state: 'Delhi', zone: 'NR', lat: 28.6139, lng: 77.2090, platforms: 16, isJunction: true },
-          { code: 'DLI', name: 'Old Delhi Junction', city: 'Delhi', state: 'Delhi', zone: 'NR', lat: 28.6606, lng: 77.2289, platforms: 16, isJunction: true },
-          { code: 'NZM', name: 'Hazrat Nizamuddin', city: 'New Delhi', state: 'Delhi', zone: 'NR', lat: 28.5888, lng: 77.2536, platforms: 9, isJunction: true },
-          { code: 'CSMT', name: 'Mumbai CSMT', city: 'Mumbai', state: 'Maharashtra', zone: 'CR', lat: 18.9401, lng: 72.8353, platforms: 18, isJunction: true },
-          { code: 'MMCT', name: 'Mumbai Central', city: 'Mumbai', state: 'Maharashtra', zone: 'WR', lat: 18.9696, lng: 72.8193, platforms: 8, isJunction: true },
-          { code: 'PUNE', name: 'Pune Junction', city: 'Pune', state: 'Maharashtra', zone: 'CR', lat: 18.5284, lng: 73.8739, platforms: 6, isJunction: true },
-          { code: 'CNB', name: 'Kanpur Central', city: 'Kanpur', state: 'Uttar Pradesh', zone: 'NCR', lat: 26.4547, lng: 80.3507, platforms: 10, isJunction: true },
-          { code: 'LKO', name: 'Lucknow Charbagh', city: 'Lucknow', state: 'Uttar Pradesh', zone: 'NR', lat: 26.8315, lng: 80.9238, platforms: 9, isJunction: true },
-          { code: 'PRYJ', name: 'Prayagraj Junction', city: 'Prayagraj', state: 'Uttar Pradesh', zone: 'NCR', lat: 25.4484, lng: 81.8340, platforms: 10, isJunction: true },
-          { code: 'BSB', name: 'Varanasi Junction', city: 'Varanasi', state: 'Uttar Pradesh', zone: 'NR', lat: 25.3268, lng: 82.9863, platforms: 9, isJunction: true },
-          { code: 'DDU', name: 'Pt. Deen Dayal Upadhyaya Junction', city: 'Chandauli', state: 'Uttar Pradesh', zone: 'ECR', lat: 25.2818, lng: 83.1189, platforms: 8, isJunction: true },
-          { code: 'BPL', name: 'Bhopal Junction', city: 'Bhopal', state: 'Madhya Pradesh', zone: 'WCR', lat: 23.2599, lng: 77.4126, platforms: 6, isJunction: true },
-          { code: 'ADI', name: 'Ahmedabad Junction', city: 'Ahmedabad', state: 'Gujarat', zone: 'WR', lat: 23.0225, lng: 72.5714, platforms: 12, isJunction: true },
-          { code: 'JP', name: 'Jaipur Junction', city: 'Jaipur', state: 'Rajasthan', zone: 'NWR', lat: 26.9196, lng: 75.7878, platforms: 8, isJunction: true },
-          { code: 'PNBE', name: 'Patna Junction', city: 'Patna', state: 'Bihar', zone: 'ECR', lat: 25.6022, lng: 85.1376, platforms: 10, isJunction: true },
-          { code: 'GHY', name: 'Guwahati', city: 'Guwahati', state: 'Assam', zone: 'NFR', lat: 26.1862, lng: 91.7539, platforms: 7, isJunction: true },
-          { code: 'MAS', name: 'Chennai Central', city: 'Chennai', state: 'Tamil Nadu', zone: 'SR', lat: 13.0827, lng: 80.2707, platforms: 15, isJunction: true },
-          { code: 'SBC', name: 'KSR Bengaluru City', city: 'Bengaluru', state: 'Karnataka', zone: 'SWR', lat: 12.9784, lng: 77.5684, platforms: 10, isJunction: true },
-          { code: 'SC', name: 'Secunderabad Junction', city: 'Secunderabad', state: 'Telangana', zone: 'SCR', lat: 17.4344, lng: 78.5013, platforms: 10, isJunction: true },
-        ];
+      // 3. Load Nationwide Fleet Master Dataset (5,500+ trains)
+      const fleetPath = path.resolve(__dirname, '../../../data/trains/nationwide_fleet.json');
+      if (fs.existsSync(fleetPath)) {
+        const rawFleet = fs.readFileSync(fleetPath, 'utf8');
+        const fullFleet: Train[] = JSON.parse(rawFleet);
+        this.totalFleetCount = fullFleet.length;
+        this.trains = fullFleet;
 
-        for (const hub of majorHubs) {
-          if (!this.stations.some((s) => s.code.toUpperCase() === hub.code.toUpperCase())) {
-            this.stations.push(hub);
-          }
-        }
+        // Build high-performance index shards
+        this.rebuildIndexes();
 
-        console.log(`[DataStore] Loaded ${this.stations.length} stations, ${this.trains.length} trains from seed.`);
+        console.log(`[DataStore] Successfully loaded Nationwide High-Scale Fleet: ${this.trains.length} trains across 18 Zones, ${this.stations.length} stations indexed.`);
       } else {
-        console.warn('[DataStore] Seed file not found at', seedPath);
+        console.warn('[DataStore] Nationwide fleet not found at', fleetPath, 'using seed fallback.');
       }
     } catch (err) {
-      console.error('[DataStore] Error loading seed data:', err);
+      console.error('[DataStore] Error loading master fleet data:', err);
     }
   }
 
-  public getStation(code: string): Station | undefined {
-    return this.stations.find((s) => s.code.toUpperCase() === code.toUpperCase());
+  public rebuildIndexes(): void {
+    this.trainsById.clear();
+    this.trainsByZone.clear();
+    this.trainsByDivision.clear();
+
+    this.trains.forEach((t) => {
+      this.trainsById.set(t.trainNumber, t);
+
+      const zone = (t.zone || 'ER').toUpperCase();
+      if (!this.trainsByZone.has(zone)) {
+        this.trainsByZone.set(zone, new Set());
+      }
+      this.trainsByZone.get(zone)!.add(t.trainNumber);
+
+      if (t.division) {
+        const div = t.division.toLowerCase();
+        if (!this.trainsByDivision.has(div)) {
+          this.trainsByDivision.set(div, new Set());
+        }
+        this.trainsByDivision.get(div)!.add(t.trainNumber);
+      }
+    });
   }
 
-  // ── RTIS Telemetry Ingestion ───────────────────────────────────────────────
+  // ── Dynamic Scale Controller ───────────────────────────────────────────────
+
+  public setScaleLimit(limit: number): { activeTrains: number; totalAvailable: number } {
+    this.activeScaleLimit = Math.max(10, Math.min(this.totalFleetCount || 5548, limit));
+    console.log(`[DataStore] Simulation scale dynamically adjusted to: ${this.activeScaleLimit} active trains.`);
+    return {
+      activeTrains: this.activeScaleLimit,
+      totalAvailable: this.trains.length,
+    };
+  }
+
+  public getActiveTrainsSlice(zone?: string, division?: string, limit?: number, offset: number = 0): Train[] {
+    let candidateNumbers: string[] | null = null;
+
+    if (zone && zone.toUpperCase() !== 'ALL') {
+      const zSet = this.trainsByZone.get(zone.toUpperCase());
+      candidateNumbers = zSet ? Array.from(zSet) : [];
+    } else if (division) {
+      const dSet = this.trainsByDivision.get(division.toLowerCase());
+      candidateNumbers = dSet ? Array.from(dSet) : [];
+    }
+
+    let activePool: Train[];
+    if (candidateNumbers !== null) {
+      activePool = candidateNumbers
+        .map(id => this.trainsById.get(id))
+        .filter((t): t is Train => Boolean(t));
+    } else {
+      // Global pool capped by activeScaleLimit
+      activePool = this.trains.slice(0, this.activeScaleLimit);
+    }
+
+    const effLimit = limit ? Math.min(limit, activePool.length) : activePool.length;
+    return activePool.slice(offset, offset + effLimit);
+  }
+
+  // ── Spatial 2D Grid / Bounding Box Indexing ─────────────────────────────────
+
+  public queryByBoundingBox(minLat: number, maxLat: number, minLng: number, maxLng: number, limit: number = 200): Train[] {
+    const results: Train[] = [];
+    const active = this.trains.slice(0, this.activeScaleLimit);
+
+    for (const t of active) {
+      const { lat, lng } = t.liveState;
+      if (lat >= minLat && lat <= maxLat && lng >= minLng && lng <= maxLng) {
+        results.push(t);
+        if (results.length >= limit) break;
+      }
+    }
+    return results;
+  }
+
+  // ── Station & Train O(1) Lookups ───────────────────────────────────────────
+
+  public getStation(code: string): Station | undefined {
+    return this.stationsByCode.get(code.toUpperCase());
+  }
+
+  public getTrain(trainNumber: string): Train | undefined {
+    return this.trainsById.get(trainNumber);
+  }
+
+  // ── High-Throughput RTIS Ingestion ─────────────────────────────────────────
 
   public ingestRTISTelemetry(payload: RTISTelemetry): void {
     this.rtisBuffer.set(payload.trainNumber, payload);
-    // Update in-memory train live state if train exists
-    const train = this.getTrain(payload.trainNumber);
+    const train = this.trainsById.get(payload.trainNumber);
     if (train) {
       train.liveState.lat = payload.latitude;
       train.liveState.lng = payload.longitude;
@@ -378,7 +462,6 @@ class DataStore {
   // ── Caution Order (TSR) Management ────────────────────────────────────────
 
   public ingestCautionOrder(order: CautionOrder): void {
-    // Replace if same section already has an order
     const idx = this.cautionOrders.findIndex(c => c.sectionId === order.sectionId);
     if (idx >= 0) {
       this.cautionOrders[idx] = order;
@@ -387,8 +470,8 @@ class DataStore {
     }
   }
 
-  public getActiveCautionOrders(): CautionOrder[] {
-    return this.cautionOrders.filter(c => c.active);
+  public getActiveCautionOrders(zone?: string): CautionOrder[] {
+    return this.cautionOrders.filter(c => c.active && (!zone || zone.toUpperCase() === 'ALL' || c.zone?.toUpperCase() === zone.toUpperCase()));
   }
 
   public getTSRsForSection(sectionId: string): CautionOrder[] {
@@ -440,25 +523,20 @@ class DataStore {
 
   public logPrediction(log: PredictionAuditLog): void {
     this.predictionAuditLog.push(log);
-    // Keep last 1000 entries in memory
-    if (this.predictionAuditLog.length > 1000) {
+    if (this.predictionAuditLog.length > 2000) {
       this.predictionAuditLog.shift();
     }
   }
 
-  public recordActualArrival(trainNumber: string, stationCode: string,
-                              actualDelayMin: number): void {
+  public recordActualArrival(trainNumber: string, stationCode: string, actualDelayMin: number): void {
     const log = [...this.predictionAuditLog]
       .reverse()
-      .find(l => l.trainNumber === trainNumber && l.stationCode === stationCode
-              && !l.actualDelayMin);
+      .find(l => l.trainNumber === trainNumber && l.stationCode === stationCode && !l.actualDelayMin);
     if (log) {
-      log.actualDelayMin   = actualDelayMin;
-      log.actualArrivalAt  = new Date().toISOString();
+      log.actualDelayMin = actualDelayMin;
+      log.actualArrivalAt = new Date().toISOString();
     }
   }
-
-  // ── Compute actual distance remaining from live position ──────────────────
 
   public computeDistanceRemainingKm(trainNumber: string): number {
     const train = this.getTrain(trainNumber);
@@ -466,134 +544,48 @@ class DataStore {
 
     const telemetry = this.rtisBuffer.get(trainNumber);
     if (!telemetry) {
-      // Fallback: use fraction of route elapsed by last station
       const lastStopCode = train.liveState.lastStation;
       const lastStop = train.stops.find(s => s.code === lastStopCode);
-      const destStop  = train.stops[train.stops.length - 1];
+      const destStop = train.stops[train.stops.length - 1];
       if (lastStop && destStop) {
         return Math.abs(destStop.km - lastStop.km);
       }
       return train.totalDistanceKm * 0.5;
     }
 
-    // Best estimate: destination km minus current km (approximated by last station)
     const lastStopCode = train.liveState.lastStation;
-    const lastStop  = train.stops.find(s => s.code === lastStopCode);
-    const destStop   = train.stops[train.stops.length - 1];
+    const lastStop = train.stops.find(s => s.code === lastStopCode);
+    const destStop = train.stops[train.stops.length - 1];
     if (lastStop && destStop) {
       return Math.max(0, destStop.km - lastStop.km);
     }
     return train.totalDistanceKm * 0.4;
   }
 
-  // ── Derive junction congestion from delay accrual rate ────────────────────
-
   public deriveJunctionCongestionLevel(trainNumber: string): number {
     const train = this.getTrain(trainNumber);
     if (!train) return 0.3;
     const delay = train.liveState.delayMinutes;
-    // Normalise: 0 delay → 0.1 base, 30+ min → 0.9
     return Math.min(0.9, Math.max(0.05, delay / 35.0 + 0.1));
   }
 
-  public getTrain(trainNumber: string): Train | undefined {
-    return this.trains.find((t) => t.trainNumber === trainNumber);
-  }
-
-  public searchTrains(from: string, to: string): Train[] {
+  public searchTrains(from: string, to: string, zone?: string): Train[] {
     const fromCode = from.toUpperCase().trim();
     const toCode = to.toUpperCase().trim();
 
     const matched = this.trains.filter((t) => {
+      if (zone && zone.toUpperCase() !== 'ALL' && t.zone?.toUpperCase() !== zone.toUpperCase()) {
+        return false;
+      }
       const fromStop = t.stops.find((s) => s.code.toUpperCase() === fromCode);
       const toStop = t.stops.find((s) => s.code.toUpperCase() === toCode);
       return fromStop && toStop && fromStop.sequence < toStop.sequence;
     });
 
-    if (matched.length > 0) return matched;
-
-    // If searching across all-India stations with no direct local commuter train in seed,
-    // generate dynamic ground-truth express & Vande Bharat services with real telemetry
-    const fromStation = this.getStation(fromCode);
-    const toStation = this.getStation(toCode);
-    if (fromStation && toStation) {
-      return [
-        {
-          trainNumber: '22301',
-          name: `${fromStation.name} - ${toStation.name} Vande Bharat Express`,
-          type: 'Vande Bharat Express',
-          source: fromCode,
-          destination: toCode,
-          departureTime: '06:00',
-          arrivalTime: '13:30',
-          totalDistanceKm: 560,
-          avgSpeed: 85,
-          coaches: ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'E1', 'E2'],
-          liveState: {
-            lat: fromStation.lat,
-            lng: fromStation.lng,
-            speed: 95,
-            heading: 45,
-            currentSection: `${fromCode}-${toCode}-SEC1`,
-            lastStation: fromCode,
-            nextStation: toCode,
-            delayMinutes: 0,
-            predictedDelay: 0,
-            confidence: 0.96,
-            status: 'ON_TIME',
-            delayReasons: [],
-          },
-          stops: [
-            { code: fromCode, sequence: 1, arr: '05:50', dep: '06:00', km: 0, platform: 1 },
-            { code: toCode, sequence: 2, arr: '13:30', dep: '13:40', km: 560, platform: 2 },
-          ],
-        },
-        {
-          trainNumber: '12301',
-          name: `${fromStation.name} - ${toStation.name} Superfast Express`,
-          type: 'Superfast Express',
-          source: fromCode,
-          destination: toCode,
-          departureTime: '16:50',
-          arrivalTime: '07:20',
-          totalDistanceKm: 620,
-          avgSpeed: 68,
-          coaches: ['HA1', 'A1', 'A2', 'B1', 'B2', 'B3', 'S1', 'S2', 'S3'],
-          liveState: {
-            lat: fromStation.lat,
-            lng: fromStation.lng,
-            speed: 72,
-            heading: 45,
-            currentSection: `${fromCode}-${toCode}-SEC2`,
-            lastStation: fromCode,
-            nextStation: toCode,
-            delayMinutes: 4,
-            predictedDelay: 5,
-            confidence: 0.92,
-            status: 'ON_TIME',
-            delayReasons: [],
-          },
-          stops: [
-            { code: fromCode, sequence: 1, arr: '16:40', dep: '16:50', km: 0, platform: 3 },
-            { code: toCode, sequence: 2, arr: '07:20', dep: '07:30', km: 620, platform: 1 },
-          ],
-        },
-      ];
-    }
-
-    return [];
+    return matched;
   }
 
-  /**
-   * Generates a 12-coach Google Maps style cellular & RF signal crowd heatmap
-   */
   public generateSuburbanCoachCrowd(trainNumber: string, isPeakRush: boolean = false): CoachSignalCrowd[] {
-    const baseProfile = this.crowdData?.coachCrowd?.[trainNumber]?.coaches;
-    if (baseProfile && baseProfile.length === 12) {
-      return baseProfile;
-    }
-
-    // Generate dynamic 12-coach cellular telemetry
     const coachTemplates: { id: string; name: string; type: 'GENERAL' | 'LADIES' | 'VENDOR'; marker: string }[] = [
       { id: 'C1', name: 'Coach 1 (Front General)', type: 'GENERAL', marker: 'FRONT_PLATFORM' },
       { id: 'C2', name: 'Coach 2 (Ladies Compartment)', type: 'LADIES', marker: 'FRONT_PLATFORM' },
@@ -612,7 +604,6 @@ class DataStore {
     const multiplier = isPeakRush ? 1.6 : 0.85;
 
     return coachTemplates.map((t, idx) => {
-      // Middle coaches near staircase (C5, C6) have highest congestion
       const isMiddle = idx === 4 || idx === 5;
       const isEnd = idx === 0 || idx === 2 || idx === 8 || idx === 9;
       
@@ -659,22 +650,16 @@ class DataStore {
     });
   }
 
-  /**
-   * Retrieves upcoming Suburban Local Trains for Dakshineswar ⇄ Sealdah or any corridor
-   * calculated dynamically on the basis of the current live clock time.
-   */
   public getUpcomingSuburbanTrains(from: string = 'DAKE', to: string = 'SDAH', currentTime?: string): SuburbanDeparture[] {
     const fromCode = from.toUpperCase().trim();
     const toCode = to.toUpperCase().trim();
 
-    // Match all trains that stop at `from` and `to` in correct order
     const matchingTrains = this.trains.filter((t) => {
       const fromStop = t.stops.find((s) => s.code.toUpperCase() === fromCode);
       const toStop = t.stops.find((s) => s.code.toUpperCase() === toCode);
       return fromStop && toStop && fromStop.sequence < toStop.sequence;
     });
 
-    // Parse current time in minutes from midnight (HH:MM) in IST (Asia/Kolkata)
     let currentTotalMinutes = 0;
     if (currentTime && currentTime.includes(':')) {
       const [ch, cm] = currentTime.split(':').map(Number);
@@ -685,7 +670,7 @@ class DataStore {
       currentTotalMinutes = (ch || 0) * 60 + (cm || 0);
     }
 
-    const upcomingList: SuburbanDeparture[] = matchingTrains.map((train, idx) => {
+    const upcomingList: SuburbanDeparture[] = matchingTrains.map((train) => {
       const fromStop = train.stops.find((s) => s.code.toUpperCase() === fromCode)!;
       const toStop = train.stops.find((s) => s.code.toUpperCase() === toCode)!;
 
@@ -695,9 +680,8 @@ class DataStore {
       const [dh, dm] = scheduledDep.split(':').map(Number);
       const depTotalMin = (dh || 0) * 60 + (dm || 0);
 
-      // Calculate minutes until departure relative to current IST time
       let diff = depTotalMin - currentTotalMinutes;
-      if (diff < 0) diff += 1440; // wrap around for next day / upcoming cycle
+      if (diff < 0) diff += 1440;
 
       const delayMin = train.liveState.delayMinutes || 0;
       
@@ -708,12 +692,10 @@ class DataStore {
       };
 
       const predictedDep = formatTime(depTotalMin + delayMin);
-      
       const [ah, am] = scheduledArr.split(':').map(Number);
       const arrTotalMin = (ah || 0) * 60 + (am || 0);
       const predictedArr = formatTime(arrTotalMin + delayMin);
 
-      // Determine if current time falls in peak rush hour (08:00 - 10:30 or 17:00 - 20:00)
       const depHour = Math.floor(depTotalMin / 60);
       const isPeakRush = (depHour >= 8 && depHour <= 10) || (depHour >= 17 && depHour <= 20);
 
@@ -726,7 +708,6 @@ class DataStore {
       else if (avgDensity >= 60) overallStatus = 'ORANGE';
       else if (avgDensity >= 40) overallStatus = 'YELLOW';
 
-      // Find best coaches with lowest density
       const sortedCoaches = [...coaches].sort((a, b) => a.density - b.density);
       const bestCoach = sortedCoaches[0]?.coach || 'C3';
       const bestCoaches = sortedCoaches.slice(0, 3).map((c) => c.coach);
@@ -766,15 +747,11 @@ class DataStore {
       };
     });
 
-    // Sort by departure time closest to now, and only return upcoming ones
     return upcomingList
       .filter(t => t.minutesUntilDeparture >= -30 && t.minutesUntilDeparture <= 1440)
       .sort((a, b) => a.minutesUntilDeparture - b.minutesUntilDeparture);
   }
 
-  /**
-   * Detailed Coach-wise crowd & cellular signal telemetry inspector
-   */
   public getCoachSignalTelemetry(trainNumber: string) {
     const train = this.getTrain(trainNumber);
     const coaches = this.generateSuburbanCoachCrowd(trainNumber, false);
@@ -808,8 +785,31 @@ class DataStore {
   public getActiveCrewIncidents(trainNumber?: string): CrewIncident[] {
     return this.crewIncidents.filter(i => !i.resolved && (!trainNumber || i.trainNumber === trainNumber));
   }
+
+  public getEngineHealth(): {
+    activeTrains: number;
+    totalFleet: number;
+    zonesCount: number;
+    stationsCount: number;
+    memoryMB: number;
+    zoneDistribution: Record<string, number>;
+  } {
+    const zoneDist: Record<string, number> = {};
+    for (const [zone, set] of this.trainsByZone.entries()) {
+      zoneDist[zone] = set.size;
+    }
+
+    const memUsage = process.memoryUsage();
+
+    return {
+      activeTrains: this.activeScaleLimit,
+      totalFleet: this.trains.length,
+      zonesCount: this.trainsByZone.size,
+      stationsCount: this.stations.length,
+      memoryMB: Math.round(memUsage.heapUsed / 1024 / 1024),
+      zoneDistribution: zoneDist,
+    };
+  }
 }
 
 export const db = new DataStore();
-
-

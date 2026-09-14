@@ -9,6 +9,9 @@ import {
   getIxigoTrainRunningStatus,
   getLivePollerStatsHandler,
   getMLSelfLearningHealthHandler,
+  setSimulationScale,
+  getOperationalZones,
+  getEngineStats
 } from '../controllers/trainController';
 import { getStations, getStationArrivals } from '../controllers/stationController';
 import { calculateCatchProbability } from '../controllers/catchController';
@@ -49,6 +52,9 @@ router.get('/auth/me', authenticateToken as any, getMe);
 
 // 2. Train routes
 router.get('/trains', getTrains);
+router.post('/trains/scale', setSimulationScale);
+router.get('/trains/zones', getOperationalZones);
+router.get('/trains/engine/stats', getEngineStats);
 router.get('/trains/:trainNumber', getTrainByNumber);
 router.get('/trains/:trainNumber/live', getLiveTrainStatus);
 router.get('/trains/:trainNumber/ixigo-status', getIxigoTrainRunningStatus);
@@ -145,5 +151,19 @@ router.get('/future/logistics', getLogisticsOrchestration);
 import { configureSmartAlarm, optimizeFoodDelivery } from '../controllers/servicesController';
 router.post('/services/smart-alarm', configureSmartAlarm);
 router.post('/services/food-delivery', optimizeFoodDelivery);
+
+// 17. Linear Algebra & Matrix Logic Engine
+import {
+  handleMaxPlusTimetable,
+  handleSparseDelayDiffusion,
+  handleOccupancyConflictDetection,
+  handleSpatialNearestStations,
+  handleMatrixTopologyMetrics
+} from '../controllers/matrixController';
+router.post('/matrix/max-plus-schedule', handleMaxPlusTimetable);
+router.post('/matrix/propagate-delays', handleSparseDelayDiffusion);
+router.post('/matrix/detect-conflicts', handleOccupancyConflictDetection);
+router.post('/matrix/spatial-nearest-stations', handleSpatialNearestStations);
+router.get('/matrix/topology-metrics', handleMatrixTopologyMetrics);
 
 export default router;

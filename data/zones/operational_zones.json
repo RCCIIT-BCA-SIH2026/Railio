@@ -1,0 +1,380 @@
+[
+  {
+    "code": "NR",
+    "name": "Northern Railway",
+    "hq": "New Delhi",
+    "state": "Delhi / UP / Punjab / Haryana / J&K / Himachal",
+    "divisions": ["Delhi", "Ambala", "Firozpur", "Lucknow NR", "Moradabad"],
+    "color": "#3B82F6",
+    "routeKm": 6968,
+    "maxSpeedKmh": 160,
+    "terrain": "Indo-Gangetic Plains & Himalayan Foothills",
+    "weatherSensitivities": {
+      "winterFog": 0.85,
+      "summerHeat": 0.65,
+      "monsoonFlood": 0.40,
+      "cyclone": 0.05
+    },
+    "gradientDragFactor": 1.02,
+    "defaultFogSpeedCapKmh": 60,
+    "primaryCorridors": ["NDLS-CNB", "NDLS-UMB-ASR", "DLI-MB-LKO", "NDLS-AGC"],
+    "keyJunctions": ["NDLS", "DLI", "NZM", "ANVT", "UMB", "LKO", "MB", "FZR", "CDG"]
+  },
+  {
+    "code": "ER",
+    "name": "Eastern Railway",
+    "hq": "Kolkata (Fairlie Place)",
+    "state": "West Bengal / Bihar / Jharkhand",
+    "divisions": ["Howrah", "Sealdah", "Asansol", "Malda"],
+    "color": "#10B981",
+    "routeKm": 2775,
+    "maxSpeedKmh": 130,
+    "terrain": "Gangetic Delta, Heavy Suburban & Coal Belt",
+    "weatherSensitivities": {
+      "winterFog": 0.45,
+      "summerHeat": 0.60,
+      "monsoonFlood": 0.80,
+      "cyclone": 0.70
+    },
+    "gradientDragFactor": 1.05,
+    "defaultFogSpeedCapKmh": 75,
+    "primaryCorridors": ["HWH-BWN", "SDAH-DKAE", "HWH-ASN-DHN", "SDAH-RHA-BPC"],
+    "keyJunctions": ["HWH", "SDAH", "KOAA", "ASN", "MLDT", "BDC", "BWN", "DKAE", "DDJ"]
+  },
+  {
+    "code": "WR",
+    "name": "Western Railway",
+    "hq": "Mumbai (Churchgate)",
+    "state": "Maharashtra / Gujarat / MP / Rajasthan",
+    "divisions": ["Mumbai Central", "Vadodara", "Ahmedabad", "Ratlam", "Rajkot", "Bhavnagar"],
+    "color": "#F59E0B",
+    "routeKm": 6440,
+    "maxSpeedKmh": 160,
+    "terrain": "Coastal Plain, Western DFC & Semi-Arid",
+    "weatherSensitivities": {
+      "winterFog": 0.20,
+      "summerHeat": 0.80,
+      "monsoonFlood": 0.75,
+      "cyclone": 0.65
+    },
+    "gradientDragFactor": 1.03,
+    "defaultFogSpeedCapKmh": 75,
+    "primaryCorridors": ["MMCT-ST-BRC-ADI", "BRC-RTM-KOTA", "ADI-RJT-HAPA"],
+    "keyJunctions": ["MMCT", "BDTS", "BRC", "ADI", "RTM", "RJT", "ST", "BVC"]
+  },
+  {
+    "code": "CR",
+    "name": "Central Railway",
+    "hq": "Mumbai (CSMT)",
+    "state": "Maharashtra / MP / Karnataka",
+    "divisions": ["Mumbai CSMT", "Bhusawal", "Nagpur CR", "Pune", "Solapur"],
+    "color": "#EF4444",
+    "routeKm": 4151,
+    "maxSpeedKmh": 130,
+    "terrain": "Western Ghats (Thal/Bhor Ghat 1:37 Gradient) & Deccan Plateau",
+    "weatherSensitivities": {
+      "winterFog": 0.15,
+      "summerHeat": 0.75,
+      "monsoonFlood": 0.85,
+      "cyclone": 0.30
+    },
+    "gradientDragFactor": 1.28,
+    "defaultFogSpeedCapKmh": 75,
+    "primaryCorridors": ["CSMT-KYN-IGP-BSL", "CSMT-KYN-KJT-PUNE", "BSL-NGP", "PUNE-SUR-WADI"],
+    "keyJunctions": ["CSMT", "LTT", "KYN", "PUNE", "BSL", "NGP", "SUR", "IGP", "KJT"]
+  },
+  {
+    "code": "SR",
+    "name": "Southern Railway",
+    "hq": "Chennai",
+    "state": "Tamil Nadu / Kerala / Puducherry / Andhra",
+    "divisions": ["Chennai", "Madurai", "Palakkad", "Salem", "Thiruvananthapuram", "Tiruchchirappalli"],
+    "color": "#8B5CF6",
+    "routeKm": 5079,
+    "maxSpeedKmh": 130,
+    "terrain": "Coromandel Coastal Plain & Nilgiris Foothills",
+    "weatherSensitivities": {
+      "winterFog": 0.05,
+      "summerHeat": 0.70,
+      "monsoonFlood": 0.90,
+      "cyclone": 0.85
+    },
+    "gradientDragFactor": 1.08,
+    "defaultFogSpeedCapKmh": 80,
+    "primaryCorridors": ["MAS-KPD-JTJ-CBE", "MAS-GDR-BZA", "CBE-PGT-ERS-TVC", "TPJ-MDU-CAPE"],
+    "keyJunctions": ["MAS", "MS", "CBE", "MDU", "TPJ", "ERS", "TVC", "PGT", "SA"]
+  },
+  {
+    "code": "SCR",
+    "name": "South Central Railway",
+    "hq": "Secunderabad",
+    "state": "Telangana / Andhra Pradesh / Maharashtra / Karnataka",
+    "divisions": ["Secunderabad", "Hyderabad", "Vijayawada", "Guntakal", "Guntur", "Nanded"],
+    "color": "#06B6D4",
+    "routeKm": 6112,
+    "maxSpeedKmh": 130,
+    "terrain": "Deccan Plateau & Eastern Coastal Belt",
+    "weatherSensitivities": {
+      "winterFog": 0.10,
+      "summerHeat": 0.85,
+      "monsoonFlood": 0.65,
+      "cyclone": 0.75
+    },
+    "gradientDragFactor": 1.06,
+    "defaultFogSpeedCapKmh": 80,
+    "primaryCorridors": ["SC-KZJ-BZA", "BZA-RJY-VSKP", "SC-WADI-GTL", "GTL-RU-MAS"],
+    "keyJunctions": ["SC", "HYB", "BZA", "KZJ", "GTL", "GNT", "NED", "RU"]
+  },
+  {
+    "code": "SWR",
+    "name": "South Western Railway",
+    "hq": "Hubballi",
+    "state": "Karnataka / Goa / Andhra Pradesh / Tamil Nadu",
+    "divisions": ["Hubballi", "Bengaluru", "Mysuru"],
+    "color": "#EC4899",
+    "routeKm": 3662,
+    "maxSpeedKmh": 130,
+    "terrain": "Western Ghats (Braganza Ghat) & Mysore Plateau",
+    "weatherSensitivities": {
+      "winterFog": 0.10,
+      "summerHeat": 0.60,
+      "monsoonFlood": 0.80,
+      "cyclone": 0.20
+    },
+    "gradientDragFactor": 1.22,
+    "defaultFogSpeedCapKmh": 80,
+    "primaryCorridors": ["SBC-MYS", "SBC-TK-ASK-UBL", "SBC-BWT-JTJ", "UBL-LD-VSG"],
+    "keyJunctions": ["SBC", "YPR", "UBL", "MYS", "BAY", "ASK", "BWT"]
+  },
+  {
+    "code": "ECR",
+    "name": "East Central Railway",
+    "hq": "Hajipur",
+    "state": "Bihar / Jharkhand / UP / MP",
+    "divisions": ["Danapur", "Dhanbad", "Pt. Deen Dayal Upadhyaya", "Samastipur", "Sonpur"],
+    "color": "#14B8A6",
+    "routeKm": 4128,
+    "maxSpeedKmh": 130,
+    "terrain": "Grand Chord Coal Trunk & Gangetic Plains",
+    "weatherSensitivities": {
+      "winterFog": 0.75,
+      "summerHeat": 0.75,
+      "monsoonFlood": 0.85,
+      "cyclone": 0.15
+    },
+    "gradientDragFactor": 1.12,
+    "defaultFogSpeedCapKmh": 60,
+    "primaryCorridors": ["DDU-GAYA-DHN", "DDU-PNBE-MKA", "PNBE-SPJ-DBG", "DHN-BRKA-GHD"],
+    "keyJunctions": ["DDU", "PNBE", "DHN", "GAYA", "SPJ", "SEE", "MFP", "KQR"]
+  },
+  {
+    "code": "NCR",
+    "name": "North Central Railway",
+    "hq": "Prayagraj",
+    "state": "Uttar Pradesh / MP / Rajasthan / Haryana",
+    "divisions": ["Prayagraj", "Agra", "Jhansi"],
+    "color": "#6366F1",
+    "routeKm": 3522,
+    "maxSpeedKmh": 160,
+    "terrain": "Ultra-Dense High-Speed Trunk Quad (DDU-CNB-GZB)",
+    "weatherSensitivities": {
+      "winterFog": 0.90,
+      "summerHeat": 0.80,
+      "monsoonFlood": 0.50,
+      "cyclone": 0.05
+    },
+    "gradientDragFactor": 1.01,
+    "defaultFogSpeedCapKmh": 60,
+    "primaryCorridors": ["DDU-PRYJ-CNB-GZB", "AGC-GWL-VGLJ", "CNB-BND-MKP"],
+    "keyJunctions": ["PRYJ", "CNB", "AGC", "VGLJ", "TDL", "ALJN", "MTJ", "GWL"]
+  },
+  {
+    "code": "NWR",
+    "name": "North Western Railway",
+    "hq": "Jaipur",
+    "state": "Rajasthan / Gujarat / Punjab / Haryana",
+    "divisions": ["Jaipur", "Ajmer", "Bikaner", "Jodhpur"],
+    "color": "#D97706",
+    "routeKm": 5550,
+    "maxSpeedKmh": 130,
+    "terrain": "Thar Desert, Arid Plains & Aravalli Ranges",
+    "weatherSensitivities": {
+      "winterFog": 0.40,
+      "summerHeat": 0.95,
+      "monsoonFlood": 0.30,
+      "cyclone": 0.20
+    },
+    "gradientDragFactor": 1.04,
+    "defaultFogSpeedCapKmh": 70,
+    "primaryCorridors": ["DLI-RE-AWR-JP-AII", "AII-ABR-PNU-ADI", "JP-SOG-BKN", "JP-FL-JU"],
+    "keyJunctions": ["JP", "AII", "JU", "BKN", "RE", "AWR", "ABR", "FL"]
+  },
+  {
+    "code": "NFR",
+    "name": "Northeast Frontier Railway",
+    "hq": "Guwahati (Maligaon)",
+    "state": "Assam / WB / Bihar / Tripura / Meghalaya / Nagaland",
+    "divisions": ["Alipurduar", "Katihar", "Lumding", "Rangiya", "Tinsukia"],
+    "color": "#059669",
+    "routeKm": 4153,
+    "maxSpeedKmh": 110,
+    "terrain": "Brahmaputra Valley, Himalayan Foothills & Elephant Corridors",
+    "weatherSensitivities": {
+      "winterFog": 0.60,
+      "summerHeat": 0.40,
+      "monsoonFlood": 0.95,
+      "cyclone": 0.40
+    },
+    "gradientDragFactor": 1.20,
+    "defaultFogSpeedCapKmh": 60,
+    "primaryCorridors": ["KIR-NJP-APDJ-NBQ-GHY", "GHY-LMG-DBRG", "LMG-BPB-AGTL"],
+    "keyJunctions": ["GHY", "KYQ", "NJP", "KIR", "APDJ", "RNY", "LMG", "DBRG", "AGTL"]
+  },
+  {
+    "code": "SER",
+    "name": "South Eastern Railway",
+    "hq": "Kolkata (Garden Reach)",
+    "state": "West Bengal / Jharkhand / Odisha",
+    "divisions": ["Adra", "Chakradharpur", "Kharagpur", "Ranchi"],
+    "color": "#2563EB",
+    "routeKm": 2713,
+    "maxSpeedKmh": 130,
+    "terrain": "Chota Nagpur Mineral Belt & Coastal Plain",
+    "weatherSensitivities": {
+      "winterFog": 0.30,
+      "summerHeat": 0.75,
+      "monsoonFlood": 0.75,
+      "cyclone": 0.70
+    },
+    "gradientDragFactor": 1.15,
+    "defaultFogSpeedCapKmh": 75,
+    "primaryCorridors": ["HWH-KGP-TATA-CKP-ROU", "KGP-BLS-BHC", "ADRA-BKSC-MURI-RNC"],
+    "keyJunctions": ["KGP", "TATA", "CKP", "ROU", "RNC", "ADRA", "BKSC", "SRC"]
+  },
+  {
+    "code": "SECR",
+    "name": "South East Central Railway",
+    "hq": "Bilaspur",
+    "state": "Chhattisgarh / MP / Maharashtra / Odisha",
+    "divisions": ["Bilaspur", "Raipur", "Nagpur SECR"],
+    "color": "#7C3AED",
+    "routeKm": 2512,
+    "maxSpeedKmh": 130,
+    "terrain": "Heavy Coal/Freight Mineral Corridors & Satpura Forests",
+    "weatherSensitivities": {
+      "winterFog": 0.25,
+      "summerHeat": 0.85,
+      "monsoonFlood": 0.70,
+      "cyclone": 0.15
+    },
+    "gradientDragFactor": 1.14,
+    "defaultFogSpeedCapKmh": 75,
+    "primaryCorridors": ["ROU-JSG-BSP-R-DURG-NGP", "BSP-APR-SDL-KTE"],
+    "keyJunctions": ["BSP", "R", "DURG", "G", "APR", "SDL"]
+  },
+  {
+    "code": "ECoR",
+    "name": "East Coast Railway",
+    "hq": "Bhubaneswar",
+    "state": "Odisha / Andhra Pradesh / Chhattisgarh",
+    "divisions": ["Khurda Road", "Sambalpur", "Waltair"],
+    "color": "#0EA5E9",
+    "routeKm": 2739,
+    "maxSpeedKmh": 130,
+    "terrain": "Eastern Ghats & Bay of Bengal Cyclone Coastal Belt",
+    "weatherSensitivities": {
+      "winterFog": 0.20,
+      "summerHeat": 0.80,
+      "monsoonFlood": 0.85,
+      "cyclone": 0.95
+    },
+    "gradientDragFactor": 1.18,
+    "defaultFogSpeedCapKmh": 75,
+    "primaryCorridors": ["BHC-CTC-BBS-KUR-BAM-VSKP", "KUR-PURI", "SBP-TIG-RGDA-VZM"],
+    "keyJunctions": ["BBS", "KUR", "CTC", "PURI", "VSKP", "SBP", "TIG", "RGDA"]
+  },
+  {
+    "code": "WCR",
+    "name": "West Central Railway",
+    "hq": "Jabalpur",
+    "state": "Madhya Pradesh / Rajasthan / UP",
+    "divisions": ["Jabalpur", "Bhopal", "Kota"],
+    "color": "#475569",
+    "routeKm": 2997,
+    "maxSpeedKmh": 160,
+    "terrain": "Vindhya & Satpura Ranges, High-Speed Delhi-Mumbai Corridor",
+    "weatherSensitivities": {
+      "winterFog": 0.40,
+      "summerHeat": 0.85,
+      "monsoonFlood": 0.55,
+      "cyclone": 0.05
+    },
+    "gradientDragFactor": 1.08,
+    "defaultFogSpeedCapKmh": 75,
+    "primaryCorridors": ["MTJ-KOTA-NAD", "BPL-ET-JBP-KTE-STA", "ET-KNW"],
+    "keyJunctions": ["BPL", "JBP", "KOTA", "ET", "KTE", "STA", "RKMP", "SGO"]
+  },
+  {
+    "code": "NER",
+    "name": "North Eastern Railway",
+    "hq": "Gorakhpur",
+    "state": "Uttar Pradesh / Bihar / Uttarakhand",
+    "divisions": ["Izzatnagar", "Lucknow NER", "Varanasi NER"],
+    "color": "#84CC16",
+    "routeKm": 3865,
+    "maxSpeedKmh": 130,
+    "terrain": "Terai Foothills & Sarayu/Ghaghara River Basins",
+    "weatherSensitivities": {
+      "winterFog": 0.85,
+      "summerHeat": 0.70,
+      "monsoonFlood": 0.85,
+      "cyclone": 0.05
+    },
+    "gradientDragFactor": 1.03,
+    "defaultFogSpeedCapKmh": 60,
+    "primaryCorridors": ["GKP-GD-LKO", "GKP-DEOS-SV-CPR", "BSB-MAU-BTT", "KSJ-BE-LKU-KGM"],
+    "keyJunctions": ["GKP", "LJN", "BSB", "CPR", "GD", "BE", "KGM", "AYC"]
+  },
+  {
+    "code": "KR",
+    "name": "Konkan Railway",
+    "hq": "Navi Mumbai (Belapur)",
+    "state": "Maharashtra / Goa / Karnataka / Kerala",
+    "divisions": ["Karwar", "Ratnagiri"],
+    "color": "#F43F5E",
+    "routeKm": 741,
+    "maxSpeedKmh": 120,
+    "terrain": "Sahyadri Rugged Coastal Tunnels & 2000+ Viaducts",
+    "weatherSensitivities": {
+      "winterFog": 0.10,
+      "summerHeat": 0.50,
+      "monsoonFlood": 0.98,
+      "cyclone": 0.75
+    },
+    "gradientDragFactor": 1.25,
+    "defaultFogSpeedCapKmh": 70,
+    "primaryCorridors": ["ROHA-RN-KAWR-UD-MAJN"],
+    "keyJunctions": ["ROHA", "RN", "KAWR", "MAO", "UD", "MAJN"]
+  },
+  {
+    "code": "METRO",
+    "name": "Metro Railway Kolkata",
+    "hq": "Kolkata (Park Street)",
+    "state": "West Bengal",
+    "divisions": ["Kolkata Metro North-South", "East-West", "Purple/Orange Lines"],
+    "color": "#0D9488",
+    "routeKm": 48,
+    "maxSpeedKmh": 80,
+    "terrain": "Underground & Elevated High-Frequency CBTC Rapid Transit",
+    "weatherSensitivities": {
+      "winterFog": 0.05,
+      "summerHeat": 0.30,
+      "monsoonFlood": 0.50,
+      "cyclone": 0.40
+    },
+    "gradientDragFactor": 1.00,
+    "defaultFogSpeedCapKmh": 80,
+    "primaryCorridors": ["DKAE-DAKE-ESPLANADE-KVI", "HWH-SEALDAH-SALT LAKE SECTOR V"],
+    "keyJunctions": ["ESPLANADE", "SEALDAH_METRO", "HOWRAH_METRO", "DUMDUM_METRO", "KAVI_SUBHASH"]
+  }
+]

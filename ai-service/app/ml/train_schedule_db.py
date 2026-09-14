@@ -1,11 +1,6 @@
 """
-TrainScheduleDB — loads suburban_trains.json once and provides lookup helpers.
-Used by the delay predictor to fetch real schedule data for any train number.
-
-STRICT DATASET-ONLY MODE:
-  All station resolution uses DATASET_STATION_ALIASES which maps human names
-  → actual codes present in suburban_trains.json.
-  No LLM knowledge or hardcoded fallback trains are used.
+TrainScheduleDB — loads nationwide_fleet.json / suburban_trains.json and provides lookup helpers.
+Used by the delay predictor and RAG engine to fetch real schedule data for all 18 Indian Railways zones.
 """
 import json
 import os
@@ -16,10 +11,7 @@ from typing import Optional, Dict, Any, List, Tuple
 IST_TZ = timezone(timedelta(hours=5, minutes=30))
 
 def get_ist_now(ref_time: Any = None) -> datetime:
-    """
-    Guarantees the returned datetime is strictly in Indian Standard Time (IST, UTC+05:30).
-    Properly converts UTC ISO strings (e.g. from JS new Date().toISOString()) to IST.
-    """
+    """Guarantees the returned datetime is strictly in Indian Standard Time (IST, UTC+05:30)."""
     if isinstance(ref_time, datetime):
         if ref_time.tzinfo is None:
             return ref_time.replace(tzinfo=IST_TZ)
@@ -32,157 +24,143 @@ def get_ist_now(ref_time: Any = None) -> datetime:
             if dt.tzinfo is None:
                 return dt.replace(tzinfo=IST_TZ)
             return dt.astimezone(IST_TZ)
-        except Exception as e:
+        except Exception:
             pass
 
-    # Default to current real-time UTC converted to IST
     return datetime.now(timezone.utc).astimezone(IST_TZ)
 
-# Resolve path: ai-service/app/ml/ → up 3 dirs → project root → data/trains/suburban_trains.json
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))          # ai-service/app/ml/
 _AI_SERVICE_DIR = os.path.dirname(os.path.dirname(_THIS_DIR))  # ai-service/
 _PROJECT_ROOT = os.path.dirname(_AI_SERVICE_DIR)               # RailSathi/
-_DATA_PATH = os.path.join(_PROJECT_ROOT, "data", "trains", "suburban_trains.json")
+_NATIONWIDE_DATA_PATH = os.path.join(_PROJECT_ROOT, "data", "trains", "nationwide_fleet.json")
+_SUBURBAN_DATA_PATH = os.path.join(_PROJECT_ROOT, "data", "trains", "suburban_trains.json")
+_STATIONS_DATA_PATH = os.path.join(_PROJECT_ROOT, "data", "stations", "all_india_stations.json")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# DATASET STATION ALIASES
-# Maps every known human-readable name / Bengali / Banglish / alternate spelling
-# → canonical station code that actually exists in suburban_trains.json.
-#
-# ONLY codes present in the dataset are listed here.
-# Do NOT add cities outside this dataset (no Delhi, Patna, Mumbai, etc.)
-# ─────────────────────────────────────────────────────────────────────────────
 DATASET_STATION_ALIASES: Dict[str, str] = {
-    # ── Sealdah (SDAH) ──────────────────────────────────────────────────────
-    "sealdah":              "SDAH",
-    "sealda":               "SDAH",
-    "sdah":                 "SDAH",
-    "sealdaha":             "SDAH",
-    "syaldah":              "SDAH",
-    "শিয়ালদা":             "SDAH",
-    "শিয়ালদহ":             "SDAH",
-    "শিয়ালদা স্টেশন":    "SDAH",
+    # ── Eastern Hubs ────────────────────────────────────────────────────────
+    "sealdah": "SDAH", "sealda": "SDAH", "sdah": "SDAH", "শিয়ালদা": "SDAH",
+    "howrah": "HWH", "howrah junction": "HWH", "howrah jn": "HWH", "hwh": "HWH", "হাওড়া": "HWH",
+    "bidhan nagar road": "BNXR", "bidhannagar": "BNXR", "bnxr": "BNXR",
+    "dum dum junction": "DDJ", "dum dum": "DDJ", "dumdum": "DDJ", "ddj": "DDJ",
+    "baranagar road": "BARN", "baranagar": "BARN", "barn": "BARN",
+    "dakshineswar": "DAKE", "dake": "DAKE", "দক্ষিণেশ্বর": "DAKE",
+    "dankuni": "DKAE", "dankuni junction": "DKAE", "dkae": "DKAE", "ডানকুনি": "DKAE",
+    "barddhaman": "BWN", "bardhaman": "BWN", "burdwan": "BWN", "bwn": "BWN",
+    "asansol": "ASN", "asn": "ASN", "kolkata terminal": "KOAA", "koaa": "KOAA",
 
-    # ── Bidhan Nagar Road (BNXR) ─────────────────────────────────────────────
-    "bidhan nagar road":    "BNXR",
-    "bidhannagar road":     "BNXR",
-    "bidhan nagar":         "BNXR",
-    "bidhannagar":          "BNXR",
-    "bnxr":                 "BNXR",
-    "বিধাননগর রোড":         "BNXR",
-    "বিধাননগর":             "BNXR",
+    # ── Northern Hubs ───────────────────────────────────────────────────────
+    "new delhi": "NDLS", "delhi": "NDLS", "ndls": "NDLS", "नई दिल्ली": "NDLS",
+    "old delhi": "DLI", "dli": "DLI", "nizamuddin": "NZM", "hazrat nizamuddin": "NZM", "nzm": "NZM",
+    "anand vihar": "ANVT", "anvt": "ANVT", "ambala": "UMB", "umb": "UMB",
+    "amritsar": "ASR", "asr": "ASR", "lucknow": "LKO", "lko": "LKO",
+    "kanpur": "CNB", "kanpur central": "CNB", "cnb": "CNB", "prayagraj": "PRYJ", "pryj": "PRYJ",
+    "varanasi": "BSB", "bsb": "BSB", "agra": "AGC", "agc": "AGC", "jhansi": "VGLJ", "vglj": "VGLJ",
 
-    # ── Dum Dum Junction (DDJ) ──────────────────────────────────────────────
-    "dum dum junction":     "DDJ",
-    "dum dum jn":           "DDJ",
-    "dum dum":              "DDJ",
-    "dumdum":               "DDJ",
-    "ddj":                  "DDJ",
-    "দমদম জংশন":            "DDJ",
-    "দমদম":                 "DDJ",
+    # ── Western Hubs ────────────────────────────────────────────────────────
+    "mumbai central": "MMCT", "mumbai": "MMCT", "mmct": "MMCT", "bandra terminus": "BDTS", "bdts": "BDTS",
+    "surat": "ST", "st": "ST", "vadodara": "BRC", "brc": "BRC",
+    "ahmedabad": "ADI", "adi": "ADI", "ratlam": "RTM", "rtm": "RTM", "rajkot": "RJT", "rjt": "RJT",
 
-    # ── Baranagar Road (BARN) ───────────────────────────────────────────────
-    "baranagar road":       "BARN",
-    "baranagar":            "BARN",
-    "barn":                 "BARN",
-    "বরাহনগর রোড":          "BARN",
-    "বরানগর রোড":           "BARN",
-    "বরানগর":               "BARN",
+    # ── Central Hubs ────────────────────────────────────────────────────────
+    "mumbai csmt": "CSMT", "csmt": "CSMT", "vt": "CSMT", "kalyan": "KYN", "kyn": "KYN",
+    "pune": "PUNE", "pune junction": "PUNE", "bhusawal": "BSL", "bsl": "BSL",
+    "nagpur": "NGP", "ngp": "NGP", "solapur": "SUR", "sur": "SUR",
 
-    # ── Dakshineswar (DAKE) ─────────────────────────────────────────────────
-    "dakshineswar":         "DAKE",
-    "dakshineshwar":        "DAKE",
-    "dake":                 "DAKE",
-    "দক্ষিণেশ্বর":          "DAKE",
+    # ── Southern Hubs ───────────────────────────────────────────────────────
+    "chennai central": "MAS", "chennai": "MAS", "mas": "MAS", "chennai egmore": "MS", "ms": "MS",
+    "bengaluru": "SBC", "bangalore": "SBC", "sbc": "SBC", "yesvantpur": "YPR", "ypr": "YPR",
+    "mysuru": "MYS", "mysore": "MYS", "mys": "MYS", "hubballi": "UBL", "hubli": "UBL", "ubl": "UBL",
+    "secunderabad": "SC", "sc": "SC", "hyderabad": "HYB", "hyb": "HYB", "vijayawada": "BZA", "bza": "BZA",
+    "coimbatore": "CBE", "cbe": "CBE", "madurai": "MDU", "mdu": "MDU", "kochi": "ERS", "ernakulam": "ERS", "ers": "ERS",
+    "thiruvananthapuram": "TVC", "trivandrum": "TVC", "tvc": "TVC",
 
-    # ── Dankuni (DKAE) ──────────────────────────────────────────────────────
-    "dankuni":              "DKAE",
-    "dankuni junction":     "DKAE",
-    "dankuni jn":           "DKAE",
-    "dkae":                 "DKAE",
-    "ডানকুনি":              "DKAE",
-    "dankuani":             "DKAE",
+    # ── East Central & North Eastern Hubs ────────────────────────────────────
+    "patna": "PNBE", "patna junction": "PNBE", "pnbe": "PNBE",
+    "deen dayal upadhyaya": "DDU", "ddu": "DDU", "mughalsarai": "DDU",
+    "dhanbad": "DHN", "dhn": "DHN", "gaya": "GAYA", "gaya": "GAYA",
+    "gorakhpur": "GKP", "gkp": "GKP", "guwahati": "GHY", "ghy": "GHY", "new jalpaiguri": "NJP", "njp": "NJP",
+    "bhubaneswar": "BBS", "bbs": "BBS", "puri": "PURI", "visakhapatnam": "VSKP", "vskp": "VSKP",
+    "bilaspur": "BSP", "bsp": "BSP", "raipur": "R", "kharagpur": "KGP", "kgp": "KGP", "tatanagar": "TATA", "tata": "TATA",
+    "bhopal": "BPL", "bpl": "BPL", "jabalpur": "JBP", "jbp": "JBP", "kota": "KOTA", "jaipur": "JP", "jp": "JP",
+    "madgaon": "MAO", "goa": "MAO", "mao": "MAO", "ratnagiri": "RN", "rn": "RN"
 }
 
-# All valid dataset codes (for fast lookup)
 VALID_DATASET_CODES = set(DATASET_STATION_ALIASES.values())
 
+def _load_all_india_stations():
+    if os.path.exists(_STATIONS_DATA_PATH):
+        try:
+            with open(_STATIONS_DATA_PATH, "r", encoding="utf-8") as f:
+                stns = json.load(f)
+                for s in stns:
+                    code = s["code"].upper()
+                    name = s["name"].lower()
+                    city = s["city"].lower()
+                    if name not in DATASET_STATION_ALIASES:
+                        DATASET_STATION_ALIASES[name] = code
+                    if city not in DATASET_STATION_ALIASES:
+                        DATASET_STATION_ALIASES[city] = code
+                    DATASET_STATION_ALIASES[code.lower()] = code
+                    VALID_DATASET_CODES.add(code)
+        except Exception as e:
+            print(f"[TrainScheduleDB] Warning loading stations: {e}")
+
+_load_all_india_stations()
 
 def resolve_station_code(name: str) -> Optional[str]:
-    """
-    Resolve a human-readable station name (any language/script) to its
-    actual dataset station code (e.g. "Sealdah" → "SDAH").
-
-    Returns None if the station is not in the dataset.
-    NEVER falls back to LLM knowledge or external station data.
-    """
+    """Resolve a human-readable station name (any language/script) to its dataset station code."""
     if not name:
         return None
     key = name.strip().lower()
-    # Direct alias lookup
     code = DATASET_STATION_ALIASES.get(key)
     if code:
         return code
-    # Already a valid code
     if key.upper() in VALID_DATASET_CODES:
         return key.upper()
     return None
 
-
 def is_valid_station(name: str) -> bool:
-    """Return True if the station name/code maps to a known dataset station."""
     return resolve_station_code(name) is not None
 
-
 def _hhmm_to_min(t: str) -> int:
-    """Convert 'HH:MM' → total minutes from midnight."""
     try:
         h, m = (int(x) for x in t.split(":"))
         return h * 60 + m
     except Exception:
         return 0
 
-
 def _min_to_hhmm(total_min: int) -> str:
-    """Convert total minutes (may be ≥ 1440) → 'HH:MM' (24-h, normalised mod 1440)."""
     normalised = total_min % 1440
     h = normalised // 60
     m = normalised % 60
     return f"{h:02d}:{m:02d}"
 
-
 class TrainScheduleDB:
     def __init__(self):
         self._trains: Dict[str, Any] = {}
+        self._all_trains: List[Dict[str, Any]] = []
         self._load()
 
     def _load(self):
-        """
-        Load suburban_trains.json.
-        _all_trains : full list of all records (used for search — preserves all entries
-                      even when multiple records share the same trainNumber)
-        _trains     : dict keyed by trainNumber for O(1) single-train lookup
-                      (last-write-wins when trainNumber duplicates exist)
-        """
+        # Prefer nationwide fleet (5,500+ trains across 18 zones), fallback to suburban_trains
+        target_path = _NATIONWIDE_DATA_PATH if os.path.exists(_NATIONWIDE_DATA_PATH) else _SUBURBAN_DATA_PATH
         try:
-            with open(_DATA_PATH, "r", encoding="utf-8") as f:
+            with open(target_path, "r", encoding="utf-8") as f:
                 trains_list = json.load(f)
-            self._all_trains: List[Dict[str, Any]] = trains_list
+            self._all_trains = trains_list
             self._trains = {str(t["trainNumber"]): t for t in trains_list}
             print(f"[TrainScheduleDB] Loaded {len(self._all_trains)} train records "
-                  f"({len(self._trains)} unique train numbers) from suburban_trains.json")
+                  f"({len(self._trains)} unique train numbers) from {os.path.basename(target_path)}")
         except Exception as exc:
-            print(f"[TrainScheduleDB] Could not load suburban_trains.json: {exc}")
+            print(f"[TrainScheduleDB] Could not load train dataset: {exc}")
             self._all_trains = []
             self._trains = {}
 
     def get(self, train_number: str) -> Optional[Dict[str, Any]]:
-        """Return the full train record or None if not found."""
-        return self._trains.get(str(train_number).strip())
+        return self._trains.get(train_number.strip())
 
     def _find_stop(self, stops: list, codes: List[str]) -> Optional[Dict[str, Any]]:
-        """Return the first stop entry whose code matches any of 'codes'."""
         for s in stops:
             if s.get("code", "").upper() in [c.upper() for c in codes]:
                 return s
@@ -195,15 +173,6 @@ class TrainScheduleDB:
         orig_codes: Optional[List[str]] = None,
         dest_codes: Optional[List[str]] = None,
     ) -> Optional[Dict[str, Any]]:
-        """
-        Given a train number and the current datetime, return a dict of
-        feature values ready to pass into DelayPredictionRequest.
-
-        If orig_codes / dest_codes are provided, look up segment times from
-        the stops array (supporting intermediate-stop journeys).
-
-        Returns None if a fatal validation failure occurs.
-        """
         now = get_ist_now(now)
         train = self.get(train_number)
 
@@ -211,9 +180,8 @@ class TrainScheduleDB:
             return None
 
         stops = train.get("stops", [])
-        live  = train.get("liveState", {})
+        live = train.get("liveState", {})
 
-        # ── Determine departure time (segment origin stop, or train source) ──
         if orig_codes and stops:
             orig_stop = self._find_stop(stops, orig_codes)
         else:
@@ -224,13 +192,11 @@ class TrainScheduleDB:
         else:
             dest_stop = stops[-1] if stops else None
 
-        # Departure = dep time of origin stop (or train's top-level departureTime)
         if orig_stop:
             dep_str = orig_stop.get("dep") or orig_stop.get("arr") or train.get("departureTime", "10:00")
         else:
             dep_str = train.get("departureTime", "10:00")
 
-        # Arrival = arr time of destination stop (or train's top-level arrivalTime)
         if dest_stop:
             arr_str = dest_stop.get("arr") or dest_stop.get("dep") or train.get("arrivalTime", "18:00")
         else:
@@ -239,232 +205,62 @@ class TrainScheduleDB:
         dep_total = _hhmm_to_min(dep_str)
         arr_total = _hhmm_to_min(arr_str)
 
-        # Handle midnight crossing: if arrival appears before departure, it's next-day
         if arr_total <= dep_total:
             arr_total += 24 * 60
 
         travel_dur_mins = float(arr_total - dep_total)
 
-        # ── Distance: prefer stop km data, else totalDistanceKm ──
         if orig_stop and dest_stop:
             orig_km = float(orig_stop.get("km", 0))
             dest_km = float(dest_stop.get("km", train.get("totalDistanceKm", 500)))
             distance_km = abs(dest_km - orig_km)
         else:
-            distance_km = float(train.get("totalDistanceKm", 500))
+            distance_km = float(train.get("totalDistanceKm", 500.0))
 
-        # Avoid zero distances
-        if distance_km <= 0:
-            distance_km = float(train.get("totalDistanceKm", 500))
-
-        dep_h, dep_m = int(dep_str.split(":")[0]), int(dep_str.split(":")[1])
-        arr_h, arr_m = int(arr_str.split(":")[0]), int(arr_str.split(":")[1])
-
-        departure_delay = float(live.get("delayMinutes", 0))
-        avg_speed = float(train.get("avgSpeed", 80))
-        current_speed = float(live.get("speed", avg_speed))
-        direction = 1  # Up direction heuristic
+        direction = 1 if train.get("source", "").upper() != "NDLS" and train.get("source", "").upper() != "SDAH" else 0
+        dep_delay = float(live.get("delayMinutes", 0.0))
+        curr_speed = float(live.get("speed", train.get("avgSpeed", 60)))
 
         return {
             "trainNumber": train_number,
-            "trainName": train.get("name", f"Train {train_number}"),
+            "zone": train.get("zone", "NR"),
+            "departureTime": dep_str,
+            "arrivalTime": arr_str,
+            "travelDurationMins": travel_dur_mins,
+            "distanceKm": distance_km if distance_km > 0 else 500.0,
+            "direction": direction,
             "day": now.day,
             "month": now.month,
             "dayOfWeek": now.weekday(),
-            "departureHour": dep_h,
-            "departureMinute": dep_m,
-            "arrivalHour": arr_h,
-            "arrivalMinute": arr_m,
-            # The raw times as strings for display
-            "departureTimeStr": dep_str,
-            "arrivalTimeStr": arr_str,
-            # Whether arrival is next-day
-            "overnightArrival": (arr_total - dep_total) > 720,  # > 12 hours → likely crosses midnight
-            "travelDurationMins": travel_dur_mins,
-            "distanceKm": distance_km,
-            "direction": direction,
-            "departureDelay": departure_delay,
-            "currentSpeed": current_speed,
-            "source": train.get("source", ""),
-            "destination": train.get("destination", ""),
-            "liveState": live,
+            "departureDelay": dep_delay,
+            "currentSpeed": curr_speed,
+            "dwellTime": 2.0,
+            "weatherCondition": "Clear",
+            "junctionCongestionLevel": 0.25,
+            "activeTSRs": [],
+            "signalAspect": None,
+            "precedingTrainDelayMin": 0.0,
+            "fogVisibilityKm": 10.0
         }
 
-    def search_trains(self, origin: str, destination: str) -> list:
-        """
-        Search candidate trains matching the origin and destination.
-
-        Accepts either human-readable station names or raw codes.
-        Names are resolved via DATASET_STATION_ALIASES.
-        Returns empty list if either station is not in the dataset.
-
-        STRICT: Never returns trains for stations not in suburban_trains.json.
-        """
-        # Resolve to dataset codes
-        orig_code = resolve_station_code(origin)
-        dest_code = resolve_station_code(destination)
-
-        if not orig_code or not dest_code:
-            missing = []
-            if not orig_code:
-                missing.append(f"'{origin}'")
-            if not dest_code:
-                missing.append(f"'{destination}'")
-            print(f"[TrainScheduleDB] SEARCH REJECTED: station(s) not in dataset: {', '.join(missing)}")
-            return []
-
-        orig_codes = [orig_code]
-        dest_codes = [dest_code]
-
-        print(f"[TrainScheduleDB] Searching: {origin}({orig_code}) -> {destination}({dest_code})")
-
-        matches = []
-        # Iterate _all_trains (the full list) — not just the deduped dict —
-        # so that every schedule record is considered even when multiple records
-        # share the same trainNumber.
-        for train in self._all_trains:
-            stops = [s.get("code", "").upper() for s in train.get("stops", [])]
-            if not stops:
-                # No stops array — use source/destination only
-                src = train.get("source", "").upper()
-                dst = train.get("destination", "").upper()
-                if any(c == src for c in orig_codes) and any(c == dst for c in dest_codes):
-                    matches.append(train)
+    def search_by_route(self, from_code: str, to_code: str, zone: Optional[str] = None) -> List[Dict[str, Any]]:
+        fc = from_code.upper().strip()
+        tc = to_code.upper().strip()
+        results = []
+        for t in self._all_trains:
+            if zone and zone.upper() != "ALL" and t.get("zone", "").upper() != zone.upper():
                 continue
+            stops = t.get("stops", [])
+            f_idx = -1
+            t_idx = -1
+            for idx, s in enumerate(stops):
+                sc = s.get("code", "").upper()
+                if sc == fc and f_idx == -1:
+                    f_idx = idx
+                if sc == tc and t_idx == -1:
+                    t_idx = idx
+            if f_idx != -1 and t_idx != -1 and f_idx < t_idx:
+                results.append(t)
+        return results
 
-            orig_in = any(c in stops for c in orig_codes)
-            dest_in = any(c in stops for c in dest_codes)
-            if orig_in and dest_in:
-                orig_idx = min(i for i, s in enumerate(stops) if s in orig_codes)
-                dest_idx = min(i for i, s in enumerate(stops) if s in dest_codes)
-                if orig_idx < dest_idx:
-                    matches.append(train)
-
-        print(f"[TrainScheduleDB] Found {len(matches)} candidate trains for {orig_code}->{dest_code}")
-        return matches
-
-    def search_trains_with_segment_info(
-        self,
-        origin: str,
-        destination: str,
-        now: Optional[datetime] = None,
-        dep_time_from_hhmm: Optional[str] = None,
-        dep_time_to_hhmm: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
-        """
-        Like search_trains(), but returns enriched segment dicts containing:
-          - All raw train fields
-          - 'segment_dep_time': departure time at the origin stop
-          - 'segment_arr_time': arrival time at the destination stop
-          - 'segment_duration_mins': travel time for this segment
-          - 'segment_distance_km': distance for this segment
-          - 'orig_codes', 'dest_codes': used for ML feature construction
-          - 'segment_overnight': True if this segment crosses midnight
-
-        Optional:
-          dep_time_from_hhmm / dep_time_to_hhmm  — if provided, only trains
-          departing from the origin stop within [from, to] are returned.
-          Format: 'HH:MM' (24-hour). Time window wraps across midnight correctly.
-        """
-        now = get_ist_now(now)
-
-        # Resolve to dataset codes
-        orig_code = resolve_station_code(origin)
-        dest_code = resolve_station_code(destination)
-
-        raw_matches = self.search_trains(origin, destination)
-        if not raw_matches:
-            return []
-
-        orig_codes = [orig_code] if orig_code else [origin.upper()]
-        dest_codes = [dest_code] if dest_code else [destination.upper()]
-
-        # Parse time window filter
-        filter_from_min: Optional[int] = None
-        filter_to_min: Optional[int] = None
-        if dep_time_from_hhmm:
-            filter_from_min = _hhmm_to_min(dep_time_from_hhmm)
-        if dep_time_to_hhmm:
-            filter_to_min = _hhmm_to_min(dep_time_to_hhmm)
-
-        enriched = []
-        for train in raw_matches:
-            stops = train.get("stops", [])
-
-            # Find matching stop objects for origin and destination
-            orig_stop = self._find_stop(stops, orig_codes)
-            dest_stop = self._find_stop(stops, dest_codes)
-
-            # Fallback to first/last stop if intermediate match not found
-            if not orig_stop and stops:
-                orig_stop = stops[0]
-            if not dest_stop and stops:
-                dest_stop = stops[-1]
-
-            # Departure time of origin stop
-            if orig_stop:
-                seg_dep_str = orig_stop.get("dep") or orig_stop.get("arr") or train.get("departureTime", "10:00")
-            else:
-                seg_dep_str = train.get("departureTime", "10:00")
-
-            # Arrival time of destination stop
-            if dest_stop:
-                seg_arr_str = dest_stop.get("arr") or dest_stop.get("dep") or train.get("arrivalTime", "18:00")
-            else:
-                seg_arr_str = train.get("arrivalTime", "18:00")
-
-            seg_dep_min = _hhmm_to_min(seg_dep_str)
-            seg_arr_min = _hhmm_to_min(seg_arr_str)
-
-            # ── Apply departure time window filter ──────────────────────────
-            if filter_from_min is not None and filter_to_min is not None:
-                if filter_from_min <= filter_to_min:
-                    # Normal window (e.g. 08:00 → 12:00)
-                    if not (filter_from_min <= seg_dep_min <= filter_to_min):
-                        continue
-                else:
-                    # Window wraps midnight (e.g. 22:00 → 02:00)
-                    if not (seg_dep_min >= filter_from_min or seg_dep_min <= filter_to_min):
-                        continue
-            elif filter_from_min is not None:
-                if seg_dep_min < filter_from_min:
-                    continue
-            elif filter_to_min is not None:
-                if seg_dep_min > filter_to_min:
-                    continue
-
-            # Midnight crossing: if arrival appears ≤ departure, it's next-day
-            overnight = seg_arr_min <= seg_dep_min
-            if overnight:
-                seg_arr_min += 24 * 60
-
-            seg_duration = float(seg_arr_min - seg_dep_min)
-
-            # Distance
-            if orig_stop and dest_stop:
-                orig_km = float(orig_stop.get("km", 0))
-                dest_km = float(dest_stop.get("km", train.get("totalDistanceKm", 500)))
-                seg_distance = abs(dest_km - orig_km)
-            else:
-                seg_distance = float(train.get("totalDistanceKm", 500))
-
-            if seg_distance <= 0:
-                seg_distance = float(train.get("totalDistanceKm", 500))
-
-            enriched.append({
-                **train,
-                "segment_dep_time": seg_dep_str,
-                "segment_arr_time": seg_arr_str,
-                "segment_duration_mins": seg_duration,
-                "segment_distance_km": seg_distance,
-                "segment_overnight": overnight,
-                "orig_codes": orig_codes,
-                "dest_codes": dest_codes,
-            })
-
-        print(f"[TrainScheduleDB] After time-filter: {len(enriched)} trains remain")
-        return enriched
-
-
-# Singleton instance
 train_schedule_db = TrainScheduleDB()
