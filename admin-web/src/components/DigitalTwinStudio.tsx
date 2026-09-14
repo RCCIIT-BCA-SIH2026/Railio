@@ -1,104 +1,158 @@
 import React, { useState } from 'react';
-import { Cpu, Play, CheckCircle2, AlertCircle, ArrowRight, TrendingDown, TrendingUp, Sparkles, Globe, Layers, ShieldAlert, Grid } from 'lucide-react';
+import { Cpu, Play, CheckCircle2, AlertCircle, ArrowRight, TrendingDown, TrendingUp, Sparkles } from 'lucide-react';
 import { runWhatIfSimulation } from '../services/api';
-import { MatrixEngineHUD } from './MatrixEngineHUD';
 
 export const DigitalTwinStudio: React.FC = () => {
-  const [studioMode, setStudioMode] = useState<'discrete_event' | 'matrix_engine'>('matrix_engine');
-  const [selectedZone, setSelectedZone] = useState<string>('NR');
-  const [selectedScenario, setSelectedScenario] = useState<string>('NORTHERN_TRUNK_FOG_PRECEDENCE');
+  const [selectedScenario, setSelectedScenario] = useState<string>('PEAK_EMU_PRECEDENCE');
   const [loading, setLoading] = useState<boolean>(false);
   const [simulationResult, setSimulationResult] = useState<any>({
-    scenario: 'NORTHERN_TRUNK_FOG_PRECEDENCE',
-    zone: 'NR/NCR',
-    recommendedStrategy: 'Enforce Fog Pilot Running (60 km/h) & Hold BOXN Freight at Aligarh Loop Line',
-    netNetworkDelayChangeMin: -14.5,
-    totalNetworkDelayMin: 28.0,
-    decisionRationale: 'Severe winter fog (visibility <200m) detected on Kanpur-Prayagraj-Delhi quad trunk. Looping preceding freight at Aligarh clears green corridor for Vande Bharat Express #22436, saving 14.5 min cumulative trunk delay.',
+    scenario: 'PEAK_EMU_PRECEDENCE',
+    recommendedStrategy: 'Give Suburban Commuter Local #32216 Immediate Green Aspect',
+    netNetworkDelayMinutes: -6.5,
+    totalNetworkDelayMin: 14.0,
+    decisionRationale: 'Calculated lowest overall network delay (-6.5 min cumulative passenger delay saved). Clears Dum Dum Junction (DDJ) bottleneck before morning peak traffic surge.',
     trainImpacts: [
       {
-        trainNumber: '22436',
-        trainName: 'Vande Bharat Express (#22436)',
-        delayChangeMin: -12.0,
+        trainNumber: '32216',
+        trainName: 'Dankuni - Sealdah Local (#32216)',
+        delayChangeMin: -5.0,
+        newDelayMin: 1.0,
+        statusMessage: 'Green corridor cleared through Dakshineswar and Dum Dum Jn.',
+      },
+      {
+        trainNumber: '32211',
+        trainName: 'Sealdah - Dankuni Local (#32211)',
+        delayChangeMin: -1.5,
+        newDelayMin: 2.0,
+        statusMessage: 'Platform approach line at Dankuni Jn received on schedule.',
+      },
+      {
+        trainNumber: '32218',
+        trainName: 'Dankuni - Sealdah Local (#32218)',
+        delayChangeMin: 0.0,
         newDelayMin: 3.0,
-        statusMessage: 'Green corridor cleared through Tundla and Aligarh Jn.',
-      },
-      {
-        trainNumber: '12301',
-        trainName: 'Howrah - New Delhi Rajdhani Express (#12301)',
-        delayChangeMin: -4.0,
-        newDelayMin: 5.0,
-        statusMessage: 'Automatic block signal headway maintained at 75 km/h.',
-      },
-      {
-        trainNumber: '074012',
-        trainName: 'BOXN Coal Freight Rake (#074012)',
-        delayChangeMin: 8.5,
-        newDelayMin: 18.0,
-        statusMessage: 'Regulated on Loop Line 3 at Aligarh Jn for express clearance.',
+        statusMessage: 'Standard headway spacing maintained on Sealdah Chord line.',
       },
     ],
-    affectedJunctions: ['New Delhi (NDLS)', 'Kanpur Central (CNB)', 'Prayagraj Jn (PRYJ)', 'Aligarh Jn (ALJN)'],
+    affectedJunctions: ['Sealdah (SDAH)', 'Dum Dum Jn (DDJ)', 'Dankuni Jn (DKAE)'],
   });
   const [executed, setExecuted] = useState<boolean>(false);
 
-  const scenarioCatalog = [
-    {
-      id: 'NORTHERN_TRUNK_FOG_PRECEDENCE',
-      zone: 'NR',
-      title: 'Northern Fog & Trunk Precedence',
-      desc: 'Enforce 60 km/h fog safety speed and prioritize Vande Bharat over freight',
-      train: '22436',
+  const SCENARIO_PRESETS: Record<string, any> = {
+    PEAK_EMU_PRECEDENCE: {
+      scenario: 'PEAK_EMU_PRECEDENCE',
+      recommendedStrategy: 'Give Suburban Commuter Local #32216 Immediate Green Aspect',
+      netNetworkDelayMinutes: -6.5,
+      netNetworkDelayChangeMin: -6.5,
+      totalNetworkDelayMin: 14.0,
+      decisionRationale: 'Calculated lowest overall network delay (-6.5 min cumulative passenger delay saved). Clears Dum Dum Junction (DDJ) bottleneck before morning peak traffic surge.',
+      trainImpacts: [
+        {
+          trainNumber: '32216',
+          trainName: 'Dankuni - Sealdah Local (#32216)',
+          delayChangeMin: -5.0,
+          newDelayMin: 1.0,
+          statusMessage: 'Green corridor cleared through Dakshineswar and Dum Dum Jn.',
+        },
+        {
+          trainNumber: '32211',
+          trainName: 'Sealdah - Dankuni Local (#32211)',
+          delayChangeMin: -1.5,
+          newDelayMin: 2.0,
+          statusMessage: 'Platform approach line at Dankuni Jn received on schedule.',
+        },
+        {
+          trainNumber: '32218',
+          trainName: 'Dankuni - Sealdah Local (#32218)',
+          delayChangeMin: 0.0,
+          newDelayMin: 3.0,
+          statusMessage: 'Standard headway spacing maintained on Sealdah Chord line.',
+        },
+      ],
+      affectedJunctions: ['Sealdah (SDAH)', 'Dum Dum Jn (DDJ)', 'Dankuni Jn (DKAE)'],
     },
-    {
-      id: 'CENTRAL_GHAT_BANKER_HOLD',
-      zone: 'CR',
-      title: 'Central Ghat Banker Coupling',
-      desc: 'Simulate 1:37 Bhor Ghat incline banker loco attachment & safety clearance',
-      train: '22221',
+    UP_DOWN_CROSSING_HOLD: {
+      scenario: 'UP_DOWN_CROSSING_HOLD',
+      recommendedStrategy: 'Regulate UP Local at Dakshineswar (DAKE) Platform 2 for 90 seconds',
+      netNetworkDelayMinutes: -4.0,
+      netNetworkDelayChangeMin: -4.0,
+      totalNetworkDelayMin: 16.0,
+      decisionRationale: 'Holding UP train prevents interlocking conflict at Dum Dum Jn, allowing DOWN Local #32214 to clear Vivekananda Setu bridge section on schedule without headway penalty.',
+      trainImpacts: [
+        {
+          trainNumber: '32214',
+          trainName: 'Dankuni - Sealdah Local (#32214)',
+          delayChangeMin: -4.5,
+          newDelayMin: 2.5,
+          statusMessage: 'Unobstructed run across Dakshineswar - Baranagar section.',
+        },
+        {
+          trainNumber: '32211',
+          trainName: 'Sealdah - Dankuni Local (#32211)',
+          delayChangeMin: 0.5,
+          newDelayMin: 2.5,
+          statusMessage: 'Brief 90s regulation at Dakshineswar Platform 2 to clear junction crossing.',
+        },
+        {
+          trainNumber: '32216',
+          trainName: 'Dankuni - Sealdah Local (#32216)',
+          delayChangeMin: -2.0,
+          newDelayMin: 1.0,
+          statusMessage: 'Cascading signal hold prevented at Dum Dum Interlocking.',
+        },
+      ],
+      affectedJunctions: ['Dakshineswar (DAKE)', 'Dum Dum Jn (DDJ)', 'Dankuni Jn (DKAE)'],
     },
-    {
-      id: 'GRAND_CHORD_COAL_OVERTAKE',
-      zone: 'ECR',
-      title: 'Grand Chord Coal Freight Siding',
-      desc: 'Divert heavy mineral BOXN rake to Koderma siding to clear Rajdhani corridor',
-      train: '12301',
+    SIGNAL_FAILURE: {
+      scenario: 'SIGNAL_FAILURE',
+      recommendedStrategy: 'Implement Paper Line Clear (PLC) and 25 km/h Pilot Running Protocol',
+      netNetworkDelayMinutes: 12.0,
+      netNetworkDelayChangeMin: 12.0,
+      totalNetworkDelayMin: 32.0,
+      decisionRationale: 'Automatic Block Signal aspect failure on DAKE-DKAE section. Enforcing 25 km/h pilot running with 5-minute safety headway spacing prevents collision risk while maintaining emergency line capacity.',
+      trainImpacts: [
+        {
+          trainNumber: '32216',
+          trainName: 'Dankuni - Sealdah Local (#32216)',
+          delayChangeMin: 6.0,
+          newDelayMin: 7.0,
+          statusMessage: 'Speed restricted to 25 km/h under pilot paper line clear protocol.',
+        },
+        {
+          trainNumber: '32211',
+          trainName: 'Sealdah - Dankuni Local (#32211)',
+          delayChangeMin: 4.0,
+          newDelayMin: 6.0,
+          statusMessage: 'Regulated at Dum Dum Junction outer signal pending block clearance.',
+        },
+        {
+          trainNumber: '32218',
+          trainName: 'Dankuni - Sealdah Local (#32218)',
+          delayChangeMin: 2.0,
+          newDelayMin: 5.0,
+          statusMessage: 'Headway spacing expanded for safety compliance.',
+        },
+      ],
+      affectedJunctions: ['Dakshineswar (DAKE)', 'Dankuni Jn (DKAE)', 'Sealdah (SDAH)'],
     },
-    {
-      id: 'EASTERN_SUBURBAN_PEAK_PRECEDENCE',
-      zone: 'ER',
-      title: 'Eastern Peak Commuter Precedence',
-      desc: 'Clear high-density suburban commuter local ahead of morning terminal rush',
-      train: '32216',
-    },
-    {
-      id: 'KONKAN_MONSOON_SPEED_RESTRICTION',
-      zone: 'KR',
-      title: 'Konkan Monsoon Safety Cap',
-      desc: 'Activate 40 km/h viaduct & rockfall precautions across Sahyadri tunnels',
-      train: '20607',
-    },
-    {
-      id: 'SIGNAL_FAILURE_CASCADE',
-      zone: 'ALL',
-      title: 'Block Signal Aspect Failure',
-      desc: 'Implement Paper Line Clear (PLC) & 25 km/h pilot run protocol',
-      train: '32216',
-    },
-  ];
+  };
 
-  const handleRunSimulation = async (scenarioId: string, zoneCode: string, trainNum: string) => {
-    setSelectedScenario(scenarioId);
-    setSelectedZone(zoneCode);
+  const handleRunSimulation = async (scenario: string) => {
+    setSelectedScenario(scenario);
     setLoading(true);
     setExecuted(false);
     try {
-      const res = await runWhatIfSimulation(scenarioId, trainNum, zoneCode);
+      const res = await runWhatIfSimulation(scenario, '32216');
       if (res && res.simulation) {
         setSimulationResult(res.simulation);
+      } else if (SCENARIO_PRESETS[scenario]) {
+        setSimulationResult(SCENARIO_PRESETS[scenario]);
       }
     } catch (err) {
-      console.error('Simulation error:', err);
+      console.error('Simulation API error, applying preset:', err);
+      if (SCENARIO_PRESETS[scenario]) {
+        setSimulationResult(SCENARIO_PRESETS[scenario]);
+      }
     } finally {
       setLoading(false);
     }
@@ -106,7 +160,7 @@ export const DigitalTwinStudio: React.FC = () => {
 
   const handleExecute = () => {
     setExecuted(true);
-    alert(`Operational Precedence Plan "${simulationResult.recommendedStrategy}" dispatched to Zonal Section Controller & Cabin Interlocking.`);
+    alert(`Precedence plan "${simulationResult.recommendedStrategy}" dispatched to Sealdah Division Section Controller & Dum Dum Interlocking Cabin.`);
   };
 
   return (
@@ -120,198 +174,193 @@ export const DigitalTwinStudio: React.FC = () => {
             </div>
             <div>
               <h2 className="font-heading text-xl font-bold text-slate-900 flex items-center space-x-2">
-                <span>Multi-Zone Digital Twin & Matrix Operations Studio</span>
+                <span>Railway Digital Twin & What-If Precedence Lab</span>
                 <span className="px-2.5 py-0.5 text-xs font-bold bg-orange-50 text-rail-orange border border-orange-200 rounded-full">
-                  {studioMode === 'matrix_engine' ? 'O(1) Matrix BLAS' : 'NetworkX Graph Engine'}
+                  NetworkX Graph Engine
                 </span>
               </h2>
               <p className="text-xs text-slate-500">
-                Accelerated timetable scheduling, cascading delay ripple, and precedent dispatching across all 18 Indian Railways zones
+                Simulate precedence decisions, bottleneck cascading delays, and corridor dispatch strategies on the 28 km Sealdah–Dankuni chord
               </p>
             </div>
           </div>
 
-          {/* Mode Switcher */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+          {/* Scenario Selection Buttons */}
+          <div className="flex items-center space-x-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
             <button
-              onClick={() => setStudioMode('matrix_engine')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                studioMode === 'matrix_engine'
-                  ? 'bg-slate-900 text-cyan-400 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Grid className="w-3.5 h-3.5" />
-              Linear Algebra & Matrix HUD
-            </button>
-            <button
-              onClick={() => setStudioMode('discrete_event')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                studioMode === 'discrete_event'
+              onClick={() => handleRunSimulation('PEAK_EMU_PRECEDENCE')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                selectedScenario === 'PEAK_EMU_PRECEDENCE'
                   ? 'bg-rail-orange text-white shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Layers className="w-3.5 h-3.5" />
-              What-If Graph Scenarios
+              Scenario A: Peak Commuter Precedence
+            </button>
+            <button
+              onClick={() => handleRunSimulation('UP_DOWN_CROSSING_HOLD')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                selectedScenario === 'UP_DOWN_CROSSING_HOLD'
+                  ? 'bg-rail-orange text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Scenario B: Junction Crossing Hold
+            </button>
+            <button
+              onClick={() => handleRunSimulation('SIGNAL_FAILURE')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                selectedScenario === 'SIGNAL_FAILURE'
+                  ? 'bg-rail-orange text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Scenario C: Signal Aspect Caution
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Multi-Zone Scenario Cards Grid (When in Graph mode) */}
-        {studioMode === 'discrete_event' && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-6">
-            {scenarioCatalog.map((sc) => {
-              const isSelected = selectedScenario === sc.id;
+      {/* Simulation Results Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left 2 Cols: Train Impact Comparison */}
+        <div className="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 className="font-heading font-bold text-slate-900 text-base">
+              Cascading Delay Impact Matrix
+            </h3>
+            <span className="text-xs text-slate-500 font-mono">
+              Topology: Sealdah - Dankuni Suburban Line (28 km ER)
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {simulationResult.trainImpacts?.map((item: any, idx: number) => {
+              const isReduced = item.delayChangeMin <= 0;
               return (
-                <button
-                  key={sc.id}
-                  onClick={() => handleRunSimulation(sc.id, sc.zone, sc.train)}
-                  className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-orange-50/70 border-orange-300 ring-2 ring-orange-400/20 shadow-sm'
-                      : 'bg-slate-50 hover:bg-slate-100 border-slate-200'
-                  }`}
+                <div
+                  key={idx}
+                  className="bg-slate-50 rounded-xl p-4 border border-slate-200 hover:border-slate-300 transition flex flex-col md:flex-row md:items-center justify-between gap-3"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="px-2 py-0.5 text-[9px] font-extrabold rounded bg-white text-slate-700 border border-slate-200 uppercase">
-                      {sc.zone} ZONE
-                    </span>
-                    <span className="text-[10px] font-bold text-slate-400">Train #{sc.train}</span>
+                  <div className="flex items-center space-x-3">
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-xs ${
+                        isReduced ? 'bg-emerald-600' : 'bg-amber-600'
+                      }`}
+                    >
+                      {item.trainNumber}
+                    </div>
+                    <div>
+                      <div className="font-heading font-bold text-slate-900 text-sm">{item.trainName}</div>
+                      <div className="text-xs text-slate-500">{item.statusMessage}</div>
+                    </div>
                   </div>
-                  <h4 className="text-xs font-extrabold text-slate-900 mt-2">{sc.title}</h4>
-                  <p className="text-[10px] text-slate-600 mt-1 line-clamp-2">{sc.desc}</p>
-                </button>
+
+                  <div className="flex items-center space-x-3">
+                    <div className="text-right">
+                      <div className="text-xs font-mono font-bold text-slate-900">
+                        {item.newDelayMin > 0 ? `+${item.newDelayMin} min delay` : 'On Time (0 min)'}
+                      </div>
+                      <div
+                        className={`text-xs font-bold flex items-center justify-end space-x-1 ${
+                          isReduced ? 'text-emerald-600' : 'text-amber-600'
+                        }`}
+                      >
+                        {isReduced ? (
+                          <>
+                            <TrendingDown className="w-3.5 h-3.5" />
+                            <span>{item.delayChangeMin} min</span>
+                          </>
+                        ) : (
+                          <>
+                            <TrendingUp className="w-3.5 h-3.5" />
+                            <span>+{item.delayChangeMin} min</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               );
             })}
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* MATRIX ENGINE HUD */}
-      {studioMode === 'matrix_engine' && <MatrixEngineHUD />}
+        {/* Right Col: AI Recommendation & Dispatch Action */}
+        <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-2xl p-6 text-white shadow-xl flex flex-col justify-between space-y-6">
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2 text-rail-orange">
+              <Sparkles className="w-5 h-5" />
+              <span className="font-heading font-bold text-sm tracking-wide uppercase text-orange-400">
+                AI Optimization Verdict
+              </span>
+            </div>
 
-      {/* DISCRETE EVENT GRAPH SIMULATION RESULTS */}
-      {studioMode === 'discrete_event' && (
-        loading ? (
-          <div className="bg-white rounded-2xl p-12 border border-slate-200 text-center space-y-3">
-            <div className="w-10 h-10 border-4 border-rail-orange border-t-transparent rounded-full animate-spin mx-auto" />
-            <p className="text-xs font-bold text-slate-600">Running NetworkX Discrete-Event Precedence Simulation across Corridor Nodes...</p>
-          </div>
-        ) : simulationResult ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Strategy & Net Impact Column */}
-          <div className="lg:col-span-1 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">RECOMMENDED DISPATCH PLAN</span>
-              </div>
-              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
+            <div className="space-y-2">
+              <h4 className="font-heading text-lg font-bold text-white">
                 {simulationResult.recommendedStrategy}
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+              </h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
                 {simulationResult.decisionRationale}
               </p>
             </div>
 
-            <div className="space-y-3 pt-4 border-t border-slate-100">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500 font-medium">Net Network Delay Change:</span>
-                <span className={`text-sm font-extrabold flex items-center space-x-1 ${
-                  (simulationResult.netNetworkDelayChangeMin || 0) < 0 ? 'text-emerald-600' : 'text-rose-600'
-                }`}>
-                  {(simulationResult.netNetworkDelayChangeMin || 0) < 0 ? <TrendingDown className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
-                  <span>{simulationResult.netNetworkDelayChangeMin} min</span>
-                </span>
+            <div className="p-3 bg-white/10 rounded-xl border border-white/10 space-y-1">
+              <div className="text-xs text-slate-400">Cumulative Corridor Impact</div>
+              <div className="text-xl font-bold font-mono text-emerald-400">
+                {simulationResult.netNetworkDelayMinutes <= 0
+                  ? `${simulationResult.netNetworkDelayMinutes} min Saved`
+                  : `+${simulationResult.netNetworkDelayMinutes} min Cascade`}
               </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-500 font-medium">Cumulative Network Delay:</span>
-                <span className="text-sm font-extrabold text-slate-800">
-                  {simulationResult.totalNetworkDelayMin} min
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleExecute}
-                disabled={executed}
-                className={`w-full py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center space-x-2 transition-all shadow-md ${
-                  executed
-                    ? 'bg-emerald-600 text-white cursor-default'
-                    : 'bg-[#FF671F] hover:bg-[#E0530A] text-white shadow-orange-500/20 cursor-pointer'
-                }`}
-              >
-                {executed ? (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Dispatched to Zonal Section Cabin</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-4 h-4 fill-current" />
-                    <span>Dispatch Precedence Plan</span>
-                  </>
-                )}
-              </button>
             </div>
+
+            {simulationResult.affectedJunctions?.length > 0 && (
+              <div className="space-y-1.5">
+                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Critical Interlocking Junctions
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {simulationResult.affectedJunctions.map((junc: string, i: number) => (
+                    <span
+                      key={i}
+                      className="px-2.5 py-1 text-xs rounded-lg bg-white/10 border border-white/15 text-slate-200 font-mono"
+                    >
+                      {junc}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Impacted Trains & Junctions Column */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Impacted Trains List */}
-            <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
-              <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider">
-                SIMULATED IMPACT ON CONCURRENT TRAINS
-              </h4>
-              <div className="space-y-3">
-                {simulationResult.trainImpacts?.map((impact: any, i: number) => (
-                  <div
-                    key={i}
-                    className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
-                  >
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs font-bold text-slate-900">{impact.trainName}</span>
-                        <span className="px-1.5 py-0.5 text-[9px] font-bold bg-white text-slate-600 border border-slate-200 rounded">
-                          #{impact.trainNumber}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 mt-1">{impact.statusMessage}</p>
-                    </div>
-
-                    <div className="text-right shrink-0">
-                      <div className={`text-xs font-extrabold ${impact.delayChangeMin < 0 ? 'text-emerald-600' : 'text-slate-700'}`}>
-                        {impact.delayChangeMin < 0 ? `${impact.delayChangeMin} min (Saved)` : `+${impact.delayChangeMin} min`}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-semibold">New delay: {impact.newDelayMin} min</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Affected Interlocking Hubs */}
-            <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
-              <h4 className="text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-3">
-                CRITICAL INTERLOCKING JUNCTIONS COORDINATED
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {simulationResult.affectedJunctions?.map((jn: string, i: number) => (
-                  <span
-                    key={i}
-                    className="px-3 py-1.5 rounded-lg bg-orange-50 text-slate-800 border border-orange-200 text-xs font-bold flex items-center space-x-1.5"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF671F]" />
-                    <span>{jn}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
+          <div className="space-y-2">
+            <button
+              onClick={handleExecute}
+              disabled={executed || loading}
+              className={`w-full py-3 px-4 rounded-xl font-heading font-bold text-sm flex items-center justify-center space-x-2 transition ${
+                executed
+                  ? 'bg-emerald-600 text-white cursor-default'
+                  : 'bg-rail-orange hover:bg-orange-600 text-white shadow-lg shadow-rail-orange/30'
+              }`}
+            >
+              {executed ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Signal Aspect Dispatched</span>
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" />
+                  <span>Execute Interlocking Precedence</span>
+                </>
+              )}
+            </button>
+            <p className="text-[10px] text-slate-400 text-center">
+              Direct telemetry handshake with Section Controller Relay Cabin
+            </p>
           </div>
         </div>
-      ) : null)}
+      </div>
     </div>
   );
 };

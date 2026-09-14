@@ -25,7 +25,7 @@ import {
 } from './types';
 import { AnalysisRequest } from './FrameAnalysisScheduler';
 
-let dynamicBaseUrl = 'http://localhost:5000/api';
+let dynamicBaseUrl = 'http://localhost:5001/api';
 try {
   const apiModule = require('../api');
   if (apiModule?.API_BASE_URL) {

@@ -163,7 +163,7 @@ export const SelfLearningMLDashboard: React.FC = () => {
       // Try AI service directly, then fallback to backend proxy
       let res = await fetch(`${AI_SERVICE_URL}/ml/train/${trainNo}/ixigo-running-status`);
       if (!res.ok) {
-        res = await fetch(`http://localhost:5000/api/trains/${trainNo}/ixigo-status`);
+        res = await fetch(`http://localhost:5001/api/trains/${trainNo}/ixigo-status`);
       }
       if (res.ok) {
         const data = await res.json();

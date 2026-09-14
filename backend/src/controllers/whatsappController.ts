@@ -178,7 +178,7 @@ export const sendWorkerWhatsAppMessage = async (req: Request, res: Response): Pr
     const result = await whatsappService.sendMessage(cleanRecipient, messageText, phoneId);
 
     if (result.success) {
-      console.log(`[WA-WORKER] META_RESPONSE status=${result.status || 200} message_id=${result.messageId}`);
+      console.log(`[WA-WORKER] META_RESPONSE status=${(result as any).status || 200} message_id=${result.messageId}`);
       console.log('[WORKER] send_completed status=success');
       res.status(200).json({
         success: true,
@@ -190,7 +190,7 @@ export const sendWorkerWhatsAppMessage = async (req: Request, res: Response): Pr
         timestamp: new Date().toISOString()
       });
     } else {
-      console.error(`[WA-WORKER] META_ERROR status=${result.status || 500} code=${result.errorCode || 'UNKNOWN'} message="${result.error}"`);
+      console.error(`[WA-WORKER] META_ERROR status=${(result as any).status || 500} code=${(result as any).errorCode || 'UNKNOWN'} message="${result.error}"`);
       console.log('[WORKER] send_completed status=failed');
       res.status(500).json({
         success: false,

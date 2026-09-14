@@ -2,11 +2,65 @@ import { Server as SocketIOServer } from 'socket.io';
 import { db, Train } from '../models/dataStore';
 import { aiGateway } from './aiServiceGateway';
 
+// Polyline coordinates for track geometry along Sealdah - Dankuni Corridor
+const UP_TRACK_PATH: [number, number][] = [
+  [22.5674, 88.3712], // SDAH (Sealdah)
+  [22.5805, 88.3775],
+  [22.5938, 88.3842], // BNXR (Bidhannagar Road)
+  [22.6085, 88.3822],
+  [22.6221, 88.3773], // DDJ (Dum Dum Jn)
+  [22.6345, 88.3752],
+  [22.6455, 88.3735], // BARN (Baranagar Road)
+  [22.6508, 88.3698],
+  [22.6548, 88.3662], // DAKE (Dakshineswar)
+  [22.6575, 88.3585],
+  [22.6680, 88.3310],
+  [22.6842, 88.3005]  // DKAE (Dankuni Jn)
+];
+
+const DOWN_TRACK_PATH: [number, number][] = UP_TRACK_PATH.slice().reverse().map(([lat, lng]) => [
+  lat - 0.0007,
+  lng + 0.0007
+]);
+
+function parseTimeToMinutes(timeStr?: string): number {
+  if (!timeStr) return 0;
+  const parts = timeStr.split(':').map(Number);
+  return (parts[0] || 0) * 60 + (parts[1] || 0);
+}
+
+function getCurrentISTMinutes(): number {
+  const now = new Date();
+  const istStr = now.toLocaleTimeString('en-GB', {
+    timeZone: 'Asia/Kolkata',
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+  const [h, m, s] = istStr.split(':').map(Number);
+  return (h || 0) * 60 + (m || 0) + (s || 0) / 60;
+}
+
+function interpolatePath(path: [number, number][], progress: number): [number, number] {
+  const p = Math.max(0, Math.min(1, progress));
+  const totalSegments = path.length - 1;
+  const rawIdx = p * totalSegments;
+  const idx = Math.min(Math.floor(rawIdx), totalSegments - 1);
+  const segProgress = rawIdx - idx;
+
+  const [lat1, lng1] = path[idx];
+  const [lat2, lng2] = path[idx + 1];
+
+  const lat = lat1 + (lat2 - lat1) * segProgress;
+  const lng = lng1 + (lng2 - lng1) * segProgress;
+  return [Number(lat.toFixed(4)), Number(lng.toFixed(4))];
+}
+
 export class SimulationEngine {
   private io: SocketIOServer | null = null;
   private intervalId: NodeJS.Timeout | null = null;
   private tickCount: number = 0;
-  private lastPhysicalTelemetryTimestamp: number = 0;
   private mlPredictionInProgress: boolean = false;
   private lastMLBatchDurationMs: number = 0;
   private throughputTPS: number = 0;
@@ -45,9 +99,49 @@ export class SimulationEngine {
 
     console.log('[SimulationEngine] Nationwide High-Scale Railway Simulation Engine started (5,000+ train capacity, vectorized ML inference).');
 
+    // Immediate initial tick
+    this.tick();
+
     this.intervalId = setInterval(() => {
       this.tick();
     }, 3000);
+  }
+
+  private getRealtimeActiveTrains(): { train: Train; progress: number; isRunning: boolean; isDwelling: boolean }[] {
+    const nowMin = getCurrentISTMinutes();
+    const activeList: { train: Train; progress: number; isRunning: boolean; isDwelling: boolean }[] = [];
+
+    db.trains.forEach((train: Train) => {
+      const depMin = parseTimeToMinutes(train.departureTime || '00:00');
+      const arrMin = parseTimeToMinutes(train.arrivalTime || '00:00');
+
+      let duration = arrMin - depMin;
+      if (duration <= 0) duration += 1440;
+
+      let elapsed = nowMin - depMin;
+      if (elapsed < 0) elapsed += 1440;
+
+      if (elapsed >= 0 && elapsed <= duration) {
+        const progress = Math.min(1.0, Math.max(0.0, elapsed / duration));
+        activeList.push({
+          train,
+          progress,
+          isRunning: true,
+          isDwelling: false
+        });
+      }
+    });
+
+    if (activeList.length === 0) {
+      return db.trains.slice(0, 10).map((train) => ({
+        train,
+        progress: 0.5,
+        isRunning: true,
+        isDwelling: false
+      }));
+    }
+
+    return activeList;
   }
 
   private tick() {
@@ -231,7 +325,6 @@ export class SimulationEngine {
   }
 
   public broadcastSensorTelemetry(sensorTelemetry: any) {
-    this.lastPhysicalTelemetryTimestamp = Date.now();
     if (this.io) {
       this.io.emit('sensor_telemetry', sensorTelemetry);
     }

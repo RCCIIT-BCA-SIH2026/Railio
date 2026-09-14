@@ -12,10 +12,10 @@ export const getHostAddress = () => {
   if (hostUri) {
     const ip = hostUri.split(':')[0];
     if (ip && ip !== 'localhost' && ip !== '127.0.0.1') {
-      return `http://${ip}:5000/api`;
+      return `http://${ip}:5001/api`;
     }
   }
-  return Platform.OS === 'web' ? 'http://localhost:5000/api' : 'http://192.168.0.101:5000/api';
+  return Platform.OS === 'web' ? 'http://localhost:5001/api' : 'http://192.168.0.101:5001/api';
 };
 
 export const API_BASE_URL = getHostAddress();

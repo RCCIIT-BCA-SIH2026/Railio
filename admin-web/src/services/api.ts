@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:5001';
 
 export const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api`,
