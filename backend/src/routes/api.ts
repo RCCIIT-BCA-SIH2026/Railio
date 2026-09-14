@@ -16,7 +16,7 @@ import { getStationCrowd, getTrainCoachCrowd } from '../controllers/crowdControl
 import { getTrackRisk, ingestSensorTelemetry, getRealTelemetryHistory } from '../controllers/trackController';
 import { simulateWhatIfScenario } from '../controllers/digitalTwinController';
 import { handleAIChat } from '../controllers/aiController';
-import { verifyWebhook, handleIncomingWebhook } from '../controllers/whatsappController';
+import { verifyWebhook, handleIncomingWebhook, testOutboundTransport, sendWorkerWhatsAppMessage } from '../controllers/whatsappController';
 import { getDashboardOverview, getAlerts, createAlert, getWeatherIntelligence } from '../controllers/adminController';
 import { getUpcomingSuburbanTrains, getCoachCrowdTelemetry, getSuburbanCorridors } from '../controllers/suburbanController';
 import {
@@ -89,6 +89,21 @@ router.get('/ai/whatsapp-webhook', verifyWebhook);
 router.post('/ai/whatsapp-webhook', handleIncomingWebhook);
 router.get('/whatsapp/webhook', verifyWebhook);
 router.post('/whatsapp/webhook', handleIncomingWebhook);
+router.get('/whatsapp-webhook', verifyWebhook);
+router.post('/whatsapp-webhook', handleIncomingWebhook);
+router.get('/ai/whatsapp/webhook', verifyWebhook);
+router.post('/ai/whatsapp/webhook', handleIncomingWebhook);
+router.get('/whatsapp/test-outbound', testOutboundTransport);
+router.post('/whatsapp/test-outbound', testOutboundTransport);
+router.get('/ai/whatsapp/test-outbound', testOutboundTransport);
+router.post('/ai/whatsapp/test-outbound', testOutboundTransport);
+
+// Worker / Admin Outbound WhatsApp Messaging (Reuses exact same shared whatsappService)
+router.post('/admin/whatsapp/send', authenticateToken, sendWorkerWhatsAppMessage);
+router.post('/worker/whatsapp/send', authenticateToken, sendWorkerWhatsAppMessage);
+router.post('/whatsapp/send-worker-message', sendWorkerWhatsAppMessage);
+
+
 
 // 9. Weather Intelligence
 router.get('/weather', getWeatherIntelligence);

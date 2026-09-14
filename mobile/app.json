@@ -17,7 +17,9 @@
       "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "RailIo uses the camera for AI-powered indoor station navigation and visual AR guidance.",
-        "NSMotionUsageDescription": "RailIo uses device motion sensors for step tracking, dead reckoning, and directional heading during indoor navigation."
+        "NSMotionUsageDescription": "RailIo uses device motion sensors for step tracking, dead reckoning, and directional heading during indoor navigation.",
+        "NSLocationWhenInUseUsageDescription": "RailIo uses your location to track movement, distance, train speed, and arrival ETA during live navigation.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "RailIo uses your location to provide uninterrupted live train progress and arrival alerts."
       },
       "bundleIdentifier": "ai.railio.passenger"
     },
@@ -32,8 +34,16 @@
         "HIGH_SAMPLING_RATE_SENSORS",
         "VIBRATE",
         "RECORD_AUDIO",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "ACCESS_LOCATION_EXTRA_COMMANDS",
         "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"
       ]
     },
     "plugins": [
@@ -42,6 +52,15 @@
         "expo-camera",
         {
           "cameraPermission": "RailIo uses the camera for AI-powered indoor station navigation and visual AR guidance."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "RailIo uses your location to track movement, distance, train speed, and arrival ETA during live navigation.",
+          "locationAlwaysAndWhenInUsePermission": "RailIo uses your location to provide uninterrupted live train progress and arrival alerts.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
         }
       ]
     ],

@@ -24,6 +24,7 @@ import { useTranslation } from '../context/LanguageContext';
 import { LanguageTopButton } from '../components/LanguageTopButton';
 import { StationPickerModal } from '../components/StationPickerModal';
 import { getStationByCode, StationItem } from '../data/stationsData';
+import { liveNavigationService } from '../services/navigation/LiveNavigationService';
 import {
   Scan,
   Ticket,
@@ -67,6 +68,19 @@ export const HomeScreen: React.FC = React.memo(() => {
       const alerts = await getAlertsApi();
       setActiveAlertCount(alerts.length);
     } catch (err) { }
+  }, []);
+
+  useEffect(() => {
+    // Auto-start Live Navigation Free Roam Mode once on screen mount
+    const task = InteractionManager.runAfterInteractions(() => {
+      if (!liveNavigationService.getState().isNavigating) {
+        liveNavigationService.startNavigation({ latitude: 22.5675, longitude: 88.3712, name: 'Sealdah' }, 'walking');
+      }
+    });
+
+    return () => {
+      task.cancel();
+    };
   }, []);
 
   useEffect(() => {

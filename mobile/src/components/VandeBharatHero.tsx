@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 
 interface VandeBharatHeroProps {
   height?: number;
@@ -9,10 +9,10 @@ interface VandeBharatHeroProps {
 export const VandeBharatHero: React.FC<VandeBharatHeroProps> = React.memo(({ height = 180, width = '100%' }) => {
   return (
     <View style={[styles.container, { height, width: width as any }]}>
-      <Image 
-        source={require('../../assets/hero-section-transparent.png')} 
-        style={styles.image} 
-        resizeMode="contain" 
+      <Image
+        source={require('../../assets/vande_bharat_illustration_nobg.png')}
+        style={styles.image}
+        resizeMode="contain"
       />
     </View>
   );

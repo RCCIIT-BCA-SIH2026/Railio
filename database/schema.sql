@@ -288,3 +288,58 @@ CREATE TABLE IF NOT EXISTS rake_turnaround_log (
     pit_line_assigned INTEGER,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ============================================================================
+-- WhatsApp Staff Assistant Infrastructure (RailIo)
+-- ============================================================================
+
+-- Staff Roles Dictionary
+CREATE TABLE IF NOT EXISTS staff_roles (
+    id VARCHAR(50) PRIMARY KEY, -- e.g., 'SWEEPER', 'GUARD'
+    name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    train_types JSONB, -- e.g., '["LOCAL", "EXPRESS"]'
+    permissions JSONB,
+    active BOOLEAN DEFAULT true
+);
+
+-- Authorized Staff Users
+CREATE TABLE IF NOT EXISTS staff_users (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    whatsapp_number VARCHAR(20) UNIQUE NOT NULL,
+    employee_id VARCHAR(50),
+    name VARCHAR(150),
+    department VARCHAR(100),
+    role_id VARCHAR(50) REFERENCES staff_roles(id),
+    status VARCHAR(30) DEFAULT 'ACTIVE',
+    permissions JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- WhatsApp Conversation State Machine (Sessions)
+CREATE TABLE IF NOT EXISTS conversation_sessions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    whatsapp_number VARCHAR(20) UNIQUE NOT NULL,
+    state VARCHAR(50) DEFAULT 'IDLE',
+    train_type VARCHAR(20),
+    role VARCHAR(50),
+    query_type VARCHAR(50),
+    train_number VARCHAR(20),
+    context_json JSONB DEFAULT '{}'::jsonb,
+    expires_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Operational Query Audit Logs
+CREATE TABLE IF NOT EXISTS operational_queries (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES staff_users(id),
+    train_number VARCHAR(20),
+    query_type VARCHAR(50),
+    response TEXT,
+    source VARCHAR(50),
+    latency FLOAT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

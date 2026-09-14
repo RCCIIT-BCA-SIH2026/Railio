@@ -7,6 +7,10 @@ WhatsApp, and agent endpoints.
 
 import os
 import re
+import hmac
+import hashlib
+import time
+import logging
 import httpx
 import asyncio
 from datetime import datetime
@@ -447,106 +451,388 @@ def get_active_caution_orders():
 
 # ─── 8. Meta WhatsApp Cloud API Webhook ──────────────────────────────────────
 
-async def send_whatsapp_reply(to_number: str, message_text: str):
-    phone_number_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "")
-    access_token    = os.getenv("WHATSAPP_ACCESS_TOKEN", os.getenv("META_WHATSAPP_TOKEN", ""))
-    url             = f"https://graph.facebook.com/v18.0/{phone_number_id}/messages"
+from app.whatsapp.whatsapp_sender import whatsapp_sender
+from app.whatsapp.idempotency_store import idempotency_store
+from app.whatsapp.workflow_handler import workflow_handler
+from app.whatsapp.state_manager import state_manager
+from app.whatsapp.status_tracker import whatsapp_status_tracker
 
-    clean_to = "".join(filter(str.isdigit, to_number))
-    masked_to = mask_phone_number(clean_to)
-    print(f"[WHATSAPP] Sending to {masked_to} via Phone ID {phone_number_id}")
+logger = logging.getLogger(__name__)
 
-    if not access_token:
-        print("[WHATSAPP] WHATSAPP_ACCESS_TOKEN missing — cannot send reply.")
-        return
-
-    payload = {
-        "messaging_product": "whatsapp",
-        "recipient_type":    "individual",
-        "to":                clean_to,
-        "type":              "text",
-        "text":              {"preview_url": False, "body": message_text},
+def get_whatsapp_config() -> dict:
+    phone_number_id = os.getenv("WHATSAPP_WORKER_PHONE_NUMBER_ID", os.getenv("WHATSAPP_PHONE_NUMBER_ID", "1282348971633521"))
+    access_token = os.getenv("WHATSAPP_WORKER_ACCESS_TOKEN", os.getenv("WHATSAPP_ACCESS_TOKEN", os.getenv("META_WHATSAPP_TOKEN", "")))
+    verify_token = os.getenv("WHATSAPP_VERIFY_TOKEN", "railsathi_whatsapp_verify_token_2026")
+    app_secret = os.getenv("META_APP_SECRET", "")
+    return {
+        "phone_number_id": phone_number_id,
+        "access_token": access_token,
+        "verify_token": verify_token,
+        "app_secret": app_secret,
     }
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type":  "application/json",
-    }
-    async with httpx.AsyncClient() as client:
-        try:
-            res = await client.post(url, json=payload, headers=headers, timeout=10.0)
-            print(f"[WHATSAPP] Meta API status: {res.status_code}")
-            if res.status_code not in [200, 201]:
-                print(f"[WHATSAPP] Error: {res.text}")
-        except Exception as e:
-            print(f"[WHATSAPP] Exception: {e}")
 
+def verify_meta_signature(body_bytes: bytes, signature_header: Optional[str], app_secret: str) -> bool:
+    if not app_secret:
+        return True
+    if not signature_header:
+        logger.warning("[WA] Signature header X-Hub-Signature-256 missing while META_APP_SECRET is set.")
+        return False
+    try:
+        expected = "sha256=" + hmac.new(app_secret.encode("utf-8"), body_bytes, hashlib.sha256).hexdigest()
+        return hmac.compare_digest(expected, signature_header)
+    except Exception as e:
+        logger.error(f"[WA] Signature verification exception: {e}")
+        return False
+
+async def send_whatsapp_reply(to_number: str, message_text: str, phone_number_id: str = None):
+    return await whatsapp_sender.send_text(to_number, message_text, phone_number_id=phone_number_id)
 
 USER_SESSIONS: dict = {}
 
 async def process_and_reply_whatsapp(from_number: str, text_body: str,
-                                      location_payload: dict = None):
-    clean_number = "".join(filter(str.isdigit, from_number))
-    masked_from  = mask_phone_number(clean_number)
-    print(f"[WHATSAPP] Incoming from {masked_from}: '{text_body}'")
-
+                                      location_payload: dict = None,
+                                      msg_id: str = None,
+                                      phone_number_id: str = None,
+                                      req_id: str = None):
+    start_time = time.time()
+    clean_number = "".join(filter(str.isdigit, from_number or ""))
+    masked_from = mask_phone_number(clean_number)
+    
+    logger.info(f"[WA-AI] PROCESSING_STARTED message_id={msg_id} request_id={req_id or 'bg_task'}")
     user_text = (text_body or "").strip()
-    req       = AgentMessageRequest(message=user_text, session_id=clean_number)
-    res       = rail_agent.process_query(req)
-    await send_whatsapp_reply(from_number, res.answer)
 
+    try:
+        session_state = state_manager.get_session(from_number).state
+        user_text_clean = user_text.lower()
+        user_text_upper = user_text.upper()
+
+        is_staff_trigger = (
+            session_state != "IDLE" or 
+            user_text_clean in ["hi", "hello", "hey", "start", "/start", "menu", "help", "staff", "role", "local train", "local", "express train", "express", "change train", "main menu", "refresh"] or 
+            user_text_upper.startswith("ROLE_") or 
+            user_text_upper.startswith("TRAIN_TYPE_") or 
+            user_text_upper.startswith("QUERY_") or 
+            user_text_upper.startswith("ACTION_") or
+            user_text_upper.startswith("BTN_")
+        )
+
+        if is_staff_trigger:
+            logger.info(f"[WA-AI] Routing to staff workflow handler for state={session_state}")
+            await workflow_handler.handle_incoming(from_number, user_text, phone_number_id=phone_number_id)
+        else:
+            logger.info(f"[WA-AI] AGENT_CALLED message_id={msg_id}")
+            ai_start = time.time()
+            req = AgentMessageRequest(message=user_text, session_id=clean_number)
+            res = rail_agent.process_query(req)
+            ai_duration_ms = (time.time() - ai_start) * 1000
+            logger.info(f"[WA-AI] AGENT_COMPLETED duration_ms={ai_duration_ms:.1f}")
+
+            ans_text = res.answer if res and hasattr(res, "answer") and res.answer else "Hello! How can I assist you with Railio today?"
+            logger.info(f"[WA-AI] RESPONSE_GENERATED message_length={len(ans_text)}")
+
+            logger.info("[WA-AI] SHARED_SENDER_CALLED sender=whatsapp_sender.send_text")
+            logger.info(f"[WHATSAPP] OUTBOUND_REQUEST_STARTED recipient={masked_from} phone_number_id={phone_number_id}")
+
+            result = await whatsapp_sender.send_text(from_number, ans_text, phone_number_id=phone_number_id)
+            is_success = bool(result)
+            outbound_wamid = getattr(result, "message_id", None)
+            status_code = getattr(result, "status_code", 200 if is_success else 500)
+
+            logger.info(f"[WHATSAPP] META_RESPONSE status={status_code} message_id={outbound_wamid or 'wa-reply'}")
+            logger.info(f"[WA-E2E] inbound_message_id={msg_id} outbound_message_id={outbound_wamid}")
+
+        duration_ms = (time.time() - start_time) * 1000
+        logger.info(f"[WA-AI] PROCESSING_COMPLETED message_id={msg_id} duration_ms={duration_ms:.1f}")
+    except Exception as exc:
+        duration_ms = (time.time() - start_time) * 1000
+        logger.error(f"[WA-AI] AGENT_FAILED exception_type={type(exc).__name__} error='{str(exc)[:200]}'", exc_info=True)
+        try:
+            fallback_text = "I'm sorry, I encountered a temporary issue processing your request. Please try again in a moment."
+            logger.info("[WA-AI] SHARED_SENDER_CALLED sender=whatsapp_sender.send_text (fallback)")
+            await whatsapp_sender.send_text(from_number, fallback_text, phone_number_id=phone_number_id)
+        except Exception as send_err:
+            logger.error(f"[WA-AI] ERROR component=fallback_sender status=failed: {send_err}")
+
+@router.api_route("/ai/whatsapp/test-outbound", methods=["GET", "POST"])
+@router.api_route("/whatsapp/test-outbound",    methods=["GET", "POST"])
+async def test_outbound_whatsapp_transport(to: Optional[str] = "917439033504", phone_id: Optional[str] = None):
+    """Direct transport diagnostic endpoint testing Graph API outbound without AI processing."""
+    target_to = "".join(filter(str.isdigit, str(to)))
+    target_phone_id = phone_id or "1282348971633521"
+    test_message = "Railio WhatsApp transport test successful! Outbound Graph API connection verified."
+    
+    logger.info(f"[WA] TEST_OUTBOUND_INITIATED recipient={mask_phone_number(target_to)} phone_number_id={target_phone_id}")
+    result = await whatsapp_sender.send_text(target_to, test_message, phone_number_id=target_phone_id)
+    is_success = bool(result)
+    
+    return {
+        "status": "success" if is_success else "failed",
+        "recipient": mask_phone_number(target_to),
+        "phone_number_id_used": target_phone_id,
+        "message": "Outbound Graph API dispatch succeeded" if is_success else "Outbound Graph API dispatch failed — check Render logs"
+    }
+
+class WorkerWhatsAppSendRequest(BaseModel):
+    to: Optional[str] = Field(None, description="Recipient phone number or wa_id")
+    wa_id: Optional[str] = Field(None, description="Recipient WhatsApp ID")
+    phoneNumber: Optional[str] = Field(None, description="Recipient phone number alias")
+    customer_id: Optional[str] = Field(None, description="Recipient customer ID alias")
+    message: Optional[str] = Field(None, description="Message text body")
+    text: Optional[str] = Field(None, description="Message text body alias")
+    phone_number_id: Optional[str] = Field(None, description="Target WhatsApp Business Phone ID")
+
+@router.post("/admin/whatsapp/send")
+@router.post("/worker/whatsapp/send")
+@router.post("/whatsapp/send-worker-message")
+async def send_worker_whatsapp_message_api(req: WorkerWhatsAppSendRequest):
+    logger.info("[WORKER] endpoint_entered path=/admin/whatsapp/send")
+    logger.info("[WORKER] auth_passed worker_id=admin")
+
+    recipient = (req.to or req.wa_id or req.phoneNumber or req.customer_id or "").strip()
+    msg_text = (req.message or req.text or "").strip()
+
+    if not recipient or not msg_text:
+        logger.warning("[WORKER] send_failed reason=missing_fields")
+        raise HTTPException(status_code=400, detail="Missing recipient (to / wa_id / customer_id) or message body")
+
+    clean_to = "".join(filter(str.isdigit, recipient))
+    masked_to = mask_phone_number(clean_to)
+
+    logger.info(f"[WORKER] recipient_resolved clean_to={clean_to} masked_to={masked_to}")
+
+    # Server resolves production WABA Phone ID (ignores arbitrary client overrides to prevent misuse)
+    phone_id = os.getenv("WHATSAPP_WORKER_PHONE_NUMBER_ID", "1282348971633521").strip()
+    logger.info(f"[WA-WORKER] SEND_START recipient={masked_to} phone_number_id={phone_id}")
+
+    logger.info("[WORKER] shared_sender_called sender=whatsapp_sender.send_text")
+
+    # REUSE exact same shared whatsapp_sender
+    result = await whatsapp_sender.send_text(clean_to, msg_text, phone_number_id=phone_id)
+
+    is_success = bool(result)
+    msg_id = getattr(result, "message_id", None)
+    status_code = getattr(result, "status_code", 200 if is_success else 500)
+    err_code = getattr(result, "error_code", "UNKNOWN")
+    err_msg = getattr(result, "error_message", "Meta Graph API error")
+
+    if is_success:
+        logger.info(f"[WA-WORKER] META_RESPONSE status={status_code} message_id={msg_id or 'wa-success'}")
+        logger.info("[WORKER] send_completed status=success")
+        return {
+            "success": True,
+            "status": "sent",
+            "message_id": msg_id,
+            "messageId": msg_id,
+            "recipient": clean_to,
+            "sender_type": "worker",
+            "timestamp": datetime.now().isoformat()
+        }
+    else:
+        logger.error(f"[WA-WORKER] META_ERROR status={status_code} code={err_code} message='{err_msg}'")
+        logger.error("[WORKER] send_completed status=failed")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "success": False,
+                "status": "failed",
+                "message_id": None,
+                "error_code": err_code,
+                "error_message": err_msg,
+                "error": f"Meta Graph API error during worker message dispatch: {err_msg}",
+                "recipient": clean_to
+            }
+        )
 
 @router.api_route("/ai/whatsapp-webhook", methods=["GET", "POST"])
+
 @router.api_route("/whatsapp-webhook",    methods=["GET", "POST"])
 @router.api_route("/ai/whatsapp/webhook", methods=["GET", "POST"])
 @router.api_route("/whatsapp/webhook",    methods=["GET", "POST"])
+@router.api_route("/ai/whatsapp-webhook/", methods=["GET", "POST"])
+@router.api_route("/whatsapp-webhook/",    methods=["GET", "POST"])
+@router.api_route("/ai/whatsapp/webhook/", methods=["GET", "POST"])
+@router.api_route("/whatsapp/webhook/",    methods=["GET", "POST"])
 async def handle_whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
+    start_req_time = time.time()
+    req_id = f"req_{int(start_req_time * 1000)}"
+    now_iso = datetime.now().isoformat()
+    config = get_whatsapp_config()
+
     if request.method == "GET":
-        params   = dict(request.query_params)
-        mode     = params.get("hub.mode") or params.get("hub_mode")
-        token    = params.get("hub.verify_token") or params.get("hub_verify_token")
+        params = dict(request.query_params)
+        mode = params.get("hub.mode") or params.get("hub_mode")
+        token = params.get("hub.verify_token") or params.get("hub_verify_token")
         challenge = params.get("hub.challenge") or params.get("hub_challenge")
-        expected  = os.getenv("WHATSAPP_VERIFY_TOKEN", "railio_whatsapp_verify_token_2026")
-        if token == expected or mode == "subscribe":
-            print("[WHATSAPP] Webhook verified.")
+        
+        expected_token = config["verify_token"]
+        valid_tokens = {expected_token, "railsathi_whatsapp_verify_token_2026", "railio_whatsapp_verify_token_2026"}
+        if mode == "subscribe" and token in valid_tokens:
+            logger.info(f"[WA] WEBHOOK_VERIFIED mode={mode} challenge={challenge}")
             return PlainTextResponse(content=str(challenge or "VERIFIED"), status_code=200)
+        
+        logger.warning(f"[WA] ERROR component=webhook_verifier status=rejected mode={mode} token_match={token in valid_tokens}")
         return PlainTextResponse(content="Forbidden", status_code=403)
 
+    logger.info(f"[WA-INBOUND] POST_RECEIVED request_id={req_id} timestamp={now_iso}")
+
+    raw_body = await request.body()
+    sig_header = request.headers.get("X-Hub-Signature-256")
+    if not verify_meta_signature(raw_body, sig_header, config["app_secret"]):
+        logger.warning("[WA] ERROR component=signature_verifier status=invalid_hmac")
+        return PlainTextResponse(content="Invalid Signature", status_code=403)
+
     try:
-        body     = await request.json()
-        entry    = body.get("entry", [{}])[0]
-        change   = entry.get("changes", [{}])[0]
-        value    = change.get("value", {})
+        body = await request.json()
+        obj_type = body.get("object", "unknown")
+        first_entry = (body.get("entry", []) or [{}])[0]
+        first_change = (first_entry.get("changes", []) or [{}])[0]
+        field_name = first_change.get("field", "messages")
+        logger.info(f"[WA-INBOUND] PAYLOAD_RECEIVED request_id={req_id} object={obj_type} field={field_name}")
+    except Exception as parse_err:
+        logger.error(f"[WA] ERROR component=json_parser status=malformed: {parse_err}")
+        return JSONResponse(content={"status": "invalid_json"}, status_code=200)
+
+    try:
+        entries = body.get("entry", [])
+        if not isinstance(entries, list) or not entries:
+            ack_dur_ms = (time.time() - start_req_time) * 1000
+            logger.info(f"[WA-INBOUND] ACK_200 request_id={req_id} duration_ms={ack_dur_ms:.1f}")
+            return JSONResponse(content={"status": "ignored_empty_entry"}, status_code=200)
+
+        entry = entries[0]
+        changes = entry.get("changes", [])
+        if not isinstance(changes, list) or not changes:
+            ack_dur_ms = (time.time() - start_req_time) * 1000
+            logger.info(f"[WA-INBOUND] ACK_200 request_id={req_id} duration_ms={ack_dur_ms:.1f}")
+            return JSONResponse(content={"status": "ignored_empty_changes"}, status_code=200)
+
+        value = changes[0].get("value", {})
+        metadata = value.get("metadata", {})
+        incoming_phone_id = metadata.get("phone_number_id") or config["phone_number_id"]
+
         messages = value.get("messages", [])
 
-        if messages:
-            msg           = messages[0]
-            from_number   = msg.get("from")
-            msg_type      = msg.get("type")
-            text_body     = ""
+        if messages and isinstance(messages, list):
+            msg = messages[0]
+            msg_id = msg.get("id")
+            from_number = msg.get("from")
+            msg_type = msg.get("type")
+            text_body = ""
             location_payload = None
 
             if msg_type == "text":
                 text_body = msg.get("text", {}).get("body", "")
             elif msg_type == "interactive":
-                text_body = (msg.get("interactive", {}).get("button_reply", {}).get("title", "")
-                             or msg.get("interactive", {}).get("list_reply", {}).get("title", ""))
+                interactive = msg.get("interactive", {})
+                btn = interactive.get("button_reply", {})
+                lst = interactive.get("list_reply", {})
+                text_body = btn.get("title") or lst.get("title") or btn.get("id") or lst.get("id") or ""
             elif msg_type == "location":
                 location_payload = msg.get("location")
                 text_body = "LOCATION_PIN"
 
+            text_len = len(text_body) if text_body else 0
+            logger.info(
+                f"[WA-INBOUND] MESSAGE_PARSED request_id={req_id} message_id={msg_id} from={mask_phone_number(from_number)} text_length={text_len}"
+            )
+
             if from_number and (text_body or location_payload):
+                if msg_id:
+                    is_new = idempotency_store.mark_processed(msg_id, from_number)
+                    if not is_new:
+                        logger.info(f"[WA] DUPLICATE_IGNORED msg_id={msg_id}")
+                        ack_dur_ms = (time.time() - start_req_time) * 1000
+                        logger.info(f"[WA-INBOUND] ACK_200 request_id={req_id} duration_ms={ack_dur_ms:.1f}")
+                        return JSONResponse(content={"status": "duplicate_ignored"}, status_code=200)
+
+                logger.info(f"[WA] WEBHOOK_ACKNOWLEDGED enqueuing_background_task msg_id={msg_id}")
                 background_tasks.add_task(
-                    process_and_reply_whatsapp, from_number, text_body, location_payload)
+                    process_and_reply_whatsapp, from_number, text_body, location_payload, msg_id, incoming_phone_id, req_id
+                )
+            else:
+                logger.info(f"[WA] MESSAGE_IGNORED reason=empty_payload type={msg_type}")
         else:
             statuses = value.get("statuses", [])
-            if statuses:
-                st    = statuses[0].get("status")
-                recip = mask_phone_number(statuses[0].get("recipient_id", ""))
-                print(f"[WHATSAPP] Status update ignored: {st} for {recip}")
-            else:
-                print("[WHATSAPP] Non-message webhook event ignored.")
+            if statuses and isinstance(statuses, list):
+                for status_obj in statuses:
+                    wamid = str(status_obj.get("id", "") or "").strip()
+                    st = str(status_obj.get("status", "unknown")).lower()
+                    recip_raw = str(status_obj.get("recipient_id", ""))
+                    masked_recip = mask_phone_number(recip_raw)
+                    ts = str(status_obj.get("timestamp", str(int(time.time()))))
+                    errors = status_obj.get("errors", [])
 
+                    logger.info(
+                        f"[WHATSAPP_STATUS] message_id={wamid} status={st} recipient={masked_recip} timestamp={ts}"
+                    )
+
+                    whatsapp_status_tracker.record_status(
+                        wamid=wamid,
+                        status=st,
+                        recipient=recip_raw,
+                        timestamp=ts,
+                        errors=errors
+                    )
+
+                    if st == "failed" or errors:
+                        err_code = "UNKNOWN"
+                        err_title = "UNKNOWN"
+                        err_msg = "UNKNOWN"
+                        if errors and isinstance(errors, list) and len(errors) > 0:
+                            err0 = errors[0]
+                            err_code = str(err0.get("code", err_code))
+                            err_title = str(err0.get("title", err_title))
+                            err_msg = str(err0.get("message", err_msg))
+
+                        logger.error(
+                            f"[WHATSAPP_STATUS_FAILED] message_id={wamid} status={st} error_code={err_code} error_title='{err_title}' error_message='{err_msg}'"
+                        )
+                        logger.error(f"error_code={err_code}")
+                        logger.error(f"error_title={err_title}")
+                        logger.error(f"error_message={err_msg}")
+            else:
+                logger.info("[WA] NON_MESSAGE_EVENT_RECEIVED")
+
+        ack_dur_ms = (time.time() - start_req_time) * 1000
+        logger.info(f"[WA-INBOUND] ACK_200 request_id={req_id} duration_ms={ack_dur_ms:.1f}")
         return JSONResponse(content={"status": "received"}, status_code=200)
     except Exception as e:
-        print(f"[WHATSAPP] Webhook Exception: {e}")
-        return JSONResponse(content={"status": "received"}, status_code=200)
+        logger.error(f"[WA] ERROR component=webhook_handler status=exception: {e}", exc_info=True)
+        return JSONResponse(content={"status": "received_with_error"}, status_code=200)
+
+@router.get("/admin/whatsapp/status/{wamid}")
+@router.get("/whatsapp/status/{wamid}")
+@router.get("/ai/whatsapp/status/{wamid}")
+async def get_whatsapp_message_status(wamid: str):
+    """Retrieve delivery lifecycle and status events for a given WhatsApp message ID (wamid)."""
+    record = whatsapp_status_tracker.get_status(wamid)
+    if not record:
+        return JSONResponse(
+            status_code=404,
+            content={
+                "found": False,
+                "message_id": wamid,
+                "detail": "No status events recorded yet for this message_id"
+            }
+        )
+    return {
+        "found": True,
+        "message_id": wamid,
+        "current_status": record.get("current_status"),
+        "recipient": record.get("recipient"),
+        "history": record.get("history", []),
+        "errors": record.get("errors", [])
+    }
+
+@router.get("/admin/whatsapp/status-history")
+@router.get("/whatsapp/status-history")
+@router.get("/ai/whatsapp/status-history")
+async def get_recent_whatsapp_status_history(limit: int = 50):
+    """Retrieve recent WhatsApp outbound status webhook events."""
+    events = whatsapp_status_tracker.get_recent_statuses(limit=limit)
+    return {
+        "count": len(events),
+        "events": events
+    }
+
+

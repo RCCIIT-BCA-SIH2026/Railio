@@ -40,13 +40,15 @@ export class WhatsAppSessionManager {
     phoneNumber: string,
     messageText?: string,
     buttonReplyId?: string,
-    locationPayload?: UserLocation
+    locationPayload?: UserLocation,
+    phoneNumberId?: string
   ): Promise<void> {
     const session = this.getSession(phoneNumber);
     const cleanText = (messageText || '').trim();
     const textLower = cleanText.toLowerCase();
 
-    console.log(`[WhatsApp Session] User ${phoneNumber} | State: ${session.state} | Msg: "${cleanText}" | Button: "${buttonReplyId}" | Location:`, locationPayload);
+    console.log(`[WA] MESSAGE_PARSED user=${phoneNumber} state=${session.state} text="${cleanText}" phone_number_id=${phoneNumberId}`);
+
 
     // 1. Handle Quick Reply Buttons or direct trigger commands
     if (buttonReplyId === 'btn_catch_train' || textLower === 'catch' || textLower.includes('can i catch') || textLower.includes('catch train')) {
