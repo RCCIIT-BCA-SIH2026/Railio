@@ -36,7 +36,7 @@ export class WhatsAppService {
     recipientPhoneNumber: string,
     text: string,
     targetPhoneId?: string
-  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  ): Promise<{ success: boolean; messageId?: string; error?: string; status?: number; errorCode?: string }> {
     const formattedRecipient = recipientPhoneNumber.replace(/[^0-9]/g, '');
     const { phoneNumberId, accessToken } = this.getCredentials(targetPhoneId);
 
