@@ -14,7 +14,7 @@ import time
 import numpy as np
 from typing import List, Dict, Any, Tuple, Optional
 from pydantic import BaseModel, Field
-from scipy.sparse import csr_matrix, lil_matrix
+from scipy.sparse import csr_matrix, lil_matrix  # type: ignore
 
 
 # =============================================================================
@@ -99,15 +99,15 @@ class MaxPlusEngine:
                 d_init = np.pad(d_init, (0, n - len(d_init)), mode='constant')
             x = x + d_init
 
-        trajectory = [x.tolist()]
-        max_delays = [float(np.max(x))]
+        trajectory: List[List[float]] = [[float(v) for v in x]]
+        max_delays: List[float] = [float(np.max(x))]
 
         # Recursive Tropical State Iteration: x(k+1) = A (x) x(k)
         x_col = x.reshape(-1, 1)
         for _ in range(steps):
             x_col_next = self.tropical_dot(A, x_col)
             x_curr = x_col_next.flatten()
-            trajectory.append(x_curr.tolist())
+            trajectory.append([float(v) for v in x_curr])
             max_delays.append(float(np.max(x_curr)))
             x_col = x_col_next
 
@@ -267,8 +267,14 @@ class SparseDelayDiffusion:
         d_accum = d_0.copy()
         current_state = d_0.copy()
 
+        if self.trans_matrix_t is None:
+            self._build_network_topology()
+        if self.trans_matrix_t is None:
+            raise RuntimeError("Transition matrix trans_matrix_t could not be initialized")
+
+        trans_matrix = self.trans_matrix_t
         for k in range(1, hops + 1):
-            next_state = self.trans_matrix_t.dot(current_state)
+            next_state = trans_matrix.dot(current_state)
             decay = gamma ** k
             d_accum += decay * next_state
             current_state = next_state
@@ -404,7 +410,7 @@ class OccupancyMatrixEngine:
 
         dur_ms = (time.time() - t0) * 1000.0
         total_cells = num_sections * time_horizon
-        non_zero = int(np.count_nonzero(Omega))
+        non_zero = np.count_nonzero(Omega)
         sparsity = (1.0 - (non_zero / total_cells)) * 100.0 if total_cells > 0 else 99.0
 
         return ConflictDetectionResponse(

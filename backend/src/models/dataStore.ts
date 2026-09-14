@@ -582,78 +582,7 @@ class DataStore {
       return fromStop && toStop && fromStop.sequence < toStop.sequence;
     });
 
-    if (matched.length > 0) return matched;
-
-    const fromStation = this.getStation(fromCode);
-    const toStation = this.getStation(toCode);
-    if (fromStation && toStation) {
-      return [
-        {
-          trainNumber: '22301',
-          name: `${fromStation.name} - ${toStation.name} Vande Bharat Express`,
-          type: 'VANDE_BHARAT',
-          zone: fromStation.zone || 'NR',
-          source: fromCode,
-          destination: toCode,
-          departureTime: '06:00',
-          arrivalTime: '13:30',
-          totalDistanceKm: 560,
-          avgSpeed: 85,
-          coaches: ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'E1', 'E2'],
-          liveState: {
-            lat: fromStation.lat,
-            lng: fromStation.lng,
-            speed: 95,
-            heading: 45,
-            currentSection: `${fromCode}-${toCode}-SEC1`,
-            lastStation: fromCode,
-            nextStation: toCode,
-            delayMinutes: 0,
-            predictedDelay: 0,
-            confidence: 0.96,
-            status: 'ON_TIME',
-            delayReasons: [],
-          },
-          stops: [
-            { code: fromCode, sequence: 1, arr: '05:50', dep: '06:00', km: 0, platform: 1 },
-            { code: toCode, sequence: 2, arr: '13:30', dep: '13:40', km: 560, platform: 2 },
-          ],
-        },
-        {
-          trainNumber: '12301',
-          name: `${fromStation.name} - ${toStation.name} Superfast Express`,
-          type: 'SUPERFAST',
-          zone: fromStation.zone || 'NR',
-          source: fromCode,
-          destination: toCode,
-          departureTime: '16:50',
-          arrivalTime: '07:20',
-          totalDistanceKm: 620,
-          avgSpeed: 68,
-          coaches: ['HA1', 'A1', 'A2', 'B1', 'B2', 'B3', 'S1', 'S2', 'S3'],
-          liveState: {
-            lat: fromStation.lat,
-            lng: fromStation.lng,
-            speed: 72,
-            heading: 45,
-            currentSection: `${fromCode}-${toCode}-SEC2`,
-            lastStation: fromCode,
-            nextStation: toCode,
-            delayMinutes: 4,
-            predictedDelay: 5,
-            confidence: 0.92,
-            status: 'ON_TIME',
-            delayReasons: [],
-          },
-          stops: [
-            { code: fromCode, sequence: 1, arr: '16:40', dep: '16:50', km: 0, platform: 3 },
-            { code: toCode, sequence: 2, arr: '07:20', dep: '07:30', km: 620, platform: 1 },
-          ],
-        },
-      ];
-    }
-
-    return [];
+    return matched;
   }
 
   public generateSuburbanCoachCrowd(trainNumber: string, isPeakRush: boolean = false): CoachSignalCrowd[] {

@@ -47,6 +47,7 @@ from app.cv.obstacle_detector import obstacle_cv, ObstacleDetectionResponse
 from app.digital_twin.network_twin import digital_twin, WhatIfSimulationRequest, WhatIfSimulationResponse
 from app.agent.rail_agent import rail_agent, AgentMessageRequest, AgentResponse
 from app.cv.camera_navigator import camera_navigator, SceneAnalysisRequest, SceneAnalysisResult
+from app.iot.anomaly_detector import anomaly_detector, SensorReading, AnomalyResult
 
 # ── Linear Algebra & Matrix Logic Engine ─────────────────────────────────────
 from app.ml.matrix_engine import (

@@ -71,7 +71,7 @@ export const searchTrainsApi = async (from: string, to: string): Promise<Train[]
     const sTo = train.stops.find(s => s.code === t || train.destination === t);
     return sFrom && sTo && sFrom.sequence < sTo.sequence;
   });
-  return matched.length > 0 ? matched : fallbackTrains;
+  return matched;
 };
 
 export const getTrainByNumberApi = async (trainNumber: string): Promise<Train> => {

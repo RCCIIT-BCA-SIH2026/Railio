@@ -32,7 +32,7 @@ export const getTrains = async (req: Request, res: Response): Promise<void> => {
       const matched = db.searchTrains(from as string, to as string, zone as string);
       
       // Fast vectorized ML delay batch inference for searched trains
-      const batchPayload = matched.slice(0, 30).map((t) => ({
+      const batchPayload = matched.map((t) => ({
         trainNumber: t.trainNumber,
         zone: t.zone || 'NR',
         departureTime: t.departureTime,

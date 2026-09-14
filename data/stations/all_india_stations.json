@@ -23,6 +23,9 @@
   {"code": "BDC", "name": "Bandel Junction", "city": "Bandel", "state": "West Bengal", "zone": "ER", "division": "Howrah", "lat": 22.9234, "lng": 88.3758, "platforms": 7, "isJunction": true, "elevationM": 16},
   {"code": "BNXR", "name": "Bidhan Nagar Road", "city": "Kolkata", "state": "West Bengal", "zone": "ER", "division": "Sealdah", "lat": 22.5898, "lng": 88.3892, "platforms": 4, "isJunction": false, "elevationM": 9},
   {"code": "BARN", "name": "Baranagar Road", "city": "Kolkata", "state": "West Bengal", "zone": "ER", "division": "Sealdah", "lat": 22.6392, "lng": 88.3732, "platforms": 2, "isJunction": false, "elevationM": 10},
+  {"code": "BLYG", "name": "Bally Ghat", "city": "Howrah", "state": "West Bengal", "zone": "ER", "division": "Howrah", "lat": 22.6517, "lng": 88.3540, "platforms": 2, "isJunction": false, "elevationM": 10},
+  {"code": "BLYH", "name": "Bally Halt", "city": "Howrah", "state": "West Bengal", "zone": "ER", "division": "Howrah", "lat": 22.6565, "lng": 88.3421, "platforms": 2, "isJunction": false, "elevationM": 10},
+  {"code": "RCD", "name": "Rajchandrapur", "city": "Hooghly", "state": "West Bengal", "zone": "ER", "division": "Howrah", "lat": 22.6668, "lng": 88.3182, "platforms": 2, "isJunction": false, "elevationM": 10},
 
   {"code": "MMCT", "name": "Mumbai Central", "city": "Mumbai", "state": "Maharashtra", "zone": "WR", "division": "Mumbai Central", "lat": 18.9696, "lng": 72.8193, "platforms": 8, "isJunction": true, "elevationM": 7},
   {"code": "BDTS", "name": "Bandra Terminus", "city": "Mumbai", "state": "Maharashtra", "zone": "WR", "division": "Mumbai Central", "lat": 19.0620, "lng": 72.8427, "platforms": 8, "isJunction": true, "elevationM": 9},
