@@ -2,18 +2,19 @@ import os
 import asyncio
 import random
 import logging
+from typing import Optional, List, Dict, Any, Tuple
 import httpx
 
 logger = logging.getLogger(__name__)
 
 def mask_phone(phone: str) -> str:
-    clean = "".join(filter(str.isdigit, str(phone or "")))
+    clean = "".join(filter(str.isdigit, phone or ""))
     if len(clean) >= 10:
         return clean[:3] + "****" + clean[-4:]
     return "****"
 
 class WhatsAppSendResult:
-    def __init__(self, success: bool, message_id: str = None, status_code: int = 0, error_code: str = None, error_message: str = None):
+    def __init__(self, success: bool, message_id: Optional[str] = None, status_code: int = 0, error_code: Optional[str] = None, error_message: Optional[str] = None):
         self.success = success
         self.message_id = message_id
         self.status_code = status_code
@@ -29,7 +30,7 @@ class WhatsAppSender:
         # Explicit timeout configuration: 3.0s connect, 7.0s read
         self.timeout = httpx.Timeout(10.0, connect=3.0, read=7.0)
 
-    def _get_credentials(self, target_phone_id: str = None):
+    def _get_credentials(self, target_phone_id: Optional[str] = None) -> Tuple[str, str]:
         worker_phone_id = os.getenv("WHATSAPP_WORKER_PHONE_NUMBER_ID", "1282348971633521")
         primary_phone_id = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "1362878316903671")
         
@@ -37,10 +38,10 @@ class WhatsAppSender:
         primary_token = os.getenv("WHATSAPP_ACCESS_TOKEN", os.getenv("META_WHATSAPP_TOKEN", ""))
 
         if target_phone_id:
-            target_str = str(target_phone_id).strip()
-            if target_str == str(worker_phone_id).strip():
+            target_str = target_phone_id.strip()
+            if target_str == worker_phone_id.strip():
                 return target_str, worker_token or primary_token
-            elif target_str == str(primary_phone_id).strip():
+            elif target_str == primary_phone_id.strip():
                 return target_str, primary_token or worker_token
             else:
                 return target_str, primary_token or worker_token
@@ -49,7 +50,7 @@ class WhatsAppSender:
         access_token = worker_token or primary_token
         return phone_number_id, access_token
 
-    async def _send_payload(self, payload: dict, target_phone_id: str = None) -> WhatsAppSendResult:
+    async def _send_payload(self, payload: dict, target_phone_id: Optional[str] = None) -> WhatsAppSendResult:
         phone_number_id, access_token = self._get_credentials(target_phone_id)
         recipient_raw = str(payload.get("to", ""))
         recipient_masked = mask_phone(recipient_raw)
@@ -134,8 +135,8 @@ class WhatsAppSender:
         logger.error(f"[WA-WORKER] META_ERROR status=500 code=MAX_ATTEMPTS_EXCEEDED message='Max retries exceeded' recipient={recipient_masked}")
         return WhatsAppSendResult(success=False, status_code=500, error_code="MAX_ATTEMPTS_EXCEEDED", error_message="Max retries exceeded")
 
-    async def send_text(self, to_number: str, text: str, phone_number_id: str = None):
-        clean_to = "".join(filter(str.isdigit, str(to_number)))
+    async def send_text(self, to_number: str, text: str, phone_number_id: Optional[str] = None):
+        clean_to = "".join(filter(str.isdigit, to_number or ""))
         payload = {
             "messaging_product": "whatsapp",
             "recipient_type": "individual",
@@ -145,11 +146,11 @@ class WhatsAppSender:
         }
         return await self._send_payload(payload, target_phone_id=phone_number_id)
 
-    async def send_interactive_buttons(self, to_number: str, body_text: str, buttons: list, phone_number_id: str = None):
+    async def send_interactive_buttons(self, to_number: str, body_text: str, buttons: list, phone_number_id: Optional[str] = None):
         """
         buttons format: [{"id": "id1", "title": "Title 1"}] (max 3)
         """
-        clean_to = "".join(filter(str.isdigit, str(to_number)))
+        clean_to = "".join(filter(str.isdigit, to_number or ""))
         interactive_buttons = []
         for btn in buttons[:3]:
             interactive_buttons.append({
@@ -173,7 +174,7 @@ class WhatsAppSender:
         }
         return await self._send_payload(payload, target_phone_id=phone_number_id)
 
-    async def send_interactive_list(self, to_number: str, body_text: str, button_text: str, sections: list, phone_number_id: str = None):
+    async def send_interactive_list(self, to_number: str, body_text: str, button_text: str, sections: list, phone_number_id: Optional[str] = None):
         """
         sections format: [
             {
@@ -184,7 +185,7 @@ class WhatsAppSender:
             }
         ]
         """
-        clean_to = "".join(filter(str.isdigit, str(to_number)))
+        clean_to = "".join(filter(str.isdigit, to_number or ""))
         payload = {
             "messaging_product": "whatsapp",
             "recipient_type": "individual",

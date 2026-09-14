@@ -1,5 +1,6 @@
 import re
 import logging
+from typing import Optional
 from app.whatsapp.state_manager import state_manager
 from app.whatsapp.whatsapp_sender import whatsapp_sender
 from app.whatsapp.model_adapter import model_adapter
@@ -10,7 +11,7 @@ class WhatsAppWorkflowHandler:
     def __init__(self):
         pass
 
-    async def handle_incoming(self, from_number: str, text: str, phone_number_id: str = None):
+    async def handle_incoming(self, from_number: str, text: str, phone_number_id: Optional[str] = None):
         session = state_manager.get_session(from_number)
         text_raw = (text or "").strip()
         text_lower = text_raw.lower()
@@ -110,7 +111,7 @@ class WhatsAppWorkflowHandler:
         state_manager.reset_session(from_number)
         return await self.send_greeting(from_number, phone_number_id=phone_number_id)
 
-    async def send_greeting(self, from_number: str, phone_number_id: str = None):
+    async def send_greeting(self, from_number: str, phone_number_id: Optional[str] = None):
         state_manager.update_session(from_number, state="AWAITING_TRAIN_TYPE")
         buttons = [
             {"id": "TRAIN_TYPE_LOCAL", "title": "Local Train"},
@@ -123,7 +124,7 @@ class WhatsAppWorkflowHandler:
             phone_number_id=phone_number_id
         )
 
-    async def ask_role(self, from_number: str, train_type: str, phone_number_id: str = None):
+    async def ask_role(self, from_number: str, train_type: Optional[str] = None, phone_number_id: Optional[str] = None):
         # Meta API restricts interactive lists to a maximum of 10 rows total
         sections = [
             {
@@ -160,7 +161,7 @@ class WhatsAppWorkflowHandler:
             phone_number_id=phone_number_id
         )
 
-    async def ask_query_type(self, from_number: str, role: str, phone_number_id: str = None):
+    async def ask_query_type(self, from_number: str, role: str, phone_number_id: Optional[str] = None):
         buttons = [
             {"id": "QUERY_ARRIVAL", "title": "Arrival Time"},
             {"id": "QUERY_LOCATION", "title": "Train Location"},
@@ -173,7 +174,7 @@ class WhatsAppWorkflowHandler:
             phone_number_id=phone_number_id
         )
 
-    async def fetch_and_send_data(self, from_number: str, session, phone_number_id: str = None):
+    async def fetch_and_send_data(self, from_number: str, session, phone_number_id: Optional[str] = None):
         data = model_adapter.get_train_status(session.train_number, session.role)
         message_text = model_adapter.format_for_whatsapp(data, session.query_type, session.role)
         

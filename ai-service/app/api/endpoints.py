@@ -7,14 +7,11 @@ WhatsApp, and agent endpoints.
 
 import os
 import re
-<<<<<<< HEAD
 import json
-=======
 import hmac
 import hashlib
 import time
 import logging
->>>>>>> upstream/main
 import httpx
 import asyncio
 from datetime import datetime
@@ -585,16 +582,16 @@ def verify_meta_signature(body_bytes: bytes, signature_header: Optional[str], ap
         logger.error(f"[WA] Signature verification exception: {e}")
         return False
 
-async def send_whatsapp_reply(to_number: str, message_text: str, phone_number_id: str = None):
+async def send_whatsapp_reply(to_number: str, message_text: str, phone_number_id: Optional[str] = None):
     return await whatsapp_sender.send_text(to_number, message_text, phone_number_id=phone_number_id)
 
 USER_SESSIONS: dict = {}
 
 async def process_and_reply_whatsapp(from_number: str, text_body: str,
                                       location_payload: Optional[Dict[str, Any]] = None,
-                                      msg_id: str = None,
-                                      phone_number_id: str = None,
-                                      req_id: str = None):
+                                      msg_id: Optional[str] = None,
+                                      phone_number_id: Optional[str] = None,
+                                      req_id: Optional[str] = None):
     start_time = time.time()
     clean_number = "".join(filter(str.isdigit, from_number or ""))
     masked_from = mask_phone_number(clean_number)
@@ -768,7 +765,7 @@ async def handle_whatsapp_webhook(request: Request, background_tasks: Background
         valid_tokens = {expected_token, "railsathi_whatsapp_verify_token_2026", "railio_whatsapp_verify_token_2026", os.getenv("WHATSAPP_VERIFY_TOKEN", "")}
         if (mode == "subscribe" or not mode) and (token in valid_tokens or token == expected_token):
             logger.info(f"[WA] WEBHOOK_VERIFIED mode={mode} challenge={challenge}")
-            return PlainTextResponse(content=str(challenge or "VERIFIED"), status_code=200)
+            return PlainTextResponse(content=challenge or "VERIFIED", status_code=200)
         
         logger.warning(f"[WA] ERROR component=webhook_verifier status=rejected mode={mode} token_match={token in valid_tokens}")
         return PlainTextResponse(content="Forbidden", status_code=403)
