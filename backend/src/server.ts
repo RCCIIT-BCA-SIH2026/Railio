@@ -23,7 +23,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // Request Logger
 app.use((req, res, next) => {
-  if (req.path !== '/health') {
+  if (req.path.includes('webhook') || req.path.includes('whatsapp')) {
+    console.log(`[WA-WEBHOOK] ${req.method} RECEIVED path=${req.path} timestamp=${new Date().toISOString()}`);
+    console.log(`[WA-WEBHOOK] headers_received: ${JSON.stringify(req.headers)}`);
+  } else if (req.path !== '/health') {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
   }
   next();
@@ -50,8 +53,10 @@ io.on('connection', (socket) => {
   });
 });
 
-// Mount Routes
+// Mount Routes (both root and /api prefixes for full forward/backward compatibility)
 app.use('/api', apiRouter);
+app.use('/', apiRouter);
+
 
 // Health check
 app.get('/health', (req, res) => {

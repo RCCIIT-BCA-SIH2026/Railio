@@ -66,20 +66,41 @@ app.include_router(services_router, prefix="/services")
 
 @app.get("/health")
 def health():
-    # Report env var presence — never expose actual secret values
-    wa_token_set = bool(os.getenv("WHATSAPP_ACCESS_TOKEN") or os.getenv("META_WHATSAPP_TOKEN"))
-    wa_phone_id_set = bool(os.getenv("WHATSAPP_PHONE_NUMBER_ID"))
+    wa_token_set = bool(os.getenv("WHATSAPP_WORKER_ACCESS_TOKEN") or os.getenv("WHATSAPP_ACCESS_TOKEN") or os.getenv("META_WHATSAPP_TOKEN"))
+    wa_phone_id_set = bool(os.getenv("WHATSAPP_WORKER_PHONE_NUMBER_ID") or os.getenv("WHATSAPP_PHONE_NUMBER_ID"))
     wa_verify_set = bool(os.getenv("WHATSAPP_VERIFY_TOKEN"))
+    wa_secret_set = bool(os.getenv("META_APP_SECRET"))
     return {
         "status": "healthy",
         "service": "RailIo AI/ML Engine",
         "models": ["XGBoost Delay", "SHAP XAI", "NetworkX Digital Twin", "YOLO CV Simulator", "RAG Agent"],
+        "whatsapp_configured": wa_token_set and wa_phone_id_set,
         "whatsapp_env": {
             "WHATSAPP_ACCESS_TOKEN": "PRESENT" if wa_token_set else "MISSING",
             "WHATSAPP_PHONE_NUMBER_ID": "PRESENT" if wa_phone_id_set else "MISSING",
             "WHATSAPP_VERIFY_TOKEN": "PRESENT" if wa_verify_set else "MISSING",
+            "META_APP_SECRET": "PRESENT" if wa_secret_set else "MISSING",
         }
     }
+
+@app.get("/health/whatsapp")
+def health_whatsapp():
+    wa_token_set = bool(os.getenv("WHATSAPP_WORKER_ACCESS_TOKEN") or os.getenv("WHATSAPP_ACCESS_TOKEN") or os.getenv("META_WHATSAPP_TOKEN"))
+    wa_phone_id_set = bool(os.getenv("WHATSAPP_WORKER_PHONE_NUMBER_ID") or os.getenv("WHATSAPP_PHONE_NUMBER_ID"))
+    wa_verify_set = bool(os.getenv("WHATSAPP_VERIFY_TOKEN"))
+    wa_secret_set = bool(os.getenv("META_APP_SECRET"))
+    
+    is_ready = wa_token_set and wa_phone_id_set
+    return {
+        "status": "ok" if is_ready else "degraded",
+        "service": "railio_whatsapp",
+        "whatsapp_configured": is_ready,
+        "token_configured": wa_token_set,
+        "phone_number_id_configured": wa_phone_id_set,
+        "verify_token_configured": wa_verify_set,
+        "app_secret_configured": wa_secret_set,
+    }
+
 
 @app.get("/")
 def root():
