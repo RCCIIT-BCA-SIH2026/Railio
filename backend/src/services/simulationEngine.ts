@@ -13,8 +13,9 @@ const UP_TRACK_PATH: [number, number][] = [
   [22.6455, 88.3735], // BARN (Baranagar Road)
   [22.6508, 88.3698],
   [22.6548, 88.3662], // DAKE (Dakshineswar)
-  [22.6575, 88.3585],
-  [22.6680, 88.3310],
+  [22.6534, 88.3620], // BLYG (Bally Ghat)
+  [22.6575, 88.3585], // BLYH (Bally Halt)
+  [22.6680, 88.3310], // RCD (Rajchandrapur)
   [22.6842, 88.3005]  // DKAE (Dankuni Jn)
 ];
 

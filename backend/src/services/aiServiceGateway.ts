@@ -261,19 +261,22 @@ export class AIServiceGateway {
     }
   }
 
-  async askAgent(query: string, sessionId: string = 'default', userLat?: number, userLng?: number, clientTimestamp?: string) {
+  async askAgent(query: string, sessionId: string = 'default', userLat?: number, userLng?: number, clientTimestamp?: string, history: any[] = []) {
     try {
       const pyRes = await axios.post(`${AI_SERVICE_URL}/agent/chat`, {
         message: query,
         session_id: sessionId,
         location: userLat && userLng ? { latitude: userLat, longitude: userLng } : undefined,
         client_timestamp: clientTimestamp || new Date().toISOString(),
+        history,
       }, { timeout: 15000 });
       if (pyRes.data && pyRes.data.answer) {
         return {
           answer: pyRes.data.answer,
           toolsExecuted: pyRes.data.toolsExecuted || [],
           confidence: pyRes.data.confidenceScore || 0.96,
+          retrievedKnowledgeDocs: pyRes.data.retrievedKnowledgeDocs || [],
+          cardData: pyRes.data.cardData || null,
         };
       }
     } catch (pyErr: any) {

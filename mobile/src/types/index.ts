@@ -4,6 +4,7 @@ export type RootStackParamList = {
   Register: undefined;
   PhoneVerification: undefined;
   MainTabs: undefined;
+  HomeScreen: undefined;
   SearchTrain: undefined;
   SearchResults: { from: string; to: string; date?: string };
   TrainDetails: { trainNumber: string };
@@ -93,6 +94,7 @@ export type BottomTabParamList = {
 
 export interface TrainStop {
   code: string;
+  name?: string;
   sequence: number;
   arr: string;
   dep: string;

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
+import { io, Socket } from 'socket.io-client';
 import { Train, Station, CatchTrainResult, AlertItem } from '../types';
 
 export const getHostAddress = () => {
@@ -19,6 +20,23 @@ export const getHostAddress = () => {
 };
 
 export const API_BASE_URL = getHostAddress();
+
+export const getSocketBaseUrl = () => {
+  return API_BASE_URL.replace('/api', '');
+};
+
+let mobileSocket: Socket | null = null;
+
+export const initMobileSocket = (): Socket => {
+  if (!mobileSocket) {
+    mobileSocket = io(getSocketBaseUrl(), {
+      transports: ['websocket', 'polling'],
+      reconnectionAttempts: 10,
+      timeout: 5000,
+    });
+  }
+  return mobileSocket;
+};
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -64,12 +82,50 @@ export const searchTrainsApi = async (from: string, to: string): Promise<Train[]
   } catch (err) {
     console.warn('[API] Using offline train search data');
   }
-  const f = from.toUpperCase().trim();
-  const t = to.toUpperCase().trim();
+  const fStr = from.toUpperCase().trim();
+  const tStr = to.toUpperCase().trim();
+
+  const isMatchStation = (stCode: string, stName: string | undefined, query: string) => {
+    const q = query.toUpperCase();
+    const code = (stCode || '').toUpperCase();
+    const name = (stName || '').toUpperCase();
+    if (code === q) return true;
+    if (name && (name.includes(q) || q.includes(name))) return true;
+    if ((q === 'SDAH' || q === 'SEALDAH' || q === 'KOLKATA') && (code === 'SDAH' || name.includes('SEALDAH'))) return true;
+    if ((q === 'DKAE' || q === 'DANKUNI') && (code === 'DKAE' || name.includes('DANKUNI'))) return true;
+    if ((q === 'HWH' || q === 'HOWRAH') && (code === 'HWH' || name.includes('HOWRAH'))) return true;
+    if ((q === 'DDJ' || q === 'DUM DUM') && (code === 'DDJ' || name.includes('DUM DUM'))) return true;
+    if ((q === 'DAKE' || q === 'DAKSHINESWAR') && (code === 'DAKE' || name.includes('DAKSHINESWAR'))) return true;
+    return false;
+  };
+
   const matched = fallbackTrains.filter(train => {
-    const sFrom = train.stops.find(s => s.code === f || train.source === f);
-    const sTo = train.stops.find(s => s.code === t || train.destination === t);
-    return sFrom && sTo && sFrom.sequence < sTo.sequence;
+    let fromSeq = -1;
+    let toSeq = -1;
+
+    if (train.stops && train.stops.length > 0) {
+      for (const s of train.stops) {
+        if (fromSeq === -1 && isMatchStation(s.code, s.name, fStr)) {
+          fromSeq = s.sequence;
+        }
+        if (isMatchStation(s.code, s.name, tStr)) {
+          if (fromSeq !== -1 && s.sequence > fromSeq) {
+            toSeq = s.sequence;
+          } else if (toSeq === -1) {
+            toSeq = s.sequence;
+          }
+        }
+      }
+    }
+
+    if (fromSeq === -1 && isMatchStation(train.source, (train as any).sourceName, fStr)) {
+      fromSeq = 0;
+    }
+    if (toSeq === -1 && isMatchStation(train.destination, (train as any).destinationName, tStr)) {
+      toSeq = 9999;
+    }
+
+    return fromSeq !== -1 && toSeq !== -1 && fromSeq < toSeq;
   });
   return matched;
 };
@@ -337,44 +393,30 @@ export const chatAIApi = async (query: string, history: any[] = []) => {
     };
   }
 
-  // ── 2. INTENT ROUTING: Train Query (ML Backend) vs Conversational ──
-  const railwayKeywords = [
-    'train', 'local', 'express', 'ticket', 'pnr', 'station', 'platform', 'delay', 'status', 'route', 'time', 'now',
-    'sealdah', 'howrah', 'dankuni', 'bandel', 'barddhaman', 'naihati', 'dum dum', 'dake', 'barasat', 'bangaon',
-    'theke', 'jabo', 'jete', 'somoy', 'tarikh', 'kothay', 'sokale', 'bikele', 'raat', 'agamikal', 'kakhon',
-    'kalke', 'kal', 'kaal', 'aaj', 'aajke', 'today', 'tomorrow',
-    'থেকে', 'যাব', 'যেতে', 'সময়', 'তারিখ', 'কোথায়', 'সকালে', 'বিকেলে', 'রাতে', 'আগামীকাল', 'কখন', 'কালকে', 'কাল',
-    'से', 'जाना', 'समय', 'तारीख', 'कहाँ', 'सुबह', 'शाम', 'रात', 'कल', 'कब'
-  ];
-  const hasRailwayIntent = railwayKeywords.some(kw => lowerQuery.includes(kw)) || /\b\d{1,2}:\d{2}\b/.test(lowerQuery) || /\b\d{5}\b/.test(lowerQuery)
-    || /\b\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(cleanQuery)
-    || /\b\d{1,2}[\/\-]\d{1,2}\b/.test(cleanQuery);
-
-
-  // If it's a Train Query, try the primary ML Backend first
-  if (hasRailwayIntent) {
-    try {
-      const res = await api.post('/ai/chat', {
-        message: cleanQuery,
-        session_id: 'mobile_client_session',
-        client_timestamp: new Date().toISOString(),
-        history
-      }, { timeout: 15000 });
-      if (res.data?.success && res.data?.data?.answer) {
-        let cleanAnswer = res.data.data.answer;
-        cleanAnswer = cleanAnswer.replace(/User Safety:.*?\n?/gi, '');
-        cleanAnswer = cleanAnswer.replace(/Response Safety:.*?\n?/gi, '');
-        cleanAnswer = cleanAnswer.replace(/safety status:.*?\n?/gi, '');
-        cleanAnswer = cleanAnswer.trim();
-        return {
-          answer: cleanAnswer,
-          toolsExecuted: res.data.data.toolsExecuted || [],
-          confidence: res.data.data.confidence || 0.95
-        };
-      }
-    } catch (err) {
-      console.warn('Backend ML offline, falling through to local offline fallback');
+  // ── 2. PRIMARY ML & AGENTIC RAG BACKEND INVOCATION ──
+  try {
+    const res = await api.post('/ai/chat', {
+      message: cleanQuery,
+      session_id: 'mobile_client_session',
+      client_timestamp: new Date().toISOString(),
+      history
+    }, { timeout: 15000 });
+    if (res.data?.success && res.data?.data?.answer) {
+      let cleanAnswer = res.data.data.answer;
+      cleanAnswer = cleanAnswer.replace(/User Safety:.*?\n?/gi, '');
+      cleanAnswer = cleanAnswer.replace(/Response Safety:.*?\n?/gi, '');
+      cleanAnswer = cleanAnswer.replace(/safety status:.*?\n?/gi, '');
+      cleanAnswer = cleanAnswer.trim();
+      return {
+        answer: cleanAnswer,
+        toolsExecuted: res.data.data.toolsExecuted || [],
+        confidence: res.data.data.confidence || 0.95,
+        retrievedKnowledgeDocs: res.data.data.retrievedKnowledgeDocs || [],
+        cardData: res.data.data.cardData || null,
+      };
     }
+  } catch (err) {
+    console.warn('Backend ML offline, falling through to local offline fallback');
   }
 
   // ── 3. STRICT LOCAL DATASET FALLBACK (NO OPENROUTER / NO GEMINI AI) ──

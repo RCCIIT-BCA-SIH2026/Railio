@@ -40,6 +40,10 @@ import {
   Sparkles,
   MapPin,
   ChevronDown,
+  ShieldAlert,
+  PhoneCall,
+  X,
+  MessageCircle,
 } from 'lucide-react-native';
 
 export const HomeScreen: React.FC = React.memo(() => {
@@ -48,6 +52,7 @@ export const HomeScreen: React.FC = React.memo(() => {
   const [fromStation, setFromStation] = useState('SDAH');
   const [toStation, setToStation] = useState('DKAE');
   const [stationModalType, setStationModalType] = useState<'FROM' | 'TO' | null>(null);
+  const [showSosModal, setShowSosModal] = useState(false);
 
   const fromStationItem = useMemo(() => getStationByCode(fromStation), [fromStation]);
   const toStationItem = useMemo(() => getStationByCode(toStation), [toStation]);
@@ -68,19 +73,6 @@ export const HomeScreen: React.FC = React.memo(() => {
       const alerts = await getAlertsApi();
       setActiveAlertCount(alerts.length);
     } catch (err) { }
-  }, []);
-
-  useEffect(() => {
-    // Auto-start Live Navigation Free Roam Mode once on screen mount
-    const task = InteractionManager.runAfterInteractions(() => {
-      if (!liveNavigationService.getState().isNavigating) {
-        liveNavigationService.startNavigation({ latitude: 22.5675, longitude: 88.3712, name: 'Sealdah' }, 'walking');
-      }
-    });
-
-    return () => {
-      task.cancel();
-    };
   }, []);
 
   useEffect(() => {
@@ -382,202 +374,60 @@ export const HomeScreen: React.FC = React.memo(() => {
           </TouchableOpacity>
         </View>
 
-        {/* 3-Card Quick Service Row */}
-        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 16, paddingHorizontal: 16 }}>
-          {/* 1. Live Train Status */}
-          <TouchableOpacity
-            style={[styles.quickServiceCard, { flex: 1, width: undefined }]}
-            onPress={() => navigation.navigate('LiveTrain', { trainNumber: '32216' })}
-          >
-            <View style={[styles.quickServiceIcon, { backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
-              <Image source={require('../../assets/footer_svg_transparent.png')} style={{ width: 40, height: 40, tintColor: '#0284C7' }} resizeMode="contain" />
-            </View>
-            <Text style={styles.quickServiceTitle}>{t('Live Train Status', 'Live Train Status')}</Text>
-            <Text style={styles.quickServiceSub}>{t('Get real-time updates', 'Get real-time updates')}</Text>
-          </TouchableOpacity>
 
-          {/* 2. PNR Enquiry */}
-          <TouchableOpacity
-            style={[styles.quickServiceCard, { flex: 1, width: undefined }]}
-            onPress={() => navigation.navigate('SearchResults', { from: fromStation, to: toStation, date: journeyDate })}
-          >
-            <View style={[styles.quickServiceIcon, { backgroundColor: '#FEF3C7', borderColor: '#FDE68A' }]}>
-              <Ticket size={20} color="#D97706" strokeWidth={2.5} />
-            </View>
-            <Text style={styles.quickServiceTitle}>{t('PNR Enquiry', 'PNR Enquiry')}</Text>
-            <Text style={styles.quickServiceSub}>{t('Check your status', 'Check your status')}</Text>
-          </TouchableOpacity>
 
-          {/* 3. VIP Smart Services */}
+        {/* 🚨 Sleek Clickable 24/7 SOS Button */}
+        <View style={{ alignItems: 'center', marginVertical: 14 }}>
           <TouchableOpacity
-            style={[styles.quickServiceCard, { flex: 1, width: undefined }]}
-            onPress={() => navigation.navigate('SmartServices', { trainNumber: '32216' })}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 10,
+              backgroundColor: '#E11D48',
+              paddingHorizontal: 28,
+              paddingVertical: 14,
+              borderRadius: 30,
+              shadowColor: '#E11D48',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.25,
+              shadowRadius: 8,
+              elevation: 5,
+              borderWidth: 1.5,
+              borderColor: '#FDA4AF',
+            }}
+            onPress={() => setShowSosModal(true)}
+            activeOpacity={0.8}
           >
-            <View style={[styles.quickServiceIcon, { backgroundColor: '#F3E8FF', borderColor: '#D8B4FE' }]}>
-              <AlarmClock size={20} color="#9333EA" strokeWidth={2.5} />
-            </View>
-            <Text style={styles.quickServiceTitle}>{t('Smart Alarms', 'Smart Alarms')}</Text>
-            <Text style={styles.quickServiceSub}>{t('ETA-Synced Alerts', 'ETA-Synced Alerts')}</Text>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFFFFF' }} />
+            <ShieldAlert size={22} color="#FFFFFF" strokeWidth={2.5} />
+            <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '900', letterSpacing: 0.8 }}>
+              {t('24/7 SOS HELPLINES', '24/7 SOS HELPLINES')}
+            </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Beautiful 24/7 Helpline Area */}
-        <View style={{ marginTop: 24, marginBottom: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 12 }}>
-            <View style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#FFE4E6', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
-              <Headset size={18} color="#E11D48" strokeWidth={2.5} />
-            </View>
-            <Text style={{ fontSize: 18, fontWeight: '800', color: '#881337' }}>
-              {t('24/7 Helplines & Emergency', '24/7 Helplines & Emergency')}
-            </Text>
-          </View>
-          
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16, gap: 12, paddingBottom: 10 }}>
-            {[
-              { num: '139', title: 'Rail Madad', desc: 'Enquiry, Complaints, PNR & Security', icon: '📞', action: 'tel:139' },
-              { num: '14646', title: 'IRCTC Care', desc: 'Tickets, Refund, Booking', icon: '🎫', action: 'tel:14646' },
-              { num: '1323', title: 'eCatering', desc: 'Food orders & complaints', icon: '🍲', action: 'tel:1323' },
-              { num: '+91 8750001323', title: 'WhatsApp', desc: 'Food ordering support', icon: '💬', action: 'whatsapp://send?phone=918750001323' },
-              { num: '112', title: 'Emergency', desc: 'Police, Medical, Fire', icon: '🚨', action: 'tel:112' },
-              { num: '1098', title: 'Child Help', desc: 'Help involving children', icon: '👶', action: 'tel:1098' },
-              { num: '+91 8044647999', title: 'Intl Support', desc: 'Outside India support', icon: '🌐', action: 'tel:+918044647999' },
-            ].map((item, idx) => (
-              <TouchableOpacity 
-                key={idx} 
-                onPress={() => Linking.openURL(item.action).catch(() => {})} 
-                style={{
-                  backgroundColor: '#FFF1F2',
-                  borderRadius: 16,
-                  padding: 16,
-                  width: 175,
-                  borderWidth: 1,
-                  borderColor: '#FECDD3',
-                  shadowColor: '#E11D48',
-                  shadowOpacity: 0.05,
-                  shadowRadius: 5,
-                  elevation: 1,
-                }}
-              >
-                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
-                  <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#FFE4E6', alignItems: 'center', justifyContent: 'center', marginRight: 10 }}>
-                    <Text style={{ fontSize: 16 }}>{item.icon}</Text>
-                  </View>
-                  <Text style={{ fontSize: 15, fontWeight: '800', color: '#9F1239', flex: 1 }} numberOfLines={1}>{item.title}</Text>
-                </View>
-                <Text style={{ color: '#BE123C', fontSize: 12, fontWeight: '500', marginBottom: 12, height: 32 }} numberOfLines={2}>
-                  {item.desc}
-                </Text>
-                <View style={{ backgroundColor: '#FFFFFF', paddingVertical: 8, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#FFE4E6' }}>
-                  <Text style={{ color: '#E11D48', fontWeight: 'bold', fontSize: 14 }}>{item.num}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
 
 
-        {/* 🌟 Suburban Local & Google Maps Cellular Signal Crowd Pulse Segment */}
-        <TouchableOpacity
-          style={styles.suburbanHeroSegment}
-          onPress={() => navigation.navigate('SuburbanLocal', { from: 'DAKE', to: 'SDAH' })}
-        >
-          <View style={styles.suburbanHeroTop}>
-            <View style={styles.suburbanHeroBadgeRow}>
-              <View style={styles.suburbanLivePill}>
-                <View style={styles.suburbanPulseDot} />
-                <Text style={styles.suburbanLivePillText}>LIVE PULSE</Text>
-              </View>
-              <View style={styles.googleTechBadge}>
-                <Text style={styles.googleTechBadgeText}>GOOGLE MAPS SIGNAL TECH</Text>
-              </View>
-            </View>
-            <Text style={styles.suburbanHeroArrow}>{t('Search Locals →', 'Search Locals →')}</Text>
-          </View>
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
-            <Image source={require('../../assets/logo.png')} style={{ width: 22, height: 22, marginRight: 8 }} resizeMode="contain" />
-            <Text style={[styles.suburbanHeroTitle, { marginBottom: 0 }]}>
-              {t('Dakshineswar ⇄ Sealdah Local', 'Dakshineswar ⇄ Sealdah Local')}
-            </Text>
-          </View>
-          <Text style={styles.suburbanHeroSub}>
-            {t('suburban.desc', 'Next Train in 4 min • Live 12-Coach Cellular Crowd Heatmap & Smart Boarding Advice')}
-          </Text>
-
-          <View style={styles.suburbanMiniHeatmap}>
-            <View style={styles.suburbanMiniCoachItem}>
-              <Text style={styles.miniCoachId}>C1</Text>
-              <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
-              <Text style={styles.miniCoachLoad}>28%</Text>
-            </View>
-            <View style={styles.suburbanMiniCoachItem}>
-              <Text style={styles.miniCoachId}>C2</Text>
-              <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
-              <Text style={styles.miniCoachLoad}>35%</Text>
-            </View>
-            <View style={[styles.suburbanMiniCoachItem, styles.miniCoachBest]}>
-              <Text style={styles.miniCoachId}>C3 ⭐</Text>
-              <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
-              <Text style={[styles.miniCoachLoad, { color: '#10B981' }]}>22%</Text>
-            </View>
-            <View style={styles.suburbanMiniCoachItem}>
-              <Text style={styles.miniCoachId}>C4</Text>
-              <View style={[styles.miniCoachDot, { backgroundColor: '#EAB308' }]} />
-              <Text style={styles.miniCoachLoad}>48%</Text>
-            </View>
-            <View style={styles.suburbanMiniCoachItem}>
-              <Text style={styles.miniCoachId}>C5</Text>
-              <View style={[styles.miniCoachDot, { backgroundColor: '#F97316' }]} />
-              <Text style={styles.miniCoachLoad}>68%</Text>
-            </View>
-            <View style={styles.suburbanMiniCoachItem}>
-              <Text style={styles.miniCoachId}>C6</Text>
-              <View style={[styles.miniCoachDot, { backgroundColor: '#EF4444' }]} />
-              <Text style={styles.miniCoachLoad}>74%</Text>
-            </View>
-            <View style={styles.suburbanMiniCoachItem}>
-              <Text style={styles.miniCoachId}>C7</Text>
-              <View style={[styles.miniCoachDot, { backgroundColor: '#EAB308' }]} />
-              <Text style={styles.miniCoachLoad}>44%</Text>
-            </View>
-            <View style={styles.suburbanMiniCoachItem}>
-              <Text style={styles.miniCoachId}>C8</Text>
-              <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
-              <Text style={styles.miniCoachLoad}>30%</Text>
-            </View>
-            <View style={[styles.suburbanMiniCoachItem, styles.miniCoachBest]}>
-              <Text style={styles.miniCoachId}>C9 ⭐</Text>
-              <View style={[styles.miniCoachDot, { backgroundColor: '#10B981' }]} />
-              <Text style={[styles.miniCoachLoad, { color: '#10B981' }]}>25%</Text>
-            </View>
-          </View>
-
-          <View style={styles.suburbanHeroFooter}>
-            <Text style={styles.suburbanHeroFooterText}>
-              💡 <Text style={{ color: '#10B981', fontWeight: 'bold' }}>Coach C3 & C9</Text> {t('have lowest device density (~16 phone signals).', 'have lowest device density (~16 phone signals).')}
-            </Text>
-          </View>
-        </TouchableOpacity>
 
         {/* 4 Core Action Cards (Prompt Requirement) */}
         <View style={styles.sectionTitleRow}>
           <Text style={styles.sectionTitle}>{t('Intelligence Services', 'Intelligence Services')}</Text>
-          <Text style={styles.sectionSubtitle}>{t('AI & IoT Powered', 'AI & IoT Powered')}</Text>
         </View>
 
         <View style={styles.actionGrid}>
-          {/* Coach Crowd Intelligence */}
+          {/* Live Station Board */}
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => navigation.navigate('CoachCrowd', { trainNumber: '32216' })}
+            onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
           >
-            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(168, 85, 247, 0.15)' }]}>
-              <Users size={24} color="#A855F7" strokeWidth={2.5} />
+            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(2, 132, 199, 0.15)' }]}>
+              <Building2 size={24} color="#0284C7" strokeWidth={2.5} />
             </View>
-            <Text style={styles.actionCardTitle}>{t('Coach Crowd', 'Coach Crowd')}</Text>
-            <Text style={styles.actionCardSub}>{t('Least Density Finder', 'Least Density Finder')}</Text>
+            <Text style={styles.actionCardTitle}>{t('Live Station Board', 'Live Station Board')}</Text>
+            <Text style={styles.actionCardSub}>{t('Arrivals & Departures', 'Arrivals & Departures')}</Text>
             <View style={styles.actionCardBadge}>
-              <Text style={[styles.actionCardBadgeText, { color: '#A855F7' }]}>CV Heatmap</Text>
+              <Text style={[styles.actionCardBadgeText, { color: '#0284C7' }]}>Live Board</Text>
             </View>
           </TouchableOpacity>
 
@@ -595,88 +445,6 @@ export const HomeScreen: React.FC = React.memo(() => {
               <Text style={[styles.actionCardBadgeText, { color: '#10B981' }]}>Live Radar</Text>
             </View>
           </TouchableOpacity>
-        </View>
-
-        {/* Beautiful Station Board Card */}
-        <TouchableOpacity
-          style={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: 16,
-            padding: 16,
-            marginTop: 14,
-            flexDirection: 'row',
-            alignItems: 'center',
-            borderWidth: 1,
-            borderColor: '#E2E8F0',
-            shadowColor: '#000',
-            shadowOpacity: 0.05,
-            shadowRadius: 5,
-            elevation: 2,
-          }}
-          onPress={() => navigation.navigate('StationArrivalBoard', { stationCode: 'HWH' })}
-        >
-          <View style={{
-            width: 48,
-            height: 48,
-            borderRadius: 14,
-            backgroundColor: '#F0F9FF',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginRight: 14,
-          }}>
-            <Building2 size={24} color="#0284C7" strokeWidth={2.5} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 16, fontWeight: '800', color: '#1E293B', marginBottom: 4 }}>
-              {t('Live Station Board', 'Live Station Board')}
-            </Text>
-            <Text style={{ fontSize: 13, color: '#64748B', fontWeight: '500' }}>
-              {t('Real-time arrivals & departures', 'Real-time arrivals & departures')}
-            </Text>
-          </View>
-          <View style={{
-            backgroundColor: '#F8FAFC',
-            paddingHorizontal: 12,
-            paddingVertical: 6,
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: '#E2E8F0',
-          }}>
-            <Text style={{ color: '#0284C7', fontSize: 12, fontWeight: '700' }}>{t('View', 'View')}</Text>
-          </View>
-        </TouchableOpacity>
-
-        {/* Live Railway Network Status Bar */}
-        <View style={styles.statusPillCard}>
-          <View style={styles.statusPillHeader}>
-            <Text style={styles.statusPillTitle}>{t('LIVE RAILWAY STATUS', 'LIVE RAILWAY STATUS')}</Text>
-            <View style={styles.liveTick}>
-              <View style={styles.greenPulse} />
-              <Text style={styles.liveTickText}>LIVE</Text>
-            </View>
-          </View>
-
-          <View style={styles.statusPillRow}>
-            <View style={styles.statusItem}>
-              <Text style={styles.statusNumber}>40</Text>
-              <Text style={styles.statusLabel}>{t('Active Trains', 'Active Trains')}</Text>
-            </View>
-            <View style={styles.statusDivider} />
-            <View style={styles.statusItem}>
-              <Text style={[styles.statusNumber, { color: '#F59E0B' }]}>6</Text>
-              <Text style={styles.statusLabel}>{t('Delayed', 'Delayed')}</Text>
-            </View>
-            <View style={styles.statusDivider} />
-            <View style={styles.statusItem}>
-              <Text style={[styles.statusNumber, { color: '#EF4444' }]}>1</Text>
-              <Text style={styles.statusLabel}>{t('Critical Risks', 'Critical Risks')}</Text>
-            </View>
-            <View style={styles.statusDivider} />
-            <View style={styles.statusItem}>
-              <Text style={[styles.statusNumber, { color: '#10B981' }]}>92%</Text>
-              <Text style={styles.statusLabel}>{t('Punctual', 'Punctual')}</Text>
-            </View>
-          </View>
         </View>
       </ScrollView>
 
@@ -704,6 +472,90 @@ export const HomeScreen: React.FC = React.memo(() => {
           }
         }}
       />
+
+      {/* 🚨 SOS EMERGENCY & 24/7 HELPLINES MODAL */}
+      <Modal visible={showSosModal} transparent animationType="slide" onRequestClose={() => setShowSosModal(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.75)', justifyContent: 'flex-end' }}>
+          <View style={{
+            backgroundColor: '#FFFFFF',
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
+            padding: 20,
+            maxHeight: '85%',
+            elevation: 20,
+          }}>
+            {/* Modal Header */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF1F2', alignItems: 'center', justifyContent: 'center' }}>
+                  <ShieldAlert size={20} color="#E11D48" strokeWidth={2.5} />
+                </View>
+                <View>
+                  <Text style={{ fontSize: 18, fontWeight: '900', color: '#0F172A' }}>24/7 Helplines & SOS</Text>
+                  <Text style={{ fontSize: 11, color: '#64748B', fontWeight: '500' }}>Tap any helpline for instant call or WhatsApp support</Text>
+                </View>
+              </View>
+
+              <TouchableOpacity onPress={() => setShowSosModal(false)} style={{ padding: 8, backgroundColor: '#F1F5F9', borderRadius: 20 }}>
+                <X size={18} color="#64748B" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Helplines List */}
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingBottom: 20 }}>
+              {[
+                { num: '139', title: 'Rail Madad Hotline', desc: 'Enquiry, Complaints, PNR, Security & Medical', icon: <PhoneCall size={18} color="#E11D48" />, isWhatsApp: false, action: 'tel:139' },
+                { num: '112', title: 'National Emergency', desc: 'Police, Medical Ambulance & Fire Services', icon: <ShieldAlert size={18} color="#E11D48" />, isWhatsApp: false, action: 'tel:112' },
+                { num: '14646', title: 'IRCTC Customer Care', desc: 'Train Tickets, Refund & E-Booking Assistance', icon: <Headset size={18} color="#0284C7" />, isWhatsApp: false, action: 'tel:14646' },
+                { num: '1323', title: 'eCatering Food Support', desc: 'In-train food order helpline & quality complaints', icon: <PhoneCall size={18} color="#F59E0B" />, isWhatsApp: false, action: 'tel:1323' },
+                { num: '+91 8750001323', title: 'WhatsApp Food & Support', desc: 'Order food on track & instant chat assistance', icon: <MessageCircle size={18} color="#25D366" />, isWhatsApp: true, action: 'whatsapp://send?phone=918750001323' },
+                { num: '1098', title: 'Childline Emergency', desc: 'National hotline for child protection & assistance', icon: <PhoneCall size={18} color="#8B5CF6" />, isWhatsApp: false, action: 'tel:1098' },
+                { num: '+91 8044647999', title: 'International Tourist Support', desc: 'Support for international travelers & non-Indian SIMs', icon: <PhoneCall size={18} color="#059669" />, isWhatsApp: false, action: 'tel:+918044647999' },
+              ].map((item, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  onPress={() => {
+                    Linking.openURL(item.action).catch(() => {
+                      if (item.isWhatsApp) {
+                        Linking.openURL('https://wa.me/918750001323');
+                      }
+                    });
+                  }}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: '#F8FAFC',
+                    borderRadius: 16,
+                    padding: 14,
+                    borderWidth: 1,
+                    borderColor: '#E2E8F0',
+                    gap: 12,
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: item.isWhatsApp ? '#DCFCE7' : '#FFF1F2', alignItems: 'center', justifyContent: 'center' }}>
+                    {item.icon}
+                  </View>
+
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontSize: 15, fontWeight: '800', color: '#0F172A', marginBottom: 2 }}>{item.title}</Text>
+                    <Text style={{ fontSize: 11, color: '#64748B' }}>{item.desc}</Text>
+                  </View>
+
+                  <View style={{
+                    backgroundColor: item.isWhatsApp ? '#25D366' : '#0F172A',
+                    paddingHorizontal: 12,
+                    paddingVertical: 7,
+                    borderRadius: 10,
+                  }}>
+                    <Text style={{ color: '#FFFFFF', fontWeight: '800', fontSize: 12 }}>{item.isWhatsApp ? 'WhatsApp' : `Call ${item.num}`}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </AppBackground>
   );
 });

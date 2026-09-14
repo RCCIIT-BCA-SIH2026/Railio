@@ -23,6 +23,7 @@ export interface DelayReason {
 
 export interface TrainStop {
   code: string;
+  name?: string;
   sequence: number;
   arr: string;
   dep: string;
@@ -327,20 +328,33 @@ class DataStore {
         this.alerts = data.alerts || [];
       }
 
-      // 3. Load Nationwide Fleet Master Dataset (5,500+ trains)
+      // 3. Load Master Datasets (Nationwide Fleet + Suburban Trains)
       const fleetPath = path.resolve(__dirname, '../../../data/trains/nationwide_fleet.json');
+      const suburbanPath = path.resolve(__dirname, '../../../data/trains/suburban_trains.json');
+
+      let combinedFleet: Train[] = [];
       if (fs.existsSync(fleetPath)) {
         const rawFleet = fs.readFileSync(fleetPath, 'utf8');
-        const fullFleet: Train[] = JSON.parse(rawFleet);
-        this.totalFleetCount = fullFleet.length;
-        this.trains = fullFleet;
-
-        // Build high-performance index shards
+        combinedFleet = JSON.parse(rawFleet);
+      }
+      if (fs.existsSync(suburbanPath)) {
+        const rawSub = fs.readFileSync(suburbanPath, 'utf8');
+        const subFleet: Train[] = JSON.parse(rawSub);
+        const existingNumbers = new Set(combinedFleet.map(t => t.trainNumber));
+        for (const st of subFleet) {
+          if (!existingNumbers.has(st.trainNumber)) {
+            combinedFleet.push(st);
+            existingNumbers.add(st.trainNumber);
+          }
+        }
+      }
+      if (combinedFleet.length > 0) {
+        this.totalFleetCount = combinedFleet.length;
+        this.trains = combinedFleet;
         this.rebuildIndexes();
-
-        console.log(`[DataStore] Successfully loaded Nationwide High-Scale Fleet: ${this.trains.length} trains across 18 Zones, ${this.stations.length} stations indexed.`);
+        console.log(`[DataStore] Successfully loaded Master Fleet: ${this.trains.length} trains across 18 Zones, ${this.stations.length} stations indexed.`);
       } else {
-        console.warn('[DataStore] Nationwide fleet not found at', fleetPath, 'using seed fallback.');
+        console.warn('[DataStore] Master fleet not found, using seed fallback.');
       }
     } catch (err) {
       console.error('[DataStore] Error loading master fleet data:', err);
@@ -570,16 +584,54 @@ class DataStore {
   }
 
   public searchTrains(from: string, to: string, zone?: string): Train[] {
-    const fromCode = from.toUpperCase().trim();
-    const toCode = to.toUpperCase().trim();
+    const fStr = from.toUpperCase().trim();
+    const tStr = to.toUpperCase().trim();
+
+    const isMatchStation = (stCode: string, stName: string | undefined, query: string) => {
+      const q = query.toUpperCase();
+      const code = (stCode || '').toUpperCase();
+      const name = (stName || '').toUpperCase();
+      if (code === q) return true;
+      if (name && (name.includes(q) || q.includes(name))) return true;
+      if ((q === 'SDAH' || q === 'SEALDAH' || q === 'KOLKATA') && (code === 'SDAH' || name.includes('SEALDAH'))) return true;
+      if ((q === 'DKAE' || q === 'DANKUNI') && (code === 'DKAE' || name.includes('DANKUNI'))) return true;
+      if ((q === 'HWH' || q === 'HOWRAH') && (code === 'HWH' || name.includes('HOWRAH'))) return true;
+      if ((q === 'DDJ' || q === 'DUM DUM') && (code === 'DDJ' || name.includes('DUM DUM'))) return true;
+      if ((q === 'DAKE' || q === 'DAKSHINESWAR') && (code === 'DAKE' || name.includes('DAKSHINESWAR'))) return true;
+      return false;
+    };
 
     const matched = this.trains.filter((t) => {
       if (zone && zone.toUpperCase() !== 'ALL' && t.zone?.toUpperCase() !== zone.toUpperCase()) {
         return false;
       }
-      const fromStop = t.stops.find((s) => s.code.toUpperCase() === fromCode);
-      const toStop = t.stops.find((s) => s.code.toUpperCase() === toCode);
-      return fromStop && toStop && fromStop.sequence < toStop.sequence;
+
+      let fromSeq = -1;
+      let toSeq = -1;
+
+      if (t.stops && t.stops.length > 0) {
+        for (const s of t.stops) {
+          if (fromSeq === -1 && isMatchStation(s.code, s.name, fStr)) {
+            fromSeq = s.sequence;
+          }
+          if (isMatchStation(s.code, s.name, tStr)) {
+            if (fromSeq !== -1 && s.sequence > fromSeq) {
+              toSeq = s.sequence;
+            } else if (toSeq === -1) {
+              toSeq = s.sequence;
+            }
+          }
+        }
+      }
+
+      if (fromSeq === -1 && isMatchStation(t.source, (t as any).sourceName, fStr)) {
+        fromSeq = 0;
+      }
+      if (toSeq === -1 && isMatchStation(t.destination, (t as any).destinationName, tStr)) {
+        toSeq = 9999;
+      }
+
+      return fromSeq !== -1 && toSeq !== -1 && fromSeq < toSeq;
     });
 
     return matched;

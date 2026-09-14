@@ -89,7 +89,10 @@ export const AIAssistantScreen: React.FC = () => {
         id: (Date.now() + 1).toString(),
         sender: 'ai',
         text: res.answer,
-        isRichCard: false, // Disabled hardcoded mock card
+        toolsExecuted: res.toolsExecuted || [],
+        confidence: res.confidence || 0.95,
+        retrievedDocs: res.retrievedKnowledgeDocs || [],
+        cardData: res.cardData || null,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       
@@ -150,40 +153,114 @@ export const AIAssistantScreen: React.FC = () => {
     </View>
   );
 
-  const renderRichCard = () => (
-    <View style={styles.richCard}>
-      <Text style={styles.richCardTitle}>Best trains for your journey</Text>
-      <View style={styles.richCardDivider} />
-      <View style={styles.richCardRow}>
-        <View style={styles.richCardIcon}>
-          <Train size={20} color={COLORS.primary} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.richCardTrainName}>Dankuni - Sealdah Local (32216)</Text>
-          <Text style={styles.richCardRoute}>Dakshineswar → Sealdah</Text>
-          <Text style={styles.richCardMeta}>Today • 44 mins • 28 km</Text>
-        </View>
+  const renderFormattedText = (text: string, isUser: boolean) => {
+    if (!text) return null;
+    const lines = text.split('\n');
+    return (
+      <View style={{ gap: 4 }}>
+        {lines.map((line, idx) => {
+          if (!line.trim()) return <View key={idx} style={{ height: 4 }} />;
+          const parts = line.split(/(\*\*.*?\*\*)/g);
+          return (
+            <Text key={idx} style={[styles.msgText, isUser && styles.msgTextUser]}>
+              {parts.map((part, pIdx) => {
+                if (part.startsWith('**') && part.endsWith('**')) {
+                  return (
+                    <Text key={pIdx} style={{ fontWeight: '700', color: isUser ? '#FFFFFF' : COLORS.navy }}>
+                      {part.slice(2, -2)}
+                    </Text>
+                  );
+                }
+                return part;
+              })}
+            </Text>
+          );
+        })}
       </View>
-      <View style={styles.richCardTimeRow}>
-        <View>
-          <Text style={styles.richCardTimeLabel}>Departure</Text>
-          <Text style={styles.richCardTimeValue}>06:34</Text>
-        </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text style={styles.richCardTimeLabel}>Arrival (ETA)</Text>
-          <Text style={styles.richCardTimeValue}>07:21 (+3m)</Text>
-        </View>
+    );
+  };
+
+  const renderToolBadges = (toolsExecuted?: any[], confidence?: number) => {
+    if ((!toolsExecuted || toolsExecuted.length === 0) && !confidence) return null;
+    return (
+      <View style={styles.toolBadgeRow}>
+        {confidence ? (
+          <View style={styles.confidenceBadge}>
+            <Text style={styles.confidenceText}>⚡ {Math.round(confidence * 100)}% Confidence</Text>
+          </View>
+        ) : null}
+        {toolsExecuted?.map((t, idx) => {
+          const toolName = typeof t === 'string' ? t : t.tool;
+          let label = toolName;
+          let icon = '🔧';
+          if (toolName.includes('LIVE')) { label = 'REALTIME_LIVE_TRACKER'; icon = '📍'; }
+          else if (toolName.includes('ETA') || toolName.includes('PREDICTOR')) { label = 'ML_DELAY_FORECASTER'; icon = '🤖'; }
+          else if (toolName.includes('RAG') || toolName.includes('KNOWLEDGE')) { label = 'HYBRID_RAG_SEARCH'; icon = '📚'; }
+          else if (toolName.includes('HEALTH') || toolName.includes('SELF')) { label = 'ML_SELF_LEARNING'; icon = '🧠'; }
+          return (
+            <View key={idx} style={styles.toolBadge}>
+              <Text style={styles.toolBadgeText}>{icon} {label}</Text>
+            </View>
+          );
+        })}
       </View>
-      <View style={styles.richCardActions}>
-        <TouchableOpacity style={styles.richCardButtonOutline}>
-          <Text style={styles.richCardButtonTextOutline}>View Train</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.richCardButtonSolid}>
-          <Text style={styles.richCardButtonTextSolid}>Check Seats</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  };
+
+  const renderDynamicCard = (cardData: any) => {
+    if (!cardData) return null;
+    if (cardData.type === 'TRAIN_SEARCH_RESULTS' && cardData.trains?.length > 0) {
+      const topTrain = cardData.trains[0];
+      return (
+        <View style={styles.richCard}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text style={styles.richCardTitle}>Best Service Found</Text>
+            <View style={{ backgroundColor: '#EFF6FF', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+              <Text style={{ fontSize: 10, color: '#1D4ED8', fontWeight: '700' }}>{topTrain.timeUntilStr || 'Upcoming'}</Text>
+            </View>
+          </View>
+          <View style={styles.richCardDivider} />
+          <View style={styles.richCardRow}>
+            <View style={styles.richCardIcon}>
+              <Train size={20} color={COLORS.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.richCardTrainName}>{topTrain.name} ({topTrain.trainNumber})</Text>
+              <Text style={styles.richCardRoute}>{cardData.origin} → {cardData.destination}</Text>
+              <Text style={styles.richCardMeta}>{topTrain.platform || 'PF 1'} • {topTrain.coachRec || 'Coach C3/C9'}</Text>
+            </View>
+          </View>
+          <View style={styles.richCardTimeRow}>
+            <View>
+              <Text style={styles.richCardTimeLabel}>Scheduled Departure</Text>
+              <Text style={styles.richCardTimeValue}>{topTrain.departure}</Text>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={styles.richCardTimeLabel}>Estimated Arrival (ETA)</Text>
+              <Text style={styles.richCardTimeValue}>
+                {topTrain.estimatedArrival} {topTrain.predictedDelay > 0 ? `(+${topTrain.predictedDelay}m)` : '(On Time)'}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.richCardActions}>
+            <TouchableOpacity 
+              style={styles.richCardButtonOutline}
+              onPress={() => navigation.navigate('LiveTrain' as never, { trainNumber: topTrain.trainNumber } as never)}
+            >
+              <Text style={styles.richCardButtonTextOutline}>Live Map & Status</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.richCardButtonSolid}
+              onPress={() => navigation.navigate('CoachCrowd' as never, { trainNumber: topTrain.trainNumber } as never)}
+            >
+              <Text style={styles.richCardButtonTextSolid}>Coach Crowding</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    }
+    return null;
+  };
 
   return (
     <View style={[styles.mainContainer, { paddingTop: insets.top }]}>
@@ -239,10 +316,12 @@ export const AIAssistantScreen: React.FC = () => {
                     )}
                     <View style={styles.bubbleGroup}>
                       <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAi]}>
-                        <Text style={[styles.msgText, isUser && styles.msgTextUser]}>{msg.text}</Text>
+                        {renderFormattedText(msg.text, isUser)}
                       </View>
+
+                      {!isUser && renderToolBadges(msg.toolsExecuted, msg.confidence)}
                       
-                      {!isUser && msg.isRichCard && renderRichCard()}
+                      {!isUser && msg.cardData && renderDynamicCard(msg.cardData)}
                       
                       <Text style={[styles.msgTime, isUser && styles.msgTimeUser]}>{msg.time}</Text>
                     </View>
@@ -693,5 +772,38 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  toolBadgeRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 6,
+    marginBottom: 4,
+  },
+  confidenceBadge: {
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  confidenceText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: '#92400E',
+  },
+  toolBadge: {
+    backgroundColor: '#F1F5F9',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  toolBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#475569',
   },
 });
