@@ -14,6 +14,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
 
 from app.rag.embedding_client import embedding_client
+from app.rag.pinecone_client import pinecone_client
 from app.rag.train_knowledge_indexer import knowledge_indexer, KnowledgeChunk
 from app.ml.eta_delay_predictor import eta_predictor, DelayPredictionRequest
 from app.ml.train_schedule_db import train_schedule_db, resolve_station_code, get_ist_now
@@ -174,8 +175,16 @@ class HybridRetriever:
         train_num = self._extract_train_number(cleaned_query)
         query_terms = re.findall(r'[\w\u0980-\u09FF]+', cleaned_query)
 
-        # 2. Get Query Dense Embedding
+        # 2. Get Query Dense Embedding & Query Pinecone Cloud Vectors
         query_embedding = embedding_client.get_embedding(cleaned_query)
+        pinecone_scores: Dict[str, float] = {}
+        if query_embedding:
+            p_matches = pinecone_client.query_vectors(query_embedding, top_k=top_k * 2)
+            for m in p_matches:
+                doc_id = m.get("id")
+                score = float(m.get("score", 0.0))
+                if doc_id:
+                    pinecone_scores[doc_id] = score
 
         scored_candidates: List[Tuple[KnowledgeChunk, float, str]] = []
 
@@ -192,6 +201,11 @@ class HybridRetriever:
             if query_embedding is not None and chunk.embedding is not None:
                 dense_score = max(0.0, embedding_client.cosine_similarity(query_embedding, chunk.embedding))
 
+            # Include Pinecone cloud vector score if available
+            p_score = pinecone_scores.get(chunk.chunk_id, 0.0)
+            if p_score > dense_score:
+                dense_score = p_score
+
             bm25_score = self._compute_bm25_score(query_terms, chunk)
 
             # Train number exact match boost
@@ -203,7 +217,7 @@ class HybridRetriever:
             hybrid_score = (0.50 * dense_score) + (0.35 * min(bm25_score / 10.0, 1.0)) + train_boost
 
             if hybrid_score > score_threshold:
-                match_type = "DENSE_AND_SPARSE" if (dense_score > 0.4 and bm25_score > 2.0) else ("SPARSE_MATCH" if bm25_score > 3.0 else "DENSE_SEMANTIC")
+                match_type = "PINECONE_CLOUD_AND_SPARSE" if p_score > 0.6 else ("DENSE_AND_SPARSE" if (dense_score > 0.4 and bm25_score > 2.0) else ("SPARSE_MATCH" if bm25_score > 3.0 else "DENSE_SEMANTIC"))
                 scored_candidates.append((chunk, hybrid_score, match_type))
 
         # 5. Sort by descending score & deduplicate

@@ -223,9 +223,16 @@ class TrainScheduleDB:
 
         return {
             "trainNumber": train_number,
+            "trainName": train.get("name", f"Train {train_number}"),
+            "source": train.get("source", "SDAH"),
+            "destination": train.get("destination", "DKAE"),
             "zone": train.get("zone", "NR"),
             "departureTime": dep_str,
             "arrivalTime": arr_str,
+            "departureHour": dep_total // 60,
+            "departureMinute": dep_total % 60,
+            "arrivalHour": (arr_total % 1440) // 60,
+            "arrivalMinute": (arr_total % 1440) % 60,
             "travelDurationMins": travel_dur_mins,
             "distanceKm": distance_km if distance_km > 0 else 500.0,
             "direction": direction,
@@ -240,7 +247,8 @@ class TrainScheduleDB:
             "activeTSRs": [],
             "signalAspect": None,
             "precedingTrainDelayMin": 0.0,
-            "fogVisibilityKm": 10.0
+            "fogVisibilityKm": 10.0,
+            "liveState": live
         }
 
     def search_by_route(self, from_code: str, to_code: str, zone: Optional[str] = None) -> List[Dict[str, Any]]:
@@ -261,6 +269,70 @@ class TrainScheduleDB:
                     t_idx = idx
             if f_idx != -1 and t_idx != -1 and f_idx < t_idx:
                 results.append(t)
+        return results
+
+    def search_trains_with_segment_info(
+        self,
+        from_code: str,
+        to_code: str,
+        dep_time_from_hhmm: Optional[str] = None,
+        dep_time_to_hhmm: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        fc = from_code.upper().strip()
+        tc = to_code.upper().strip()
+        results = []
+        for t in self._all_trains:
+            stops = t.get("stops", [])
+            f_stop = None
+            t_stop = None
+            f_idx = -1
+            t_idx = -1
+            for idx, s in enumerate(stops):
+                sc = s.get("code", "").upper()
+                if sc == fc and f_idx == -1:
+                    f_idx = idx
+                    f_stop = s
+                if sc == tc and t_idx == -1:
+                    t_idx = idx
+                    t_stop = s
+            
+            if f_idx == -1 and t.get("source", "").upper() == fc:
+                f_idx = 0
+                f_stop = {"code": fc, "dep": t.get("departureTime", "08:00"), "km": 0}
+            if t_idx == -1 and t.get("destination", "").upper() == tc:
+                t_idx = 999
+                t_stop = {"code": tc, "arr": t.get("arrivalTime", "09:00"), "km": t.get("totalDistanceKm", 30)}
+
+            if f_idx != -1 and t_idx != -1 and f_idx < t_idx:
+                dep_str = f_stop.get("dep") or f_stop.get("arr") or t.get("departureTime", "08:00") if f_stop else t.get("departureTime", "08:00")
+                arr_str = t_stop.get("arr") or t_stop.get("dep") or t.get("arrivalTime", "09:00") if t_stop else t.get("arrivalTime", "09:00")
+                
+                dep_m = _hhmm_to_min(dep_str)
+                arr_m = _hhmm_to_min(arr_str)
+                dur = arr_m - dep_m
+                overnight = False
+                if dur <= 0:
+                    dur += 1440
+                    overnight = True
+                
+                if dep_time_from_hhmm:
+                    from_m = _hhmm_to_min(dep_time_from_hhmm)
+                    if dep_m < from_m:
+                        continue
+                if dep_time_to_hhmm:
+                    to_m = _hhmm_to_min(dep_time_to_hhmm)
+                    if dep_m > to_m:
+                        continue
+                
+                t_copy = dict(t)
+                t_copy["segment_dep_time"] = dep_str
+                t_copy["segment_arr_time"] = arr_str
+                t_copy["segment_duration_mins"] = float(dur)
+                t_copy["segment_distance_km"] = float(t.get("totalDistanceKm", 30.0))
+                t_copy["segment_overnight"] = overnight
+                t_copy["orig_codes"] = [fc]
+                t_copy["dest_codes"] = [tc]
+                results.append(t_copy)
         return results
 
 train_schedule_db = TrainScheduleDB()

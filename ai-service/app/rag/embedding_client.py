@@ -18,6 +18,8 @@ _GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 _EMBEDDING_MODEL = "models/gemini-embedding-001"
 _CACHE_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "vector_index.json")
 
+from app.rag.api_key_rotator import gemini_rotator
+
 
 class EmbeddingClient:
     def __init__(self, api_key: Optional[str] = None):
@@ -49,7 +51,7 @@ class EmbeddingClient:
     def get_embedding(self, text: str) -> Optional[List[float]]:
         """
         Get 3072-dimensional embedding for text.
-        Checks in-memory/disk cache first. If missing and API key available, calls Gemini API.
+        Checks in-memory/disk cache first. If missing, attempts multi-key Gemini API pool.
         """
         text_key = text.strip()
         if not text_key:
@@ -58,29 +60,25 @@ class EmbeddingClient:
         if text_key in self.cache:
             return self.cache[text_key]
 
-        if not self.api_key:
-            # Fallback pseudo-embedding based on character n-grams for offline robustness
-            return self._generate_fallback_vector(text_key)
-
-        url = f"https://generativelanguage.googleapis.com/v1beta/{_EMBEDDING_MODEL}:embedContent?key={self.api_key}"
-        try:
-            payload = {
-                "content": {
-                    "parts": [{"text": text_key}]
-                }
+        # Call Gemini Embedding API using multi-key rotator pool
+        payload = {
+            "content": {
+                "parts": [{"text": text_key}]
             }
-            resp = requests.post(url, json=payload, timeout=10)
-            if resp.status_code == 200:
-                values = resp.json().get("embedding", {}).get("values", [])
-                if values:
-                    self.cache[text_key] = values
-                    return values
-            else:
-                print(f"[EmbeddingClient] API Error ({resp.status_code}): {resp.text[:150]}")
-        except Exception as err:
-            print(f"[EmbeddingClient] Request error: {err}")
+        }
 
-        # Fallback if API fails
+        def _make_req(api_key: str) -> requests.Response:
+            url = f"https://generativelanguage.googleapis.com/v1beta/{_EMBEDDING_MODEL}:embedContent?key={api_key}"
+            return requests.post(url, json=payload, timeout=10)
+
+        resp = gemini_rotator.execute_with_retry(_make_req)
+        if resp and resp.status_code == 200:
+            values = resp.json().get("embedding", {}).get("values", [])
+            if values:
+                self.cache[text_key] = values
+                return values
+
+        # Fallback to deterministic pseudo-vector if API calls exhaust
         return self._generate_fallback_vector(text_key)
 
     def _generate_fallback_vector(self, text: str, dim: int = 3072) -> List[float]:
