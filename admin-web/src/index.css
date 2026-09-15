@@ -1,8 +1,50 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
-
+@import "leaflet/dist/leaflet.css";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Russo+One&display=swap');
+
+/* Leaflet UI Custom Styling */
+.leaflet-container {
+  font-family: 'Inter', sans-serif !important;
+  border-radius: 0.75rem;
+  z-index: 1;
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(12px);
+  border-radius: 1rem !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+}
+
+.leaflet-popup-tip {
+  background: #FFFFFF !important;
+}
+
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden;
+}
+
+.leaflet-control-zoom a {
+  background-color: #FFFFFF !important;
+  color: #1E293B !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #F8FAFC !important;
+  color: #FF671F !important;
+}
 
 body {
   margin: 0;
@@ -48,7 +90,15 @@ h1, h2, h3, h4, .font-heading {
   animation: pulse-glow 2s infinite ease-in-out;
 }
 
-/* Custom Scrollbar for Light Theme */
+/* Custom Scrollbar & Utilities */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

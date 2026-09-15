@@ -137,7 +137,6 @@ const DashboardContent: React.FC = () => {
               selectedZone={selectedZone}
               onSelectZone={setSelectedZone}
             />
-            <DelayPropagationTree />
           </div>
         )}
 

@@ -7,7 +7,7 @@ import { RootStackParamList, BottomTabParamList } from '../types';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Home, MapPin, CircleUserRound, Scan, Navigation } from 'lucide-react-native';
+import { Home, MapPin, CircleUserRound, Scan, Clock, Navigation } from 'lucide-react-native';
 import { useTranslation } from '../context/LanguageContext';
 import { LanguageTopButton } from '../components/LanguageTopButton';
 import { liveNavigationService } from '../services/navigation/LiveNavigationService';
@@ -37,7 +37,7 @@ import { AdminQuickAlertsScreen } from '../screens/AdminQuickAlertsScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { SmartServicesScreen } from '../screens/SmartServicesScreen';
-import { LiveNavigationUI } from '../components/LiveNavigationUI';
+import { LiveNavigationUI, LiveNavScreen } from '../components/LiveNavigationUI';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<BottomTabParamList>();
@@ -69,6 +69,56 @@ const AnimatedMascot = () => {
        </View>
        <Image source={require('../../assets/railio-ai-nobg.png')} style={{ width: 84, height: 84, resizeMode: 'contain' }} />
     </Animated.View>
+  );
+};
+
+const HomeStack = createNativeStackNavigator<RootStackParamList>();
+
+const HomeStackNavigator: React.FC = () => {
+  return (
+    <HomeStack.Navigator
+      initialRouteName="HomeScreen"
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: '#FFFFFF',
+        },
+        headerTintColor: '#0F172A',
+        headerShadowVisible: false,
+        headerTitleStyle: {
+          fontWeight: 'bold' as const,
+          fontSize: 16,
+          color: '#0F172A',
+        },
+        headerRight: () => (
+          <View style={{ marginRight: 8 }}>
+            <LanguageTopButton variant="light" />
+          </View>
+        ),
+        contentStyle: {
+          backgroundColor: '#F8FAFC',
+        },
+      }}
+    >
+      <HomeStack.Screen name="HomeScreen" component={HomeScreen} options={{ headerShown: false }} />
+      <HomeStack.Screen name="SearchResults" component={SearchResultsScreen} options={{ title: 'Train Results & Predictions' }} />
+      <HomeStack.Screen name="TrainDetails" component={TrainDetailsScreen} options={{ title: 'Train Telemetry & XAI' }} />
+      <HomeStack.Screen name="LiveTrain" component={LiveTrainScreen} options={{ title: 'Live GPS Tracking' }} />
+      <HomeStack.Screen name="StationArrivalBoard" component={StationArrivalBoardScreen} options={{ title: 'Station Arrival Board' }} />
+      <HomeStack.Screen name="CrowdStatus" component={CrowdStatusScreen} options={{ title: 'Platform Crowd Status' }} />
+      <HomeStack.Screen name="CoachCrowd" component={CoachCrowdScreen} options={{ title: 'Coach-Wise Crowd Heatmap' }} />
+      <HomeStack.Screen name="SuburbanLocal" component={SuburbanLocalScreen} options={{ title: 'Dakshineswar ⇄ Sealdah Local' }} />
+      <HomeStack.Screen name="WeatherIntelligence" component={WeatherIntelligenceScreen} options={{ title: 'Weather Intelligence' }} />
+      <HomeStack.Screen name="ObstacleDetection" component={ObstacleDetectionScreen} options={{ title: 'Smartphone Obstacle Vision' }} />
+      <HomeStack.Screen name="CameraNavigation" component={CameraNavigationScreen} options={{ title: 'Platform AR Compass' }} />
+      <HomeStack.Screen name="AIAssistant" component={AIAssistantScreen} options={{ headerShown: false }} />
+      <HomeStack.Screen name="WhatsAppSimulator" component={WhatsAppSimulatorScreen} options={{ title: 'WhatsApp Bot Simulator' }} />
+      <HomeStack.Screen name="Alerts" component={AlertsScreen} options={{ title: 'Railway Incident Alerts' }} />
+      <HomeStack.Screen name="ConnectingTrain" component={ConnectingTrainScreen} options={{ title: 'Connecting Train Intelligence' }} />
+      <HomeStack.Screen name="AdminQuickAlerts" component={AdminQuickAlertsScreen} options={{ title: 'Controller Quick Dispatch' }} />
+      <HomeStack.Screen name="Settings" component={SettingsScreen} options={{ title: 'App Settings' }} />
+      <HomeStack.Screen name="Profile" component={ProfileScreen} options={{ title: 'My Profile' }} />
+      <HomeStack.Screen name="SmartServices" component={SmartServicesScreen} options={{ title: 'Smart In-Train Services' }} />
+    </HomeStack.Navigator>
   );
 };
 
@@ -107,7 +157,7 @@ const MainTabNavigator: React.FC = React.memo(() => {
       >
         <Tab.Screen
           name="HomeTab"
-          component={HomeScreen}
+          component={HomeStackNavigator}
           options={{
             tabBarLabel: t('nav.home', 'Home'),
             tabBarIcon: ({ color }) => <Home color={color} size={20} strokeWidth={2.5} />,
@@ -115,18 +165,10 @@ const MainTabNavigator: React.FC = React.memo(() => {
         />
         <Tab.Screen
           name="PlatformTab"
-          component={View}
+          component={LiveNavScreen}
           options={{
-            tabBarLabel: t('nav.live_tracking', 'Live Nav'),
-            tabBarIcon: ({ color }) => <Navigation color={color} size={20} strokeWidth={2.5} />,
-            tabBarButton: (props) => (
-              <TouchableOpacity
-                {...props}
-                onPress={() => {
-                  liveNavigationService.openFullScreen();
-                }}
-              />
-            ),
+            tabBarLabel: t('nav.eta', 'ETA'),
+            tabBarIcon: ({ color }) => <Clock color={color} size={20} strokeWidth={2.5} />,
           }}
         />
         <Tab.Screen
@@ -190,7 +232,7 @@ const MainTabNavigator: React.FC = React.memo(() => {
           component={LiveTrainScreen}
           initialParams={mapTabInitialParams}
           options={{
-            tabBarLabel: t('nav.live_map', 'Live Map'),
+            tabBarLabel: t('nav.my_journey', 'My Journey'),
             tabBarIcon: ({ color }) => <MapPin color={color} size={20} strokeWidth={2.5} />,
           }}
         />
@@ -255,7 +297,7 @@ export const RootNavigator: React.FC = () => {
       <Stack.Screen name="WeatherIntelligence" component={WeatherIntelligenceScreen} options={{ title: 'Weather Intelligence' }} />
       <Stack.Screen name="ObstacleDetection" component={ObstacleDetectionScreen} options={{ title: 'Smartphone Obstacle Vision' }} />
       <Stack.Screen name="CameraNavigation" component={CameraNavigationScreen} options={{ title: 'Platform AR Compass' }} />
-      <Stack.Screen name="AIAssistant" component={AIAssistantScreen} options={{ title: 'RailSathi AI Travel Assistant' }} />
+      <Stack.Screen name="AIAssistant" component={AIAssistantScreen} options={{ headerShown: false }} />
       <Stack.Screen name="WhatsAppSimulator" component={WhatsAppSimulatorScreen} options={{ title: 'WhatsApp Bot Simulator' }} />
       <Stack.Screen name="Alerts" component={AlertsScreen} options={{ title: 'Railway Incident Alerts' }} />
       <Stack.Screen name="ConnectingTrain" component={ConnectingTrainScreen} options={{ title: 'Connecting Train Intelligence' }} />

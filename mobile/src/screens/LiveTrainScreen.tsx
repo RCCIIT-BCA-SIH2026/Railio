@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,8 +13,9 @@ import {
 import { useRoute, useNavigation, RouteProp, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
-import { getLiveTrainApi } from '../services/api';
+import { getLiveTrainApi, initMobileSocket } from '../services/api';
 import { AppBackground } from '../components/AppBackground';
+import { LiveInteractiveCorridorMap } from '../components/LiveInteractiveCorridorMap';
 import {
   TrainFront,
   Search,
@@ -28,7 +29,9 @@ import {
   Users,
   Navigation,
   ArrowRight,
+  ArrowLeft,
   Compass,
+  Sparkles,
 } from 'lucide-react-native';
 import rawSuburbanTrains from '../data/suburban_trains.json';
 
@@ -38,9 +41,42 @@ const CORRIDOR_STATIONS = [
   { code: 'BNXR', name: 'Bidhan Nagar Rd', km: 4, lat: 22.5898, lng: 88.3892, platforms: 4 },
   { code: 'DDJ', name: 'Dum Dum Jn', km: 7, lat: 22.6219, lng: 88.3931, platforms: 5 },
   { code: 'BARN', name: 'Baranagar Rd', km: 12, lat: 22.6392, lng: 88.3732, platforms: 2 },
-  { code: 'DAKE', name: 'Dakshineswar', km: 15, lat: 22.6534, lng: 88.3601, platforms: 4 },
+  { code: 'DAKE', name: 'Dakshineswar', km: 14, lat: 22.6534, lng: 88.3601, platforms: 4 },
+  { code: 'BLYG', name: 'Bally Ghat', km: 16, lat: 22.6534, lng: 88.3620, platforms: 2 },
+  { code: 'BLYH', name: 'Bally Halt', km: 18, lat: 22.6575, lng: 88.3585, platforms: 2 },
+  { code: 'RCD', name: 'Rajchandrapur', km: 22, lat: 22.6680, lng: 88.3310, platforms: 2 },
   { code: 'DKAE', name: 'Dankuni Jn', km: 28, lat: 22.6872, lng: 88.2934, platforms: 5 },
 ];
+
+const STATION_NAME_MAP: Record<string, string> = {
+  SDAH: 'Sealdah',
+  BNXR: 'Bidhan Nagar Rd',
+  DDJ: 'Dum Dum Jn',
+  BARN: 'Baranagar Rd',
+  DAKE: 'Dakshineswar',
+  BLYG: 'Bally Ghat',
+  BLYH: 'Bally Halt',
+  RCD: 'Rajchandrapur',
+  DKAE: 'Dankuni Jn',
+  HWH: 'Howrah Jn',
+  NDLS: 'New Delhi',
+  MMCT: 'Mumbai Central',
+  MAS: 'Mgr Chennai Ctr',
+  MYS: 'Mysuru Jn',
+  RKMP: 'Rani Kamalapati',
+};
+
+const getStationDisplayName = (code: string, rawName?: string): string => {
+  if (code && STATION_NAME_MAP[code.toUpperCase()]) {
+    return STATION_NAME_MAP[code.toUpperCase()];
+  }
+  if (rawName && rawName.toUpperCase() !== (code || '').toUpperCase()) {
+    return rawName;
+  }
+  const found = CORRIDOR_STATIONS.find((s) => s.code.toUpperCase() === (code || '').toUpperCase());
+  if (found) return found.name;
+  return code || 'Station';
+};
 
 const POPULAR_TRAINS = [
   { number: '12301', label: '12301 (HWH-NDLS Rajdhani)', dir: 'EXP', name: 'Howrah - New Delhi Rajdhani Express' },
@@ -52,6 +88,61 @@ const POPULAR_TRAINS = [
   { number: '32216', label: '32216 (06:34 DN)', dir: 'DN', name: 'Dankuni - Sealdah Local' },
   { number: '32217', label: '32217 (06:05 UP)', dir: 'UP', name: 'Sealdah - Dankuni Local' },
 ];
+
+// Helper: parse "HH:mm" to minutes from midnight
+const parseTimeToMinutes = (timeStr?: string): number => {
+  if (!timeStr || !timeStr.includes(':')) return 0;
+  const parts = timeStr.split(':');
+  const h = parseInt(parts[0], 10) || 0;
+  const m = parseInt(parts[1], 10) || 0;
+  return h * 60 + m;
+};
+
+// Helper: format 24h "14:20" or "20:45" into 12h AM/PM "2:20 PM" or "8:45 PM"
+const format12HourTime = (timeStr?: string): string => {
+  if (!timeStr || !timeStr.includes(':')) return timeStr || '';
+  const clean = timeStr.trim();
+  const parts = clean.split(':');
+  let h = parseInt(parts[0], 10);
+  const m = parts[1] ? parts[1].slice(0, 2) : '00';
+  if (isNaN(h)) return timeStr;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${h}:${m} ${ampm}`;
+};
+
+// Helper: find current running train or closest upcoming train for user's time right now
+const getBestCurrentTrainNumber = (trainsList: any[], currentMins: number): string => {
+  if (!trainsList || trainsList.length === 0) return '32211';
+
+  // 1. Priority 1: Train currently running along the corridor right now
+  const running = trainsList.find((t) => {
+    const dep = parseTimeToMinutes(t.departureTime);
+    const arr = parseTimeToMinutes(t.arrivalTime);
+    if (arr >= dep) {
+      return currentMins >= dep - 10 && currentMins <= arr + 15;
+    }
+    return currentMins >= dep - 10 || currentMins <= arr + 15;
+  });
+  if (running) return running.trainNumber;
+
+  // 2. Priority 2: Next upcoming train departing after current time
+  let nextTrain = null;
+  let minDiff = Infinity;
+  trainsList.forEach((t) => {
+    const dep = parseTimeToMinutes(t.departureTime);
+    let diff = dep - currentMins;
+    if (diff < 0) diff += 1440; // wrap to next day
+    if (diff < minDiff) {
+      minDiff = diff;
+      nextTrain = t;
+    }
+  });
+  if (nextTrain) return (nextTrain as any).trainNumber;
+
+  return trainsList[0].trainNumber;
+};
 
 // Haversine Distance in km
 function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -71,12 +162,20 @@ function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: num
 export const LiveTrainScreen: React.FC = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'LiveTrain'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const initialTrain = route.params?.trainNumber || '32211';
+
+  const now = new Date();
+  const currentMins = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+
+  const initialTrain = useMemo(() => {
+    if (route.params?.trainNumber) return route.params.trainNumber;
+    return getBestCurrentTrainNumber(rawSuburbanTrains as any[], currentMins);
+  }, [route.params?.trainNumber, currentMins]);
 
   const [activeTrain, setActiveTrain] = useState<string>(initialTrain);
   const [searchQuery, setSearchQuery] = useState<string>(initialTrain);
   const [liveData, setLiveData] = useState<any>(null);
   const [ticker, setTicker] = useState<number>(0);
+  const [socketConnected, setSocketConnected] = useState<boolean>(false);
   const [isInsideTrain, setIsInsideTrain] = useState<boolean>(false);
   const [gpsLoading, setGpsLoading] = useState<boolean>(false);
   const [realGpsCoords, setRealGpsCoords] = useState<{
@@ -90,6 +189,46 @@ export const LiveTrainScreen: React.FC = () => {
 
   const watchIdRef = useRef<number | null>(null);
 
+  // Dynamic Popular & Suburban Trains Chips sorted by time proximity to current IST time
+  const sortedPopularTrains = useMemo(() => {
+    const rawList = rawSuburbanTrains as any[];
+
+    const sorted = [...rawList].sort((a, b) => {
+      const depA = parseTimeToMinutes(a.departureTime);
+      const depB = parseTimeToMinutes(b.departureTime);
+
+      const isUpcomingA = depA >= currentMins - 15;
+      const isUpcomingB = depB >= currentMins - 15;
+
+      if (isUpcomingA && !isUpcomingB) return -1;
+      if (!isUpcomingA && isUpcomingB) return 1;
+
+      let diffA = depA - currentMins;
+      if (diffA < 0) diffA += 1440;
+      let diffB = depB - currentMins;
+      if (diffB < 0) diffB += 1440;
+
+      return diffA - diffB;
+    });
+
+    return sorted.map((t) => {
+      const isUp = parseInt(t.trainNumber, 10) % 2 === 1 || t.source === 'SDAH';
+      const dep = parseTimeToMinutes(t.departureTime);
+      const arr = parseTimeToMinutes(t.arrivalTime);
+      const effArr = arr < dep ? arr + 1440 : arr;
+      const isPast = currentMins > effArr + 15;
+      const isRunning = !isPast && currentMins >= dep - 10 && currentMins <= effArr + 15;
+
+      return {
+        number: t.trainNumber,
+        label: `${isPast ? '🏁 ' : isRunning ? '🟢 ' : ''}${t.trainNumber} (${format12HourTime(t.departureTime)} ${isUp ? 'UP' : 'DN'})`,
+        name: t.name,
+        isPast,
+        isRunning,
+      };
+    });
+  }, [currentMins]);
+
   // Sync active train from route params if provided
   useEffect(() => {
     if (route.params?.trainNumber) {
@@ -97,6 +236,52 @@ export const LiveTrainScreen: React.FC = () => {
       setSearchQuery(route.params.trainNumber);
     }
   }, [route.params?.trainNumber]);
+
+  // Real-time Socket.IO Stream Listener (Same as Admin Web Portal)
+  useEffect(() => {
+    const socket = initMobileSocket();
+
+    const handleConnect = () => setSocketConnected(true);
+    const handleDisconnect = () => setSocketConnected(false);
+
+    const handleTrainsUpdate = (trains: any[]) => {
+      if (!Array.isArray(trains)) return;
+      const match = trains.find((t: any) => t.trainNumber === activeTrain);
+      if (match) {
+        setLiveData((prev: any) => ({
+          ...prev,
+          trainNumber: match.trainNumber,
+          name: match.name || prev?.name,
+          liveState: {
+            ...prev?.liveState,
+            lat: match.lat ?? prev?.liveState?.lat,
+            lng: match.lng ?? prev?.liveState?.lng,
+            speed: match.speed ?? prev?.liveState?.speed,
+            currentSection: match.currentSection || prev?.liveState?.currentSection,
+            delayMinutes: match.delayMinutes ?? prev?.liveState?.delayMinutes,
+            predictedDelay: match.predictedDelay ?? match.delayMinutes ?? prev?.liveState?.predictedDelay,
+            confidence: match.confidence ?? prev?.liveState?.confidence ?? 0.986,
+            status: match.status || prev?.liveState?.status,
+            delayReasons: match.delayReasons || prev?.liveState?.delayReasons,
+          },
+        }));
+      }
+    };
+
+    if (socket.connected) {
+      setSocketConnected(true);
+    }
+
+    socket.on('connect', handleConnect);
+    socket.on('disconnect', handleDisconnect);
+    socket.on('trains_update', handleTrainsUpdate);
+
+    return () => {
+      socket.off('connect', handleConnect);
+      socket.off('disconnect', handleDisconnect);
+      socket.off('trains_update', handleTrainsUpdate);
+    };
+  }, [activeTrain]);
 
   // Periodic Telemetry Refresh
   useFocusEffect(
@@ -276,23 +461,145 @@ export const LiveTrainScreen: React.FC = () => {
   const currentDelay = liveData?.liveState?.delayMinutes ?? baseDelay;
   const predictedDelay = liveData?.liveState?.predictedDelay ?? currentDelay + (currentDelay > 5 ? 2 : 0);
 
-  // Dynamic Current Section calculation
-  const currentSection =
-    liveData?.liveState?.currentSection ||
-    (isUpTrain ? 'SDAH-BNXR-SUB1' : 'DAKE-DKAE-SUB5');
+  const depMins = parseTimeToMinutes(departureTime);
+  const arrMins = parseTimeToMinutes(arrivalTime);
 
-  // Interpolate progress along track (0% to 100%)
-  const stopIndex = Math.min(5, Math.max(0, (ticker % 5) + 1));
-  const trackProgressPct = 15 + ((ticker * 7) % 70);
+  // Exact timetable progress along track (0% to 100%)
+  const trackProgressPct = useMemo(() => {
+    if (typeof liveData?.liveState?.progressPct === 'number') {
+      return Math.min(100, Math.max(0, liveData.liveState.progressPct));
+    }
+
+    if (stops && stops.length >= 2) {
+      const firstStopDep = parseTimeToMinutes(stops[0].dep || stops[0].arr || departureTime);
+      const lastStopArr = parseTimeToMinutes(stops[stops.length - 1].arr || stops[stops.length - 1].dep || arrivalTime);
+
+      if (firstStopDep > 0 && lastStopArr > firstStopDep) {
+        if (currentMins < firstStopDep) {
+          // Train has not departed origin yet
+          return 0;
+        }
+        if (currentMins > lastStopArr + 10) {
+          // Train completed its journey
+          return 100;
+        }
+        return Math.min(100, Math.max(0, ((currentMins - firstStopDep) / (lastStopArr - firstStopDep)) * 100));
+      }
+    }
+
+    if (arrMins > depMins) {
+      if (currentMins < depMins) return 0;
+      if (currentMins > arrMins + 10) return 100;
+      return Math.min(100, Math.max(0, ((currentMins - depMins) / (arrMins - depMins)) * 100));
+    }
+
+    return 5;
+  }, [liveData, departureTime, arrivalTime, stops, currentMins, depMins, arrMins]);
+
+  // Dynamic activeStopIndex calculation (0 to stops.length - 1)
+  const activeStopIndex = useMemo(() => {
+    if (!stops || stops.length === 0) return 0;
+    const totalStops = stops.length;
+
+    // 1. Live state station match
+    if (liveData?.liveState?.currentStation) {
+      const idx = stops.findIndex(
+        (s: any) => s.code.toUpperCase() === liveData.liveState.currentStation.toUpperCase()
+      );
+      if (idx !== -1) return idx;
+    }
+
+    // 2. Scheduled arrival/departure time match against current IST time
+    if (currentMins > 0) {
+      for (let i = 0; i < totalStops; i++) {
+        const arrM = parseTimeToMinutes(stops[i].arr || stops[i].scheduledArrival || stops[i].dep);
+        const depM = parseTimeToMinutes(stops[i].dep || stops[i].scheduledDeparture || stops[i].arr);
+        if (arrM > 0 && depM > 0 && currentMins >= arrM - 1 && currentMins <= depM + 2) {
+          return i;
+        }
+      }
+    }
+
+    // 3. Match based on trackProgressPct
+    if (trackProgressPct <= 3) return 0;
+    if (trackProgressPct >= 97) return totalStops - 1;
+
+    const floatIdx = (trackProgressPct / 100) * (totalStops - 1);
+    return Math.min(totalStops - 1, Math.max(0, Math.floor(floatIdx)));
+  }, [stops, liveData, trackProgressPct, currentMins]);
+
+  // Dynamic Current Section calculation based on active stop and next stop
+  const currentSection = useMemo(() => {
+    if (liveData?.liveState?.currentSection) {
+      return liveData.liveState.currentSection;
+    }
+    if (stops && stops.length > 1) {
+      const curCode = stops[activeStopIndex]?.code || (isUpTrain ? 'SDAH' : 'DKAE');
+      const nextCode = stops[Math.min(activeStopIndex + 1, stops.length - 1)]?.code || (isUpTrain ? 'DKAE' : 'SDAH');
+      return `${curCode}-${nextCode}-${isUpTrain ? 'UP' : 'DN'}`;
+    }
+    return isUpTrain ? 'SDAH-DKAE-UP' : 'DKAE-SDAH-DN';
+  }, [liveData, isUpTrain, stops, activeStopIndex]);
+
+  // Smart Active Train Filter: Check if selected train is currently running
+  const isTrainCurrentlyRunning = useMemo(() => {
+    if (isInsideTrain) return true;
+    if (liveData?.liveState?.status === 'RUNNING') return true;
+
+    if (arrMins >= depMins) {
+      return currentMins >= depMins - 10 && currentMins <= arrMins + 15;
+    } else {
+      return currentMins >= depMins - 10 || currentMins <= arrMins + 15;
+    }
+  }, [isInsideTrain, liveData, currentMins, depMins, arrMins]);
+
+  // Handler to switch to a train currently running right now
+  const handleSelectRunningTrainNow = () => {
+    const allTrains = rawSuburbanTrains as any[];
+    const running = allTrains.find((t) => {
+      const dep = parseTimeToMinutes(t.departureTime);
+      const arr = parseTimeToMinutes(t.arrivalTime);
+      if (arr >= dep) {
+        return currentMins >= dep - 10 && currentMins <= arr + 15;
+      }
+      return currentMins >= dep - 10 || currentMins <= arr + 15;
+    });
+
+    if (running) {
+      handleSelectTrain(running.trainNumber);
+    } else {
+      handleSelectTrain('32217');
+    }
+  };
+
+  const isTrainCompleted = useMemo(() => {
+    let arr = arrMins;
+    if (arr < depMins) arr += 1440;
+    const effectiveArr = arr + currentDelay;
+    return currentMins > effectiveArr + 15;
+  }, [currentMins, depMins, arrMins, currentDelay]);
 
   return (
-    <AppBackground variant="orange">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-        enabled={Platform.OS !== 'web'}
-      >
+    <AppBackground variant="blue">
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+          {/* ── Top Navigation Header ─────────────────────────────────────── */}
+          <View style={styles.topNavHeader}>
+            <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+              <ArrowLeft size={18} color="#0F172A" strokeWidth={2.5} />
+            </TouchableOpacity>
+            <View style={{ flex: 1, marginLeft: 10 }}>
+              <Text style={styles.topNavTitle}>Live Railway Map & AI Status</Text>
+              <Text style={styles.topNavSub}>REAL-TIME GPS • DIGITAL TWIN ML 2.0</Text>
+            </View>
+            <View style={[styles.livePulsePill, socketConnected && { backgroundColor: '#ECFDF5', borderColor: '#A7F3D0' }]}>
+              <View style={[styles.livePulseDot, !socketConnected && { backgroundColor: '#F59E0B' }]} />
+              <Text style={[styles.livePulsePillText, !socketConnected && { color: '#D97706' }]}>
+                {socketConnected ? 'LIVE FEED' : 'OFFLINE'}
+              </Text>
+            </View>
+          </View>
+
           {/* ── Search & Filter Bar ────────────────────────────────────────── */}
           <View style={styles.searchCard}>
             <View style={styles.searchRow}>
@@ -313,15 +620,19 @@ export const LiveTrainScreen: React.FC = () => {
             {/* Quick Train Selector Chips */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll}>
               <View style={styles.chipsRow}>
-                {POPULAR_TRAINS.map((pt) => {
+                {sortedPopularTrains.map((pt) => {
                   const isSelected = pt.number === activeTrain;
                   return (
                     <TouchableOpacity
                       key={pt.number}
-                      style={[styles.chipPill, isSelected && styles.chipPillActive]}
+                      style={[
+                        styles.chipPill,
+                        isSelected && styles.chipPillActive,
+                        pt.isPast && !isSelected && styles.chipPillPast,
+                      ]}
                       onPress={() => handleSelectTrain(pt.number)}
                     >
-                      <Text style={[styles.chipText, isSelected && styles.chipTextActive]}>
+                      <Text style={[styles.chipText, isSelected && styles.chipTextActive, pt.isPast && !isSelected && styles.chipTextPast]}>
                         #{pt.label}
                       </Text>
                     </TouchableOpacity>
@@ -332,14 +643,16 @@ export const LiveTrainScreen: React.FC = () => {
 
             {/* GPS Toggle Switch */}
             <View style={styles.insideTrainRow}>
-              <TouchableOpacity style={styles.checkboxRow} onPress={toggleInsideTrain}>
-                <View style={[styles.checkbox, isInsideTrain && styles.checkboxActive]}>
+              <TouchableOpacity style={styles.checkboxRow} onPress={toggleInsideTrain} disabled={isTrainCompleted}>
+                <View style={[styles.checkbox, isInsideTrain && styles.checkboxActive, isTrainCompleted && { backgroundColor: '#E2E8F0', borderColor: '#CBD5E1' }]}>
                   {isInsideTrain && <Text style={styles.checkMark}>✓</Text>}
                 </View>
                 <View>
-                  <Text style={styles.insideTrainText}>I am inside this train (Enable Device GPS)</Text>
+                  <Text style={[styles.insideTrainText, isTrainCompleted && { color: '#64748B' }]}>I am inside this train (Enable Device GPS)</Text>
                   <Text style={styles.insideTrainSub}>
-                    {isInsideTrain
+                    {isTrainCompleted
+                      ? 'Live GPS disabled for completed trains'
+                      : isInsideTrain
                       ? 'Streaming real device GPS & station proximity'
                       : 'Tap to lock real-time satellite GPS tracking'}
                   </Text>
@@ -393,17 +706,17 @@ export const LiveTrainScreen: React.FC = () => {
           <View style={styles.trainHeaderCard}>
             <View style={styles.trainHeaderTop}>
               <View style={styles.trainIconBadge}>
-                <TrainFront size={24} color="#FF671F" strokeWidth={2.5} />
+                <TrainFront size={24} color={isTrainCompleted ? "#64748B" : "#FF671F"} strokeWidth={2.5} />
               </View>
               <View style={{ flex: 1 }}>
                 <View style={styles.trainNumberRow}>
                   <Text style={styles.trainNumberTitle}>Train #{activeTrain}</Text>
                   <View style={[styles.dirBadge, isUpTrain ? styles.dirBadgeUp : styles.dirBadgeDn]}>
                     <Text style={[styles.dirBadgeText, isUpTrain ? styles.dirBadgeTextUp : styles.dirBadgeTextDn]}>
-                      {liveData?.isAllIndiaTrain ? '🚆 ALL-INDIA EXPRESS' : (isUpTrain ? '▲ UP LOCAL' : '▼ DOWN LOCAL')}
+                      {isTrainCompleted ? '🏁 SERVICE ENDED' : liveData?.isAllIndiaTrain ? '🚆 ALL-INDIA EXPRESS' : (isUpTrain ? '▲ UP LOCAL' : '▼ DOWN LOCAL')}
                     </Text>
                   </View>
-                  {liveData?.liveSource && (
+                  {liveData?.liveSource && !isTrainCompleted && (
                     <View style={[styles.dirBadge, { backgroundColor: '#38BDF822', borderColor: '#38BDF844' }]}>
                       <Text style={[styles.dirBadgeText, { color: '#0284C7' }]}>
                         📡 {liveData.liveSource.split(' ')[0]}
@@ -415,8 +728,8 @@ export const LiveTrainScreen: React.FC = () => {
               </View>
 
               <View style={styles.statusPill}>
-                <Text style={[styles.statusPillText, currentDelay > 5 ? styles.statusDelayed : styles.statusOnTime]}>
-                  {currentDelay === 0 ? 'ON TIME' : `+${currentDelay}m DELAY`}
+                <Text style={[styles.statusPillText, isTrainCompleted ? { backgroundColor: '#F1F5F9', color: '#64748B' } : currentDelay > 5 ? styles.statusDelayed : styles.statusOnTime]}>
+                  {isTrainCompleted ? '🏁 COMPLETED' : currentDelay === 0 ? 'ON TIME' : `+${currentDelay}m DELAY`}
                 </Text>
               </View>
             </View>
@@ -425,21 +738,21 @@ export const LiveTrainScreen: React.FC = () => {
             <View style={styles.routeBar}>
               <View style={styles.routePoint}>
                 <Text style={styles.routeCityCode}>{currentRecord.source || (isUpTrain ? 'SDAH' : 'DKAE')}</Text>
-                <Text style={styles.routeTime}>{departureTime}</Text>
+                <Text style={styles.routeTime}>{format12HourTime(departureTime)}</Text>
                 <Text style={styles.routeLabel}>Origin</Text>
               </View>
 
               <View style={styles.routeLineContainer}>
                 <View style={styles.routeLine} />
                 <View style={styles.routeDistanceBadge}>
-                  <Text style={styles.routeDistanceText}>28.0 KM • 6 STATIONS</Text>
+                  <Text style={styles.routeDistanceText}>28.0 KM • {stops.length} STATIONS</Text>
                 </View>
                 <ArrowRight size={14} color="#94A3B8" />
               </View>
 
               <View style={styles.routePoint}>
                 <Text style={styles.routeCityCode}>{currentRecord.destination || (isUpTrain ? 'DKAE' : 'SDAH')}</Text>
-                <Text style={styles.routeTime}>{arrivalTime}</Text>
+                <Text style={styles.routeTime}>{format12HourTime(arrivalTime)}</Text>
                 <Text style={styles.routeLabel}>Destination</Text>
               </View>
             </View>
@@ -471,101 +784,102 @@ export const LiveTrainScreen: React.FC = () => {
                   <ShieldCheck size={14} color="#10B981" />
                   <Text style={styles.telemetryLabel}>AI Accuracy</Text>
                 </View>
-                <Text style={[styles.telemetryVal, { color: '#10B981' }]}>98.6%</Text>
+                <Text style={[styles.telemetryVal, { color: '#10B981' }]}>
+                  {liveData?.liveState?.confidence ? `${Math.round(liveData.liveState.confidence * 100)}%` : '98.6%'}
+                </Text>
                 <Text style={styles.telemetryUnit}>R² CONFIDENCE</Text>
               </View>
             </View>
+
+            {/* AI Delay Drivers & Explainability Banner */}
+            {liveData?.liveState?.delayReasons && liveData.liveState.delayReasons.length > 0 ? (
+              <View style={styles.aiReasonsContainer}>
+                <View style={styles.aiReasonsHeader}>
+                  <Sparkles size={13} color="#FF671F" />
+                  <Text style={styles.aiReasonsTitle}>AI Explainability & Delay Drivers</Text>
+                </View>
+                {liveData.liveState.delayReasons.map((reason: any, idx: number) => (
+                  <View key={idx} style={styles.aiReasonRow}>
+                    <View style={styles.aiReasonDot} />
+                    <Text style={styles.aiReasonText}>
+                      {typeof reason === 'string'
+                        ? reason
+                        : `${reason.factor || 'Corridor Factors'} (${reason.impactMin ? `+${reason.impactMin} min` : 'Minor impact'})`}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <View style={styles.aiReasonsContainer}>
+                <View style={styles.aiReasonsHeader}>
+                  <Sparkles size={13} color="#10B981" />
+                  <Text style={styles.aiReasonsTitle}>AI Explainability & Corridor Drivers</Text>
+                </View>
+                <View style={styles.aiReasonRow}>
+                  <View style={[styles.aiReasonDot, { backgroundColor: '#10B981' }]} />
+                  <Text style={styles.aiReasonText}>
+                    Suburban track signals clear at {currentSection}. Optimal schedule velocity maintained.
+                  </Text>
+                </View>
+              </View>
+            )}
           </View>
 
-          {/* ── 6-Station Interactive Corridor Track Visualizer ───────────── */}
-          <View style={styles.mapCard}>
-            <View style={styles.mapCardHeader}>
-              <View>
-                <Text style={styles.mapCardTitle}>Sealdah – Dankuni Corridor Live Schematic</Text>
-                <Text style={styles.mapCardSub}>
-                  Active Block Section: <Text style={styles.highlightMono}>{currentSection}</Text>
+          {/* ── Dynamic Live Railway Map or Inactive Journey Banner ───────── */}
+          {isTrainCurrentlyRunning ? (
+            <LiveInteractiveCorridorMap
+              activeTrainNumber={activeTrain}
+              trainName={trainName}
+              liveSpeed={liveSpeed}
+              currentSection={currentSection}
+              delayMinutes={currentDelay}
+              isUpTrain={isUpTrain}
+              trackProgressPct={trackProgressPct}
+              realGpsCoords={realGpsCoords}
+            />
+          ) : (
+            <View style={styles.inactiveJourneyCard}>
+              <View style={styles.inactiveHeader}>
+                <Clock size={20} color="#F59E0B" />
+                <Text style={styles.inactiveTitle}>
+                  Train #{activeTrain} ({departureTime} - {arrivalTime}) Not Active Now
                 </Text>
               </View>
-              <View style={styles.emuBadge}>
-                <Text style={styles.emuBadgeText}>12-COACH EMU</Text>
-              </View>
-            </View>
-
-            {/* Visual Track Map Simulation */}
-            <View style={styles.trackCanvas}>
-              {/* Realistic Double Track */}
-              <View style={styles.trackLineContainer}>
-                <View style={styles.realisticTrack}>
-                  <View style={styles.sleeperContainer}>
-                    {Array.from({ length: 42 }).map((_, i) => (
-                      <View key={i} style={styles.sleeper} />
-                    ))}
-                  </View>
-                  <View style={styles.railTop} />
-                  <View style={styles.railBottom} />
-                  <View style={styles.railActiveHighlight} />
-                </View>
-
-                {/* 6 Corridor Station Nodes */}
-                {CORRIDOR_STATIONS.map((st, idx) => {
-                  const isOrigin = idx === 0;
-                  const isDestination = idx === CORRIDOR_STATIONS.length - 1;
-                  // Map station positions proportionally across 10% to 90%
-                  const leftPct = 10 + (idx / (CORRIDOR_STATIONS.length - 1)) * 80;
-                  const isPassed = isUpTrain ? idx < 2 : idx > 3;
-
-                  return (
-                    <View key={st.code} style={[styles.stationNode, { left: `${leftPct}%` }]}>
-                      <View
-                        style={[
-                          styles.stationDot,
-                          isPassed ? styles.stationDotPassed : styles.stationDotUpcoming,
-                          (isOrigin || isDestination) && styles.stationDotTerminal,
-                        ]}
-                      />
-                      <Text style={styles.stationNodeName}>{st.code}</Text>
-                      <Text style={styles.stationNodeKm}>{st.km}km</Text>
-                    </View>
-                  );
-                })}
-
-                {/* Live Moving Train Marker */}
-                <View style={[styles.liveTrainMarker, { left: `${trackProgressPct}%` }]}>
-                  <View style={styles.trainPulseRing} />
-                  <View style={styles.trainMarkerCircle}>
-                    <TrainFront size={18} color="#FF671F" strokeWidth={2.5} />
-                  </View>
-                  <View style={styles.pinPointer} />
-                  <View style={styles.trainTooltip}>
-                    <Text style={styles.trainTooltipText}>{liveSpeed} km/h</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            {/* Corridor Coordinate Footer */}
-            <View style={styles.coordinatesRow}>
-              <Text style={styles.coordText}>
-                Corridor GPS Anchor: Lat {currentRecord.liveState?.lat || 22.6534} | Lng{' '}
-                {currentRecord.liveState?.lng || 88.3601} • OHE Traction 25 kV AC
+              <Text style={styles.inactiveSub}>
+                Live GPS map tracking is active only when this train is currently running along the corridor.
+                This train completed its schedule or is not in operation right now.
               </Text>
+              <TouchableOpacity
+                style={styles.activeTrainBtn}
+                onPress={handleSelectRunningTrainNow}
+              >
+                <Sparkles size={14} color="#FFFFFF" />
+                <Text style={styles.activeTrainBtnText}>
+                  Switch to Train Currently Running Now
+                </Text>
+              </TouchableOpacity>
             </View>
-          </View>
+          )}
 
           {/* ── Complete Stoppage Timetable ───────────────────────────────── */}
           <View style={styles.stoppageCard}>
             <View style={styles.stoppageHeader}>
               <Text style={styles.stoppageTitle}>Corridor Stoppages & Timings</Text>
-              <Text style={styles.stoppageSub}>All 6 Stations on Sealdah–Dankuni Local</Text>
+              <Text style={styles.stoppageSub}>
+                All {stops.length} Stations on {trainName}
+              </Text>
             </View>
 
             <View style={styles.stoppageList}>
               {stops.map((stop: any, index: number) => {
-                const isPassed = isUpTrain ? index <= 1 : index >= 4;
-                const isCurrent = isUpTrain ? index === 2 : index === 3;
+                const isPassed = index < activeStopIndex;
+                const isCurrent = index === activeStopIndex;
+                const isUpcoming = index > activeStopIndex;
+
+                const displayName = getStationDisplayName(stop.code, stop.name);
 
                 return (
-                  <View key={stop.code} style={styles.stoppageItem}>
+                  <View key={`${stop.code}-${index}`} style={styles.stoppageItem}>
                     {/* Vertical Timeline Track */}
                     <View style={styles.timelineCol}>
                       <View
@@ -582,19 +896,33 @@ export const LiveTrainScreen: React.FC = () => {
                     </View>
 
                     {/* Stoppage Details */}
-                    <View style={styles.stoppageDetails}>
+                    <View
+                      style={[
+                        styles.stoppageDetails,
+                        isCurrent && { borderColor: '#FF671F', backgroundColor: '#FFF7ED' },
+                      ]}
+                    >
                       <View style={styles.stoppageTopRow}>
-                        <Text style={styles.stoppageName}>
-                          {stop.code} — {CORRIDOR_STATIONS.find((s) => s.code === stop.code)?.name || stop.code}
+                        <Text style={[styles.stoppageName, isCurrent && { color: '#FF671F', fontWeight: '900' }]}>
+                          {stop.code} — {displayName}
                         </Text>
-                        <Text style={styles.stoppagePlatform}>Platform {stop.platform || 1}</Text>
+                        <Text
+                          style={[
+                            styles.stoppagePlatform,
+                            isCurrent && { backgroundColor: '#FF671F', color: '#FFFFFF' },
+                          ]}
+                        >
+                          {isCurrent ? 'LIVE • PLATFORM ' : 'Platform '}{stop.platform || 1}
+                        </Text>
                       </View>
 
                       <View style={styles.stoppageBottomRow}>
                         <Text style={styles.stoppageTiming}>
-                          Arr: {stop.arr} • Dep: {stop.dep}
+                          Arr: {format12HourTime(stop.arr || stop.scheduledArrival || '--:--')} • Dep: {format12HourTime(stop.dep || stop.scheduledDeparture || '--:--')}
                         </Text>
-                        <Text style={styles.stoppageDistance}>{stop.km} km</Text>
+                        <Text style={styles.stoppageDistance}>
+                          {typeof stop.km === 'number' ? stop.km : typeof stop.distanceKm === 'number' ? stop.distanceKm : index * 3} km
+                        </Text>
                       </View>
                     </View>
                   </View>
@@ -644,24 +972,83 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
   },
-  searchCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
+  topNavHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
     marginBottom: 14,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
     elevation: 2,
     shadowColor: '#000',
     shadowOpacity: 0.04,
   },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  topNavTitle: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: '#0F172A',
+  },
+  topNavSub: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#FF671F',
+    letterSpacing: 0.5,
+    marginTop: 2,
+  },
+  livePulsePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+    gap: 4,
+  },
+  livePulseDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#10B981',
+  },
+  livePulsePillText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#059669',
+  },
+  searchCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    marginBottom: 14,
+    elevation: 2,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.05,
+  },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
+    backgroundColor: '#FFF7ED',
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: '#FED7AA',
     paddingHorizontal: 12,
     height: 48,
     marginBottom: 12,
@@ -674,9 +1061,9 @@ const styles = StyleSheet.create({
   },
   searchButton: {
     backgroundColor: '#FF671F',
-    width: 34,
-    height: 34,
-    borderRadius: 8,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -688,16 +1075,21 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   chipPill: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
   chipPillActive: {
-    backgroundColor: '#FFF7ED',
+    backgroundColor: '#FF671F',
     borderColor: '#FF671F',
+  },
+  chipPillPast: {
+    backgroundColor: '#F1F5F9',
+    borderColor: '#CBD5E1',
+    opacity: 0.75,
   },
   chipText: {
     fontSize: 11,
@@ -705,15 +1097,18 @@ const styles = StyleSheet.create({
     color: '#64748B',
   },
   chipTextActive: {
-    color: '#FF671F',
+    color: '#FFFFFF',
+  },
+  chipTextPast: {
+    color: '#94A3B8',
   },
   insideTrainRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: 8,
+    paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#FFF7ED',
   },
   checkboxRow: {
     flexDirection: 'row',
@@ -771,12 +1166,6 @@ const styles = StyleSheet.create({
     borderColor: '#A7F3D0',
     gap: 4,
   },
-  livePulseDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#10B981',
-  },
   liveGpsTextActive: {
     fontSize: 9,
     fontWeight: 'bold',
@@ -784,7 +1173,7 @@ const styles = StyleSheet.create({
   },
   gpsTelemetryBanner: {
     backgroundColor: '#F0FDF4',
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 14,
     borderWidth: 1,
     borderColor: '#BBF7D0',
@@ -829,14 +1218,14 @@ const styles = StyleSheet.create({
   },
   trainHeaderCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 22,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#FED7AA',
     marginBottom: 14,
     elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.05,
   },
   trainHeaderTop: {
     flexDirection: 'row',
@@ -846,10 +1235,10 @@ const styles = StyleSheet.create({
   trainIconBadge: {
     width: 44,
     height: 44,
-    borderRadius: 12,
+    borderRadius: 14,
     backgroundColor: '#FFF7ED',
     borderWidth: 1,
-    borderColor: '#FFEDD5',
+    borderColor: '#FED7AA',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -860,20 +1249,22 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   trainNumberTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '900',
     color: '#0F172A',
   },
   dirBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
   dirBadgeUp: {
     backgroundColor: '#E0F2FE',
   },
   dirBadgeDn: {
-    backgroundColor: '#FFEDD5',
+    backgroundColor: '#FFF7ED',
+    borderWidth: 1,
+    borderColor: '#FED7AA',
   },
   dirBadgeText: {
     fontSize: 9,
@@ -883,24 +1274,24 @@ const styles = StyleSheet.create({
     color: '#0369A1',
   },
   dirBadgeTextDn: {
-    color: '#C2410C',
+    color: '#FF671F',
   },
   trainNameSubtitle: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
     color: '#475569',
     marginTop: 2,
   },
   statusPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 10,
     backgroundColor: '#F8FAFC',
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
   statusPillText: {
-    fontSize: 10,
+    fontSize: 10.5,
     fontWeight: 'bold',
   },
   statusOnTime: {
@@ -913,11 +1304,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
+    backgroundColor: '#FFFBF5',
+    borderRadius: 16,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#FED7AA',
     marginBottom: 12,
   },
   routePoint: {
@@ -946,7 +1337,7 @@ const styles = StyleSheet.create({
   routeLine: {
     width: '100%',
     height: 2,
-    backgroundColor: '#CBD5E1',
+    backgroundColor: '#FED7AA',
     position: 'absolute',
     top: 10,
   },
@@ -956,14 +1347,14 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: '#FED7AA',
     marginBottom: 4,
     zIndex: 2,
   },
   routeDistanceText: {
     fontSize: 8,
     fontWeight: 'bold',
-    color: '#64748B',
+    color: '#FF671F',
   },
   telemetryGrid: {
     flexDirection: 'row',
@@ -971,12 +1362,12 @@ const styles = StyleSheet.create({
   },
   telemetryBox: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 12,
+    backgroundColor: '#FFFBF5',
+    borderRadius: 14,
     padding: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#FED7AA',
   },
   telemetryIconRow: {
     flexDirection: 'row',
@@ -1002,14 +1393,14 @@ const styles = StyleSheet.create({
   },
   mapCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 22,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#FED7AA',
     marginBottom: 14,
     elevation: 2,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
+    shadowColor: '#FF671F',
+    shadowOpacity: 0.05,
   },
   mapCardHeader: {
     flexDirection: 'row',
@@ -1018,8 +1409,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   mapCardTitle: {
-    fontSize: 13,
-    fontWeight: '800',
+    fontSize: 14,
+    fontWeight: '900',
     color: '#0F172A',
   },
   mapCardSub: {
@@ -1038,22 +1429,26 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#FFEDD5',
+    borderColor: '#FED7AA',
   },
   emuBadgeText: {
     fontSize: 9,
     fontWeight: '800',
-    color: '#EA580C',
+    color: '#FF671F',
   },
   trackCanvas: {
-    height: 140,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 14,
+    height: 150,
+    backgroundColor: '#0F172A',
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: '#1E293B',
     justifyContent: 'center',
     position: 'relative',
     overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
   },
   trackLineContainer: {
     width: '100%',
@@ -1082,7 +1477,7 @@ const styles = StyleSheet.create({
   sleeper: {
     width: 3,
     height: 16,
-    backgroundColor: '#CBD5E1',
+    backgroundColor: '#334155',
     borderRadius: 1,
   },
   railTop: {
@@ -1091,7 +1486,7 @@ const styles = StyleSheet.create({
     right: 0,
     top: 2,
     height: 3,
-    backgroundColor: '#64748B',
+    backgroundColor: '#94A3B8',
   },
   railBottom: {
     position: 'absolute',
@@ -1099,7 +1494,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 2,
     height: 3,
-    backgroundColor: '#64748B',
+    backgroundColor: '#94A3B8',
   },
   railActiveHighlight: {
     position: 'absolute',
@@ -1107,7 +1502,8 @@ const styles = StyleSheet.create({
     right: 0,
     top: 6,
     height: 4,
-    backgroundColor: 'rgba(255, 103, 31, 0.25)',
+    backgroundColor: '#FF671F',
+    opacity: 0.8,
   },
   stationNode: {
     position: 'absolute',
@@ -1121,30 +1517,31 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     borderWidth: 2.5,
-    borderColor: '#FFFFFF',
+    borderColor: '#0F172A',
     elevation: 2,
   },
   stationDotPassed: {
     backgroundColor: '#10B981',
   },
   stationDotUpcoming: {
-    backgroundColor: '#0284C7',
+    backgroundColor: '#38BDF8',
   },
   stationDotTerminal: {
     width: 14,
     height: 14,
     borderRadius: 7,
     borderColor: '#FF671F',
+    backgroundColor: '#FF671F',
   },
   stationNodeName: {
-    fontSize: 8.5,
-    fontWeight: '800',
-    color: '#0F172A',
+    fontSize: 9,
+    fontWeight: '900',
+    color: '#F8FAFC',
     marginTop: 4,
   },
   stationNodeKm: {
     fontSize: 7.5,
-    color: '#64748B',
+    color: '#94A3B8',
   },
   liveTrainMarker: {
     position: 'absolute',
@@ -1158,7 +1555,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255, 103, 31, 0.25)',
+    backgroundColor: 'rgba(255, 103, 31, 0.4)',
     top: -4,
   },
   trainMarkerCircle: {
@@ -1168,9 +1565,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 2,
+    borderWidth: 2.5,
     borderColor: '#FF671F',
-    elevation: 3,
+    elevation: 4,
   },
   pinPointer: {
     width: 0,
@@ -1185,7 +1582,7 @@ const styles = StyleSheet.create({
     marginTop: -1,
   },
   trainTooltip: {
-    backgroundColor: '#0F172A',
+    backgroundColor: '#FF671F',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -1207,17 +1604,17 @@ const styles = StyleSheet.create({
   },
   stoppageCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    borderRadius: 22,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#FED7AA',
     marginBottom: 14,
   },
   stoppageHeader: {
     marginBottom: 12,
   },
   stoppageTitle: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '800',
     color: '#0F172A',
   },
@@ -1267,11 +1664,11 @@ const styles = StyleSheet.create({
   },
   stoppageDetails: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
+    backgroundColor: '#FFFBF5',
+    borderRadius: 12,
     padding: 10,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#FED7AA',
   },
   stoppageTopRow: {
     flexDirection: 'row',
@@ -1314,20 +1711,98 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#FED7AA',
     gap: 12,
   },
   ctaTitle: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: 'bold',
     color: '#0F172A',
   },
   ctaSub: {
-    fontSize: 10,
+    fontSize: 10.5,
     color: '#64748B',
     marginTop: 2,
+  },
+  inactiveJourneyCard: {
+    backgroundColor: '#0F172A',
+    borderRadius: 16,
+    padding: 16,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#1E293B',
+    gap: 10,
+  },
+  inactiveHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  inactiveTitle: {
+    color: '#F8FAFC',
+    fontSize: 13.5,
+    fontWeight: '800',
+    flex: 1,
+  },
+  inactiveSub: {
+    color: '#94A3B8',
+    fontSize: 11.5,
+    lineHeight: 16,
+  },
+  activeTrainBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#FF671F',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 10,
+    marginTop: 4,
+  },
+  activeTrainBtnText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  aiReasonsContainer: {
+    backgroundColor: '#FFF7ED',
+    borderRadius: 14,
+    padding: 10,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    gap: 6,
+  },
+  aiReasonsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 2,
+  },
+  aiReasonsTitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#0F172A',
+  },
+  aiReasonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  aiReasonDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: '#FF671F',
+  },
+  aiReasonText: {
+    fontSize: 10.5,
+    fontWeight: '600',
+    color: '#475569',
+    flex: 1,
   },
 });

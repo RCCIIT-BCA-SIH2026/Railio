@@ -86,11 +86,11 @@ export const CoachCrowdScreen: React.FC = () => {
             <Text style={styles.title}>Coach-Wise Crowd Intelligence</Text>
           </View>
           <View style={styles.cvBadge}>
-            <Text style={styles.cvBadgeText}>📡 GOOGLE MAPS SIGNAL TECH</Text>
+            <Text style={styles.cvBadgeText}>📡 LIVE CROWD HEATMAP</Text>
           </View>
         </View>
         <Text style={styles.subtext}>
-          Real-time passenger density calculated via anonymized active mobile phone signals & BLE mesh clustering.
+          Real-time passenger density & crowd intelligence across coaches.
         </Text>
       </View>
 
@@ -101,7 +101,7 @@ export const CoachCrowdScreen: React.FC = () => {
           onPress={() => setTelemetryMode('CELLULAR')}
         >
           <Text style={[styles.modeBtnText, telemetryMode === 'CELLULAR' && styles.modeBtnTextActive]}>
-            📱 Mobile Signal Density (Google Tech)
+            📱 Crowd Density Heatmap
           </Text>
         </TouchableOpacity>
 

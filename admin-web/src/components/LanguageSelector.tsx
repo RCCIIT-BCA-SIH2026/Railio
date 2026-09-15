@@ -80,13 +80,13 @@ export const LanguageSelector: React.FC = () => {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50 hover:border-orange-300 transition-all focus:outline-none focus:ring-2 focus:ring-rail-orange/40"
+        className="flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 transition-all focus:outline-none"
         title="Google Translate Multilingual Engine"
       >
-        <Globe className="w-4 h-4 text-rail-orange animate-pulse-glow" />
+        <Globe className="w-3 h-3 text-rail-orange" />
         <span className="font-bold text-slate-800">{activeLanguage.nativeName}</span>
-        <span className="text-[10px] text-slate-400 font-normal hidden md:inline">({activeLanguage.code.toUpperCase()})</span>
-        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="text-[9px] text-slate-400 font-normal">({activeLanguage.code.toUpperCase()})</span>
+        <ChevronDown className={`w-2.5 h-2.5 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (

@@ -16,6 +16,19 @@ import { RootStackParamList, SuburbanDeparture, CoachSignalCrowd } from '../type
 import { getUpcomingSuburbanTrainsApi, getSuburbanCorridorsApi } from '../services/api';
 import { AppBackground } from '../components/AppBackground';
 
+export const format12HourTime = (timeStr?: string): string => {
+  if (!timeStr || !timeStr.includes(':')) return timeStr || '';
+  const clean = timeStr.trim();
+  const parts = clean.split(':');
+  let h = parseInt(parts[0], 10);
+  const m = parts[1] ? parts[1].slice(0, 2) : '00';
+  if (isNaN(h)) return timeStr;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12;
+  if (h === 0) h = 12;
+  return `${h}:${m} ${ampm}`;
+};
+
 export const SuburbanLocalScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'SuburbanLocal'>>();
@@ -28,7 +41,7 @@ export const SuburbanLocalScreen: React.FC = () => {
   const [trains, setTrains] = useState<SuburbanDeparture[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [timeFilter, setTimeFilter] = useState<'1HR' | '2HR' | 'ALL'>('1HR');
+  const [timeFilter, setTimeFilter] = useState<'1HR' | '2HR' | 'ALL'>('ALL');
   const [selectedCoach, setSelectedCoach] = useState<CoachSignalCrowd | null>(null);
   const [selectedTrainNum, setSelectedTrainNum] = useState<string>('');
   const [showTechModal, setShowTechModal] = useState<boolean>(false);
@@ -138,7 +151,7 @@ export const SuburbanLocalScreen: React.FC = () => {
               <Text style={styles.suburbanBadgeText}>SUBURBAN EMU NETWORK</Text>
             </View>
             <View style={styles.googleMapsBadge}>
-              <Text style={styles.googleMapsBadgeText}>📡 GOOGLE MAPS SIGNAL TECH</Text>
+              <Text style={styles.googleMapsBadgeText}>📡 LIVE SIGNAL TRACKING</Text>
             </View>
           </View>
 
@@ -205,7 +218,7 @@ export const SuburbanLocalScreen: React.FC = () => {
               In {nextTrain.minutesUntilDeparture} min
             </Text>
             <Text style={styles.heroTiming}>
-              Dep: <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>{nextTrain.predictedDeparture}</Text> • Arr: {nextTrain.predictedArrival}
+              Dep: <Text style={{ color: '#FFFFFF', fontWeight: 'bold' }}>{format12HourTime(nextTrain.predictedDeparture)}</Text> • Arr: {format12HourTime(nextTrain.predictedArrival)}
             </Text>
           </View>
 
@@ -294,7 +307,7 @@ export const SuburbanLocalScreen: React.FC = () => {
 
                 <View style={styles.departurePill}>
                   <Text style={styles.departurePillCountdown}>in {train.minutesUntilDeparture}m</Text>
-                  <Text style={styles.departurePillDep}>{train.predictedDeparture} Dep</Text>
+                  <Text style={styles.departurePillDep}>{format12HourTime(train.predictedDeparture)} Dep</Text>
                 </View>
               </View>
 
