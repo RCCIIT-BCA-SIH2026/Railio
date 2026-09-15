@@ -40,6 +40,9 @@ STRICT OPERATIONAL RULES:
 """
 
 
+from app.rag.api_key_rotator import gemini_rotator
+
+
 class RAGGenerator:
     def __init__(self):
         self.api_key = os.getenv("GEMINI_API_KEY", "")
@@ -72,22 +75,21 @@ class RAGGenerator:
 
         context_str = "\n".join(context_parts)
 
-        # Attempt Gemini 2.5 Flash Generation
-        if self.api_key:
-            try:
-                gemini_answer = self._call_gemini_api(query, context_str, language_style)
-                if gemini_answer:
-                    # Calculate dynamic confidence
-                    top_score = max([d.score for d in retrieved_docs]) if retrieved_docs else 0.8
-                    confidence = min(0.98, max(0.85, top_score))
-                    return {
-                        "answer": gemini_answer,
-                        "confidenceScore": round(confidence, 2),
-                        "retrievedKnowledgeDocs": doc_titles,
-                        "modelUsed": f"Gemini 2.5 Flash ({self.model}) + RAG"
-                    }
-            except Exception as e:
-                print(f"[RAGGenerator] Gemini API generation error: {e}. Falling back to deterministic synthesizer.")
+        # Attempt Gemini 2.5 Flash Generation using multi-key rotator
+        try:
+            gemini_answer = self._call_gemini_api(query, context_str, language_style)
+            if gemini_answer:
+                # Calculate dynamic confidence
+                top_score = max([d.score for d in retrieved_docs]) if retrieved_docs else 0.8
+                confidence = min(0.98, max(0.85, top_score))
+                return {
+                    "answer": gemini_answer,
+                    "confidenceScore": round(confidence, 2),
+                    "retrievedKnowledgeDocs": doc_titles,
+                    "modelUsed": f"Gemini 2.5 Flash ({self.model}) + RAG (Multi-Key Pool)"
+                }
+        except Exception as e:
+            print(f"[RAGGenerator] Gemini API generation error: {e}. Falling back to deterministic synthesizer.")
 
         # Fallback to deterministic synthesis
         fallback_answer = self._generate_deterministic_fallback(query, retrieved_docs, language_style)
@@ -99,9 +101,7 @@ class RAGGenerator:
         }
 
     def _call_gemini_api(self, query: str, context: str, language_style: str) -> Optional[str]:
-        """Direct REST invocation to Google Gemini 2.5 Flash."""
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
-
+        """Direct REST invocation to Google Gemini 2.5 Flash with multi-key pool failover."""
         lang_instruction = ""
         if language_style == "bn":
             lang_instruction = "Respond entirely in fluent Bengali (বাংলা)."
@@ -139,16 +139,18 @@ class RAGGenerator:
             }
         }
 
-        resp = requests.post(url, json=payload, timeout=12)
-        if resp.status_code == 200:
+        def _make_req(api_key: str) -> requests.Response:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={api_key}"
+            return requests.post(url, json=payload, timeout=12)
+
+        resp = gemini_rotator.execute_with_retry(_make_req)
+        if resp and resp.status_code == 200:
             data = resp.json()
             candidates = data.get("candidates", [])
             if candidates:
                 parts = candidates[0].get("content", {}).get("parts", [])
                 if parts:
                     return parts[0].get("text", "").strip()
-        else:
-            print(f"[RAGGenerator] Gemini API returned {resp.status_code}: {resp.text[:200]}")
 
         return None
 

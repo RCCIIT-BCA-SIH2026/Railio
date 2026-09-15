@@ -22,6 +22,7 @@ from app.ml.train_schedule_db import (
 )
 from app.ml.live_data_poller import fetch_ixigo_train_live, live_data_poller
 from app.ml.self_learning_reward_engine import self_learning_engine
+from app.ml.catch_probability import catch_engine, CatchProbabilityInput
 
 
 class AgentMessageRequest(BaseModel):
@@ -736,6 +737,70 @@ class RailIoAgent:
                     "rewardRatePct": reward_rate,
                     "penaltyRatePct": penalty_rate,
                     "totalFeedbackEvents": total_events
+                }
+            )
+
+        # Step 6b: Catch Probability Query Check ("Can I catch my train?", "Will I miss my train?")
+        catch_signals = [
+            "catch", "can i catch", "will i miss", "can i reach", "catch my train",
+            "catch train", "reach station", "traffic condition", "travel margin"
+        ]
+        if any(k in lower_query for k in catch_signals):
+            target_tnum = parsed.get("train_number") or session.get("train_number") or "32216"
+            t_data = train_schedule_db.get(target_tnum)
+            
+            # Extract distance if specified in text (e.g. "8 km", "12km")
+            dist_match = re.search(r'(\d+(?:\.\d+)?)\s*km\b', lower_query)
+            dist_val = float(dist_match.group(1)) if dist_match else 8.0
+            
+            # Extract traffic condition
+            traffic_val = "MODERATE"
+            if "heavy" in lower_query or "jam" in lower_query or "severe" in lower_query:
+                traffic_val = "HEAVY"
+            elif "low" in lower_query or "clear" in lower_query:
+                traffic_val = "LOW"
+            
+            cp_input = CatchProbabilityInput(
+                trainNumber=target_tnum,
+                roadDistanceKm=dist_val,
+                trafficCondition=traffic_val,
+                stationEntryBufferMin=5.0,
+                trainData=t_data
+            )
+            cp_out = catch_engine.calculate(cp_input)
+            
+            tools_executed.append(ToolExecutionLog(
+                tool="CATCH_PROBABILITY_ENGINE",
+                input={"trainNumber": target_tnum, "roadDistanceKm": dist_val, "traffic": traffic_val},
+                output=f"Catch Probability: {cp_out.catchProbabilityPct}%, Risk: {cp_out.statusRisk}"
+            ))
+            
+            rec_emoji = "🟢" if cp_out.catchProbabilityPct >= 75 else "🟡" if cp_out.catchProbabilityPct >= 45 else "🔴"
+            ans_str = (
+                f"🎯 **Railio 'Can I Catch My Train?' Hero Decision Engine**\n\n"
+                f"• **Train**: {cp_out.trainNumber} ({cp_out.trainName})\n"
+                f"• **Departure Time**: {cp_out.predictedDeparture} (IST)\n"
+                f"• **Estimated Road Travel**: {cp_out.roadTravelMinutes} mins ({dist_val} km, {traffic_val} Traffic)\n"
+                f"• **Station Entry & Security Buffer**: {cp_out.stationEntryBufferMinutes} mins\n"
+                f"• **Total Required Time**: **{cp_out.requiredMinutes} mins** vs **{cp_out.availableMinutes} mins** available\n"
+                f"• **Catch Probability**: **{rec_emoji} {cp_out.catchProbabilityPct}% ({cp_out.statusRisk.replace('_', ' ')})**\n\n"
+                f"💡 **Recommendation**: {cp_out.recommendation}"
+            )
+            
+            return AgentResponse(
+                answer=ans_str,
+                toolsExecuted=tools_executed,
+                confidenceScore=0.96,
+                retrievedKnowledgeDocs=[],
+                cardData={
+                    "type": "CATCH_PROBABILITY",
+                    "trainNumber": cp_out.trainNumber,
+                    "catchProbabilityPct": cp_out.catchProbabilityPct,
+                    "statusRisk": cp_out.statusRisk,
+                    "recommendation": cp_out.recommendation,
+                    "requiredMinutes": cp_out.requiredMinutes,
+                    "availableMinutes": cp_out.availableMinutes,
+                    "roadTravelMinutes": cp_out.roadTravelMinutes
                 }
             )
 
